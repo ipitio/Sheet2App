@@ -21,6 +21,9 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
+    "src",
+    "src/components",
+    "src/components/S2A",
+    "src/components/userapp"
   ]
 }
