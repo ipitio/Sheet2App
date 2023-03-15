@@ -1,6 +1,7 @@
 from django.urls import path
-from s2a_api.views import test_endpoint
+import s2a_api.views as views
 
 urlpatterns = [
-    path('', test_endpoint)
+    path('test', views.test_endpoint),
+    path('create-creator', views.create_creator)
 ]

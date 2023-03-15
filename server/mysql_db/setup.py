@@ -11,7 +11,7 @@ def connect_to_database():
         MySQLConnection: An instance of the database connection
     """
     config = ConfigParser()
-    config.read('../../config.ini')
+    config.read('config.ini')
     
     db = mysql.connector.connect(
         host=config.get('auth', 'host'),
@@ -54,7 +54,7 @@ def create_tables():
     create_creator = ("CREATE TABLE Creator ("
                       "id INT PRIMARY KEY AUTO_INCREMENT, "
                       "email TEXT)")
-    # cursor.execute(create_creator)
+    cursor.execute(create_creator)
     
     create_application = ("CREATE TABLE Application ("
                           "id INT PRIMARY KEY AUTO_INCREMENT, "
