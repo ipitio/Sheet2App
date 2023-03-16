@@ -1,1 +1,129 @@
-export default {}
+import { configureStore, createSlice } from '@reduxjs/toolkit'
+
+interface IS2AState {
+    // A list of data sources that have been retrieved from the database for the current user's app
+    dataSources: DataSource[],
+
+    // A list of all apps owned by the user
+    apps: App[],
+
+    // The current application that the user is editing. Since the owner can only edit one application at a time on a web page, all changes requested
+    // affect currentApp itself
+    currentApp: App,
+
+    // The current view that is being edited
+    currentView: View,
+
+    // The current role that is being edited
+    currentRole: Role
+}
+
+const s2aState: IS2AState = {
+    dataSources: [],
+    apps: [],
+    currentApp: null,
+    currentView: null,
+    currentRole: null
+}
+
+const s2aReducer = createSlice({
+    name: 's2aReducer',
+    initialState: s2aState,
+    reducers: {
+        createApplication: state => {
+            // TODO
+        },
+        renameApplication: state => {
+            // TODO
+        },
+        addDataSource: state => {
+            // TODO
+        },
+        deleteDataSource: state => {
+            // TODO
+        },
+        editDataSource: state => {
+            // TODO
+        },
+        publishApp: state => {
+            // TODO
+        },
+        viewDataSources: state => {
+            // TODO
+        },
+        viewApps: state => {
+            // TODO
+        },
+        setViewName: state => {
+            // TODO
+        },
+        setViewDataSource: state => {
+            // TODO
+        },
+        setViewType: state => {
+            // TODO
+        },
+        setViewColumns: state => {
+            // TODO
+        }
+    }
+})
+
+interface IWebAppState {
+    // An array of Views that have been previously loaded by the user
+    views: Views[],
+
+    // The current view denotes the view that changes (add, edit, delete record) will apply to, since the user can only be on
+    // one view at a time.
+    currentView: View,
+    
+    // The current modal that is open on the screen (Add record modal, edit record modal, delete record modal)
+    currentModal: Modal
+}
+
+const webAppState: IWebAppState = {
+    views: [],
+    currentView: null,
+    currentModal: null
+}
+
+const webAppReducer = createSlice({
+    name: 'webAppReducer',
+    initialState: webAppState,
+    reducers: {
+        // Loads a view and sets it as the current (visible) view
+        loadView: state => {
+            // TODO
+        },
+        addRecord: state => {
+            // TODO
+        },
+        deleteRecord: state => {
+            // TODO
+        },
+        editRecord: state => {
+            // TODO
+        },
+        showAddRecordModal: state => {
+            // TODO
+        },
+        showEditRecordModal: state => {
+            // TODO
+        },
+        showDeleteRecordModal: state => {
+            // TODO
+        }
+    }
+})
+
+// TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
+// export const { createApplication, renameApplication } = s2aReducer.actions
+
+const store = configureStore({
+    reducer: {
+        s2aReducer: s2aReducer.reducer,
+        webAppReducer: webAppReducer.reducer
+    }
+})  
+
+export default store
