@@ -1,2 +1,5 @@
 config.ini
 __pycache__
+credentials.json
+token.json
+sheets_api_test.py
