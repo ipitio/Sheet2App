@@ -5,98 +5,212 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Application',
+            name="Application",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField()),
-                ('roleMemURL', models.TextField()),
-                ('isPublished', models.BooleanField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.TextField()),
+                ("roleMemURL", models.TextField()),
+                ("isPublished", models.BooleanField()),
             ],
         ),
         migrations.CreateModel(
-            name='Creator',
+            name="Creator",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('email', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("email", models.TextField()),
             ],
         ),
         migrations.CreateModel(
-            name='Datasource',
+            name="Datasource",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('spreadsheetIndex', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("spreadsheetIndex", models.IntegerField()),
             ],
         ),
         migrations.CreateModel(
-            name='DatasourceColumn',
+            name="DatasourceColumn",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField()),
-                ('initialValue', models.TextField()),
-                ('isLinkText', models.BooleanField()),
-                ('isTableRef', models.BooleanField()),
-                ('valueType', models.TextField()),
-                ('datasourceID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='s2a_api.datasource')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.TextField()),
+                ("initialValue", models.TextField()),
+                ("isLinkText", models.BooleanField()),
+                ("isTableRef", models.BooleanField()),
+                ("valueType", models.TextField()),
+                (
+                    "datasourceID",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="s2a_api.datasource",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Spreadsheet',
+            name="Spreadsheet",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("url", models.TextField()),
             ],
         ),
         migrations.CreateModel(
-            name='View',
+            name="View",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('appID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='s2a_api.application')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "appID",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="s2a_api.application",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ViewPerm',
+            name="ViewPerm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.TextField()),
-                ('allowedToView', models.BooleanField()),
-                ('allowedToAdd', models.BooleanField()),
-                ('allowedToEdit', models.BooleanField()),
-                ('allowedToDelete', models.BooleanField()),
-                ('viewID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='s2a_api.view')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("role", models.TextField()),
+                ("allowedToView", models.BooleanField()),
+                ("allowedToAdd", models.BooleanField()),
+                ("allowedToEdit", models.BooleanField()),
+                ("allowedToDelete", models.BooleanField()),
+                (
+                    "viewID",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="s2a_api.view"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ViewData',
+            name="ViewData",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('datasourceColumnID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='s2a_api.datasourcecolumn')),
-                ('viewID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='s2a_api.view')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "datasourceColumnID",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="s2a_api.datasourcecolumn",
+                    ),
+                ),
+                (
+                    "viewID",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="s2a_api.view"
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='datasource',
-            name='spreadsheetID',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='s2a_api.spreadsheet'),
+            model_name="datasource",
+            name="spreadsheetID",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="s2a_api.spreadsheet"
+            ),
         ),
         migrations.AddField(
-            model_name='application',
-            name='creatorID',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='s2a_api.creator'),
+            model_name="application",
+            name="creatorID",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="s2a_api.creator"
+            ),
         ),
         migrations.CreateModel(
-            name='AppData',
+            name="AppData",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('appID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='s2a_api.application')),
-                ('datasourceID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='s2a_api.datasource')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "appID",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="s2a_api.application",
+                    ),
+                ),
+                (
+                    "datasourceID",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="s2a_api.datasource",
+                    ),
+                ),
             ],
         ),
     ]

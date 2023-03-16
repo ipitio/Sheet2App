@@ -1,6 +1,6 @@
 from django.db import models
 
-# Create your models here.
+
 class Creator(models.Model):
     email = models.TextField()
 
@@ -51,4 +51,3 @@ class ViewPerm(models.Model):
 class ViewData(models.Model):
     view_id = models.ForeignKey(View, on_delete=models.CASCADE)
     datasource_column_id = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
-    
