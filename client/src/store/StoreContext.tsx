@@ -95,21 +95,27 @@ const webAppReducer = createSlice({
         loadView: state => {
             // TODO
         },
+        // Called by the AddRecordModal when changes are submitted
         addRecord: state => {
             // TODO
         },
+        // Called by the DeleteRecordModal when changes are submitted
         deleteRecord: state => {
             // TODO
         },
+        // Called by the EditRecordModal when changes are submitted
         editRecord: state => {
             // TODO
         },
+        // Displays the AddRecord Modal
         showAddRecordModal: state => {
             // TODO
         },
+        // Displays the EditRecord Modal
         showEditRecordModal: state => {
             // TODO
         },
+        // Displays the DeleteRecord Modal
         showDeleteRecordModal: state => {
             // TODO
         }
