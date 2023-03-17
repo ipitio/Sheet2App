@@ -32,9 +32,7 @@ def create_app(creator_email, app_name, role_mem_url):
     """
     try:
         creator = Creator.objects.get(email=creator_email)
-        Application.objects.create(
-            creator=creator, name=app_name, role_mem_url=role_mem_url
-        )
+        Application.objects.create(creator_id=creator.id, name=app_name, role_mem_url=role_mem_url)
     except Exception as e:
         return f"Error: {e}"
 
@@ -65,16 +63,13 @@ def create_datasource(spreadsheet_id, spreadsheet_index):
         _type_: _description_
     """
     try:
-        Datasource.objects.create(
-            spreadsheet_id=spreadsheet_id, spreadsheet_index=spreadsheet_index
-        )
+        Datasource.objects.create(spreadsheet_id=spreadsheet_id, spreadsheet_index=spreadsheet_index)
     except Exception as e:
         return f"Error: {e}"
 
 
-def create_datasource_column(
-    datasource_id, name, initial_value, is_link_text, is_table_ref, value_type
-):
+def create_datasource_column(datasource_id, name, initial_value, is_link_text, is_table_ref, value_type):
+    # TODO: Figure out what this function needs
     """
     Creates a new entry in the DatasourceColumn table
 
@@ -113,16 +108,14 @@ def create_app_data(app_id, datasource_id):
         _type_: _description_
     """
     try:
-        app = Application.objects.get(id=app_id)
-        datasource = Datasource.objects.get(id=datasource_id)
-        AppData.objects.create(app=app, datasource=datasource)
+        AppData.objects.create(app_id=app_id, datasource_id=datasource_id)
     except Exception as e:
         return f"Error: {e}"
 
 
-def create_table_view(app_id):
+def create_table_view(app_id, datasource_id, name):
     """
-    Creates a new entry in the View table
+    Creates a new entry in the TableView table
 
     Args:
         app_id (int): the id of the app
@@ -130,37 +123,44 @@ def create_table_view(app_id):
         _type_: _description_
     """
     try:
-        app = Application.objects.get(id=app_id)
-        TableView.objects.create(app=app)
+        TableView.objects.create(app_id=app_id, datasource_id=datasource_id, name=name)
+    except Exception as e:
+        return f"Error: {e}"
+    
+    
+def create_detail_view(table_view_id, name, record_index):
+    """
+    Creates a new entry in the DetailView table
+
+    Args:
+        table_view_id (int): id of the table view associated with this detail view
+        name (string): the name of the detail view
+        record_index (int): the index of the record the detail view holds
+    """
+    try:
+        DetailView.objects.create(table_view_id=table_view_id, name=name, record_index=record_index)
     except Exception as e:
         return f"Error: {e}"
 
 
-def create_view_perm(
-    table_view_id, role, allowed_to_view, allowed_to_add, allowed_to_edit, allowed_to_delete
-):
+def create_view_perm(table_view_id, role):
     """
     Creates a new entry in the ViewPermission table
 
     Args:
         table_view_id (int): the id of the view
         role (string): the role of the user
-        allowed_to_view (boolean): whether the user is allowed to view
-        allowed_to_add (boolean): whether the user is allowed to add
-        allowed_to_edit (boolean): whether the user is allowed to edit
-        allowed_to_delete (boolean): whether the user is allowed to delete
     Returns:
         _type_: _description_
     """
     try:
-        table_view = TableView.objects.get(id=table_view_id)
         ViewPerm.objects.create(
-            table_view=table_view,
+            table_view_id=table_view_id,
             role=role,
-            allowed_to_view=allowed_to_view,
-            allowed_to_add=allowed_to_add,
-            allowed_to_edit=allowed_to_edit,
-            allowed_to_delete=allowed_to_delete,
+            allowed_to_view=False,
+            allowed_to_add=False,
+            allowed_to_edit=False,
+            allowed_to_delete=False,
         )
     except Exception as e:
         return f"Error: {e}"
