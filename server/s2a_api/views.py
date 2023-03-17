@@ -20,6 +20,7 @@ def create_app(request):
 
 
 def create_spreadsheet(request):
+    spreadsheet_id = request.GET.get("spreadsheet_id")
     spreadsheet_url = request.GET.get("spreadsheet_url")
     queries.create_spreadsheet(spreadsheet_url)
     return HttpResponse("Success")

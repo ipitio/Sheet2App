@@ -39,7 +39,7 @@ def create_app(creator_email, app_name, role_mem_url):
         return f"Error: {e}"
 
 
-def create_spreadsheet(url):
+def create_spreadsheet(id, url):
     """
     Creates a new entry in the Spreadsheet table
 
@@ -49,7 +49,25 @@ def create_spreadsheet(url):
         _type_: _description_
     """
     try:
-        Spreadsheet.objects.create(url=url)
+        Spreadsheet.objects.create(id=id, url=url)
+    except Exception as e:
+        return f"Error: {e}"
+
+
+def create_datasource(spreadsheet_id, spreadsheet_index):
+    """
+    Creates a new entry in the Datasource table
+
+    Args:
+        spreadsheet_id (int): the id of the spreadsheet
+        spreadsheet_index (int): the index of the spreadsheet
+    Returns:
+        _type_: _description_
+    """
+    try:
+        Datasource.objects.create(
+            spreadsheet_id=spreadsheet_id, spreadsheet_index=spreadsheet_index
+        )
     except Exception as e:
         return f"Error: {e}"
 
@@ -79,25 +97,6 @@ def create_datasource_column(
             is_link_text=is_link_text,
             is_table_ref=is_table_ref,
             value_type=value_type,
-        )
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def create_datasource(spreadsheet_id, spreadsheet_index):
-    """
-    Creates a new entry in the Datasource table
-
-    Args:
-        spreadsheet_id (int): the id of the spreadsheet
-        spreadsheet_index (int): the index of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
-    try:
-        spreadsheet = Spreadsheet.objects.get(id=spreadsheet_id)
-        Datasource.objects.create(
-            spreadsheet=spreadsheet, spreadsheet_index=spreadsheet_index
         )
     except Exception as e:
         return f"Error: {e}"
