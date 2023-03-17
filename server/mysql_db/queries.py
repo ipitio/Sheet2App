@@ -84,9 +84,8 @@ def create_datasource_column(datasource_id, name, initial_value, is_link_text, i
         _type_: _description_
     """
     try:
-        datasource = Datasource.objects.get(id=datasource_id)
         DatasourceColumn.objects.create(
-            datasource=datasource,
+            datasource_id=datasource_id,
             name=name,
             initial_value=initial_value,
             is_link_text=is_link_text,
@@ -331,24 +330,6 @@ def get_view_perm(view_perm_id):
 
 
 # Update
-def update_creator(creator_email, new_creator_email):
-    """
-    Updates a creator
-
-    Args:
-        creator_email (string): the email of the creator
-        new_creator_email (string): the new email of the creator
-    Returns:
-        _type_: _description_
-    """
-    try:
-        creator = Creator.objects.get(email=creator_email)
-        creator.email = new_creator_email
-        creator.save()
-    except Exception as e:
-        return f"Error: {e}"
-
-
 def update_app(app_id, app_name, role_mem_url):
     """
     Updates an app
@@ -369,39 +350,21 @@ def update_app(app_id, app_name, role_mem_url):
         return f"Error: {e}"
 
 
-def update_spreadsheet(spreadsheet_id, spreadsheet_url):
-    """
-    Updates a spreadsheet
-
-    Args:
-        spreadsheet_id (int): the id of the spreadsheet
-        spreadsheet_url (string): the url of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
-    try:
-        spreadsheet = Spreadsheet.objects.get(id=spreadsheet_id)
-        spreadsheet.url = spreadsheet_url
-        spreadsheet.save()
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def update_datasource(datasource_id, spreadsheet_id, spreadsheet_index):
+def update_datasource(datasource_id, new_spreadsheet_id, new_spreadsheet_index):
     """
     Updates a datasource
 
     Args:
         datasource_id (int): the id of the datasource
-        spreadsheet_id (int): the id of the spreadsheet
-        spreadsheet_index (int): the index of the spreadsheet
+        new_spreadsheet_id (int): the id of the new spreadsheet
+        new_spreadsheet_index (int): the new index of the spreadsheet
     Returns:
         _type_: _description_
     """
     try:
         datasource = Datasource.objects.get(id=datasource_id)
-        datasource.spreadsheet_id = spreadsheet_id
-        datasource.spreadsheet_index = spreadsheet_index
+        datasource.spreadsheet_id = new_spreadsheet_id
+        datasource.spreadsheet_index = new_spreadsheet_index
         datasource.save()
     except Exception as e:
         return f"Error: {e}"
@@ -442,8 +405,6 @@ def update_datasource_column(
 
 def update_view_perm(
     view_perm_id,
-    new_view_id,
-    new_role,
     new_allowed_to_view,
     new_allowed_to_add,
     new_allowed_to_edit,
@@ -454,8 +415,6 @@ def update_view_perm(
 
     Args:
         view_perm_id (int): the id of the view perm
-        new_view_id (int): the new id of the view
-        new_role (string): the new role of the view perm
         new_allowed_to_view (boolean): the new allowed to view of the view perm
         new_allowed_to_add (boolean): the new allowed to add of the view perm
         new_allowed_to_edit (boolean): the new allowed to edit of the view perm
@@ -465,8 +424,6 @@ def update_view_perm(
     """
     try:
         view_perm = ViewPerm.objects.get(id=view_perm_id)
-        view_perm.table_view_id = new_view_id
-        view_perm.role = new_role
         view_perm.allowed_to_view = new_allowed_to_view
         view_perm.allowed_to_add = new_allowed_to_add
         view_perm.allowed_to_edit = new_allowed_to_edit
@@ -477,22 +434,6 @@ def update_view_perm(
 
 
 # Delete
-def delete_creator(creator_id):
-    """
-    Deletes a creator
-
-    Args:
-        creator_id (int): the id of the creator
-    Returns:
-        _type_: _description_
-    """
-    try:
-        creator = Creator.objects.get(id=creator_id)
-        creator.delete()
-    except Exception as e:
-        return f"Error: {e}"
-
-
 def delete_app(app_id):
     """
     Deletes an app
@@ -505,22 +446,6 @@ def delete_app(app_id):
     try:
         app = Application.objects.get(id=app_id)
         app.delete()
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def delete_spreadsheet(spreadsheet_id):
-    """
-    Deletes a spreadsheet
-
-    Args:
-        spreadsheet_id (int): the id of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
-    try:
-        spreadsheet = Spreadsheet.objects.get(id=spreadsheet_id)
-        spreadsheet.delete()
     except Exception as e:
         return f"Error: {e}"
 
@@ -553,22 +478,6 @@ def delete_datasource_column(datasource_column_id):
     try:
         datasource_column = DatasourceColumn.objects.get(id=datasource_column_id)
         datasource_column.delete()
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def delete_app_data(app_data_id):
-    """
-    Deletes an app data
-
-    Args:
-        app_data_id (int): the id of the app data
-    Returns:
-        _type_: _description_
-    """
-    try:
-        app_data = AppData.objects.get(id=app_data_id)
-        app_data.delete()
     except Exception as e:
         return f"Error: {e}"
 
