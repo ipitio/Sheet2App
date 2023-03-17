@@ -1,6 +1,10 @@
 from django.db import models
 
 
+class GlobalDevelopers(models.Model):
+    email = models.TextField()
+
+
 class Creator(models.Model):
     email = models.TextField()
 
@@ -13,21 +17,27 @@ class Application(models.Model):
 
 
 class Spreadsheet(models.Model):
+    id = models.CharField(primary_key=True, auto_created=False, max_length=255, unique=True)
     url = models.TextField()
 
 
 class Datasource(models.Model):
-    spreadsheet_id = models.ForeignKey(Spreadsheet, on_delete=models.CASCADE)
+    spreadsheet_id = models.ForeignKey(Spreadsheet, on_delete=models.CASCADE, max_length=255)
     spreadsheet_index = models.IntegerField()
 
 
 class DatasourceColumn(models.Model):
     datasource_id = models.ForeignKey(Datasource, on_delete=models.CASCADE)
+    column_index = models.IntegerField()
     name = models.TextField()
     initial_value = models.TextField()
+    value_type = models.TextField()
     is_link_text = models.BooleanField()
     is_table_ref = models.BooleanField()
-    value_type = models.TextField()
+    is_filter = models.BooleanField()
+    is_user_filter = models.BooleanField()
+    is_edit_filter = models.BooleanField()
+    is_editable = models.BooleanField()
 
 
 class AppData(models.Model):
@@ -35,19 +45,22 @@ class AppData(models.Model):
     datasource_id = models.ForeignKey(Datasource, on_delete=models.CASCADE)
 
 
-class View(models.Model):
+class TableView(models.Model):
     app_id = models.ForeignKey(Application, on_delete=models.CASCADE)
+    datasource_id = models.ForeignKey(Datasource, on_delete=models.CASCADE)
+    name = models.TextField()
+    
+    
+class DetailView(models.Model):
+    table_view_id = models.ForeignKey(TableView, on_delete=models.CASCADE)
+    name = models.TextField()
+    record_index = models.IntegerField()
 
 
 class ViewPerm(models.Model):
-    view_id = models.ForeignKey(View, on_delete=models.CASCADE)
+    table_view_id = models.ForeignKey(TableView, on_delete=models.CASCADE)
     role = models.TextField()
     allowed_to_view = models.BooleanField()
     allowed_to_add = models.BooleanField()
     allowed_to_edit = models.BooleanField()
     allowed_to_delete = models.BooleanField()
-
-
-class ViewData(models.Model):
-    view_id = models.ForeignKey(View, on_delete=models.CASCADE)
-    datasource_column_id = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)

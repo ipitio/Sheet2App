@@ -39,7 +39,7 @@ def create_app(creator_email, app_name, role_mem_url):
         return f"Error: {e}"
 
 
-def create_spreadsheet(url):
+def create_spreadsheet(id, url):
     """
     Creates a new entry in the Spreadsheet table
 
@@ -49,7 +49,25 @@ def create_spreadsheet(url):
         _type_: _description_
     """
     try:
-        Spreadsheet.objects.create(url=url)
+        Spreadsheet.objects.create(id=id, url=url)
+    except Exception as e:
+        return f"Error: {e}"
+
+
+def create_datasource(spreadsheet_id, spreadsheet_index):
+    """
+    Creates a new entry in the Datasource table
+
+    Args:
+        spreadsheet_id (int): the id of the spreadsheet
+        spreadsheet_index (int): the index of the spreadsheet
+    Returns:
+        _type_: _description_
+    """
+    try:
+        Datasource.objects.create(
+            spreadsheet_id=spreadsheet_id, spreadsheet_index=spreadsheet_index
+        )
     except Exception as e:
         return f"Error: {e}"
 
@@ -84,25 +102,6 @@ def create_datasource_column(
         return f"Error: {e}"
 
 
-def create_datasource(spreadsheet_id, spreadsheet_index):
-    """
-    Creates a new entry in the Datasource table
-
-    Args:
-        spreadsheet_id (int): the id of the spreadsheet
-        spreadsheet_index (int): the index of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
-    try:
-        spreadsheet = Spreadsheet.objects.get(id=spreadsheet_id)
-        Datasource.objects.create(
-            spreadsheet=spreadsheet, spreadsheet_index=spreadsheet_index
-        )
-    except Exception as e:
-        return f"Error: {e}"
-
-
 def create_app_data(app_id, datasource_id):
     """
     Creates a new entry in the AppData table
@@ -121,7 +120,7 @@ def create_app_data(app_id, datasource_id):
         return f"Error: {e}"
 
 
-def create_view(app_id):
+def create_table_view(app_id):
     """
     Creates a new entry in the View table
 
@@ -132,19 +131,19 @@ def create_view(app_id):
     """
     try:
         app = Application.objects.get(id=app_id)
-        View.objects.create(app=app)
+        TableView.objects.create(app=app)
     except Exception as e:
         return f"Error: {e}"
 
 
 def create_view_perm(
-    view_id, role, allowed_to_view, allowed_to_add, allowed_to_edit, allowed_to_delete
+    table_view_id, role, allowed_to_view, allowed_to_add, allowed_to_edit, allowed_to_delete
 ):
     """
     Creates a new entry in the ViewPermission table
 
     Args:
-        view_id (int): the id of the view
+        table_view_id (int): the id of the view
         role (string): the role of the user
         allowed_to_view (boolean): whether the user is allowed to view
         allowed_to_add (boolean): whether the user is allowed to add
@@ -154,33 +153,15 @@ def create_view_perm(
         _type_: _description_
     """
     try:
-        view = View.objects.get(id=view_id)
+        table_view = TableView.objects.get(id=table_view_id)
         ViewPerm.objects.create(
-            view=view,
+            table_view=table_view,
             role=role,
             allowed_to_view=allowed_to_view,
             allowed_to_add=allowed_to_add,
             allowed_to_edit=allowed_to_edit,
             allowed_to_delete=allowed_to_delete,
         )
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def create_view_data(view_id, datasource_id):
-    """
-    Creates a new entry in the ViewData table
-
-    Args:
-        view_id (int): the id of the view
-        datasource_id (int): the id of the datasource
-    Returns:
-        _type_: _description_
-    """
-    try:
-        view = View.objects.get(id=view_id)
-        datasource = Datasource.objects.get(id=datasource_id)
-        ViewData.objects.create(view=view, datasource=datasource)
     except Exception as e:
         return f"Error: {e}"
 
@@ -317,34 +298,18 @@ def get_app_data(app_data_id):
         return f"Error: {e}"
 
 
-def get_view(view_id):
+def get_table_view(table_view_id):
     """
     Gets a view
 
     Args:
-        view_id (int): the id of the view
+        table_view_id (int): the id of the view
     Returns:
         _type_: _description_
     """
     try:
-        view = View.objects.get(id=view_id)
-        return view
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def get_view_data(view_data_id):
-    """
-    Gets a view data
-
-    Args:
-        view_data_id (int): the id of the view data
-    Returns:
-        _type_: _description_
-    """
-    try:
-        view_data = ViewData.objects.get(id=view_data_id)
-        return view_data
+        table_view = TableView.objects.get(id=table_view_id)
+        return table_view
     except Exception as e:
         return f"Error: {e}"
 
@@ -475,26 +440,6 @@ def update_datasource_column(
         return f"Error: {e}"
 
 
-def update_app_data(app_data_id, new_app_id, new_datasource_id):
-    """
-    Updates an app data
-
-    Args:
-        app_data_id (int): the id of the app data
-        new_app_id (int): the new id of the app
-        new_datasource_id (int): the new id of the datasource
-    Returns:
-        _type_: _description_
-    """
-    try:
-        app_data = AppData.objects.get(id=app_data_id)
-        app_data.app_id = new_app_id
-        app_data.datasource_id = new_datasource_id
-        app_data.save()
-    except Exception as e:
-        return f"Error: {e}"
-
-
 def update_view_perm(
     view_perm_id,
     new_view_id,
@@ -520,33 +465,13 @@ def update_view_perm(
     """
     try:
         view_perm = ViewPerm.objects.get(id=view_perm_id)
-        view_perm.view_id = new_view_id
+        view_perm.table_view_id = new_view_id
         view_perm.role = new_role
         view_perm.allowed_to_view = new_allowed_to_view
         view_perm.allowed_to_add = new_allowed_to_add
         view_perm.allowed_to_edit = new_allowed_to_edit
         view_perm.allowed_to_delete = new_allowed_to_delete
         view_perm.save()
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def update_view_data(view_data_id, new_view_id, new_datasource_column_id):
-    """
-    Updates a view data
-
-    Args:
-        view_data_id (int): the id of the view data
-        new_view_id (int): the new id of the view
-        new_datasource_id (int): the new id of the datasource
-    Returns:
-        _type_: _description_
-    """
-    try:
-        view_data = ViewData.objects.get(id=view_data_id)
-        view_data.view_id = new_view_id
-        view_data.datasource_column_id = new_datasource_column_id
-        view_data.save()
     except Exception as e:
         return f"Error: {e}"
 
@@ -648,17 +573,17 @@ def delete_app_data(app_data_id):
         return f"Error: {e}"
 
 
-def delete_view(view_id):
+def delete_table_view(table_view_id):
     """
     Deletes a view
 
     Args:
-        view_id (int): the id of the view
+        table_view_id (int): the id of the view
     Returns:
         _type_: _description_
     """
     try:
-        view = View.objects.get(id=view_id)
+        view = TableView.objects.get(id=table_view_id)
         view.delete()
     except Exception as e:
         return f"Error: {e}"
@@ -676,21 +601,5 @@ def delete_view_perm(view_perm_id):
     try:
         view_perm = ViewPerm.objects.get(id=view_perm_id)
         view_perm.delete()
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def delete_view_data(view_data_id):
-    """
-    Deletes a view data
-
-    Args:
-        view_data_id (int): the id of the view data
-    Returns:
-        _type_: _description_
-    """
-    try:
-        view_data = ViewData.objects.get(id=view_data_id)
-        view_data.delete()
     except Exception as e:
         return f"Error: {e}"
