@@ -15,7 +15,7 @@ import DetailView from './components/userapp/DetailView';
 
 const App: React.FC = () => {
   return (
-    //<Provider store={store}>
+     <Provider store={store}>
       <Router>
         <Routes>
           {/* S2A Routes */}
@@ -33,7 +33,7 @@ const App: React.FC = () => {
             <Route path="/test/detail" element={<DetailView/>} />
           </Routes>
         </Router>
-      </Provider>
+     </Provider>
   );
 }
 
