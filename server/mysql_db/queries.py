@@ -1,4 +1,6 @@
 from s2a_api.models import *
+from mysql_db.utils import *
+from django.core.serializers import serialize
 
 
 # Create
@@ -32,7 +34,11 @@ def create_app(creator_email, app_name, role_mem_url):
     """
     try:
         creator = Creator.objects.get(email=creator_email)
-        Application.objects.create(creator_id=creator.id, name=app_name, role_mem_url=role_mem_url)
+        creator_id = creator.id
+        Application.objects.create(creator_id=creator_id, 
+                                   name=app_name, 
+                                   role_mem_url=role_mem_url, 
+                                   is_published=False)
     except Exception as e:
         return f"Error: {e}"
 
@@ -217,7 +223,7 @@ def get_creator(creator_email):
         return f"Error: {e}"
 
 
-def get_app(app_id):
+def get_app_by_id(app_id):
     """
     Gets an app
 
@@ -229,6 +235,17 @@ def get_app(app_id):
     try:
         app = Application.objects.get(id=app_id)
         return app
+    except Exception as e:
+        return f"Error: {e}"
+    
+    
+def get_apps_by_email(creator_email):
+    try:
+        creator = Creator.objects.get(email=creator_email)
+        apps = Application.objects.filter(creator_id=creator.id)
+        apps = [to_camel_case(app) for app in apps.values()]
+        
+        return apps
     except Exception as e:
         return f"Error: {e}"
 
