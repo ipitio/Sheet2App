@@ -40,6 +40,7 @@ def get_developable_apps(request):
 
 
 def get_usable_apps(request):
+    # uses sheets api
     pass
 
 
@@ -52,4 +53,12 @@ def edit_app_role_mem_url(request):
 
 
 def publish_app(request):
+    pass
+
+
+def delete_app(request):
+    pass
+
+
+def get_app_datasources(request):
     pass
