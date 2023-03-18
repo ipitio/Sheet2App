@@ -17,7 +17,6 @@ def create_creator(request):
     return response
 
 
-
 @csrf_exempt
 def create_app(request):
     body = json.loads(request.body)
@@ -64,8 +63,17 @@ def edit_app_name(request):
     return response
 
 
+@csrf_exempt
 def edit_app_role_mem_url(request):
-    pass
+    body = json.loads(request.body)
+    app_id = body['appID']
+    new_role_mem_url = body['roleMemUrl']
+    
+    output, response_code = queries.update_app(app_id=app_id, role_mem_url=new_role_mem_url)
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
 
 
 def publish_app(request):
