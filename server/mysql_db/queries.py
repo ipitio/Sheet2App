@@ -1,6 +1,7 @@
 from s2a_api.models import *
-from mysql_db.utils import *
+from mysql_db.utils import to_camel_case
 from django.core.serializers import serialize
+from http import HTTPStatus
 
 
 # Create
@@ -17,8 +18,10 @@ def create_creator(creator_email):
         exists = Creator.objects.filter(email=creator_email).exists()
         if not exists:
             Creator.objects.create(email=creator_email)
+            
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def create_app(creator_email, app_name, role_mem_url):
@@ -39,8 +42,10 @@ def create_app(creator_email, app_name, role_mem_url):
                                    name=app_name, 
                                    role_mem_url=role_mem_url, 
                                    is_published=False)
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def create_spreadsheet(id, url):
@@ -245,9 +250,9 @@ def get_apps_by_email(creator_email):
         apps = Application.objects.filter(creator_id=creator.id)
         apps = [to_camel_case(app) for app in apps.values()]
         
-        return apps
+        return apps, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_spreadsheet(spreadsheet_id):
@@ -347,7 +352,7 @@ def get_view_perm(view_perm_id):
 
 
 # Update
-def update_app(app_id, app_name, role_mem_url):
+def update_app(app_id, app_name=None, role_mem_url=None):
     """
     Updates an app
 
@@ -356,15 +361,19 @@ def update_app(app_id, app_name, role_mem_url):
         app_name (string): the name of the app
         role_mem_url (string): the role member url of the app
     Returns:
-        _type_: _description_
+        tuple: output of the query, 200 if query was successful, 500 if not
     """
     try:
         app = Application.objects.get(id=app_id)
-        app.name = app_name
-        app.role_mem_url = role_mem_url
+        if app_name != None:
+            app.name = app_name
+        if role_mem_url != None:
+            app.role_mem_url = role_mem_url
         app.save()
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def update_datasource(datasource_id, new_spreadsheet_id, new_spreadsheet_index):

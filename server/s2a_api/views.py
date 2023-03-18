@@ -9,9 +9,13 @@ import json
 def create_creator(request):
     body = json.loads(request.body)
     email = body['email']
-    queries.create_creator(creator_email=email)
     
-    return HttpResponse({}, 200)
+    output, response_code = queries.create_creator(creator_email=email)
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
+
 
 
 @csrf_exempt
@@ -20,9 +24,12 @@ def create_app(request):
     creator_email = body['email']
     app_name = body['appName']
     role_mem_url = body['roleMemURL']
-    queries.create_app(creator_email=creator_email, app_name=app_name, role_mem_url=role_mem_url)
     
-    return HttpResponse({}, 200)
+    output, response_code = queries.create_app(creator_email=creator_email, app_name=app_name, role_mem_url=role_mem_url)
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
 
 
 @csrf_exempt
@@ -30,11 +37,11 @@ def get_developable_apps(request):
     body = json.loads(request.body)
     email = body['email']
     
-    apps = queries.get_apps_by_email(creator_email=email)
+    apps, response_code = queries.get_apps_by_email(creator_email=email)
     res_body = {
         'apps': apps
     }
-    response = HttpResponse(json.dumps(res_body), 200)
+    response = HttpResponse(json.dumps(res_body), status=response_code)
     
     return response
 
@@ -44,8 +51,17 @@ def get_usable_apps(request):
     pass
 
 
+@csrf_exempt
 def edit_app_name(request):
-    pass
+    body = json.loads(request.body)
+    app_id = body['appID']
+    new_app_name = body['appName']
+    
+    output, response_code = queries.update_app(app_id=app_id, app_name=new_app_name)
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
 
 
 def edit_app_role_mem_url(request):
