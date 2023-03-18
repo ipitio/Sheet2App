@@ -1,11 +1,11 @@
 export interface App {
     id: number;
     name: string;
-    roleMemURL: string;
+    roleMemUrl: string;
     isPublished: boolean;
 }
 
-export interface DataSource {
+export interface Datasource {
     spreadsheetID: number;
     spreadsheetIdx: number;
 }
@@ -20,7 +20,7 @@ export interface View {
     name: string
 
     // The table this View is from
-    dataSource: DataSource
+    dataSource: Datasource
 
     // An array of columns that will actually be used in the Table view.
     columns: string[],
@@ -28,7 +28,7 @@ export interface View {
 
 export interface Record {
     // The table this record is in
-    dataSource: DataSource
+    dataSource: Datasource
 
     // The index of the record
     index: number,

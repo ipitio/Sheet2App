@@ -1,10 +1,10 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit'
 
-import { DataSource, App, View, Role, Modal, Record } from './StoreTypes'
+import { Datasource, App, View, Role, Modal, Record } from './StoreTypes'
 
 interface IS2AState {
     // A list of data sources that have been retrieved from the database for the current user's app
-    dataSources: DataSource[],
+    datasources: Datasource[],
 
     // A list of all apps owned by the user
     apps: App[],
@@ -21,7 +21,7 @@ interface IS2AState {
 }
 
 const s2aState: IS2AState = {
-    dataSources: [],
+    datasources: [],
     apps: [],
     currentApp: null,
     currentView: null,
@@ -41,16 +41,16 @@ const s2aReducer = createSlice({
         addDataSource: state => {
             // TODO
         },
-        deleteDataSource: state => {
+        deleteDatasource: state => {
             // TODO
         },
-        editDataSource: state => {
+        editDatasource: state => {
             // TODO
         },
         publishApp: state => {
             // TODO
         },
-        viewDataSources: state => {
+        viewDatasources: state => {
             // TODO
         },
         // View the list of owned applications
@@ -60,7 +60,7 @@ const s2aReducer = createSlice({
         setViewName: state => {
             // TODO
         },
-        setViewDataSource: state => {
+        setViewDatasource: state => {
             // TODO
         },
         setViewType: state => {
@@ -141,6 +141,10 @@ const webAppReducer = createSlice({
         // Displays the DeleteRecord Modal
         showDeleteRecordModal: state => {
             state.currentModal = Modal.DeleteRecordModal
+        },
+        // Hides the current Modal
+        hideModal: state => {
+            state.currentModal = null
         }
     }
 })

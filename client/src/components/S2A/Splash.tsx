@@ -1,6 +1,6 @@
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../auth/AuthContext';
+import { getLoggedIn } from '../../auth/AuthController';
 
 import GoogleLogin, { GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
 import { gapi } from "gapi-script"
@@ -9,7 +9,6 @@ const clientId: string = process.env.REACT_APP_OAUTH_CLIENT_ID || '';
 
 function Splash() {
     const navigate = useNavigate();
-    const { updateAuthState } = useContext(AuthContext);
 
     /* Synchronizes Google API with OAuth client id to prevent depreciation error. */
     useEffect(() => {
@@ -24,12 +23,16 @@ function Splash() {
 
     /* On success, navigate to home screen. */
     const onSuccess = (res: GoogleLoginResponse | GoogleLoginResponseOffline) => {
-        if("accessToken" in res) {
-            updateAuthState(res.profileObj.email, res.accessToken);
-            navigate('/S2A/home');
+        if("code" in res && typeof res.code === "string") {
+            getLoggedIn(res.code).then(() => {
+                navigate("s2a/home");
+            })
+            .catch(err => {
+                console.log("Failed to generate OAuth tokens.", err);
+            });
         }
         else
-            console.log("Offline failure.", res);
+            console.log("Failed to sign in.", res);
     }   
 
     /* On failure, display error message. */
@@ -44,6 +47,10 @@ function Splash() {
                 clientId={clientId}
                 onSuccess={onSuccess}
                 onFailure={onFailure}
+                prompt="consent"
+                accessType="offline"
+                responseType="code"
+                scope="https://www.googleapis.com/auth/gmail.send"
                 buttonText="Sign into S2A with Google"
             />
         </div>
