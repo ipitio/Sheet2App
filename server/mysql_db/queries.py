@@ -273,7 +273,7 @@ def get_spreadsheet(spreadsheet_id):
         return f"Error: {e}"
 
 
-def get_datasource(datasource_id):
+def get_datasource_by_id(datasource_id):
     """
     Gets a datasource
 
@@ -287,6 +287,16 @@ def get_datasource(datasource_id):
         return datasource
     except Exception as e:
         return f"Error: {e}"
+    
+    
+def get_datasources_by_app_id(app_id):
+    try:
+        datasources = Datasource.objects.filter(appdata__app_id=app_id)
+        datasources = [to_camel_case(datasource) for datasource in datasources]
+        return datasources, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+        
 
 
 def get_datasource_column(datasource_column_id):

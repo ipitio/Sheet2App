@@ -102,4 +102,13 @@ def delete_app(request):
 
 @csrf_exempt
 def get_app_datasources(request):
-    pass
+    body = json.loads(request.body)
+    app_id = body['appID']
+    
+    datasources, response_code = queries.get_datasources_by_app_id(app_id=app_id)
+    res_body = {
+        'datasources': datasources
+    }
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
