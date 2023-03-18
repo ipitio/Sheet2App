@@ -190,8 +190,10 @@ def publish_app(app_id):
         app = Application.objects.get(id=app_id)
         app.is_published = True
         app.save()
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def unpublish_app(app_id):
@@ -472,8 +474,10 @@ def delete_app(app_id):
     try:
         app = Application.objects.get(id=app_id)
         app.delete()
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def delete_datasource(datasource_id):

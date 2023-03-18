@@ -76,13 +76,30 @@ def edit_app_role_mem_url(request):
     return response
 
 
+@csrf_exempt
 def publish_app(request):
-    pass
+    body = json.loads(request.body)
+    app_id = body['appID']
+    
+    output, response_code = queries.publish_app(app_id=app_id)
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
 
 
+@csrf_exempt
 def delete_app(request):
-    pass
+    body = json.loads(request.body)
+    app_id = body['appID']
+    
+    output, response_code = queries.delete_app(app_id=app_id)
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
 
 
+@csrf_exempt
 def get_app_datasources(request):
     pass
