@@ -1,11 +1,11 @@
 export interface App {
     id: number;
     name: string;
-    roleMemURL: string;
+    roleMemUrl: string;
     isPublished: boolean;
 }
 
-export interface DataSource {
+export interface Datasource {
     spreadsheetID: number;
     spreadsheetIdx: number;
 }
