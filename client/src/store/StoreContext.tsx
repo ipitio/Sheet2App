@@ -1,5 +1,7 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit'
 
+import { DataSource, App, View, Role, Modal } from './StoreTypes'
+
 interface IS2AState {
     // A list of data sources that have been retrieved from the database for the current user's app
     dataSources: DataSource[],
@@ -9,13 +11,13 @@ interface IS2AState {
 
     // The current application that the user is editing. Since the owner can only edit one application at a time on a web page, all changes requested
     // affect currentApp itself
-    currentApp: App,
+    currentApp: App | null,
 
     // The current view that is being edited
-    currentView: View,
+    currentView: View | null,
 
     // The current role that is being edited
-    currentRole: Role
+    currentRole: Role | null
 }
 
 const s2aState: IS2AState = {
@@ -71,14 +73,14 @@ const s2aReducer = createSlice({
 
 interface IWebAppState {
     // An array of Views that have been previously loaded by the user
-    views: Views[],
+    views: View[],
 
     // The current view denotes the view that changes (add, edit, delete record) will apply to, since the user can only be on
     // one view at a time.
-    currentView: View,
+    currentView: View | null,
     
     // The current modal that is open on the screen (Add record modal, edit record modal, delete record modal)
-    currentModal: Modal
+    currentModal: Modal | null
 }
 
 const webAppState: IWebAppState = {
@@ -92,8 +94,8 @@ const webAppReducer = createSlice({
     initialState: webAppState,
     reducers: {
         // Loads a view and sets it as the current (visible) view
-        loadView: state => {
-            // TODO
+        loadView: (state, action: {payload: View, type: string}) => {
+            state.currentView = action.payload;
         },
         // Called by the AddRecordModal when changes are submitted
         addRecord: state => {
