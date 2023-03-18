@@ -10,7 +10,7 @@ class Creator(models.Model):
 
 
 class Application(models.Model):
-    creator_id = models.ForeignKey(Creator, on_delete=models.CASCADE)
+    creator = models.ForeignKey(Creator, on_delete=models.CASCADE)
     name = models.TextField()
     role_mem_url = models.TextField()
     is_published = models.BooleanField()
@@ -22,12 +22,12 @@ class Spreadsheet(models.Model):
 
 
 class Datasource(models.Model):
-    spreadsheet_id = models.ForeignKey(Spreadsheet, on_delete=models.CASCADE, max_length=255)
+    spreadsheet = models.ForeignKey(Spreadsheet, on_delete=models.CASCADE, max_length=255)
     spreadsheet_index = models.IntegerField()
 
 
 class DatasourceColumn(models.Model):
-    datasource_id = models.ForeignKey(Datasource, on_delete=models.CASCADE)
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     column_index = models.IntegerField()
     name = models.TextField()
     initial_value = models.TextField()
@@ -41,24 +41,24 @@ class DatasourceColumn(models.Model):
 
 
 class AppData(models.Model):
-    app_id = models.ForeignKey(Application, on_delete=models.CASCADE)
-    datasource_id = models.ForeignKey(Datasource, on_delete=models.CASCADE)
+    app = models.ForeignKey(Application, on_delete=models.CASCADE)
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
 
 
 class TableView(models.Model):
-    app_id = models.ForeignKey(Application, on_delete=models.CASCADE)
-    datasource_id = models.ForeignKey(Datasource, on_delete=models.CASCADE)
+    app = models.ForeignKey(Application, on_delete=models.CASCADE)
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
     
     
 class DetailView(models.Model):
-    table_view_id = models.ForeignKey(TableView, on_delete=models.CASCADE)
+    table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
     name = models.TextField()
     record_index = models.IntegerField()
 
 
 class ViewPerm(models.Model):
-    table_view_id = models.ForeignKey(TableView, on_delete=models.CASCADE)
+    table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
     role = models.TextField()
     allowed_to_view = models.BooleanField()
     allowed_to_add = models.BooleanField()
