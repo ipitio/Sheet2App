@@ -94,8 +94,8 @@ const webAppReducer = createSlice({
     initialState: webAppState,
     reducers: {
         // Loads a view and sets it as the current (visible) view
-        loadView: state => {
-            // TODO
+        loadView: (state, action: {payload: View, type: string}) => {
+            state.currentView = action.payload;
         },
         // Called by the AddRecordModal when changes are submitted
         addRecord: state => {

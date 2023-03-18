@@ -12,6 +12,7 @@ import TableView from './components/userapp/TableView';
 
 import store from './store/StoreContext'
 import { Provider } from 'react-redux'
+import DetailView from './components/userapp/DetailView';
 
 const App: React.FC = () => {
   return (
@@ -29,6 +30,9 @@ const App: React.FC = () => {
             <Route path="/userapp/:appid/home" element={<UserAppHome />} />
             <Route path="/userapp/:appid/tableview/:tableviewid" element={<TableView />} />
 
+            {/* TESTING. TODO: REMOVE */}
+            <Route path="/test/table" element={<TableView/>} />
+            <Route path="/test/detail" element={<DetailView/>} />
           </Routes>
         </Router>
       </Provider>
