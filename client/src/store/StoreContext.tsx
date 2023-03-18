@@ -1,6 +1,6 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit'
 
-import { DataSource, App, View, Role, Modal } from './StoreTypes'
+import { DataSource, App, View, Role, Modal, Record } from './StoreTypes'
 
 interface IS2AState {
     // A list of data sources that have been retrieved from the database for the current user's app
@@ -53,6 +53,7 @@ const s2aReducer = createSlice({
         viewDataSources: state => {
             // TODO
         },
+        // View the list of owned applications
         viewApps: state => {
             // TODO
         },
@@ -95,31 +96,51 @@ const webAppReducer = createSlice({
     reducers: {
         // Loads a view and sets it as the current (visible) view
         loadView: (state, action: {payload: View, type: string}) => {
-            state.currentView = action.payload;
+            // TODO
+
+            // Make the API call to retrieve the view from the sheets database
+
+            // On successful response, update the current view to the responded data
+            // state.currentView = res.data
         },
         // Called by the AddRecordModal when changes are submitted
-        addRecord: state => {
+        addRecord: (state, action: {payload: Record, type: string}) => {
             // TODO
+
+            // Make the API call to add the record
+
+            // On successful response, update the current table to the new table
+            // state.currentView = res.data
         },
         // Called by the DeleteRecordModal when changes are submitted
-        deleteRecord: state => {
+        deleteRecord: (state, action: {payload: Record, type: string}) => {
             // TODO
+
+            // Make the API call to delete the record
+            
+            // On successful response, update the current table to the new table
+            // state.currentView = res.data
         },
         // Called by the EditRecordModal when changes are submitted
-        editRecord: state => {
+        editRecord: (state, action: {payload: {oldRecord: Record, newRecord: Record}, type: string}) => {
             // TODO
+
+            // Make the API call to edit the record
+            
+            // On successful response, update the current table to the new table
+            // state.currentView = res.data
         },
         // Displays the AddRecord Modal
         showAddRecordModal: state => {
-            // TODO
+            state.currentModal = Modal.AddRecordModal
         },
         // Displays the EditRecord Modal
         showEditRecordModal: state => {
-            // TODO
+            state.currentModal = Modal.EditRecordModal
         },
         // Displays the DeleteRecord Modal
         showDeleteRecordModal: state => {
-            // TODO
+            state.currentModal = Modal.DeleteRecordModal
         }
     }
 })
