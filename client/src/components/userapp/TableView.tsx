@@ -62,6 +62,28 @@ function TableView(props: TableViewProps | any) {
         )
     })
 
+    const buttons = (
+        <Box
+            id='table-buttons'
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+            }}
+        >
+            {
+                Array(testSpreadsheetData.length).fill(
+                    <AddCircleOutlineIcon
+                        sx={{
+                            marginLeft: '32px',
+                            paddingY: rowPadding
+                        }}
+                    />
+                )
+            }
+        </Box>
+    )
+
     /**
      * Generate the table into a visual component using the parsed spreadsheet data
      */
@@ -110,30 +132,10 @@ function TableView(props: TableViewProps | any) {
                         bgcolor: 'black'
                     }}
                 />
-                {
-                    spreadsheetData
-                }
+                {spreadsheetData}
             </Box>
 
-            <Box
-                id='table-buttons'
-                sx={{
-                    display:'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'flex-end',
-                }}
-            >
-                {
-                    Array(testSpreadsheetData.length).fill(
-                        <AddCircleOutlineIcon
-                            sx={{
-                                marginLeft: '32px',
-                                paddingY: rowPadding
-                            }}
-                        />
-                    )
-                }
-            </Box>
+            {buttons}
         </Box>
     )
 
