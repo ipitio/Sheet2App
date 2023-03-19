@@ -11,8 +11,14 @@ function TableView(props: TableViewProps | any) {
     // let spreadsheetData = api.get
     // let columnName = spreadsheetData[0] // Since the spreadsheet is passed back as a 2d list, the first element (row-wise) contains all of the columns
 
-    let testColumnHeader: string[] = ['Name', 'Age', 'Favorite Fruit', 'Occupation']
-    let testSpreadsheetData = [['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor']]
+    let testColumnHeader: string[] = ['Name', 'Age', 'Favorite Fruit', 'Occupation', 'Favorite Color']
+    let testSpreadsheetData = [['Jane', '32', 'Pear', 'Engineer', 'Blue'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor']]
+
+    // Find the percentage of space each cell should take in a row. This assumes that all cells take an even amount of space with the other cells.
+    const cellWidthPercentage: string = (100 / testSpreadsheetData[0].length) + '%'
+
+    // Determine the dimensions of the table cells.
+    const cellWidth=`repeat(${testSpreadsheetData[0].length}, ${cellWidthPercentage})`
 
     /**
      * Parse the spreadsheet data into rows
@@ -30,7 +36,7 @@ function TableView(props: TableViewProps | any) {
                 className='table-row'
                 sx={{
                     display: 'grid',
-                    gridTemplateColumns: '25% 25% 25% 25%',
+                    gridTemplateColumns: cellWidth,
                     bgcolor: bgColor,
                     borderBottomLeftRadius: rounded,
                     borderBottomRightRadius: rounded
@@ -75,7 +81,7 @@ function TableView(props: TableViewProps | any) {
                     id='table-header'
                     sx={{
                         display: 'grid',
-                        gridTemplateColumns: '25% 25% 25% 25%',
+                        gridTemplateColumns: cellWidth,
                         gridColumn: '1'
                     }}
                 >
