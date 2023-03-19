@@ -1,8 +1,9 @@
 import React from 'react';
-import {Box, Divider, Typography} from '@mui/material';
+import { Box, Divider, Typography } from '@mui/material';
 import { View } from '../../store/StoreTypes';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
-interface TableViewProps extends View {}
+interface TableViewProps extends View { }
 
 // TODO: GET RID OF THE ANY TYPE FOR TABLE PROPS. THIS IS JUST FOR TESTING
 function TableView(props: TableViewProps | any) {
@@ -11,11 +12,14 @@ function TableView(props: TableViewProps | any) {
     // let columnName = spreadsheetData[0] // Since the spreadsheet is passed back as a 2d list, the first element (row-wise) contains all of the columns
 
     let testColumnHeader: string[] = ['Name', 'Age', 'Favorite Fruit', 'Occupation']
-    let testSpreadsheetData = [['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer']]
+    let testSpreadsheetData = [['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor']]
 
-    // Parse the spreadsheet data into rows
+    /**
+     * Parse the spreadsheet data into rows
+     */
     const spreadsheetData = testSpreadsheetData.map((row, index) => {
-        const bgColor = index % 2 == 0 ? '#E0E0E0' : '#FFFFFF';
+        const bgColor = index % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
+        const rounded = index == testSpreadsheetData.length - 1 ? '8px' : '0px'
 
         return (
             // Iterate through each row and return a graphical representation of the data in the table
@@ -24,7 +28,9 @@ function TableView(props: TableViewProps | any) {
                 sx={{
                     display: 'grid',
                     gridTemplateColumns: '25% 25% 25% 25%',
-                    bgcolor: bgColor
+                    bgcolor: bgColor,
+                    borderBottomLeftRadius: rounded,
+                    borderBottomRightRadius: rounded
                 }}
             >
                 {
@@ -44,41 +50,67 @@ function TableView(props: TableViewProps | any) {
     })
 
     /**
-     * Generate the table into a visual component
+     * Generate the table into a visual component using the parsed spreadsheet data
      */
     const table = (
-        <Box id='table'>
-            <Box
-                id='table-header'
+        <Box
+            id='table-with-headers'
+            sx={{
+                display: 'grid',
+                gridTemplateColumns: '85% 15%'
+            }}
+        >
+            <Box 
+                id='table'
                 sx={{
-                    display: 'grid',
-                    gridTemplateColumns: '25% 25% 25% 25%'
+                    border: 1,
+                    borderRadius: '8px',
+                    borderColor: 'black'
                 }}
             >
+                <Box
+                    id='table-header'
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: '25% 25% 25% 25%',
+                        gridColumn: '1'
+                    }}
+                >
+                    {
+                        testColumnHeader.map((columnHeader) => {
+                            return (
+                                <Typography
+                                    sx={{
+                                        textAlign: 'center',
+                                        fontWeight: 'bold',
+                                        fontSize: '32px'
+                                    }}
+                                >
+                                    {columnHeader}
+                                </Typography>
+                            )
+                        })
+                    }
+                </Box>
+                <Divider
+                    sx={{
+                        bgcolor: 'black'
+                    }}
+                />
                 {
-                    testColumnHeader.map((columnHeader) => {
-                        return (
-                            <Typography
-                                sx={{
-                                    textAlign: 'center',
-                                    fontWeight: 'bold',
-                                    fontSize: '32px'
-                                }}
-                            >
-                                {columnHeader}
-                            </Typography>
-                        )
-                    })
+                    spreadsheetData
                 }
             </Box>
-            <Divider
+
+            <Box
+                id='table-buttons'
                 sx={{
-                    bgcolor: 'black'
+                    display:'flex',
+                    flexDirection: 'column'
                 }}
-            />
-            {
-                spreadsheetData
-            }
+            >
+
+            </Box>
         </Box>
     )
 
@@ -89,9 +121,6 @@ function TableView(props: TableViewProps | any) {
                 display: 'block',
                 width: '100%',
                 fontSize: '32px',
-                border: 1,
-                borderRadius: '8px',
-                borderColor: 'black'
             }}
         >
             {table}
