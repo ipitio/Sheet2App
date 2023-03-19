@@ -1,5 +1,5 @@
 import React from 'react';
-import {Box, Divider} from '@mui/material';
+import {Box, Divider, Typography} from '@mui/material';
 import { View } from '../../store/StoreTypes';
 
 interface TableViewProps extends View {}
@@ -11,6 +11,34 @@ function TableView(props: TableViewProps | any) {
     // let columnName = spreadsheetData[0] // Since the spreadsheet is passed back as a 2d list, the first element (row-wise) contains all of the columns
 
     let testColumnHeader: string[] = ['A', 'B', 'C', 'D']
+    let testSpreadsheetData = [['Name', 'Age', 'Favorite Fruit', 'Occupation'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer']]
+
+    // Parse the spreadsheet data into rows
+    let spreadsheetData = testSpreadsheetData.map((row) => {
+        return (
+            // Iterate through each row and return a graphical representation of the data in the table
+            <Box
+                className='table-row'
+                sx={{
+                    display: 'grid',
+                    gridTemplateColumns: '25% 25% 25% 25%'
+                }}
+            >
+                {
+                    // Take each element in the row and place it in a cell
+                    row.map((entry) => {
+                        return (
+                            <Typography sx={{
+                                textAlign: 'center'
+                            }}>
+                                {entry}
+                            </Typography>
+                        )
+                    })
+                }
+            </Box>
+        )
+    })
 
     return (
         <Box
@@ -24,22 +52,33 @@ function TableView(props: TableViewProps | any) {
             <Box
                 id='table-header'
                 sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between'
+                    display: 'grid',
+                    gridTemplateColumns: '25% 25% 25% 25%'
                 }}
             >
                 {
                     testColumnHeader.map((columnHeader) => {
-                        return <div>{columnHeader}</div>
+                        return (
+                            <Typography
+                                sx={{
+                                    textAlign: 'center'
+                                }}
+                            >
+                                {columnHeader}
+                            </Typography>
+                        )
                     })
                 }
             </Box>
-            <Divider 
+            <Divider
                 sx={{
-                    bgcolor:'black',
-                    fontWeight:'bold'
+                    bgcolor: 'black',
+                    fontWeight: 'bold'
                 }}
             />
+            {
+                spreadsheetData
+            }
         </Box>
     )
 }
