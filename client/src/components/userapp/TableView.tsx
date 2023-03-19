@@ -3,6 +3,7 @@ import { Box, Button, Divider, Typography } from '@mui/material';
 import { View } from '../../store/StoreTypes';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 
 interface TableViewProps extends View { }
 
@@ -19,7 +20,7 @@ function TableView(props: TableViewProps | any) {
     const cellWidthPercentage: string = (100 / testSpreadsheetData[0].length) + '%'
 
     // Determine the dimensions of the table cells.
-    const cellWidth=`repeat(${testSpreadsheetData[0].length}, ${cellWidthPercentage})`
+    const cellWidth = `repeat(${testSpreadsheetData[0].length}, ${cellWidthPercentage})`
 
     // Constant to determine the spacing between each row. Change as necessary.
     const rowPadding: string = '8px'
@@ -126,14 +127,20 @@ function TableView(props: TableViewProps | any) {
                                 paddingY: rowPadding
                             }}
                         >
-                            <AddCircleOutlineIcon/> View
+                            <UnfoldMoreIcon />
+                            <Typography>
+                                View
+                            </Typography>
                         </Button>
                         <Button
                             sx={{
                                 paddingY: rowPadding
                             }}
                         >
-                            <DeleteOutlineIcon/> Delete
+                            <DeleteOutlineIcon />
+                            <Typography>
+                                Delete
+                            </Typography>
                         </Button>
                     </Box>
                 )
@@ -145,17 +152,17 @@ function TableView(props: TableViewProps | any) {
      * Generate the table representing only the spreadsheet data. Does not include other functionality except for displaying the spreadsheet data itself.
      */
     const table = (
-        <Box 
-        id='table'
-        sx={{
-            border: 1,
-            borderRadius: '8px',
-            borderColor: 'black'
-        }}
-    >
-        {tableHeader}
-        {spreadsheetData}
-    </Box>
+        <Box
+            id='table'
+            sx={{
+                border: 1,
+                borderRadius: '8px',
+                borderColor: 'black'
+            }}
+        >
+            {tableHeader}
+            {spreadsheetData}
+        </Box>
     )
 
     /**
@@ -181,10 +188,35 @@ function TableView(props: TableViewProps | any) {
                 {buttons}
             </Box>
         </Box>
-
     )
 
-    return tableView;
+    const addRecordButton = (
+        <Button
+            sx={{
+                border: 1,
+                width: '15%',
+                marginTop: '32px'
+            }}
+        >
+            <AddCircleOutlineIcon />
+            <Typography>
+                Add Record
+            </Typography>
+        </Button>
+    )
+
+    return (
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
+            }}
+        >
+            {tableView}
+            {addRecordButton}
+        </Box>
+    );
 }
 
 export default TableView;
