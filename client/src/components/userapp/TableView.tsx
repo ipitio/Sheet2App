@@ -161,19 +161,6 @@ function TableView(props: TableViewProps | any) {
      */
     const tableView = (
         <Box
-            id='table-with-headers'
-            sx={{
-                display: 'grid',
-                gridTemplateColumns: '95% 5%'
-            }}
-        >
-            {table}
-            {buttons}
-        </Box>
-    )
-
-    return (
-        <Box
             id='table-view-container'
             sx={{
                 display: 'block',
@@ -181,9 +168,21 @@ function TableView(props: TableViewProps | any) {
                 fontSize: '32px',
             }}
         >
-            {tableView}
+            <Box
+                id='table-with-headers'
+                sx={{
+                    display: 'grid',
+                    gridTemplateColumns: '95% 5%'
+                }}
+            >
+                {table}
+                {buttons}
+            </Box>
         </Box>
+
     )
+
+    return tableView;
 }
 
 export default TableView;
