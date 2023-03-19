@@ -1,6 +1,7 @@
 import React from 'react';
-import {Box, Divider} from '@mui/material';
+import {Box, Button, Divider, Typography} from '@mui/material';
 import { View } from '../../store/StoreTypes';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface DetailViewProps extends View {
     // The 0-based index of the record (row number) being represented
@@ -17,18 +18,22 @@ function DetailView(props: DetailViewProps | any) {
 
     return (
         <Box
-            id='table-view-container'
+            id='detail-view-container'
             sx={{
-                display: 'block',
+                display: 'grid',
+                flexDirection:'column',
                 width: '100%',
-                fontSize: '32px'
+                fontSize: '32px',
+                alignItems:'center',
+                justifyContent:'center'
             }}
         >
             <Box
-                id='table-header'
+                id='detail-header'
                 sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between'
+                    display: 'block',
+                    justifyContent: 'space-between',
+                    width: 'full'
                 }}
             >
                 {
@@ -43,6 +48,21 @@ function DetailView(props: DetailViewProps | any) {
                     fontWeight:'bold'
                 }}
             />
+
+            {/** TODO: ADD THE SPREADSHEET DATA HERE */}
+
+            <Button
+                id='edit-record-button'
+                sx={{
+                    display: 'flex',
+
+                }}
+            >
+                <Typography>
+                    Edit Record
+                </Typography>
+                <EditIcon />
+            </Button>
         </Box>
     )
 }

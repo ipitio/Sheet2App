@@ -19,14 +19,22 @@ export interface View {
     // The name of the View
     name: string
 
-    // The URL of the spreadsheet to request info from
-    spreadsheetURL: string,
-
-    // The index of the necessary sheet within the spreadsheet
-    sheetIndex: number,
+    // The table this View is from
+    dataSource: Datasource
 
     // An array of columns that will actually be used in the Table view.
     columns: string[],
+}
+
+export interface Record {
+    // The table this record is in
+    dataSource: Datasource
+
+    // The index of the record
+    index: number,
+
+    // The data of this record
+    data: any[]
 }
 
 export enum Modal {
