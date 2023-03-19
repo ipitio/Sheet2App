@@ -20,6 +20,9 @@ function TableView(props: TableViewProps | any) {
     // Determine the dimensions of the table cells.
     const cellWidth=`repeat(${testSpreadsheetData[0].length}, ${cellWidthPercentage})`
 
+    // Constant to determine the spacing between each row. Change as necessary.
+    const rowPadding: string = '8px'
+
     /**
      * Parse the spreadsheet data into rows
      */
@@ -39,7 +42,8 @@ function TableView(props: TableViewProps | any) {
                     gridTemplateColumns: cellWidth,
                     bgcolor: bgColor,
                     borderBottomLeftRadius: rounded,
-                    borderBottomRightRadius: rounded
+                    borderBottomRightRadius: rounded,
+                    paddingY: rowPadding
                 }}
             >
                 {
@@ -66,7 +70,7 @@ function TableView(props: TableViewProps | any) {
             id='table-with-headers'
             sx={{
                 display: 'grid',
-                gridTemplateColumns: '85% 15%'
+                gridTemplateColumns: '95% 5%'
             }}
         >
             <Box 
@@ -115,10 +119,20 @@ function TableView(props: TableViewProps | any) {
                 id='table-buttons'
                 sx={{
                     display:'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    justifyContent: 'flex-end',
                 }}
             >
-
+                {
+                    Array(testSpreadsheetData.length).fill(
+                        <AddCircleOutlineIcon
+                            sx={{
+                                marginLeft: '32px',
+                                paddingY: rowPadding
+                            }}
+                        />
+                    )
+                }
             </Box>
         </Box>
     )
