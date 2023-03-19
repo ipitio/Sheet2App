@@ -62,6 +62,39 @@ function TableView(props: TableViewProps | any) {
         )
     })
 
+    /**
+     * Frontend component for table header (column names)
+     */
+    const tableHeader = (
+        <Box
+            id='table-header'
+            sx={{
+                display: 'grid',
+                gridTemplateColumns: cellWidth,
+                gridColumn: '1'
+            }}
+        >
+            {
+                testColumnHeader.map((columnHeader) => {
+                    return (
+                        <Typography
+                            sx={{
+                                textAlign: 'center',
+                                fontWeight: 'bold',
+                                fontSize: '32px'
+                            }}
+                        >
+                            {columnHeader}
+                        </Typography>
+                    )
+                })
+            }
+        </Box>
+    )
+
+    /**
+     * Frontend component for table view buttons (adding record and deleting record)
+     */
     const buttons = (
         <Box
             id='table-buttons'
@@ -103,30 +136,7 @@ function TableView(props: TableViewProps | any) {
                     borderColor: 'black'
                 }}
             >
-                <Box
-                    id='table-header'
-                    sx={{
-                        display: 'grid',
-                        gridTemplateColumns: cellWidth,
-                        gridColumn: '1'
-                    }}
-                >
-                    {
-                        testColumnHeader.map((columnHeader) => {
-                            return (
-                                <Typography
-                                    sx={{
-                                        textAlign: 'center',
-                                        fontWeight: 'bold',
-                                        fontSize: '32px'
-                                    }}
-                                >
-                                    {columnHeader}
-                                </Typography>
-                            )
-                        })
-                    }
-                </Box>
+                {tableHeader}
                 <Divider
                     sx={{
                         bgcolor: 'black'
