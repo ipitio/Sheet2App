@@ -18,7 +18,10 @@ function TableView(props: TableViewProps | any) {
      * Parse the spreadsheet data into rows
      */
     const spreadsheetData = testSpreadsheetData.map((row, index) => {
+        // Alternate table row colors for visual clarity
         const bgColor = index % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
+
+        // Make the last row have a rounded bottom border. This prevents it from overlapping with the table border
         const rounded = index == testSpreadsheetData.length - 1 ? '8px' : '0px'
 
         return (
