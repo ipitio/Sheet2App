@@ -46,7 +46,10 @@ function TableView(props: TableViewProps | any) {
             sx={{
                 display: 'block',
                 width: '100%',
-                fontSize: '32px'
+                fontSize: '32px',
+                border: 1,
+                borderRadius: '8px',
+                borderColor: '#87CEEB'
             }}
         >
             <Box
@@ -61,7 +64,9 @@ function TableView(props: TableViewProps | any) {
                         return (
                             <Typography
                                 sx={{
-                                    textAlign: 'center'
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    fontSize: '32px'
                                 }}
                             >
                                 {columnHeader}
@@ -72,8 +77,7 @@ function TableView(props: TableViewProps | any) {
             </Box>
             <Divider
                 sx={{
-                    bgcolor: 'black',
-                    fontWeight: 'bold'
+                    bgcolor: '#87CEEB'
                 }}
             />
             {
