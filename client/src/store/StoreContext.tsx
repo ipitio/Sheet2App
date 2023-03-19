@@ -2,7 +2,7 @@ import { configureStore, createSlice } from '@reduxjs/toolkit'
 
 import { Datasource, App, View, Role, Modal, Record } from './StoreTypes'
 
-interface IS2AState {
+export interface IS2AState {
     // A list of data sources that have been retrieved from the database for the current user's app
     datasources: Datasource[],
 
@@ -72,7 +72,7 @@ const s2aReducer = createSlice({
     }
 })
 
-interface IWebAppState {
+export interface IWebAppState {
     // An array of Views that have been previously loaded by the user
     views: View[],
 

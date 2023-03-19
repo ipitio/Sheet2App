@@ -12,6 +12,9 @@ import TableView from './components/userapp/TableView';
 import store from './store/StoreContext'
 import { Provider } from 'react-redux'
 import DetailView from './components/userapp/DetailView';
+import AddRecordModal from './components/userapp/modals/AddRecordModal';
+import EditRecordModal from './components/userapp/modals/EditRecordModal';
+import DeleteRecordModal from './components/userapp/modals/DeleteRecordModal';
 
 const App: React.FC = () => {
   return (
@@ -33,6 +36,9 @@ const App: React.FC = () => {
             <Route path="/test/detail" element={<DetailView/>} />
           </Routes>
         </Router>
+        <AddRecordModal/>
+        <EditRecordModal/>
+        <DeleteRecordModal/>
      </Provider>
   );
 }
