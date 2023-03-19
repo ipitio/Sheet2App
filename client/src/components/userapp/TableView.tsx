@@ -14,8 +14,8 @@ function TableView(props: TableViewProps | any) {
     let testSpreadsheetData = [['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer']]
 
     // Parse the spreadsheet data into rows
-    let spreadsheetData = testSpreadsheetData.map((row, index) => {
-        const bgColor = index % 2 == 0 ? '#87CEEB' : '#FFFFFF';
+    const spreadsheetData = testSpreadsheetData.map((row, index) => {
+        const bgColor = index % 2 == 0 ? '#E0E0E0' : '#FFFFFF';
 
         return (
             // Iterate through each row and return a graphical representation of the data in the table
@@ -43,18 +43,11 @@ function TableView(props: TableViewProps | any) {
         )
     })
 
-    return (
-        <Box
-            id='table-view-container'
-            sx={{
-                display: 'block',
-                width: '100%',
-                fontSize: '32px',
-                border: 1,
-                borderRadius: '8px',
-                borderColor: '#87CEEB'
-            }}
-        >
+    /**
+     * Generate the table into a visual component
+     */
+    const table = (
+        <Box id='table'>
             <Box
                 id='table-header'
                 sx={{
@@ -80,12 +73,28 @@ function TableView(props: TableViewProps | any) {
             </Box>
             <Divider
                 sx={{
-                    bgcolor: '#87CEEB'
+                    bgcolor: 'black'
                 }}
             />
             {
                 spreadsheetData
             }
+        </Box>
+    )
+
+    return (
+        <Box
+            id='table-view-container'
+            sx={{
+                display: 'block',
+                width: '100%',
+                fontSize: '32px',
+                border: 1,
+                borderRadius: '8px',
+                borderColor: 'black'
+            }}
+        >
+            {table}
         </Box>
     )
 }
