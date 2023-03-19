@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Divider, Typography } from '@mui/material';
 import { View } from '../../store/StoreTypes';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 interface TableViewProps extends View { }
 
@@ -113,12 +114,26 @@ function TableView(props: TableViewProps | any) {
         >
             {
                 Array(testSpreadsheetData.length).fill(
-                    <AddCircleOutlineIcon
+                    <Box
+                        id='row-button'
                         sx={{
-                            marginLeft: '32px',
-                            paddingY: rowPadding
+                            display: 'flex',
+                            flexDirection: 'row'
                         }}
-                    />
+                    >
+                        <AddCircleOutlineIcon
+                            sx={{
+                                marginLeft: '12px',
+                                paddingY: rowPadding
+                            }}
+                        />
+                        <DeleteOutlineIcon
+                            sx={{
+                                marginLeft: '32px',
+                                paddingY: rowPadding
+                            }}
+                        />
+                    </Box>
                 )
             }
         </Box>
