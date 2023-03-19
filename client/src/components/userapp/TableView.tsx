@@ -140,9 +140,26 @@ function TableView(props: TableViewProps | any) {
     )
 
     /**
-     * Generate the table into a visual component using the parsed spreadsheet data
+     * Generate the table representing only the spreadsheet data. Does not include other functionality except for displaying the spreadsheet data itself.
      */
     const table = (
+        <Box 
+        id='table'
+        sx={{
+            border: 1,
+            borderRadius: '8px',
+            borderColor: 'black'
+        }}
+    >
+        {tableHeader}
+        {spreadsheetData}
+    </Box>
+    )
+
+    /**
+     * Generate the table into an entire view, including column headers and necessary buttons for viewing and deleting records.
+     */
+    const tableView = (
         <Box
             id='table-with-headers'
             sx={{
@@ -150,18 +167,7 @@ function TableView(props: TableViewProps | any) {
                 gridTemplateColumns: '95% 5%'
             }}
         >
-            <Box 
-                id='table'
-                sx={{
-                    border: 1,
-                    borderRadius: '8px',
-                    borderColor: 'black'
-                }}
-            >
-                {tableHeader}
-                {spreadsheetData}
-            </Box>
-
+            {table}
             {buttons}
         </Box>
     )
@@ -175,7 +181,7 @@ function TableView(props: TableViewProps | any) {
                 fontSize: '32px',
             }}
         >
-            {table}
+            {tableView}
         </Box>
     )
 }
