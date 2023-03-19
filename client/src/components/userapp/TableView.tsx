@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Divider, Typography } from '@mui/material';
+import { Box, Button, Divider, Typography } from '@mui/material';
 import { View } from '../../store/StoreTypes';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -121,18 +121,20 @@ function TableView(props: TableViewProps | any) {
                             flexDirection: 'row'
                         }}
                     >
-                        <AddCircleOutlineIcon
+                        <Button
                             sx={{
-                                marginLeft: '12px',
                                 paddingY: rowPadding
                             }}
-                        />
-                        <DeleteOutlineIcon
+                        >
+                            <AddCircleOutlineIcon/> View
+                        </Button>
+                        <Button
                             sx={{
-                                marginLeft: '32px',
                                 paddingY: rowPadding
                             }}
-                        />
+                        >
+                            <DeleteOutlineIcon/> Delete
+                        </Button>
                     </Box>
                 )
             }
@@ -172,7 +174,7 @@ function TableView(props: TableViewProps | any) {
                 id='table-with-headers'
                 sx={{
                     display: 'grid',
-                    gridTemplateColumns: '95% 5%'
+                    gridTemplateColumns: '90% 10%'
                 }}
             >
                 {table}
