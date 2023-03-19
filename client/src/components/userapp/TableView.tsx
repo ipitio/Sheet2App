@@ -10,18 +10,21 @@ function TableView(props: TableViewProps | any) {
     // let spreadsheetData = api.get
     // let columnName = spreadsheetData[0] // Since the spreadsheet is passed back as a 2d list, the first element (row-wise) contains all of the columns
 
-    let testColumnHeader: string[] = ['A', 'B', 'C', 'D']
-    let testSpreadsheetData = [['Name', 'Age', 'Favorite Fruit', 'Occupation'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer']]
+    let testColumnHeader: string[] = ['Name', 'Age', 'Favorite Fruit', 'Occupation']
+    let testSpreadsheetData = [['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer']]
 
     // Parse the spreadsheet data into rows
-    let spreadsheetData = testSpreadsheetData.map((row) => {
+    let spreadsheetData = testSpreadsheetData.map((row, index) => {
+        const bgColor = index % 2 == 0 ? '#87CEEB' : '#FFFFFF';
+
         return (
             // Iterate through each row and return a graphical representation of the data in the table
             <Box
                 className='table-row'
                 sx={{
                     display: 'grid',
-                    gridTemplateColumns: '25% 25% 25% 25%'
+                    gridTemplateColumns: '25% 25% 25% 25%',
+                    bgcolor: bgColor
                 }}
             >
                 {
