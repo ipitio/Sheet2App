@@ -22,7 +22,7 @@ export interface View {
     // The table this View is from
     dataSource: Datasource
 
-    // An array of columns that will actually be used in the Table view.
+    // An array of columns that are visible in the View
     columns: string[],
 }
 
