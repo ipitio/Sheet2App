@@ -24,6 +24,9 @@ export interface View {
 
     // An array of columns that are visible in the View
     columns: string[],
+
+    // The ID of the View for CRUD requests
+    id: number
 }
 
 export interface Record {
@@ -34,15 +37,30 @@ export interface Record {
     index: number,
 
     // The data of this record
-    data: any[]
+    data: any[],
+
+    // The ID of the Record for CRUD requests
+    id: number
 }
 
 export interface Column {
+    // The name of the column 
     name: string,
+
+    // The initial value of the column when a new record is created
     initialValue: any,
+
+    // A boolean indicating whether this column in the spreadsheet is a label
     label: boolean,
+
+    // A boolean indicating whether this column is a reference to another table or spreadsheet
     reference: boolean,
-    type: ColumnType
+
+    // The data types supported within this column
+    type: ColumnType,
+
+    // The ID of the column for CRUD requests
+    id: number
 }
 
 export enum ColumnType {
