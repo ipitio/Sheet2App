@@ -151,7 +151,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { createApplication, renameApplication } = s2aReducer.actions
-export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal } = webAppReducer.actions;
+export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideModal } = webAppReducer.actions;
 
 const store = configureStore({
     reducer: {
