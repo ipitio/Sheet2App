@@ -441,7 +441,7 @@ async function getViewsByAppID(appID: number, role: Role) {
  */
 async function addRecord(viewID: number, recordToAdd: Record) {
     const reqForm: RequestInit = {
-        method: "PUT",
+        method: "POST",
         mode: "cors",
         headers: { 
             "Content-Type": "application/json" 
@@ -453,7 +453,7 @@ async function addRecord(viewID: number, recordToAdd: Record) {
     }
 
     try {
-        const res = await fetch("https://localhost:8000/getViewsByAppID", reqForm);
+        const res = await fetch("https://localhost:8000/addRecord", reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         
@@ -469,4 +469,34 @@ async function addRecord(viewID: number, recordToAdd: Record) {
     }
 }
 
-export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource, getViewsByAppID, addRecord};
+async function editRecord(viewID: number, recordToAdd: Record) {
+    const reqForm: RequestInit = {
+        method: "PUT",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "viewID": viewID,
+            "recordToAdd": recordToAdd
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/editRecord", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        /**
+         * Expects a response containing the new view with the record added to it.
+         */
+        const data = await res.json();
+
+        return data.view;
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
+export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord};
