@@ -59,21 +59,6 @@ def create_app(creator_email, app_name, role_mem_url, datasources):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_spreadsheet(id, url):
-    """
-    Creates a new entry in the Spreadsheet table
-
-    Args:
-        url (string): the url of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
-    try:
-        Spreadsheet.objects.create(id=id, url=url)
-    except Exception as e:
-        return f"Error: {e}"
-
-
 def create_datasource(app_id, spreadsheet_id, spreadsheet_index, name):
     try:
         new_datasource = Datasource.objects.create(app_id=app_id, 
