@@ -343,8 +343,8 @@ async function editDatasource(datasourceKey: number, spreadsheetID: string, shee
 }
 
 /**
- * 
- * @param datasourceKey The primary key of the datasource
+ * Edits the attributes of a single column within a specified datasource
+ * @param datasourceKey The primary key of the datasource that contains the column to be edited
  * @param columnKey The primary key of the column in the SQL database
  * @param column The NEW column to update the columnKey values to
  */
