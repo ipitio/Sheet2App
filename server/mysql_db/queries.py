@@ -1,4 +1,7 @@
 from s2a_api.models import *
+from mysql_db.utils import to_camel_case
+from django.core.serializers import serialize
+from http import HTTPStatus
 
 
 # Create
@@ -15,114 +18,73 @@ def create_creator(creator_email):
         exists = Creator.objects.filter(email=creator_email).exists()
         if not exists:
             Creator.objects.create(email=creator_email)
+            
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_app(creator_email, app_name, role_mem_url):
+def create_app(creator_email, app_name):
     """
     Creates a new entry in the App table
 
     Args:
         creator_email (string): the email of the new user retreived from Google auth
         app_name (string): the name of the app
-        role_mem_url (string): the url of the role membership
     Returns:
         _type_: _description_
     """
     try:
         creator = Creator.objects.get(email=creator_email)
-        Application.objects.create(
-            creator=creator, name=app_name, role_mem_url=role_mem_url
-        )
+        creator_id = creator.id
+        new_app = Application.objects.create(creator_id=creator_id, 
+                                   name=app_name, 
+                                   role_mem_url=None, 
+                                   is_published=False)
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_spreadsheet(id, url):
-    """
-    Creates a new entry in the Spreadsheet table
-
-    Args:
-        url (string): the url of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
+def create_datasource(app_id, spreadsheet_id, gid, name):
     try:
-        Spreadsheet.objects.create(id=id, url=url)
+        new_datasource = Datasource.objects.create(app_id=app_id, 
+                                                   spreadsheet_id=spreadsheet_id, 
+                                                   gid=gid,
+                                                   name=name)
+        
+        return new_datasource, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
-
-
-def create_datasource(spreadsheet_id, spreadsheet_index):
-    """
-    Creates a new entry in the Datasource table
-
-    Args:
-        spreadsheet_id (int): the id of the spreadsheet
-        spreadsheet_index (int): the index of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def create_datasource_column(datasource_id, column_index, name):
     try:
-        Datasource.objects.create(
-            spreadsheet_id=spreadsheet_id, spreadsheet_index=spreadsheet_index
-        )
+        exists = DatasourceColumn.objects.filter(datasource_id=datasource_id,
+                                                 column_index=column_index,
+                                                 name=name).exists()
+        new_datasource_column = {}
+        if not exists:
+            new_datasource_column = \
+                DatasourceColumn.objects.create(datasource_id=datasource_id,
+                                                column_index=column_index,
+                                                name=name,
+                                                initial_value='',
+                                                value_type='',
+                                                is_link_text=False,
+                                                is_table_ref=False,
+                                                is_filter=False,
+                                                is_user_filter=False,
+                                                is_edit_filter=False)
+        return new_datasource_column, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_datasource_column(
-    datasource_id, name, initial_value, is_link_text, is_table_ref, value_type
-):
+def create_table_view(app_id, datasource_id, name):
     """
-    Creates a new entry in the DatasourceColumn table
-
-    Args:
-        datasource_id (int): the id of the datasource
-        name (string): the name of the column
-        initial_value (string): the initial value of the column
-        is_link_text (boolean): whether the column is a link text
-        is_table_ref (boolean): whether the column is a table reference
-        value_type (string): the type of the column
-    Returns:
-        _type_: _description_
-    """
-    try:
-        datasource = Datasource.objects.get(id=datasource_id)
-        DatasourceColumn.objects.create(
-            datasource=datasource,
-            name=name,
-            initial_value=initial_value,
-            is_link_text=is_link_text,
-            is_table_ref=is_table_ref,
-            value_type=value_type,
-        )
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def create_app_data(app_id, datasource_id):
-    """
-    Creates a new entry in the AppData table
-
-    Args:
-        app_id (int): the id of the app
-        datasource_id (int): the id of the datasource
-    Returns:
-        _type_: _description_
-    """
-    try:
-        app = Application.objects.get(id=app_id)
-        datasource = Datasource.objects.get(id=datasource_id)
-        AppData.objects.create(app=app, datasource=datasource)
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def create_table_view(app_id):
-    """
-    Creates a new entry in the View table
+    Creates a new entry in the TableView table
 
     Args:
         app_id (int): the id of the app
@@ -130,38 +92,22 @@ def create_table_view(app_id):
         _type_: _description_
     """
     try:
-        app = Application.objects.get(id=app_id)
-        TableView.objects.create(app=app)
+        TableView.objects.create(app_id=app_id, datasource_id=datasource_id, name=name)
     except Exception as e:
         return f"Error: {e}"
-
-
-def create_view_perm(
-    table_view_id, role, allowed_to_view, allowed_to_add, allowed_to_edit, allowed_to_delete
-):
+    
+    
+def create_detail_view(table_view_id, name, record_index):
     """
-    Creates a new entry in the ViewPermission table
+    Creates a new entry in the DetailView table
 
     Args:
-        table_view_id (int): the id of the view
-        role (string): the role of the user
-        allowed_to_view (boolean): whether the user is allowed to view
-        allowed_to_add (boolean): whether the user is allowed to add
-        allowed_to_edit (boolean): whether the user is allowed to edit
-        allowed_to_delete (boolean): whether the user is allowed to delete
-    Returns:
-        _type_: _description_
+        table_view_id (int): id of the table view associated with this detail view
+        name (string): the name of the detail view
+        record_index (int): the index of the record the detail view holds
     """
     try:
-        table_view = TableView.objects.get(id=table_view_id)
-        ViewPerm.objects.create(
-            table_view=table_view,
-            role=role,
-            allowed_to_view=allowed_to_view,
-            allowed_to_add=allowed_to_add,
-            allowed_to_edit=allowed_to_edit,
-            allowed_to_delete=allowed_to_delete,
-        )
+        DetailView.objects.create(table_view_id=table_view_id, name=name, record_index=record_index)
     except Exception as e:
         return f"Error: {e}"
 
@@ -180,8 +126,10 @@ def publish_app(app_id):
         app = Application.objects.get(id=app_id)
         app.is_published = True
         app.save()
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def unpublish_app(app_id):
@@ -218,7 +166,7 @@ def get_creator(creator_email):
         return f"Error: {e}"
 
 
-def get_app(app_id):
+def get_app_by_id(app_id):
     """
     Gets an app
 
@@ -232,25 +180,20 @@ def get_app(app_id):
         return app
     except Exception as e:
         return f"Error: {e}"
-
-
-def get_spreadsheet(spreadsheet_id):
-    """
-    Gets a spreadsheet
-
-    Args:
-        spreadsheet_id (int): the id of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
+    
+    
+def get_apps_by_email(creator_email):
     try:
-        spreadsheet = Spreadsheet.objects.get(id=spreadsheet_id)
-        return spreadsheet
+        creator = Creator.objects.get(email=creator_email)
+        apps = Application.objects.filter(creator_id=creator.id)
+        apps = [to_camel_case(app) for app in apps.values()]
+        
+        return apps, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def get_datasource(datasource_id):
+def get_datasource_by_id(datasource_id):
     """
     Gets a datasource
 
@@ -264,7 +207,16 @@ def get_datasource(datasource_id):
         return datasource
     except Exception as e:
         return f"Error: {e}"
-
+    
+    
+def get_datasources_by_app_id(app_id):
+    try:
+        datasources = Datasource.objects.filter(appdata__app_id=app_id)
+        datasources = [to_camel_case(datasource) for datasource in datasources]
+        return datasources, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+        
 
 def get_datasource_column(datasource_column_id):
     """
@@ -278,22 +230,6 @@ def get_datasource_column(datasource_column_id):
     try:
         datasource_column = DatasourceColumn.objects.get(id=datasource_column_id)
         return datasource_column
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def get_app_data(app_data_id):
-    """
-    Gets an app data
-
-    Args:
-        app_data_id (int): the id of the app data
-    Returns:
-        _type_: _description_
-    """
-    try:
-        app_data = AppData.objects.get(id=app_data_id)
-        return app_data
     except Exception as e:
         return f"Error: {e}"
 
@@ -314,42 +250,8 @@ def get_table_view(table_view_id):
         return f"Error: {e}"
 
 
-def get_view_perm(view_perm_id):
-    """
-    Gets a view perm
-
-    Args:
-        view_perm_id (int): the id of the view perm
-    Returns:
-        _type_: _description_
-    """
-    try:
-        view_perm = ViewPerm.objects.get(id=view_perm_id)
-        return view_perm
-    except Exception as e:
-        return f"Error: {e}"
-
-
 # Update
-def update_creator(creator_email, new_creator_email):
-    """
-    Updates a creator
-
-    Args:
-        creator_email (string): the email of the creator
-        new_creator_email (string): the new email of the creator
-    Returns:
-        _type_: _description_
-    """
-    try:
-        creator = Creator.objects.get(email=creator_email)
-        creator.email = new_creator_email
-        creator.save()
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def update_app(app_id, app_name, role_mem_url):
+def update_app(app_id, app_name=None, role_mem_url=None):
     """
     Updates an app
 
@@ -358,50 +260,27 @@ def update_app(app_id, app_name, role_mem_url):
         app_name (string): the name of the app
         role_mem_url (string): the role member url of the app
     Returns:
-        _type_: _description_
+        tuple: output of the query, 200 if query was successful, 500 if not
     """
     try:
         app = Application.objects.get(id=app_id)
-        app.name = app_name
-        app.role_mem_url = role_mem_url
+        if app_name != None:
+            app.name = app_name
+        if role_mem_url != None:
+            app.role_mem_url = role_mem_url
         app.save()
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_spreadsheet(spreadsheet_id, spreadsheet_url):
-    """
-    Updates a spreadsheet
-
-    Args:
-        spreadsheet_id (int): the id of the spreadsheet
-        spreadsheet_url (string): the url of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
-    try:
-        spreadsheet = Spreadsheet.objects.get(id=spreadsheet_id)
-        spreadsheet.url = spreadsheet_url
-        spreadsheet.save()
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def update_datasource(datasource_id, spreadsheet_id, spreadsheet_index):
-    """
-    Updates a datasource
-
-    Args:
-        datasource_id (int): the id of the datasource
-        spreadsheet_id (int): the id of the spreadsheet
-        spreadsheet_index (int): the index of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
+def update_datasource(datasource_id, new_spreadsheet_id, new_spreadsheet_index, new_name):
     try:
         datasource = Datasource.objects.get(id=datasource_id)
-        datasource.spreadsheet_id = spreadsheet_id
-        datasource.spreadsheet_index = spreadsheet_index
+        datasource.spreadsheet_id = new_spreadsheet_id
+        datasource.spreadsheet_index = new_spreadsheet_index
+        datasource.name = new_name
         datasource.save()
     except Exception as e:
         return f"Error: {e}"
@@ -440,59 +319,7 @@ def update_datasource_column(
         return f"Error: {e}"
 
 
-def update_view_perm(
-    view_perm_id,
-    new_view_id,
-    new_role,
-    new_allowed_to_view,
-    new_allowed_to_add,
-    new_allowed_to_edit,
-    new_allowed_to_delete,
-):
-    """
-    Updates a view perm
-
-    Args:
-        view_perm_id (int): the id of the view perm
-        new_view_id (int): the new id of the view
-        new_role (string): the new role of the view perm
-        new_allowed_to_view (boolean): the new allowed to view of the view perm
-        new_allowed_to_add (boolean): the new allowed to add of the view perm
-        new_allowed_to_edit (boolean): the new allowed to edit of the view perm
-        new_allowed_to_delete (boolean): the new allowed to delete of the view perm
-    Returns:
-        _type_: _description_
-    """
-    try:
-        view_perm = ViewPerm.objects.get(id=view_perm_id)
-        view_perm.table_view_id = new_view_id
-        view_perm.role = new_role
-        view_perm.allowed_to_view = new_allowed_to_view
-        view_perm.allowed_to_add = new_allowed_to_add
-        view_perm.allowed_to_edit = new_allowed_to_edit
-        view_perm.allowed_to_delete = new_allowed_to_delete
-        view_perm.save()
-    except Exception as e:
-        return f"Error: {e}"
-
-
 # Delete
-def delete_creator(creator_id):
-    """
-    Deletes a creator
-
-    Args:
-        creator_id (int): the id of the creator
-    Returns:
-        _type_: _description_
-    """
-    try:
-        creator = Creator.objects.get(id=creator_id)
-        creator.delete()
-    except Exception as e:
-        return f"Error: {e}"
-
-
 def delete_app(app_id):
     """
     Deletes an app
@@ -505,24 +332,10 @@ def delete_app(app_id):
     try:
         app = Application.objects.get(id=app_id)
         app.delete()
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
-
-
-def delete_spreadsheet(spreadsheet_id):
-    """
-    Deletes a spreadsheet
-
-    Args:
-        spreadsheet_id (int): the id of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
-    try:
-        spreadsheet = Spreadsheet.objects.get(id=spreadsheet_id)
-        spreadsheet.delete()
-    except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def delete_datasource(datasource_id):
@@ -557,22 +370,6 @@ def delete_datasource_column(datasource_column_id):
         return f"Error: {e}"
 
 
-def delete_app_data(app_data_id):
-    """
-    Deletes an app data
-
-    Args:
-        app_data_id (int): the id of the app data
-    Returns:
-        _type_: _description_
-    """
-    try:
-        app_data = AppData.objects.get(id=app_data_id)
-        app_data.delete()
-    except Exception as e:
-        return f"Error: {e}"
-
-
 def delete_table_view(table_view_id):
     """
     Deletes a view
@@ -585,21 +382,5 @@ def delete_table_view(table_view_id):
     try:
         view = TableView.objects.get(id=table_view_id)
         view.delete()
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def delete_view_perm(view_perm_id):
-    """
-    Deletes a view perm
-
-    Args:
-        view_perm_id (int): the id of the view perm
-    Returns:
-        _type_: _description_
-    """
-    try:
-        view_perm = ViewPerm.objects.get(id=view_perm_id)
-        view_perm.delete()
     except Exception as e:
         return f"Error: {e}"
