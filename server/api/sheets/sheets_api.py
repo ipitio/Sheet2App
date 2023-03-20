@@ -59,21 +59,38 @@ def create_spreadsheet(title):
 
 # Retrieve data from a spreadsheet. If a range is specified, retrieve all data from within that range.
 # If no range is specified, returns the entire first sheet. Reads the data row by row as a default.
-def get_data(spreadsheet_id, range=None, majorDimension="ROWS"):
+def get_data(spreadsheet_id, sheet_id=None, range=None, majorDimension="ROWS"):
     try:
         service = build('sheets', 'v4', credentials=get_creds())
 
         # Call the Sheets API
         sheet = service.spreadsheets()
 
-        # If no range is specified, pull data from the entire first sheet by default. To do this, we need to retrieve the name
-        # of the first sheet.
-        if range is None:
-            range=sheet.get(spreadsheetId=spreadsheet_id).execute().get('sheets')[0].get('properties').get('title')
+        # If no sheet_id is specified, then it is assumed that the first sheet is being requested.
+        # If it is specified, then we need to find the name of the sheet with the specified sheet_id
+        sheet_name = ""
+        if sheet_id is not None:
+            sheets_info=sheet.get(spreadsheetId=spreadsheet_id).execute().get('sheets')
+            
+            for sheet_info in sheets_info:
+                if sheet_info.get('properties').get('sheetId') == sheet_id:
+                    sheet_name=sheet_info.get('properties').get('title')
+                    break
+
+        # If no sheet_id is specified, then default to the first sheet
+        else:
+            sheet_name=sheet.get(spreadsheetId=spreadsheet_id).execute().get('sheets')[0].get('properties').get('title')
+
+        # Combine the sheet_name and range fields into a A1 notation range for sheets
+        a1_range = ""
+        if range is not None:
+            a1_range = sheet_name + '!' + range
+        else:
+            a1_range = sheet_name
 
         # Make the API call to retrieve the specified data from the sheet
         result = sheet.values().get(spreadsheetId=spreadsheet_id,
-                                    range=range,
+                                    range=a1_range,
                                     majorDimension=majorDimension) \
                                 .execute()
 
@@ -84,7 +101,7 @@ def get_data(spreadsheet_id, range=None, majorDimension="ROWS"):
 
 # Update a specific cell in the spreadsheet. This function only works for one 
 # cell in the spreadsheet, and does not support updating multiple cells at once. 
-def update_cell(spreadsheet_id, value_to_update, row_index, column_index):
+def update_cell(spreadsheet_id, sheet_id, value_to_update, row_index, column_index):
     try:
         service = build('sheets', 'v4', credentials=get_creds())
 
@@ -109,6 +126,7 @@ def update_cell(spreadsheet_id, value_to_update, row_index, column_index):
                     # Overwrite all fields, regardless of their current data value
                     'fields': '*',
                     'start': {
+                        'sheetId': sheet_id,
                         'rowIndex': row_index,
                         'columnIndex': column_index
                     }
@@ -126,7 +144,7 @@ def update_cell(spreadsheet_id, value_to_update, row_index, column_index):
 
 # For batch updating an entire record / row. Must pass the entire new row as an array
 # to this API call.
-def update_row(spreadsheet_id, updated_row_data, row_index):
+def update_row(spreadsheet_id, sheet_id, updated_row_data, row_index):
     try:
         service = build('sheets', 'v4', credentials=get_creds())
 
@@ -146,6 +164,7 @@ def update_row(spreadsheet_id, updated_row_data, row_index):
                     'fields': '*',
                     # Begin updating of data at row_index
                     'start': {
+                        'sheetId': sheet_id,
                         'rowIndex': row_index
                     }
                 }
