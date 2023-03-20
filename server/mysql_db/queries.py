@@ -158,29 +158,6 @@ def create_detail_view(table_view_id, name, record_index):
         return f"Error: {e}"
 
 
-def create_view_perm(table_view_id, role):
-    """
-    Creates a new entry in the ViewPermission table
-
-    Args:
-        table_view_id (int): the id of the view
-        role (string): the role of the user
-    Returns:
-        _type_: _description_
-    """
-    try:
-        ViewPerm.objects.create(
-            table_view_id=table_view_id,
-            role=role,
-            allowed_to_view=False,
-            allowed_to_add=False,
-            allowed_to_edit=False,
-            allowed_to_delete=False,
-        )
-    except Exception as e:
-        return f"Error: {e}"
-
-
 # Publish
 def publish_app(app_id):
     """
@@ -351,22 +328,6 @@ def get_table_view(table_view_id):
         return f"Error: {e}"
 
 
-def get_view_perm(view_perm_id):
-    """
-    Gets a view perm
-
-    Args:
-        view_perm_id (int): the id of the view perm
-    Returns:
-        _type_: _description_
-    """
-    try:
-        view_perm = ViewPerm.objects.get(id=view_perm_id)
-        return view_perm
-    except Exception as e:
-        return f"Error: {e}"
-
-
 # Update
 def update_app(app_id, app_name=None, role_mem_url=None):
     """
@@ -436,36 +397,6 @@ def update_datasource_column(
         return f"Error: {e}"
 
 
-def update_view_perm(
-    view_perm_id,
-    new_allowed_to_view,
-    new_allowed_to_add,
-    new_allowed_to_edit,
-    new_allowed_to_delete,
-):
-    """
-    Updates a view perm
-
-    Args:
-        view_perm_id (int): the id of the view perm
-        new_allowed_to_view (boolean): the new allowed to view of the view perm
-        new_allowed_to_add (boolean): the new allowed to add of the view perm
-        new_allowed_to_edit (boolean): the new allowed to edit of the view perm
-        new_allowed_to_delete (boolean): the new allowed to delete of the view perm
-    Returns:
-        _type_: _description_
-    """
-    try:
-        view_perm = ViewPerm.objects.get(id=view_perm_id)
-        view_perm.allowed_to_view = new_allowed_to_view
-        view_perm.allowed_to_add = new_allowed_to_add
-        view_perm.allowed_to_edit = new_allowed_to_edit
-        view_perm.allowed_to_delete = new_allowed_to_delete
-        view_perm.save()
-    except Exception as e:
-        return f"Error: {e}"
-
-
 # Delete
 def delete_app(app_id):
     """
@@ -529,21 +460,5 @@ def delete_table_view(table_view_id):
     try:
         view = TableView.objects.get(id=table_view_id)
         view.delete()
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def delete_view_perm(view_perm_id):
-    """
-    Deletes a view perm
-
-    Args:
-        view_perm_id (int): the id of the view perm
-    Returns:
-        _type_: _description_
-    """
-    try:
-        view_perm = ViewPerm.objects.get(id=view_perm_id)
-        view_perm.delete()
     except Exception as e:
         return f"Error: {e}"
