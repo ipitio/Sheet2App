@@ -507,4 +507,40 @@ async function editRecord(viewID: number, recordID: number, editedRecord: Record
     }
 }
 
-export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord};
+/**
+ * Deletes a record associated with a View
+ * @param viewID The View associated with the record
+ * @param recordID The ID of the record to delete
+ * @returns Returns the new View with the record deleted from it, if the request is successful
+ */
+async function deleteRecord(viewID: number, recordID: number) {
+    const reqForm: RequestInit = {
+        method: "DELETE",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "viewID": viewID,
+            "recordID": recordID
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/deleteRecord", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        /**
+         * Expects a response containing the new view with the record added to it.
+         */
+        const data = await res.json();
+
+        return data.view;
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
+export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord, deleteRecord};
