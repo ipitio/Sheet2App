@@ -15,8 +15,7 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 # Env variable for credentials.
 # TODO: Migrate to dynamic token passed from end user request
-CREDENTIALS = "SOMEFILEPATH\TO\CREDENTIALS"
-
+CREDENTIALS = './credentials.json'
 
 # Function to retrieve the token from local development environment. This is mainly for testing.
 # TODO: remove this function to pull authentication token from request itself.
@@ -36,6 +35,36 @@ def get_creds():
             token.write(creds.to_json())
 
     return creds
+
+
+def get_credentials(tokens):
+    """
+    Returns a credentials objects to access Google sheets operations
+
+    Args:
+        tokens (dict or json): the dict or json object containing access_token, refresh_token,
+            client_id, client_secret
+    Returns:
+        Credentials: the Credentials object to be used for Google sheets operations
+    """
+    creds = Credentials.from_authorized_user_info(tokens)
+    return creds
+
+
+def refresh_tokens(tokens):
+    """
+    Refreshes oauth tokens
+
+    Args:
+        tokens (dict or json): the dict or json object containing access_token, refresh_token,
+            client_id, client_secret
+    Returns:
+        dict or json: a dict or json object containing the refreshed token values
+    """
+    creds = Credentials.from_authorized_user_info(tokens)
+    creds.refresh(Request())
+    
+    return creds.to_json()
 
 
 # Create a spreadsheet and return the new spreadsheet ID.
