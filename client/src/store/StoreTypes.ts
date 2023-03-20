@@ -37,6 +37,21 @@ export interface Record {
     data: any[]
 }
 
+export interface Column {
+    name: string,
+    initialValue: any,
+    label: boolean,
+    reference: boolean,
+    type: ColumnType
+}
+
+export enum ColumnType {
+    Boolean,
+    Number,
+    Text,
+    URL
+}
+
 export enum Modal {
     AddRecordModal,
     EditRecordModal,

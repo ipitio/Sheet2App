@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
-import { App, Datasource } from "./StoreTypes";
+import { App, Column, ColumnType, Datasource } from "./StoreTypes";
 
 //
 // Application-related functions.
@@ -314,7 +314,7 @@ async function createDatasource(appID: number, spreadsheetID: string, sheetIdx: 
  * @param datasourceName The NEW datasourceName of the Datasource
  * @returns 
  */
-async function editDatasource(datasourceKey: number, spreadsheetID: string, sheetIdx: number, datasourceName: string): Promise<void> {
+async function editDatasource(datasourceKey: number, spreadsheetID: string, sheetIdx: number, datasourceName: string, columns: Column[]): Promise<void> {
     const reqForm: RequestInit = {
         method: "PUT",
         mode: "cors",
@@ -325,12 +325,45 @@ async function editDatasource(datasourceKey: number, spreadsheetID: string, shee
             "datasourceKey": datasourceKey,
             "spreadsheetID": spreadsheetID,
             "sheetIdx": sheetIdx,
-            "datasourceName": datasourceName
+            "datasourceName": datasourceName,
+            "columns": columns
         })
     }
 
     try {
         const res = await fetch("https://localhost:8000/editDatasource", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
+/**
+ * 
+ * @param datasourceKey The primary key of the datasource
+ * @param columnKey The primary key of the column in the SQL database
+ * @param column The NEW column to update the columnKey values to
+ */
+async function editColumn(datasourceKey: number, columnKey: number, column: Column): Promise<void> {
+    const reqForm: RequestInit = {
+        method: "PUT",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "datasourceKey": datasourceKey,
+            "columnKey": columnKey,
+            "column": column
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/editColumn", reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         
@@ -369,4 +402,4 @@ async function deleteDatasource(datasourceKey: number): Promise<void> {
     }
 }
 
-export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, deleteDatasource};
+export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource};
