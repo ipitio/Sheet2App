@@ -1,6 +1,6 @@
 import { Box, Dialog } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { hideModal, IS2AState, IWebAppState, StoreState } from '../../../store/StoreContext';
+import { hideModal, StoreState } from '../../../store/StoreContext';
 import { Modal } from '../../../store/StoreTypes';
 
 function AddRecordModal() {

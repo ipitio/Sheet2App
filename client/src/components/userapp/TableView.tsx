@@ -4,7 +4,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useStore, useSelector, useDispatch } from 'react-redux';
-import { IS2AState, IWebAppState, showAddRecordModal } from '../../store/StoreContext';
+import { IS2AState, IWebAppState, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
 
 interface TableViewProps extends View { }
 
@@ -140,6 +140,11 @@ function TableView(props: TableViewProps | any) {
                             sx={{
                                 paddingY: rowPadding
                             }}
+                            onClick={
+                                () => {
+                                    dispatch(showDeleteRecordModal())
+                                }
+                            }
                         >
                             <DeleteOutlineIcon />
                             <Typography>
