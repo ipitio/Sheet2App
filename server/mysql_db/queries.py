@@ -10,16 +10,14 @@ def create_creator(creator_email):
     Creates a new entry in the Creator table
 
     Args:
-        creator_email (string): the email of the new user retreived from Google auth
+        creator_email (string): the email of the new user retrieved from Google auth
     Returns:
-        _type_: _description_
+        Creator: the new Creator object
+        HTTPStatus: the status of the request
     """
     try:
-        exists = Creator.objects.filter(email=creator_email).exists()
-        if not exists:
-            Creator.objects.create(email=creator_email)
-            
-        return {}, HTTPStatus.OK
+        obj, created = Creator.objects.get_or_create(email=creator_email)
+        return obj, HTTPStatus.OK if created else HTTPStatus.CONFLICT
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
@@ -29,32 +27,34 @@ def create_app(creator_email, app_name, role_mem_url, datasources):
     Creates a new entry in the App table
 
     Args:
-        creator_email (string): the email of the new user retreived from Google auth
+        creator_email (string): the email of the new user retrieved from Google auth
         app_name (string): the name of the app
         role_mem_url (string): the url of the role membership
         datasources (List of dict): a list of datasource json formated objects to be associated with the app
     Returns:
-        _type_: _description_
+        Application: the new Application object
+        HTTPStatus: the status of the request
     """
     try:
-        creator = Creator.objects.get(email=creator_email)
+        creator = create_creator(creator_email)[0]
         creator_id = creator.id
-        new_app = Application.objects.create(creator_id=creator_id, 
-                                   name=app_name, 
-                                   role_mem_url=role_mem_url, 
-                                   is_published=False)
-        
-        # Create the corresponding Datasource objects and AppData objects
-        for datasource in datasources:
-            spreadsheet_id = datasource['spreadsheetID']
-            spreadsheet_index = datasource['spreadsheetIdx']
-            new_datasource = Datasource.objects.create(spreadsheet_id=spreadsheet_id, 
-                                                         spreadsheet_index=spreadsheet_index)
-            new_app_data = AppData.objects.create(app_id=new_app.id, 
-                                                  datasource_id=new_datasource.id)
-            
-        
-        return {}, HTTPStatus.OK
+        new_app, created = Application.objects.get_or_create(
+            creator_id=creator_id,
+            name=app_name,
+            role_mem_url=role_mem_url,
+            is_published=False,
+        )
+
+        # Create the corresponding Datasource objects and AppData objects if created
+        if created:
+            for datasource in datasources:
+                spreadsheet_id = datasource["spreadsheetID"]
+                spreadsheet_index = datasource["spreadsheetIdx"]
+                new_datasource = create_datasource(spreadsheet_id, spreadsheet_index)[0]
+                new_app_data = create_app_data(new_app.id, new_datasource.id)[0]
+                # for column in datasource['columns']:
+                # Create the corresponding DatasourceColumn objects?
+        return new_app, HTTPStatus.OK if created else HTTPStatus.CONFLICT
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
@@ -66,12 +66,14 @@ def create_spreadsheet(id, url):
     Args:
         url (string): the url of the spreadsheet
     Returns:
-        _type_: _description_
+        Spreadsheet: the new Spreadsheet object
+        HTTPStatus: the status of the request
     """
     try:
-        Spreadsheet.objects.create(id=id, url=url)
+        sheet, created = Spreadsheet.objects.get_or_create(id=id, url=url)
+        return sheet, HTTPStatus.OK if created else HTTPStatus.CONFLICT
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def create_datasource(spreadsheet_id, spreadsheet_index):
@@ -82,15 +84,21 @@ def create_datasource(spreadsheet_id, spreadsheet_index):
         spreadsheet_id (int): the id of the spreadsheet
         spreadsheet_index (int): the index of the spreadsheet
     Returns:
-        _type_: _description_
+        Datasource: the new Datasource object
+        HTTPStatus: the status of the request
     """
     try:
-        Datasource.objects.create(spreadsheet_id=spreadsheet_id, spreadsheet_index=spreadsheet_index)
+        datasource, created = Datasource.objects.get_or_create(
+            spreadsheet_id=spreadsheet_id, spreadsheet_index=spreadsheet_index
+        )
+        return datasource, HTTPStatus.OK if created else HTTPStatus.CONFLICT
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_datasource_column(datasource_id, name, initial_value, is_link_text, is_table_ref, value_type):
+def create_datasource_column(
+    datasource_id, name, initial_value, is_link_text, is_table_ref, value_type
+):
     # TODO: Figure out what this function needs
     """
     Creates a new entry in the DatasourceColumn table
@@ -103,10 +111,11 @@ def create_datasource_column(datasource_id, name, initial_value, is_link_text, i
         is_table_ref (boolean): whether the column is a table reference
         value_type (string): the type of the column
     Returns:
-        _type_: _description_
+        DatasourceColumn: the new DatasourceColumn object
+        HTTPStatus: the status of the request
     """
     try:
-        DatasourceColumn.objects.create(
+        column, created = DatasourceColumn.objects.get_or_create(
             datasource_id=datasource_id,
             name=name,
             initial_value=initial_value,
@@ -114,8 +123,9 @@ def create_datasource_column(datasource_id, name, initial_value, is_link_text, i
             is_table_ref=is_table_ref,
             value_type=value_type,
         )
+        return column, HTTPStatus.OK if created else HTTPStatus.CONFLICT
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def create_app_data(app_id, datasource_id):
@@ -126,12 +136,16 @@ def create_app_data(app_id, datasource_id):
         app_id (int): the id of the app
         datasource_id (int): the id of the datasource
     Returns:
-        _type_: _description_
+        AppData: the new AppData object
+        HTTPStatus: the status of the request
     """
     try:
-        AppData.objects.create(app_id=app_id, datasource_id=datasource_id)
+        app_data, created = AppData.objects.get_or_create(
+            app_id=app_id, datasource_id=datasource_id
+        )
+        return app_data, HTTPStatus.OK if created else HTTPStatus.CONFLICT
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def create_table_view(app_id, datasource_id, name):
@@ -141,14 +155,18 @@ def create_table_view(app_id, datasource_id, name):
     Args:
         app_id (int): the id of the app
     Returns:
-        _type_: _description_
+        TableView: the new TableView object
+        HTTPStatus: the status of the request
     """
     try:
-        TableView.objects.create(app_id=app_id, datasource_id=datasource_id, name=name)
+        table_view, created = TableView.objects.get_or_create(
+            app_id=app_id, datasource_id=datasource_id, name=name
+        )
+        return table_view, HTTPStatus.OK if created else HTTPStatus.CONFLICT
     except Exception as e:
-        return f"Error: {e}"
-    
-    
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 def create_detail_view(table_view_id, name, record_index):
     """
     Creates a new entry in the DetailView table
@@ -157,11 +175,17 @@ def create_detail_view(table_view_id, name, record_index):
         table_view_id (int): id of the table view associated with this detail view
         name (string): the name of the detail view
         record_index (int): the index of the record the detail view holds
+    Returns:
+        DetailView: the new DetailView object
+        HTTPStatus: the status of the request
     """
     try:
-        DetailView.objects.create(table_view_id=table_view_id, name=name, record_index=record_index)
+        detail_view, created = DetailView.objects.get_or_create(
+            table_view_id=table_view_id, name=name, record_index=record_index
+        )
+        return detail_view, HTTPStatus.OK if created else HTTPStatus.CONFLICT
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def create_view_perm(table_view_id, role):
@@ -172,19 +196,16 @@ def create_view_perm(table_view_id, role):
         table_view_id (int): the id of the view
         role (string): the role of the user
     Returns:
-        _type_: _description_
+        ViewPerm: the new ViewPerm object
+        HTTPStatus: the status of the request
     """
     try:
-        ViewPerm.objects.create(
-            table_view_id=table_view_id,
-            role=role,
-            allowed_to_view=False,
-            allowed_to_add=False,
-            allowed_to_edit=False,
-            allowed_to_delete=False,
+        view_perm, created = ViewPerm.objects.get_or_create(
+            table_view_id=table_view_id, role=role
         )
+        return view_perm, HTTPStatus.OK if created else HTTPStatus.CONFLICT
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Publish
@@ -195,14 +216,14 @@ def publish_app(app_id):
     Args:
         app_id (int): the id of the app
     Returns:
-        _type_: _description_
+        Application: the published app
+        HTTPStatus: the status of the request
     """
     try:
         app = Application.objects.get(id=app_id)
         app.is_published = True
         app.save()
-        
-        return {}, HTTPStatus.OK
+        return app, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
@@ -214,14 +235,16 @@ def unpublish_app(app_id):
     Args:
         app_id (int): the id of the app
     Returns:
-        _type_: _description_
+        Application: the unpublished app
+        HTTPStatus: the status of the request
     """
     try:
         app = Application.objects.get(id=app_id)
         app.is_published = False
         app.save()
+        return app, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Get
@@ -232,13 +255,14 @@ def get_creator(creator_email):
     Args:
         creator_email (string): the email of the creator
     Returns:
-        _type_: _description_
+        Creator: the creator
+        HTTPStatus: the status of the request
     """
     try:
         creator = Creator.objects.get(email=creator_email)
-        return creator
+        return creator, HTTPStatus.OK if creator else HTTPStatus.NOT_FOUND
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_app_by_id(app_id):
@@ -248,22 +272,32 @@ def get_app_by_id(app_id):
     Args:
         app_id (int): the id of the app
     Returns:
-        _type_: _description_
+        Application: the app
+        HTTPStatus: the status of the request
     """
     try:
         app = Application.objects.get(id=app_id)
-        return app
+        return app, HTTPStatus.OK if app else HTTPStatus.NOT_FOUND
     except Exception as e:
-        return f"Error: {e}"
-    
-    
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 def get_apps_by_email(creator_email):
+    """
+    Gets all apps for a creator
+
+    Args:
+        creator_email (string): the email of the creator
+    Returns:
+        list: a list of apps
+        HTTPStatus: the status of the request
+    """
     try:
         creator = Creator.objects.get(email=creator_email)
         apps = Application.objects.filter(creator_id=creator.id)
         apps = [to_camel_case(app) for app in apps.values()]
-        
-        return apps, HTTPStatus.OK
+
+        return apps, HTTPStatus.OK if apps else HTTPStatus.NOT_FOUND
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
@@ -275,13 +309,14 @@ def get_spreadsheet(spreadsheet_id):
     Args:
         spreadsheet_id (int): the id of the spreadsheet
     Returns:
-        _type_: _description_
+        Spreadsheet: the spreadsheet
+        HTTPStatus: the status of the request
     """
     try:
         spreadsheet = Spreadsheet.objects.get(id=spreadsheet_id)
-        return spreadsheet
+        return spreadsheet, HTTPStatus.OK if spreadsheet else HTTPStatus.NOT_FOUND
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_datasource_by_id(datasource_id):
@@ -291,23 +326,24 @@ def get_datasource_by_id(datasource_id):
     Args:
         datasource_id (int): the id of the datasource
     Returns:
-        _type_: _description_
+        Datasource: the datasource
+        HTTPStatus: the status of the request
     """
     try:
         datasource = Datasource.objects.get(id=datasource_id)
-        return datasource
+        return datasource, HTTPStatus.OK if datasource else HTTPStatus.NOT_FOUND
     except Exception as e:
-        return f"Error: {e}"
-    
-    
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 def get_datasources_by_app_id(app_id):
     try:
         datasources = Datasource.objects.filter(appdata__app_id=app_id)
         datasources = [to_camel_case(datasource) for datasource in datasources]
-        return datasources, HTTPStatus.OK
+        return datasources, HTTPStatus.OK if datasources else HTTPStatus.NOT_FOUND
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-        
+
 
 def get_datasource_column(datasource_column_id):
     """
@@ -316,13 +352,17 @@ def get_datasource_column(datasource_column_id):
     Args:
         datasource_column_id (int): the id of the datasource column
     Returns:
-        _type_: _description_
+        DatasourceColumn: the datasource column
+        HTTPStatus: the status of the request
     """
     try:
         datasource_column = DatasourceColumn.objects.get(id=datasource_column_id)
-        return datasource_column
+        return (
+            datasource_column,
+            HTTPStatus.OK if datasource_column else HTTPStatus.NOT_FOUND,
+        )
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_app_data(app_data_id):
@@ -332,13 +372,14 @@ def get_app_data(app_data_id):
     Args:
         app_data_id (int): the id of the app data
     Returns:
-        _type_: _description_
+        AppData: the app data
+        HTTPStatus: the status of the request
     """
     try:
         app_data = AppData.objects.get(id=app_data_id)
-        return app_data
+        return app_data, HTTPStatus.OK if app_data else HTTPStatus.NOT_FOUND
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_table_view(table_view_id):
@@ -348,13 +389,14 @@ def get_table_view(table_view_id):
     Args:
         table_view_id (int): the id of the view
     Returns:
-        _type_: _description_
+        TableView: the view
+        HTTPStatus: the status of the request
     """
     try:
         table_view = TableView.objects.get(id=table_view_id)
-        return table_view
+        return table_view, HTTPStatus.OK if table_view else HTTPStatus.NOT_FOUND
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_view_perm(view_perm_id):
@@ -364,7 +406,8 @@ def get_view_perm(view_perm_id):
     Args:
         view_perm_id (int): the id of the view perm
     Returns:
-        _type_: _description_
+        ViewPerm: the view perm
+        HTTPStatus: the status of the request
     """
     try:
         view_perm = ViewPerm.objects.get(id=view_perm_id)
@@ -383,7 +426,8 @@ def update_app(app_id, app_name=None, role_mem_url=None):
         app_name (string): the name of the app
         role_mem_url (string): the role member url of the app
     Returns:
-        tuple: output of the query, 200 if query was successful, 500 if not
+        Application: the app
+        HTTPStatus: the status of the request
     """
     try:
         app = Application.objects.get(id=app_id)
@@ -392,8 +436,8 @@ def update_app(app_id, app_name=None, role_mem_url=None):
         if role_mem_url != None:
             app.role_mem_url = role_mem_url
         app.save()
-        
-        return {}, HTTPStatus.OK
+
+        return app, HTTPStatus.OK if app else HTTPStatus.NOT_FOUND
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
@@ -407,15 +451,21 @@ def update_datasource(datasource_id, new_spreadsheet_id, new_spreadsheet_index):
         new_spreadsheet_id (int): the id of the new spreadsheet
         new_spreadsheet_index (int): the new index of the spreadsheet
     Returns:
-        _type_: _description_
+        Datasource: the datasource
+        HTTPStatus: the status of the request
     """
     try:
-        datasource = Datasource.objects.get(id=datasource_id)
-        datasource.spreadsheet_id = new_spreadsheet_id
-        datasource.spreadsheet_index = new_spreadsheet_index
-        datasource.save()
+        # update_or_create
+        datasource, created = Datasource.objects.update_or_create(
+            id=datasource_id,
+            defaults={
+                "spreadsheet_id": new_spreadsheet_id,
+                "spreadsheet_index": new_spreadsheet_index,
+            },
+        )
+        return datasource, HTTPStatus.OK if not created else HTTPStatus.CREATED
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def update_datasource_column(
@@ -437,18 +487,23 @@ def update_datasource_column(
         new_is_table_ref (boolean): the new is table ref of the datasource column
         new_value_type (string): the new value type of the datasource column
     Returns:
-        _type_: _description_
+        DatasourceColumn: the datasource column
+        HTTPStatus: the status of the request
     """
     try:
-        datasource_column = DatasourceColumn.objects.get(id=datasource_column_id)
-        datasource_column.name = new_name
-        datasource_column.initial_value = new_initial_value
-        datasource_column.is_link_text = new_is_link_text
-        datasource_column.is_table_ref = new_is_table_ref
-        datasource_column.value_type = new_value_type
-        datasource_column.save()
+        datasource_column, created = DatasourceColumn.objects.update_or_create(
+            id=datasource_column_id,
+            defaults={
+                "name": new_name,
+                "initial_value": new_initial_value,
+                "is_link_text": new_is_link_text,
+                "is_table_ref": new_is_table_ref,
+                "value_type": new_value_type,
+            },
+        )
+        return datasource_column, HTTPStatus.OK if not created else HTTPStatus.CREATED
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def update_view_perm(
@@ -468,17 +523,22 @@ def update_view_perm(
         new_allowed_to_edit (boolean): the new allowed to edit of the view perm
         new_allowed_to_delete (boolean): the new allowed to delete of the view perm
     Returns:
-        _type_: _description_
+        ViewPerm: the view perm
+        HTTPStatus: the status of the request
     """
     try:
-        view_perm = ViewPerm.objects.get(id=view_perm_id)
-        view_perm.allowed_to_view = new_allowed_to_view
-        view_perm.allowed_to_add = new_allowed_to_add
-        view_perm.allowed_to_edit = new_allowed_to_edit
-        view_perm.allowed_to_delete = new_allowed_to_delete
-        view_perm.save()
+        view_perm, created = ViewPerm.objects.update_or_create(
+            id=view_perm_id,
+            defaults={
+                "allowed_to_view": new_allowed_to_view,
+                "allowed_to_add": new_allowed_to_add,
+                "allowed_to_edit": new_allowed_to_edit,
+                "allowed_to_delete": new_allowed_to_delete,
+            },
+        )
+        return view_perm, HTTPStatus.OK if not created else HTTPStatus.CREATED
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Delete
@@ -489,13 +549,14 @@ def delete_app(app_id):
     Args:
         app_id (int): the id of the app
     Returns:
-        _type_: _description_
+        Application: the deleted app
+        HTTPStatus: the status of the request
     """
     try:
         app = Application.objects.get(id=app_id)
         app.delete()
-        
-        return {}, HTTPStatus.OK
+
+        return app, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
@@ -507,13 +568,16 @@ def delete_datasource(datasource_id):
     Args:
         datasource_id (int): the id of the datasource
     Returns:
-        _type_: _description_
+        Datasource: the deleted datasource
+        HTTPStatus: the status of the request
     """
     try:
         datasource = Datasource.objects.get(id=datasource_id)
         datasource.delete()
+
+        return datasource, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def delete_datasource_column(datasource_column_id):
@@ -523,13 +587,16 @@ def delete_datasource_column(datasource_column_id):
     Args:
         datasource_column_id (int): the id of the datasource column
     Returns:
-        _type_: _description_
+        DatasourceColumn: the deleted datasource column
+        HTTPStatus: the status of the request
     """
     try:
         datasource_column = DatasourceColumn.objects.get(id=datasource_column_id)
         datasource_column.delete()
+
+        return datasource_column, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def delete_table_view(table_view_id):
@@ -539,13 +606,16 @@ def delete_table_view(table_view_id):
     Args:
         table_view_id (int): the id of the view
     Returns:
-        _type_: _description_
+        TableView: the deleted view
+        HTTPStatus: the status of the request
     """
     try:
         view = TableView.objects.get(id=table_view_id)
         view.delete()
+
+        return view, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def delete_view_perm(view_perm_id):
@@ -555,10 +625,13 @@ def delete_view_perm(view_perm_id):
     Args:
         view_perm_id (int): the id of the view perm
     Returns:
-        _type_: _description_
+        ViewPerm: the deleted view perm
+        HTTPStatus: the status of the request
     """
     try:
         view_perm = ViewPerm.objects.get(id=view_perm_id)
         view_perm.delete()
+
+        return view_perm, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
