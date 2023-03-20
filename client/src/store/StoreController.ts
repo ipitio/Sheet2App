@@ -314,7 +314,7 @@ async function createDatasource(appID: number, spreadsheetID: string, sheetIdx: 
  * @param datasourceName The NEW datasourceName of the Datasource
  * @returns 
  */
-async function editDatasource(datasourceKey: number, spreadsheetID: string, sheetIdx: number, datasourceName: string) {
+async function editDatasource(datasourceKey: number, spreadsheetID: string, sheetIdx: number, datasourceName: string): Promise<void> {
     const reqForm: RequestInit = {
         method: "POST",
         mode: "cors",
@@ -341,4 +341,32 @@ async function editDatasource(datasourceKey: number, spreadsheetID: string, shee
     }
 }
 
-export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource};
+/**
+ * Deletes a Datasource from the SQL database
+ * @param datasourceKey The primary key of the Datasource to delete
+ */
+async function deleteDatasource(datasourceKey: number): Promise<void> {
+    const reqForm: RequestInit = {
+        method: "POST",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "datasourceKey": datasourceKey
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/deleteDatasource", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
+export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, deleteDatasource};
