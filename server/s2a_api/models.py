@@ -20,6 +20,7 @@ class Datasource(models.Model):
     app = models.ForeignKey(Application, on_delete=models.CASCADE)
     spreadsheet_id = models.TextField()
     spreadsheet_index = models.IntegerField()
+    sheet_title = models.TextField()
     name = models.TextField()
 
 

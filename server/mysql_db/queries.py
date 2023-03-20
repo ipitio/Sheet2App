@@ -47,16 +47,40 @@ def create_app(creator_email, app_name):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_datasource(app_id, spreadsheet_id, spreadsheet_index, name):
+def create_datasource(app_id, spreadsheet_id, spreadsheet_index, sheet_title, name):
     try:
         new_datasource = Datasource.objects.create(app_id=app_id, 
                                                    spreadsheet_id=spreadsheet_id, 
                                                    spreadsheet_index=spreadsheet_index,
+                                                   sheet_title=sheet_title,
                                                    name=name)
         
-        
+        return new_datasource, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def create_datasource_column(datasource_id, column_index, name):
+    try:
+        exists = DatasourceColumn.objects.filter(datasource_id=datasource_id,
+                                                 column_index=column_index,
+                                                 name=name).exists()
+        new_datasource_column = {}
+        if not exists:
+            new_datasource_column = \
+                DatasourceColumn.objects.create(datasource_id=datasource_id,
+                                                column_index=column_index,
+                                                name=name,
+                                                initial_value='',
+                                                value_type='',
+                                                is_link_text=False,
+                                                is_table_ref=False,
+                                                is_filter=False,
+                                                is_user_filter=False,
+                                                is_edit_filter=False)
+        return new_datasource_column, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def create_table_view(app_id, datasource_id, name):

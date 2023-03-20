@@ -8,7 +8,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from sheets.utils import *
+from utils import *
 
 # Allow the API to have complete control over the spreadsheet with this scope
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -256,3 +256,21 @@ def delete_row(spreadsheet_id, sheet_id, row_index):
         print(err)
 
     return
+
+
+def get_metadata(spreadsheet_id):
+    try:
+        service = build('sheets', 'v4', credentials=get_creds())
+
+        sheet_metadata = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        sheets = sheet_metadata.get('sheets', '')
+        title = sheets[0].get("properties", {}).get("title", "Sheet1")
+        sheet_id = sheets[0].get("properties", {}).get("sheetId", 0)
+
+
+        
+        # Return the data stored in the spreadsheet as a 2 dimensional list.
+        return sheets
+    except HttpError as err:
+        print(err)
+    

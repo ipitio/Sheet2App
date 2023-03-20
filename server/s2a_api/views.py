@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from http import HTTPStatus
 import mysql_db.queries as queries
 import sheets.sheets_api as sheets
 from django.views.decorators.csrf import csrf_exempt
@@ -105,13 +106,30 @@ def create_datasource(request):
     body = json.loads(request.body)
     app_id = body['appID']
     spreadsheet_id = body['spreadsheetID']
-    sheet_index = body['sheetIdx']
+    sheet_title = body['sheetTitle']
     name = body['datasourceName']
     
-    output, response_code = queries.create_datasource(app_id=app_id,
-                                                      spreadsheet_id=spreadsheet_id,
-                                                      spreadsheet_index=sheet_index,
-                                                      name=name)
+    spreadsheet_index = 0
+    spreadsheet_headers = sheets.get_data(spreadsheet_id=spreadsheet_id,
+                                          range=f"{sheet_title}!1:1",
+                                          majorDimension="ROWS")[0]
+    
+    new_datasource, response_code = queries.create_datasource(app_id=app_id,
+                                                              spreadsheet_id=spreadsheet_id,
+                                                              spreadsheet_index=spreadsheet_index,
+                                                              sheet_title=sheet_title,
+                                                              name=name)
+    
+    # Create all datasource columns from the datasource
+    datasource_id = new_datasource.id
+    for column_index, header in enumerate(spreadsheet_headers):
+        new_datasource_column, response_code = \
+            queries.create_datasource_column(datasource_id=datasource_id, 
+                                             column_index=column_index, 
+                                             name=header)
+        if response_code != HTTPStatus.OK:
+            break
+    
     res_body = {}
     response = HttpResponse(json.dumps(res_body), status=response_code)
     
