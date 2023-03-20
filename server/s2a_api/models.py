@@ -22,8 +22,10 @@ class Spreadsheet(models.Model):
 
 
 class Datasource(models.Model):
+    app = models.ForeignKey(Application, on_delete=models.CASCADE)
     spreadsheet = models.ForeignKey(Spreadsheet, on_delete=models.CASCADE, max_length=255)
     spreadsheet_index = models.IntegerField()
+    name = models.TextField()
 
 
 class DatasourceColumn(models.Model):
@@ -37,7 +39,6 @@ class DatasourceColumn(models.Model):
     is_filter = models.BooleanField()
     is_user_filter = models.BooleanField()
     is_edit_filter = models.BooleanField()
-    is_editable = models.BooleanField()
 
 
 class AppData(models.Model):
@@ -57,10 +58,24 @@ class DetailView(models.Model):
     record_index = models.IntegerField()
 
 
-class ViewPerm(models.Model):
+class TableViewPerm(models.Model):
     table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
     role = models.TextField()
-    allowed_to_view = models.BooleanField()
-    allowed_to_add = models.BooleanField()
-    allowed_to_edit = models.BooleanField()
-    allowed_to_delete = models.BooleanField()
+    can_view = models.BooleanField()
+    can_add = models.BooleanField()
+    can_delete = models.BooleanField()
+    
+    
+class DetailViewPerm(models.Model):
+    detail_view = models.ForeignKey(DetailView, on_delete=models.CASCADE)
+    role = models.TextField()
+    
+    
+class TableViewViewableColumn(models.Model):
+    table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
+    datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
+
+
+class DetailViewEditableColumn(models.Model):
+    detail_view = models.ForeignKey(DetailView, on_delete=models.CASCADE)
+    datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)

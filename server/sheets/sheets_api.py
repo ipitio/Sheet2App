@@ -8,7 +8,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from utils import *
+from sheets.utils import *
 
 # Allow the API to have complete control over the spreadsheet with this scope
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
