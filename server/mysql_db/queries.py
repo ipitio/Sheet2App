@@ -24,15 +24,13 @@ def create_creator(creator_email):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_app(creator_email, app_name, role_mem_url, datasources):
+def create_app(creator_email, app_name):
     """
     Creates a new entry in the App table
 
     Args:
         creator_email (string): the email of the new user retreived from Google auth
         app_name (string): the name of the app
-        role_mem_url (string): the url of the role membership
-        datasources (List of dict): a list of datasource json formated objects to be associated with the app
     Returns:
         _type_: _description_
     """
@@ -41,18 +39,8 @@ def create_app(creator_email, app_name, role_mem_url, datasources):
         creator_id = creator.id
         new_app = Application.objects.create(creator_id=creator_id, 
                                    name=app_name, 
-                                   role_mem_url=role_mem_url, 
+                                   role_mem_url=None, 
                                    is_published=False)
-        
-        # Create the corresponding Datasource objects and AppData objects
-        for datasource in datasources:
-            spreadsheet_id = datasource['spreadsheetID']
-            spreadsheet_index = datasource['spreadsheetIdx']
-            new_datasource = Datasource.objects.create(spreadsheet_id=spreadsheet_id, 
-                                                         spreadsheet_index=spreadsheet_index)
-            new_app_data = AppData.objects.create(app_id=new_app.id, 
-                                                  datasource_id=new_datasource.id)
-            
         
         return {}, HTTPStatus.OK
     except Exception as e:

@@ -22,13 +22,9 @@ def create_app(request):
     body = json.loads(request.body)
     creator_email = body['email']
     app_name = body['appName']
-    role_mem_url = body['roleMemUrl']
-    datasources = body['datasources']
     
     output, response_code = queries.create_app(creator_email=creator_email, 
-                                               app_name=app_name, 
-                                               role_mem_url=role_mem_url,
-                                               datasources=datasources)
+                                               app_name=app_name)
     res_body = {}
     response = HttpResponse(json.dumps(res_body), status=response_code)
     
