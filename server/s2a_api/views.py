@@ -106,18 +106,17 @@ def create_datasource(request):
     body = json.loads(request.body)
     app_id = body['appID']
     spreadsheet_id = body['spreadsheetID']
-    sheet_title = body['sheetTitle']
+    gid = body['gid']
     name = body['datasourceName']
     
-    spreadsheet_index = 0
     spreadsheet_headers = sheets.get_data(spreadsheet_id=spreadsheet_id,
-                                          range=f"{sheet_title}!1:1",
+                                          sheet_id=gid,
+                                          range="1:1",
                                           majorDimension="ROWS")[0]
     
     new_datasource, response_code = queries.create_datasource(app_id=app_id,
                                                               spreadsheet_id=spreadsheet_id,
-                                                              spreadsheet_index=spreadsheet_index,
-                                                              sheet_title=sheet_title,
+                                                              gid=gid,
                                                               name=name)
     
     # Create all datasource columns from the datasource
@@ -155,12 +154,12 @@ def edit_datasource(request):
     body = json.loads(request.body)
     datasource_id = body['datasourceKey']
     spreadsheet_id = body['spreadsheetID']
-    sheet_index = body['sheetIdx']
+    gid = body['gid']
     name = body['datasourceName']
     
     output, response_code = queries.update_datasource(datasource_id=datasource_id,
                                                       spreadsheet_id=spreadsheet_id,
-                                                      spreadsheet_index=sheet_index,
+                                                      gid=gid,
                                                       name=name)
     res_body = {}
     response = HttpResponse(json.dumps(res_body), status=response_code)
@@ -172,6 +171,19 @@ def edit_datasource(request):
 def delete_datasource(request):
     body = json.loads(request.body)
     datasource_id = body['datasourceKey']
+    
+    output, response_code = queries.delete_datasource(datasource_id=datasource_id)
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
+
+
+def edit_datasource_column(request):
+    body = json.loads(request.body)
+    datasource_id = body['datasourceKey']
+    datasource_column_id = body['columnKey']
+    
     
     output, response_code = queries.delete_datasource(datasource_id=datasource_id)
     res_body = {}

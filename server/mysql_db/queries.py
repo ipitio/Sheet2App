@@ -47,12 +47,11 @@ def create_app(creator_email, app_name):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_datasource(app_id, spreadsheet_id, spreadsheet_index, sheet_title, name):
+def create_datasource(app_id, spreadsheet_id, gid, name):
     try:
         new_datasource = Datasource.objects.create(app_id=app_id, 
                                                    spreadsheet_id=spreadsheet_id, 
-                                                   spreadsheet_index=spreadsheet_index,
-                                                   sheet_title=sheet_title,
+                                                   gid=gid,
                                                    name=name)
         
         return new_datasource, HTTPStatus.OK
