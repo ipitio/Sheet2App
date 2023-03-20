@@ -270,4 +270,40 @@ async function getAppDataSources(appID: number): Promise<Datasource[]> {
     }
 }
 
-export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp};
+/**
+ * Creates a datasource for the application
+ * @param appID The web app to associate this datasource with
+ * @param spreadsheetID The ID of the spreadsheet in Google Sheets
+ * @param sheetIdx The index of the sheet in Google Sheets
+ * @param datasourceName The name of the datasource for reference within S2A
+ * @returns the newly created Datasource, if the request is valid
+ */
+async function createDatasource(appID: number, spreadsheetID: string, sheetIdx: number, datasourceName: string): Promise<void> {
+    const reqForm: RequestInit = {
+        method: "POST",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "appID": appID,
+            "spreadsheetID": spreadsheetID,
+            "sheetIdx": sheetIdx,
+            "datasourceName": datasourceName
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/getAppDataSources", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
+export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, createDatasource};
