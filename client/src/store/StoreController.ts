@@ -294,7 +294,7 @@ async function createDatasource(appID: number, spreadsheetID: string, sheetIdx: 
     }
 
     try {
-        const res = await fetch("https://localhost:8000/getAppDataSources", reqForm);
+        const res = await fetch("https://localhost:8000/createDatasource", reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         
@@ -322,7 +322,6 @@ async function editDatasource(datasourceKey: number, spreadsheetID: string, shee
             "Content-Type": "application/json" 
         },
         body: JSON.stringify({
-            "appID": appID,
             "datasourceKey": datasourceKey,
             "spreadsheetID": spreadsheetID,
             "sheetIdx": sheetIdx,
@@ -331,7 +330,7 @@ async function editDatasource(datasourceKey: number, spreadsheetID: string, shee
     }
 
     try {
-        const res = await fetch("https://localhost:8000/getAppDataSources", reqForm);
+        const res = await fetch("https://localhost:8000/editDatasource", reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         
@@ -342,4 +341,4 @@ async function editDatasource(datasourceKey: number, spreadsheetID: string, shee
     }
 }
 
-export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource};
+export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource};
