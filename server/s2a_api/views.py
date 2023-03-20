@@ -105,6 +105,24 @@ def delete_app(request):
 
 
 @csrf_exempt
+def create_datasource(request):
+    body = json.loads(request.body)
+    app_id = body['appID']
+    spreadsheet_id = body['spreadsheetID']
+    sheet_index = body['sheetIdx']
+    name = body['datasourceName']
+    
+    output, response_code = queries.create_datasource(app_id=app_id,
+                                                      spreadsheet_id=spreadsheet_id,
+                                                      spreadsheet_index=sheet_index,
+                                                      name=name)
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
+
+
+@csrf_exempt
 def get_app_datasources(request):
     body = json.loads(request.body)
     app_id = body['appID']
@@ -113,6 +131,36 @@ def get_app_datasources(request):
     res_body = {
         'datasources': datasources
     }
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
+
+
+@csrf_exempt
+def edit_datasource(request):
+    body = json.loads(request.body)
+    datasource_id = body['datasourceKey']
+    spreadsheet_id = body['spreadsheetID']
+    sheet_index = body['sheetIdx']
+    name = body['datasourceName']
+    
+    output, response_code = queries.update_datasource(datasource_id=datasource_id,
+                                                      spreadsheet_id=spreadsheet_id,
+                                                      spreadsheet_index=sheet_index,
+                                                      name=name)
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
+
+
+@csrf_exempt
+def delete_datasource(request):
+    body = json.loads(request.body)
+    datasource_id = body['datasourceKey']
+    
+    output, response_code = queries.delete_datasource(datasource_id=datasource_id)
+    res_body = {}
     response = HttpResponse(json.dumps(res_body), status=response_code)
     
     return response

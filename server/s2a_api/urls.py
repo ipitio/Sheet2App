@@ -10,5 +10,8 @@ urlpatterns = [
     path('editAppRoleMemUrl', views.edit_app_role_mem_url),
     path('publishApp', views.publish_app),
     path('deleteApp', views.delete_app),
-    path('getAppDataSources', views.get_app_datasources)
+    path('createDatsource', views.create_datasource),
+    path('getAppDataSources', views.get_app_datasources),
+    path('editDatasource', views.edit_datasource),
+    path('deleteDatasource', views.delete_datasource),
 ]

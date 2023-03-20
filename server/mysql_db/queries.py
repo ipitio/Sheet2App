@@ -74,18 +74,12 @@ def create_spreadsheet(id, url):
         return f"Error: {e}"
 
 
-def create_datasource(spreadsheet_id, spreadsheet_index):
-    """
-    Creates a new entry in the Datasource table
-
-    Args:
-        spreadsheet_id (int): the id of the spreadsheet
-        spreadsheet_index (int): the index of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
+def create_datasource(app_id, spreadsheet_id, spreadsheet_index, name):
     try:
-        Datasource.objects.create(spreadsheet_id=spreadsheet_id, spreadsheet_index=spreadsheet_index)
+        Datasource.objects.create(app_id=app_id, 
+                                  spreadsheet_id=spreadsheet_id, 
+                                  spreadsheet_index=spreadsheet_index,
+                                  name=name)
     except Exception as e:
         return f"Error: {e}"
 
@@ -398,21 +392,12 @@ def update_app(app_id, app_name=None, role_mem_url=None):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_datasource(datasource_id, new_spreadsheet_id, new_spreadsheet_index):
-    """
-    Updates a datasource
-
-    Args:
-        datasource_id (int): the id of the datasource
-        new_spreadsheet_id (int): the id of the new spreadsheet
-        new_spreadsheet_index (int): the new index of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
+def update_datasource(datasource_id, new_spreadsheet_id, new_spreadsheet_index, new_name):
     try:
         datasource = Datasource.objects.get(id=datasource_id)
         datasource.spreadsheet_id = new_spreadsheet_id
         datasource.spreadsheet_index = new_spreadsheet_index
+        datasource.name = new_name
         datasource.save()
     except Exception as e:
         return f"Error: {e}"
