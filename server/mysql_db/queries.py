@@ -76,56 +76,14 @@ def create_spreadsheet(id, url):
 
 def create_datasource(app_id, spreadsheet_id, spreadsheet_index, name):
     try:
-        Datasource.objects.create(app_id=app_id, 
-                                  spreadsheet_id=spreadsheet_id, 
-                                  spreadsheet_index=spreadsheet_index,
-                                  name=name)
+        new_datasource = Datasource.objects.create(app_id=app_id, 
+                                                   spreadsheet_id=spreadsheet_id, 
+                                                   spreadsheet_index=spreadsheet_index,
+                                                   name=name)
+        
+        
     except Exception as e:
-        return f"Error: {e}"
-
-
-def create_datasource_column(datasource_id, name, initial_value, is_link_text, is_table_ref, value_type):
-    # TODO: Figure out what this function needs
-    """
-    Creates a new entry in the DatasourceColumn table
-
-    Args:
-        datasource_id (int): the id of the datasource
-        name (string): the name of the column
-        initial_value (string): the initial value of the column
-        is_link_text (boolean): whether the column is a link text
-        is_table_ref (boolean): whether the column is a table reference
-        value_type (string): the type of the column
-    Returns:
-        _type_: _description_
-    """
-    try:
-        DatasourceColumn.objects.create(
-            datasource_id=datasource_id,
-            name=name,
-            initial_value=initial_value,
-            is_link_text=is_link_text,
-            is_table_ref=is_table_ref,
-            value_type=value_type,
-        )
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def create_app_data(app_id, datasource_id):
-    """
-    Creates a new entry in the AppData table
-
-    Args:
-        app_id (int): the id of the app
-        datasource_id (int): the id of the datasource
-    Returns:
-        _type_: _description_
-    """
-    try:
-        AppData.objects.create(app_id=app_id, datasource_id=datasource_id)
-    except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def create_table_view(app_id, datasource_id, name):
@@ -239,22 +197,6 @@ def get_apps_by_email(creator_email):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def get_spreadsheet(spreadsheet_id):
-    """
-    Gets a spreadsheet
-
-    Args:
-        spreadsheet_id (int): the id of the spreadsheet
-    Returns:
-        _type_: _description_
-    """
-    try:
-        spreadsheet = Spreadsheet.objects.get(id=spreadsheet_id)
-        return spreadsheet
-    except Exception as e:
-        return f"Error: {e}"
-
-
 def get_datasource_by_id(datasource_id):
     """
     Gets a datasource
@@ -292,22 +234,6 @@ def get_datasource_column(datasource_column_id):
     try:
         datasource_column = DatasourceColumn.objects.get(id=datasource_column_id)
         return datasource_column
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def get_app_data(app_data_id):
-    """
-    Gets an app data
-
-    Args:
-        app_data_id (int): the id of the app data
-    Returns:
-        _type_: _description_
-    """
-    try:
-        app_data = AppData.objects.get(id=app_data_id)
-        return app_data
     except Exception as e:
         return f"Error: {e}"
 

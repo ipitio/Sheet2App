@@ -4,6 +4,7 @@ import mysql_db.queries as queries
 import sheets.sheets_api as sheets
 from django.views.decorators.csrf import csrf_exempt
 import json
+import re
 
 @csrf_exempt
 def create_creator(request):

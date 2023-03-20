@@ -16,14 +16,9 @@ class Application(models.Model):
     is_published = models.BooleanField()
 
 
-class Spreadsheet(models.Model):
-    id = models.CharField(primary_key=True, auto_created=False, max_length=255, unique=True)
-    url = models.TextField()
-
-
 class Datasource(models.Model):
     app = models.ForeignKey(Application, on_delete=models.CASCADE)
-    spreadsheet = models.ForeignKey(Spreadsheet, on_delete=models.CASCADE, max_length=255)
+    spreadsheet_id = models.TextField()
     spreadsheet_index = models.IntegerField()
     name = models.TextField()
 
