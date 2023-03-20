@@ -6,7 +6,7 @@ export interface App {
 }
 
 export interface Datasource {
-    spreadsheetID: number;
+    spreadsheetID: string;
     spreadsheetIdx: number;
 }
 
