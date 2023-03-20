@@ -204,15 +204,14 @@ def get_datasource_by_id(datasource_id):
     """
     try:
         datasource = Datasource.objects.get(id=datasource_id)
-        return datasource
+        return datasource, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
     
     
 def get_datasources_by_app_id(app_id):
     try:
         datasources = Datasource.objects.filter(appdata__app_id=app_id)
-        datasources = [to_camel_case(datasource) for datasource in datasources]
         return datasources, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
@@ -234,7 +233,7 @@ def get_datasource_column(datasource_column_id):
         return f"Error: {e}"
 
 
-def get_table_view(table_view_id):
+def get_table_view_by_id(table_view_id):
     """
     Gets a view
 
@@ -245,9 +244,9 @@ def get_table_view(table_view_id):
     """
     try:
         table_view = TableView.objects.get(id=table_view_id)
-        return table_view
+        return table_view, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Update

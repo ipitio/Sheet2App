@@ -202,24 +202,23 @@ def edit_datasource_column(request):
     return response
 
 
-# def add_record(request):
-#     body = json.loads(request.body)
-#     datasource_id = body['datasourceKey']
-#     datasource_column_id = body['columnKey']
-#     new_name = body['name']
-#     new_initial_value = body['initialValue']
-#     new_is_label = body['label']
-#     new_is_reference = body['reference']
-#     new_type = body['type']
+def add_record(request):
+    body = json.loads(request.body)
+    table_view_id = body['viewID']
+    record_data = body['recordToAdd']['data']
     
-#     output, response_code = \
-#         queries.update_datasource_column(datasource_column_id=datasource_column_id,
-#                                          new_name=new_name,
-#                                          new_initial_value=new_initial_value,
-#                                          new_is_link_text=new_is_label,
-#                                          new_is_table_ref=new_is_reference,
-#                                          new_type=new_type)
-#     res_body = {}
-#     response = HttpResponse(json.dumps(res_body), status=response_code)
+    table_view, response_code = queries.get_table_view_by_id(table_view_id=table_view_id)
+    datasource_id = table_view.datasource
+    datasource, response_code = queries.get_datasource_by_id(datasource_id=datasource_id)
     
-#     return response
+    spreadsheet_id = datasource.spreadsheet_id
+    gid = datasource.gid
+    sheets.insert_row(spreadsheet_id=spreadsheet_id,
+                      sheet_id=gid,
+                      row_to_insert=record_data)
+    
+    # TODO return the new data of the entire table
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
