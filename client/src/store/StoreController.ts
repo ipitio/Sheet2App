@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
-import { App, Column, ColumnType, Datasource } from "./StoreTypes";
+import { App, Column, ColumnType, Datasource, Role } from "./StoreTypes";
 
 //
 // Application-related functions.
@@ -402,4 +402,36 @@ async function deleteDatasource(datasourceKey: number): Promise<void> {
     }
 }
 
-export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource};
+/**
+ * Retrieves all views associated with the App. The returned view will have the available permissions associated with the users role. 
+ * @param appID The application to retrieve the views for
+ * @param role The Role of the end user requesting the views. Used for permissions
+ */
+async function getViewsByAppID(appID: number, role: Role) {
+    const reqForm: RequestInit = {
+        method: "GET",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "appID": appID,
+            "role": role
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/getViewsByAppID", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        const data = await res.json();
+
+        return data.views;
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
+export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource, getViewsByAppID};
