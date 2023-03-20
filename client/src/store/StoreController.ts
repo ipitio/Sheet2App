@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
-import { App, Column, ColumnType, Datasource, Role } from "./StoreTypes";
+import { App, Column, ColumnType, Datasource, Record, Role, View } from "./StoreTypes";
 
 //
 // Application-related functions.
@@ -434,4 +434,39 @@ async function getViewsByAppID(appID: number, role: Role) {
     }
 }
 
-export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource, getViewsByAppID};
+/**
+ * Adds a record to a View. By default, this will append the new record to the last row of the spreadsheet.
+ * @param view The View to add the record to
+ * @param recordToAdd The new record to add to the view
+ */
+async function addRecord(viewID: number, recordToAdd: Record) {
+    const reqForm: RequestInit = {
+        method: "PUT",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "viewID": viewID,
+            "recordToAdd": recordToAdd
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/getViewsByAppID", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        /**
+         * Expects a response containing the new view with the record added to it.
+         */
+        const data = await res.json();
+
+        return data.view;
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
+export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource, getViewsByAppID, addRecord};
