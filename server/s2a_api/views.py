@@ -158,9 +158,9 @@ def edit_datasource(request):
     name = body['datasourceName']
     
     output, response_code = queries.update_datasource(datasource_id=datasource_id,
-                                                      spreadsheet_id=spreadsheet_id,
-                                                      gid=gid,
-                                                      name=name)
+                                                      new_spreadsheet_id=spreadsheet_id,
+                                                      new_gid=gid,
+                                                      new_name=name)
     res_body = {}
     response = HttpResponse(json.dumps(res_body), status=response_code)
     

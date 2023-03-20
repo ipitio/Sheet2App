@@ -275,11 +275,11 @@ def update_app(app_id, app_name=None, role_mem_url=None):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_datasource(datasource_id, new_spreadsheet_id, new_spreadsheet_index, new_name):
+def update_datasource(datasource_id, new_spreadsheet_id, new_gid, new_name):
     try:
         datasource = Datasource.objects.get(id=datasource_id)
         datasource.spreadsheet_id = new_spreadsheet_id
-        datasource.spreadsheet_index = new_spreadsheet_index
+        datasource.gid = new_gid
         datasource.name = new_name
         datasource.save()
     except Exception as e:
