@@ -1,6 +1,6 @@
 import { Box, Dialog } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { hideModal, IS2AState, IWebAppState } from '../../../store/StoreContext';
+import { hideModal, IS2AState, IWebAppState, StoreState } from '../../../store/StoreContext';
 import { Modal } from '../../../store/StoreTypes';
 
 function AddRecordModal() {
@@ -8,7 +8,7 @@ function AddRecordModal() {
     const dispatch = useDispatch();
 
     // Retrieve the current modal that should be opened from the store
-    const currentModal = useSelector((state: {s2aReducer: IS2AState, webAppReducer: IWebAppState}) => state.webAppReducer.currentModal);
+    const currentModal = useSelector((state: StoreState) => state.webAppReducer.currentModal);
 
     return (
         <Box

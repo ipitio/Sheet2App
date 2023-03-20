@@ -153,6 +153,12 @@ const webAppReducer = createSlice({
 export const { createApplication, renameApplication } = s2aReducer.actions
 export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideModal } = webAppReducer.actions;
 
+// Interface for pulling the reducer state. Prevents TypeScript type errors
+export interface StoreState {
+    s2aReducer: IS2AState, 
+    webAppReducer: IWebAppState
+}
+
 const store = configureStore({
     reducer: {
         s2aReducer: s2aReducer.reducer,
