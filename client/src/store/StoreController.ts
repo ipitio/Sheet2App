@@ -306,4 +306,40 @@ async function createDatasource(appID: number, spreadsheetID: string, sheetIdx: 
     }
 }
 
+/**
+ * Edits a Datasource for a web application. Allows changes to the spreadsheet ID, sheet index, or name.
+ * @param datasourceKey The primary key of the datasource within the SQL database
+ * @param spreadsheetID The NEW spreadsheetID of the Datasource
+ * @param sheetIdx The NEW sheetIdx of the Datasource
+ * @param datasourceName The NEW datasourceName of the Datasource
+ * @returns 
+ */
+async function editDatasource(datasourceKey: number, spreadsheetID: string, sheetIdx: number, datasourceName: string) {
+    const reqForm: RequestInit = {
+        method: "POST",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "appID": appID,
+            "datasourceKey": datasourceKey,
+            "spreadsheetID": spreadsheetID,
+            "sheetIdx": sheetIdx,
+            "datasourceName": datasourceName
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/getAppDataSources", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
 export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource};
