@@ -316,7 +316,7 @@ async function createDatasource(appID: number, spreadsheetID: string, sheetIdx: 
  */
 async function editDatasource(datasourceKey: number, spreadsheetID: string, sheetIdx: number, datasourceName: string): Promise<void> {
     const reqForm: RequestInit = {
-        method: "POST",
+        method: "PUT",
         mode: "cors",
         headers: { 
             "Content-Type": "application/json" 
@@ -347,7 +347,7 @@ async function editDatasource(datasourceKey: number, spreadsheetID: string, shee
  */
 async function deleteDatasource(datasourceKey: number): Promise<void> {
     const reqForm: RequestInit = {
-        method: "POST",
+        method: "DELETE",
         mode: "cors",
         headers: { 
             "Content-Type": "application/json" 
