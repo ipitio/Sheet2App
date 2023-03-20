@@ -183,11 +183,11 @@ def edit_datasource_column(request):
     body = json.loads(request.body)
     datasource_id = body['datasourceKey']
     datasource_column_id = body['columnKey']
-    new_name = body['name']
-    new_initial_value = body['initialValue']
-    new_is_label = body['label']
-    new_is_reference = body['reference']
-    new_type = body['type']
+    new_name = body['column']['name']
+    new_initial_value = body['column']['initialValue']
+    new_is_label = body['column']['label']
+    new_is_reference = body['column']['reference']
+    new_type = body['column']['type']
     
     output, response_code = \
         queries.update_datasource_column(datasource_column_id=datasource_column_id,
@@ -200,3 +200,26 @@ def edit_datasource_column(request):
     response = HttpResponse(json.dumps(res_body), status=response_code)
     
     return response
+
+
+# def add_record(request):
+#     body = json.loads(request.body)
+#     datasource_id = body['datasourceKey']
+#     datasource_column_id = body['columnKey']
+#     new_name = body['name']
+#     new_initial_value = body['initialValue']
+#     new_is_label = body['label']
+#     new_is_reference = body['reference']
+#     new_type = body['type']
+    
+#     output, response_code = \
+#         queries.update_datasource_column(datasource_column_id=datasource_column_id,
+#                                          new_name=new_name,
+#                                          new_initial_value=new_initial_value,
+#                                          new_is_link_text=new_is_label,
+#                                          new_is_table_ref=new_is_reference,
+#                                          new_type=new_type)
+#     res_body = {}
+#     response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+#     return response
