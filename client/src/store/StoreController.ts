@@ -469,7 +469,14 @@ async function addRecord(viewID: number, recordToAdd: Record) {
     }
 }
 
-async function editRecord(viewID: number, recordToAdd: Record) {
+/**
+ * Edits a record in the Google Sheets database
+ * @param viewID The ID of the View to add the record to
+ * @param recordID The ID of the record to edit
+ * @param editedRecord The new record values 
+ * @returns The updated View with the edited record
+ */
+async function editRecord(viewID: number, recordID: number, editedRecord: Record) {
     const reqForm: RequestInit = {
         method: "PUT",
         mode: "cors",
@@ -478,7 +485,8 @@ async function editRecord(viewID: number, recordToAdd: Record) {
         },
         body: JSON.stringify({
             "viewID": viewID,
-            "recordToAdd": recordToAdd
+            "recordID": recordID,
+            "editedRecord": editedRecord
         })
     }
 
