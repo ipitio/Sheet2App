@@ -306,4 +306,4 @@ async function createDatasource(appID: number, spreadsheetID: string, sheetIdx: 
     }
 }
 
-export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, createDatasource};
+export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource};
