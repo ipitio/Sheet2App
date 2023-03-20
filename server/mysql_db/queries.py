@@ -37,9 +37,8 @@ def create_app(creator_email, app_name, role_mem_url, datasources):
     """
     try:
         creator = create_creator(creator_email)[0]
-        creator_id = creator.id
         new_app, created = Application.objects.get_or_create(
-            creator_id=creator_id,
+            creator_id=creator.id,
             name=app_name,
             role_mem_url=role_mem_url,
             is_published=False,
@@ -188,7 +187,7 @@ def create_detail_view(table_view_id, name, record_index):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_view_perm(table_view_id, role):
+def create_table_view_perm(table_view_id, role):
     """
     Creates a new entry in the ViewPermission table
 
@@ -200,7 +199,7 @@ def create_view_perm(table_view_id, role):
         HTTPStatus: the status of the request
     """
     try:
-        view_perm, created = ViewPerm.objects.get_or_create(
+        view_perm, created = TableViewPerm.objects.get_or_create(
             table_view_id=table_view_id, role=role
         )
         return view_perm, HTTPStatus.OK if created else HTTPStatus.CONFLICT
@@ -399,7 +398,7 @@ def get_table_view(table_view_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def get_view_perm(view_perm_id):
+def get_table_view_perm(view_perm_id):
     """
     Gets a view perm
 
@@ -410,7 +409,7 @@ def get_view_perm(view_perm_id):
         HTTPStatus: the status of the request
     """
     try:
-        view_perm = ViewPerm.objects.get(id=view_perm_id)
+        view_perm = TableViewPerm.objects.get(id=view_perm_id)
         return view_perm
     except Exception as e:
         return f"Error: {e}"
@@ -506,7 +505,7 @@ def update_datasource_column(
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_view_perm(
+def update_table_view_perm(
     view_perm_id,
     new_allowed_to_view,
     new_allowed_to_add,
@@ -527,7 +526,7 @@ def update_view_perm(
         HTTPStatus: the status of the request
     """
     try:
-        view_perm, created = ViewPerm.objects.update_or_create(
+        view_perm, created = TableViewPerm.objects.update_or_create(
             id=view_perm_id,
             defaults={
                 "allowed_to_view": new_allowed_to_view,
@@ -618,7 +617,7 @@ def delete_table_view(table_view_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def delete_view_perm(view_perm_id):
+def delete_table_view_perm(view_perm_id):
     """
     Deletes a view perm
 
@@ -629,7 +628,7 @@ def delete_view_perm(view_perm_id):
         HTTPStatus: the status of the request
     """
     try:
-        view_perm = ViewPerm.objects.get(id=view_perm_id)
+        view_perm = TableViewPerm.objects.get(id=view_perm_id)
         view_perm.delete()
 
         return view_perm, HTTPStatus.OK
