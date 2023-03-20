@@ -132,15 +132,15 @@ const webAppReducer = createSlice({
         },
         // Displays the AddRecord Modal
         showAddRecordModal: state => {
-            state.currentModal = Modal.AddRecordModal
+            state.currentModal = Modal.AddRecordModal;
         },
         // Displays the EditRecord Modal
         showEditRecordModal: state => {
-            state.currentModal = Modal.EditRecordModal
+            state.currentModal = Modal.EditRecordModal;
         },
         // Displays the DeleteRecord Modal
         showDeleteRecordModal: state => {
-            state.currentModal = Modal.DeleteRecordModal
+            state.currentModal = Modal.DeleteRecordModal;
         },
         // Hides the current Modal
         hideModal: state => {
@@ -150,7 +150,8 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-// export const { createApplication, renameApplication } = s2aReducer.actions
+export const { createApplication, renameApplication } = s2aReducer.actions
+export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal } = webAppReducer.actions;
 
 const store = configureStore({
     reducer: {

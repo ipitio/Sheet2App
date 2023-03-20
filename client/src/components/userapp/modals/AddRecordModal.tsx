@@ -5,7 +5,7 @@ import { Modal } from '../../../store/StoreTypes';
 
 function AddRecordModal() {
     // Retrieve the current modal that should be opened from the store
-    const currentModal = useSelector((state: IS2AState & IWebAppState) => state.currentModal);
+    const currentModal = useSelector((state: {s2aReducer: IS2AState, webAppReducer: IWebAppState}) => state.webAppReducer.currentModal);
 
     return (
         <Box

@@ -1,14 +1,18 @@
-import React from 'react';
 import { Box, Button, Divider, Typography } from '@mui/material';
 import { View } from '../../store/StoreTypes';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import { useStore, useSelector, useDispatch } from 'react-redux';
+import { IS2AState, IWebAppState, showAddRecordModal } from '../../store/StoreContext';
 
 interface TableViewProps extends View { }
 
 // TODO: GET RID OF THE ANY TYPE FOR TABLE PROPS. THIS IS JUST FOR TESTING
 function TableView(props: TableViewProps | any) {
+    const store = useStore();
+    const dispatch = useDispatch();
+    
     // TODO: Make API call to the spreadsheet URL
     // let spreadsheetData = api.get
     // let columnName = spreadsheetData[0] // Since the spreadsheet is passed back as a 2d list, the first element (row-wise) contains all of the columns
@@ -197,6 +201,9 @@ function TableView(props: TableViewProps | any) {
                 width: '15%',
                 marginTop: '32px'
             }}
+            onClick={ 
+                () => dispatch(showAddRecordModal())
+            }
         >
             <AddCircleOutlineIcon />
             <Typography>
