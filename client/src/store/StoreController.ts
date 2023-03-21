@@ -401,6 +401,36 @@ async function deleteDatasource(datasourceKey: number): Promise<void> {
 }
 
 /**
+ * Create a view for an app
+ * @param appID The app to create the view for
+ */
+async function createView(appID: number) {
+    const reqForm: RequestInit = {
+        method: "GET",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "appID": appID
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/createView", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        const data = await res.json();
+
+        return data.view;
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
+/**
  * Retrieves all views associated with the App. The returned view will have the available permissions associated with the users role. 
  * @param appID The application to retrieve the views for
  * @param role The Role of the end user requesting the views. Used for permissions
@@ -541,4 +571,4 @@ async function deleteRecord(viewID: number, recordID: number) {
     }
 }
 
-export default {getDevelopableApps, getAccessibleApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord, deleteRecord};
+export default {getDevelopableApps, getAccessibleApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, createView, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord, deleteRecord};
