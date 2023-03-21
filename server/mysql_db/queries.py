@@ -93,8 +93,10 @@ def create_table_view(app_id):
     """
     try:
         TableView.objects.create(app_id=app_id)
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
     
     
 def create_detail_view(table_view_id, name, record_index):
@@ -374,6 +376,18 @@ def update_datasource_column(
         return f"Error: {e}"
 
 
+def update_table_view(table_view_id, datasource_id, name):
+    try:
+        table_view = TableView.objects.get(id=table_view_id)
+        table_view.datasource_id = datasource_id
+        table_view.name = name
+        table_view.save()
+        
+        return {}, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 # Delete
 def delete_app(app_id):
     """
@@ -437,5 +451,7 @@ def delete_table_view(table_view_id):
     try:
         view = TableView.objects.get(id=table_view_id)
         view.delete()
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR

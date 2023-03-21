@@ -214,6 +214,22 @@ def create_table_view(request):
     return response
 
 
+def edt_table_view(request):
+    body = json.loads(request.body)
+    table_view_id = body['tableViewId']
+    datasource_id = body['datasourceId']
+    name = body['name']
+    
+    output, response_code = queries.update_table_view(table_view_id=table_view_id,
+                                                      datasource_id=datasource_id,
+                                                      name=name)
+    
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
+
+
 def get_views_by_app_id(request):
     body = json.loads(request.body)
     app_id = body['appID']
