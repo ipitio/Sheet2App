@@ -202,23 +202,32 @@ def edit_datasource_column(request):
     return response
 
 
+def get_views_by_app_id(request):
+    pass
+
+
 def add_record(request):
     body = json.loads(request.body)
     table_view_id = body['viewID']
     record_data = body['recordToAdd']['data']
     
+    # Get the datasource that corresponds to this view
     table_view, response_code = queries.get_table_view_by_id(table_view_id=table_view_id)
     datasource_id = table_view.datasource
     datasource, response_code = queries.get_datasource_by_id(datasource_id=datasource_id)
     
+    # Insert the record information into the sheet
     spreadsheet_id = datasource.spreadsheet_id
     gid = datasource.gid
     sheets.insert_row(spreadsheet_id=spreadsheet_id,
                       sheet_id=gid,
                       row_to_insert=record_data)
-    
-    # TODO return the new data of the entire table
-    res_body = {}
+
+    # Get and send the refreshed data in response
+    data = sheets.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    res_body = {
+        'spreadsheet_data': data
+    }
     response = HttpResponse(json.dumps(res_body), status=response_code)
     
     return response
