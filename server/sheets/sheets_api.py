@@ -11,6 +11,8 @@ from googleapiclient.errors import HttpError
 from openpyxl.utils.cell import get_column_letter
 from utils import *
 
+from openpyxl.utils.cell import get_column_letter
+
 # Allow the API to have complete control over the spreadsheet with this scope
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
@@ -177,6 +179,50 @@ def get_column_data(spreadsheet_id, sheet_id, columns):
     except HttpError as err:
         print(err)
         
+
+# Retrieve column data for certain specified columns Expects columns to be a 
+# array of column indices to retrieve the data for. Returns a 2 dimensional
+# list containing the column data, where list[0] is the first column, etc...
+def get_column_data(spreadsheet_id, sheet_id, columns):
+    try:
+        service = build('sheets', 'v4', credentials=get_creds())
+
+        # Call the Sheets API
+        sheet = service.spreadsheets()
+
+        # If no sheet_id is specified, then it is assumed that the first sheet is being requested.
+        # If it is specified, then we need to find the name of the sheet with the specified sheet_id
+        sheet_name = ""
+        if sheet_id is not None:
+            sheets_info=sheet.get(spreadsheetId=spreadsheet_id).execute().get('sheets')
+            
+            for sheet_info in sheets_info:
+                if sheet_info.get('properties').get('sheetId') == sheet_id:
+                    sheet_name=sheet_info.get('properties').get('title')
+                    break
+
+        # Convert all of the column indices (numbers) to their corresponding
+        # string indices
+        ranges=[]
+        for column in columns:
+            column_letter = get_column_letter(column + 1)
+            ranges.append(sheet_name + '!' + column_letter + ':' + column_letter)
+
+        # Make the API call to retrieve the specified data from the sheet
+        result = sheet.values().batchGet(spreadsheetId=spreadsheet_id,
+                                    ranges=ranges,
+                                ) \
+                                .execute()
+        
+        # Return the data stored in the spreadsheet as a 2 dimensional list, where each
+        # entry in the list represents a column of data
+        column_data = []
+        for values in result.get('valueRanges'):
+            column_data.append(values.get('values'))
+
+        return column_data
+    except HttpError as err:
+        print(err)
 
 # Update a specific cell in the spreadsheet. This function only works for one 
 # cell in the spreadsheet, and does not support updating multiple cells at once. 
