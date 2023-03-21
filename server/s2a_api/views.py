@@ -1,10 +1,30 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+
+import json
 from http import HTTPStatus
+
 import mysql_db.queries as queries
 import sheets.sheets_api as sheets
-from django.views.decorators.csrf import csrf_exempt
-import json
+import sheets.auth as auth
+
+
+@csrf_exempt
+def get_logged_in(request):
+    body = json.loads(request.body)
+    auth_code = body['auth_code']
+    
+    email, access_token, refresh_token, response_code = auth.oauth_login_user(auth_code=auth_code)
+    res_body = {
+        'email': email,
+        'access_token': access_token,
+        'refresh_token': refresh_token,
+    }
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
+
 
 @csrf_exempt
 def create_creator(request):
