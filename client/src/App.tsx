@@ -1,25 +1,45 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-function App() {
+import Splash from './components/S2A/Splash'
+import S2AHome from './components/S2A/Home'
+import EditApp from './components/S2A/EditApp';
+
+import UserAppHome from './components/userapp/Home'
+import TableView from './components/userapp/TableView';
+
+import store from './store/StoreContext'
+import { Provider } from 'react-redux'
+import DetailView from './components/userapp/DetailView';
+import AddRecordModal from './components/userapp/modals/AddRecordModal';
+import EditRecordModal from './components/userapp/modals/EditRecordModal';
+import DeleteRecordModal from './components/userapp/modals/DeleteRecordModal';
+
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+     <Provider store={store}>
+      <Router>
+        <Routes>
+          {/* S2A Routes */}
+          <Route path="*" element={<Splash />} />
+          <Route path="/S2A/home" element={<S2AHome />} />
+          <Route path="/S2A/editapp/:appid" element={<EditApp />} />
+
+          {/* User App Routes */}
+          <Route path="/userapp/:appid/home" element={<UserAppHome />} />
+          <Route path="/userapp/:appid/tableview/:tableviewid" element={<TableView />} />
+
+          {/* TESTING. TODO: REMOVE */}
+          <Route path="/test/table" element={<TableView/>} />
+          <Route path="/test/detail" element={<DetailView/>} />
+        </Routes>
+      </Router>
+      
+      {/* Modals */}
+      <AddRecordModal/>
+      <EditRecordModal/>
+      <DeleteRecordModal/>
+     </Provider>
   );
 }
 
