@@ -462,7 +462,7 @@ async function addRecord(viewID: number, recordToAdd: Record) {
          */
         const data = await res.json();
 
-        return data.view;
+        return data.spreadsheet_data;
     }
     catch(err) {
         return Promise.reject(err);
@@ -500,7 +500,7 @@ async function editRecord(viewID: number, recordID: number, editedRecord: Record
          */
         const data = await res.json();
 
-        return data.view;
+        return data.spreadsheet_data;
     }
     catch(err) {
         return Promise.reject(err);
@@ -536,7 +536,7 @@ async function deleteRecord(viewID: number, recordID: number) {
          */
         const data = await res.json();
 
-        return data.view;
+        return data.spreadsheet_data;
     }
     catch(err) {
         return Promise.reject(err);
