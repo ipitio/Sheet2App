@@ -267,6 +267,18 @@ def get_views_by_app_id(request):
     return response
 
 
+def delete_table_view(request):
+    body = json.loads(request.body)
+    table_view_id = body['tableViewId']
+    
+    output, response_code = queries.delete_table_view(table_view_id=table_view_id)
+    
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
+
+
 def add_record(request):
     body = json.loads(request.body)
     table_view_id = body['viewID']
