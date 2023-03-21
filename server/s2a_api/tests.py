@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.urls import reverse
 
 from .models import *
 from .views import *
@@ -283,3 +284,27 @@ class DetailViewColumnModelTest(TestCase):
 
 
 # View Tests
+class CreateCreatorTest(TestCase):
+    def test_create_creator(self):
+        response = self.client.post(
+            "/createCreator",
+            json.dumps({
+                "email": "create@creator.com",
+            }),
+            content_type="application/json",
+        )
+        self.assertEquals(response.status_code, 200)   
+        self.assertEquals(Creator.objects.count(), 1)
+        self.assertEquals(Creator.objects.get(id=1).email, "create@creator.com")
+
+    def test_create_creator_invalid(self):
+        response = self.client.post(
+            "/createCreator",
+            json.dumps({
+                "email": "",
+            }),
+            content_type="application/json",
+        )
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(Creator.objects.count(), 0)
+
