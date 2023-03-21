@@ -214,7 +214,7 @@ def create_table_view(request):
     return response
 
 
-def edt_table_view(request):
+def edit_table_view(request):
     body = json.loads(request.body)
     table_view_id = body['tableViewId']
     datasource_id = body['datasourceId']
