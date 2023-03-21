@@ -50,7 +50,7 @@ async function getDevelopableApps(): Promise<App[]> {
  * Requests an array of all apps that the user has permission to access.
  * @return {Promise<App[]>} - A promise that resolves to the array of apps on success, rejects on failure.
  */
-async function getUsableApps(): Promise<App[]> {
+async function getAccessibleApps(): Promise<App[]> {
     await refreshAccess();
 
     /* Fetch information from cookies. */
@@ -89,11 +89,9 @@ async function getUsableApps(): Promise<App[]> {
 /**
  * Requests to create a new app where the user is the creator.
  * @param {string} appName - The name of the application.
- * @param {string} roleMemUrl - The URL to the spreadsheet that contains the roles for users within the app.
- * @param {Datasource[]} datasources - An array of data sources the app is backed by.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function createApp(appName: string, roleMemUrl: string, datasources: Datasource[]): Promise<void> {
+async function createApp(appName: String): Promise<void> {
     /* Fetch information from cookies. */
     const email = Cookies.get("email");
     if(!email)
@@ -106,7 +104,7 @@ async function createApp(appName: string, roleMemUrl: string, datasources: Datas
         headers: { 
             "Content-Type": "application/json" 
         },
-        body: JSON.stringify({"email": email, "name": appName, "roleMemUrl": roleMemUrl, "datasources": datasources})
+        body: JSON.stringify({"email": email, "name": appName})
     }
 
     /* Send request and return promise resolving if creation successful. */
@@ -213,10 +211,10 @@ async function publishApp(appID: number): Promise<void> {
 
 /**
  * Requests to delete an application. 
- * @param {number} appID - The id of the application.
+ * @param {number} appId - The id of the application.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function deleteApp(appID: number): Promise<void> {
+async function deleteApp(appId: number): Promise<void> {
     /* Specify which app to delete in request body. */
     const reqForm: RequestInit = {
         method: "DELETE",
@@ -224,7 +222,7 @@ async function deleteApp(appID: number): Promise<void> {
         headers: { 
             "Content-Type": "application/json" 
         },
-        body: JSON.stringify({"appID": appID})
+        body: JSON.stringify({"appId": appId})
     }
 
     /* Send request and return promise resolving if publishing successful. */
@@ -543,4 +541,4 @@ async function deleteRecord(viewID: number, recordID: number) {
     }
 }
 
-export default {getDevelopableApps, getUsableApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord, deleteRecord};
+export default {getDevelopableApps, getAccessibleApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord, deleteRecord};

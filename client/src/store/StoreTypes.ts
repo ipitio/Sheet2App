@@ -70,7 +70,13 @@ export enum ColumnType {
     URL
 }
 
-export enum Modal {
+export enum AppDisplayType {
+    AppDevelopment,
+    AppAccess
+}
+
+export enum ModalType {
+    CreateAppModal,
     AddRecordModal,
     EditRecordModal,
     DeleteRecordModal

@@ -1,24 +1,22 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { hideModal, StoreState } from '../../../store/StoreContext';
-import { Modal } from '../../../store/StoreTypes';
+import { hideWebAppModal, StoreState } from '../../../store/StoreContext';
+import { ModalType } from '../../../store/StoreTypes';
 
 function EditRecordModal() {
     // Retrieve the dispatcher for the store
     const dispatch = useDispatch();
 
     // Retrieve the current modal that should be opened from the store
-    const currentModal = useSelector((state: StoreState) => state.webAppReducer.currentModal);
+    const currentModalType = useSelector((state: StoreState) => state.webAppReducer.currentModalType);
 
     return (
         <Box
             id='edit-record-modal'
         >
             <Dialog
-                open={currentModal === Modal.EditRecordModal}
-                onClose={() => {
-                    dispatch(hideModal())
-                }}
+                open={currentModalType === ModalType.EditRecordModal}
+                onClose={() => dispatch(hideWebAppModal())}
             >
                 <DialogTitle>
                     Edit Record
@@ -33,7 +31,7 @@ function EditRecordModal() {
                             Confirm
                         </Button>
                         <Button
-                            onClick={() => dispatch(hideModal())}
+                            onClick={() => dispatch(hideWebAppModal())}
                         >
                             Cancel
                         </Button>

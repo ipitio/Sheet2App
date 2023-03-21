@@ -34,6 +34,15 @@ async function getLoggedIn(authCode: string): Promise<void>{
 }
 
 /**
+ * Deletes all user cookies stored during login.
+ */
+function getLoggedOut(): void {
+    Cookies.remove("email");
+    Cookies.remove("accessToken");
+    Cookies.remove("refreshToken");
+}
+
+/**
  * Checks whether the current access token has expired.
  * @return {boolean} - True if the token is still valid, False otherwise.
  */
@@ -95,4 +104,4 @@ async function refreshAccess(): Promise <void> {
     }
 }
 
-export {getLoggedIn, refreshAccess}
+export {getLoggedIn, getLoggedOut, refreshAccess}

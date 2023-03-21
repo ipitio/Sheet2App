@@ -1,13 +1,18 @@
-import { configureStore, createSlice } from '@reduxjs/toolkit'
+import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { Datasource, App, View, Role, Modal, Record } from './StoreTypes'
+import { App, Datasource, Role, View, Record, Column, ColumnType, AppDisplayType, ModalType } from './StoreTypes'
+
+import storeController from './StoreController'
 
 export interface IS2AState {
+    // A list of all apps owned by the user
+    devApps: App[],
+
+    // A list of all apps accessible to the user
+    accApps: App[],
+
     // A list of data sources that have been retrieved from the database for the current user's app
     datasources: Datasource[],
-
-    // A list of all apps owned by the user
-    apps: App[],
 
     // The current application that the user is editing. Since the owner can only edit one application at a time on a web page, all changes requested
     // affect currentApp itself
@@ -17,23 +22,65 @@ export interface IS2AState {
     currentView: View | null,
 
     // The current role that is being edited
-    currentRole: Role | null
+    currentRole: Role | null,
+
+    // The current app display type 
+    currentAppDisplayType: AppDisplayType | null,
+
+    // The current modal type that is open on the screen (Create App)
+    currentModalType: ModalType | null
 }
 
 const s2aState: IS2AState = {
+    devApps: [],
+    accApps: [],
     datasources: [],
-    apps: [],
     currentApp: null,
     currentView: null,
-    currentRole: null
+    currentRole: null,
+    currentAppDisplayType: null,
+    currentModalType: null
 }
 
 const s2aReducer = createSlice({
     name: 's2aReducer',
     initialState: s2aState,
     reducers: {
-        createApplication: state => {
-            // TODO
+        viewDevApps: (state) => {
+            storeController.getDevelopableApps()
+                .then((devApps: App[]) => {
+                    state.devApps = devApps;
+                })
+                .catch((error: Error) => {
+                    console.log(error);
+                });
+        },
+        viewAccApps: (state) => {
+            storeController.getAccessibleApps()
+                .then((accApps: App[]) => {
+                    state.accApps = accApps;
+                })
+                .catch((error: Error) => {
+                    console.log(error);
+                });
+        },
+        createApp: (state, action: PayloadAction<string>) => {
+           storeController.createApp(action.payload)
+                .then(() => {
+                    console.log("Created App");
+                })
+                .catch((error: Error) => {
+                    console.log(error);
+                })
+        },
+        deleteApp: (state, action: PayloadAction<number>) => {
+            storeController.deleteApp(action.payload)
+                .then(() => {
+                    console.log("Deleted App");
+                })
+                .catch((error: Error) => {
+                    console.log(error);
+                })
         },
         renameApplication: state => {
             // TODO
@@ -53,10 +100,6 @@ const s2aReducer = createSlice({
         viewDatasources: state => {
             // TODO
         },
-        // View the list of owned applications
-        viewApps: state => {
-            // TODO
-        },
         setViewName: state => {
             // TODO
         },
@@ -68,6 +111,18 @@ const s2aReducer = createSlice({
         },
         setViewColumns: state => {
             // TODO
+        },
+        displayDevApps: (state) => {
+            state.currentAppDisplayType = AppDisplayType.AppDevelopment;
+        },
+        displayAccApps: (state) => {
+            state.currentAppDisplayType = AppDisplayType.AppAccess;
+        },
+        showCreateAppModal: (state) => {
+            state.currentModalType = ModalType.CreateAppModal;
+        },
+        hideS2aModal: (state) => {
+            state.currentModalType = null;
         }
     }
 })
@@ -80,14 +135,14 @@ export interface IWebAppState {
     // one view at a time.
     currentView: View | null,
     
-    // The current modal that is open on the screen (Add record modal, edit record modal, delete record modal)
-    currentModal: Modal | null
+    // The current modal type that is open on the screen (Add record modal, edit record modal, delete record modal)
+    currentModalType: ModalType | null
 }
 
 const webAppState: IWebAppState = {
     views: [],
     currentView: null,
-    currentModal: null
+    currentModalType: null
 }
 
 const webAppReducer = createSlice({
@@ -132,26 +187,26 @@ const webAppReducer = createSlice({
         },
         // Displays the AddRecord Modal
         showAddRecordModal: state => {
-            state.currentModal = Modal.AddRecordModal;
+            state.currentModalType = ModalType.AddRecordModal;
         },
         // Displays the EditRecord Modal
         showEditRecordModal: state => {
-            state.currentModal = Modal.EditRecordModal;
+            state.currentModalType = ModalType.EditRecordModal;
         },
         // Displays the DeleteRecord Modal
         showDeleteRecordModal: state => {
-            state.currentModal = Modal.DeleteRecordModal;
+            state.currentModalType = ModalType.DeleteRecordModal;
         },
         // Hides the current Modal
-        hideModal: state => {
-            state.currentModal = null
+        hideWebAppModal: state => {
+            state.currentModalType = null
         }
     }
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { createApplication, renameApplication } = s2aReducer.actions
-export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideModal } = webAppReducer.actions;
+export const { viewDevApps, viewAccApps, createApp, deleteApp, displayDevApps, displayAccApps, showCreateAppModal, hideS2aModal } = s2aReducer.actions
+export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
 export interface StoreState {
