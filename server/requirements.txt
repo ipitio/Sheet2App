@@ -1,0 +1,4 @@
+django
+google-api-python-client
+mysql-connector-python
+pylint-django # https://stackoverflow.com/a/58255140 # https://stackoverflow.com/a/68346742

@@ -1,3 +1,5 @@
 credentials.json
 sheets_api_test.py
 __pycache__
+config.ini
+token.json
