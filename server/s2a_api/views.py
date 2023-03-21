@@ -203,7 +203,56 @@ def edit_datasource_column(request):
 
 
 def get_views_by_app_id(request):
-    pass
+    body = json.loads(request.body)
+    app_id = body['appID']
+    role = body['role']
+    
+    table_view_data, response_code = queries.get_views_by_app_id(app_id=app_id)
+    
+    # For each view associated with the app, get the data in the corresponding spreadsheet,
+    # get the can view, add, and delete bools for the given role, get the list of columns the 
+    # role can edit for this table
+    views = []
+    for table_view in table_view_data:
+        table_view_id = table_view['id']
+        
+        datasource, response_code = queries.get_datasource_by_table_view_id()
+        spreadsheet_id = datasource.spreadsheet_id
+        gid = datasource.gid
+        
+        # Retrieve the spreadsheet data for all viewable columns in the table_view
+        displayed_column_indexes = [column.column_index 
+                                    for column in queries.get_datasource_columns_by_table_view_id()[0]]
+        sheet_data = sheets.get_column_data(spreadsheet_id=spreadsheet_id,
+                                            sheet_id=gid,
+                                            columns=displayed_column_indexes)
+        
+        table_view_perms, response_code = \
+            queries.get_table_view_perms_for_role_by_table_view_id(
+                table_view_id=table_view_id,
+                role=role
+            )
+        
+        # Get the columns that the given role is able to edit on this table
+        # Pick the first detail view that is associated with this table_view_id AND the given role
+        # find the columns that the detail view can edit
+        editable_columns, response_code = [column.column_index
+                                           for column in queries.get_datasource_columns_by_table_view_id_and_role()[0]]
+        views.append({
+            'data': sheet_data,
+            'id': table_view.id,
+            'role_can_view': table_view_perms.can_view,
+            'role_can_add': table_view_perms.can_add,
+            'role_can_delete': table_view_perms.can_delete,
+            'editable_column_indexes': editable_columns
+        })
+        
+    res_body = {
+        'views': views
+    }
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
 
 
 def add_record(request):

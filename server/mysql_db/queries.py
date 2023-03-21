@@ -211,11 +211,21 @@ def get_datasource_by_id(datasource_id):
     
 def get_datasources_by_app_id(app_id):
     try:
+        # TODO FIX
         datasources = Datasource.objects.filter(appdata__app_id=app_id)
         return datasources, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
         
+
+def get_datasource_by_table_view_id(table_view_id):
+    try:
+        datasource = Datasource.objects.filter(table_view_id=table_view_id)
+        
+        return datasource, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
 
 def get_datasource_column(datasource_column_id):
     """
@@ -233,6 +243,16 @@ def get_datasource_column(datasource_column_id):
         return f"Error: {e}"
 
 
+def get_views_by_app_id(app_id, role):
+    try:
+        views = TableView.objects.filter(app_id=app_id)
+        views = views.values()
+        
+        return views, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 def get_table_view_by_id(table_view_id):
     """
     Gets a view
@@ -245,6 +265,42 @@ def get_table_view_by_id(table_view_id):
     try:
         table_view = TableView.objects.get(id=table_view_id)
         return table_view, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_table_view_perms_for_role_by_table_view_id(table_view_id, role):
+    try:
+        table_view_perm = TableViewPerm.objects.filter(table_view_id=table_view_id,
+                                                       role=role)
+         
+        return table_view_perm, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_datasource_columns_by_table_view_id(table_view_id):
+    try:
+        # One line to get all TableViewViewableColumn entries that contain the table_view_id
+        # Then gets each DatasourceColumn object in each entry
+        datasource_columns = \
+            DatasourceColumn.objects.filter(tableviewviewablecolumn__table_view_id=table_view_id)
+         
+        return datasource_columns, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_datasource_columns_by_table_view_id_and_role(table_view_id, role):
+    try:
+        detail_views = DetailView.objects.filter(table_view_id=table_view_id, 
+                                                 detailviewperm__role=role)
+        
+        first_detail_view_id = detail_views[0].id
+        datasource_columns = \
+            DatasourceColumn.objects.filter(detailvieweditablecolumn__detail_view_id=first_detail_view_id)
+        
+        return datasource_columns, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
