@@ -458,7 +458,7 @@ async function editView(appID: number, datasourceKey: number, name: string) {
     }
 }
 
-async function deleteView(tableViewID: number) {
+async function deleteView(tabletableViewID: number) {
     const reqForm: RequestInit = {
         method: "DELETE",
         mode: "cors",
@@ -466,7 +466,7 @@ async function deleteView(tableViewID: number) {
             "Content-Type": "application/json" 
         },
         body: JSON.stringify({
-            "tableViewID": tableViewID
+            "tabletableViewID": tabletableViewID
         })
     }
 
@@ -521,7 +521,7 @@ async function getViewsByAppID(appID: number, role: Role) {
  * @param view The View to add the record to
  * @param recordToAdd The new record to add to the view
  */
-async function addRecord(viewID: number, recordToAdd: Record) {
+async function addRecord(tableViewID: number, recordToAdd: Record) {
     const reqForm: RequestInit = {
         method: "POST",
         mode: "cors",
@@ -529,7 +529,7 @@ async function addRecord(viewID: number, recordToAdd: Record) {
             "Content-Type": "application/json" 
         },
         body: JSON.stringify({
-            "viewID": viewID,
+            "tableViewID": tableViewID,
             "recordToAdd": recordToAdd
         })
     }
@@ -553,12 +553,12 @@ async function addRecord(viewID: number, recordToAdd: Record) {
 
 /**
  * Edits a record in the Google Sheets database
- * @param viewID The ID of the View to add the record to
+ * @param tableViewID The ID of the View to add the record to
  * @param recordID The ID of the record to edit
  * @param editedRecord The new record values 
  * @returns The updated View with the edited record
  */
-async function editRecord(viewID: number, recordID: number, editedRecord: Record) {
+async function editRecord(tableViewID: number, recordID: number, editedRecord: Record) {
     const reqForm: RequestInit = {
         method: "PUT",
         mode: "cors",
@@ -566,7 +566,7 @@ async function editRecord(viewID: number, recordID: number, editedRecord: Record
             "Content-Type": "application/json" 
         },
         body: JSON.stringify({
-            "viewID": viewID,
+            "tableViewID": tableViewID,
             "recordID": recordID,
             "editedRecord": editedRecord
         })
@@ -591,11 +591,11 @@ async function editRecord(viewID: number, recordID: number, editedRecord: Record
 
 /**
  * Deletes a record associated with a View
- * @param viewID The View associated with the record
+ * @param tableViewID The View associated with the record
  * @param recordID The ID of the record to delete
  * @returns Returns the new View with the record deleted from it, if the request is successful
  */
-async function deleteRecord(viewID: number, recordID: number) {
+async function deleteRecord(tableViewID: number, recordID: number) {
     const reqForm: RequestInit = {
         method: "DELETE",
         mode: "cors",
@@ -603,7 +603,7 @@ async function deleteRecord(viewID: number, recordID: number) {
             "Content-Type": "application/json" 
         },
         body: JSON.stringify({
-            "viewID": viewID,
+            "tableViewID": tableViewID,
             "recordID": recordID
         })
     }
