@@ -406,7 +406,7 @@ async function deleteDatasource(datasourceKey: number): Promise<void> {
  */
 async function createView(appID: number) {
     const reqForm: RequestInit = {
-        method: "GET",
+        method: "POST",
         mode: "cors",
         headers: { 
             "Content-Type": "application/json" 
@@ -418,6 +418,34 @@ async function createView(appID: number) {
 
     try {
         const res = await fetch("https://localhost:8000/createView", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        const data = await res.json();
+
+        return data.view;
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
+async function editView(appID: number, datasourceKey: number, name: string) {
+    const reqForm: RequestInit = {
+        method: "PUT",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "appID": appID,
+            "datasourceKey": datasourceKey,
+            "name": name
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/editView", reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         
@@ -571,4 +599,4 @@ async function deleteRecord(viewID: number, recordID: number) {
     }
 }
 
-export default {getDevelopableApps, getAccessibleApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, createView, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord, deleteRecord};
+export default {getDevelopableApps, getAccessibleApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, createView, editView, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord, deleteRecord};
