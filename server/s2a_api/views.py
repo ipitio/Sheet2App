@@ -202,6 +202,18 @@ def edit_datasource_column(request):
     return response
 
 
+def create_table_view(request):
+    body = json.loads(request.body)
+    app_id = body['appID']
+    
+    output, response_code = queries.create_table_view(app_id=app_id)
+        
+    res_body = {}
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+    
+    return response
+
+
 def get_views_by_app_id(request):
     body = json.loads(request.body)
     app_id = body['appID']

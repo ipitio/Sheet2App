@@ -82,7 +82,7 @@ def create_datasource_column(datasource_id, column_index, name):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_table_view(app_id, datasource_id, name):
+def create_table_view(app_id):
     """
     Creates a new entry in the TableView table
 
@@ -92,7 +92,7 @@ def create_table_view(app_id, datasource_id, name):
         _type_: _description_
     """
     try:
-        TableView.objects.create(app_id=app_id, datasource_id=datasource_id, name=name)
+        TableView.objects.create(app_id=app_id)
     except Exception as e:
         return f"Error: {e}"
     
