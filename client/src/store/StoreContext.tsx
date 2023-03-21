@@ -1,6 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { App, Datasource, Role, View, Record, Column, ColumnType, AppDisplayType, ModalType } from './StoreTypes'
+import { App, Datasource, Role, View, Record, Column, ColumnType, ModalType } from './StoreTypes'
 
 import storeController from './StoreController'
 
@@ -24,9 +24,6 @@ export interface IS2AState {
     // The current role that is being edited
     currentRole: Role | null,
 
-    // The current app display type 
-    currentAppDisplayType: AppDisplayType | null,
-
     // The current modal type that is open on the screen (Create App)
     currentModalType: ModalType | null
 }
@@ -38,7 +35,6 @@ const s2aState: IS2AState = {
     currentApp: null,
     currentView: null,
     currentRole: null,
-    currentAppDisplayType: null,
     currentModalType: null
 }
 
@@ -111,12 +107,6 @@ const s2aReducer = createSlice({
         },
         setViewColumns: state => {
             // TODO
-        },
-        displayDevApps: (state) => {
-            state.currentAppDisplayType = AppDisplayType.AppDevelopment;
-        },
-        displayAccApps: (state) => {
-            state.currentAppDisplayType = AppDisplayType.AppAccess;
         },
         showCreateAppModal: (state) => {
             state.currentModalType = ModalType.CreateAppModal;
@@ -205,7 +195,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewDevApps, viewAccApps, createApp, deleteApp, displayDevApps, displayAccApps, showCreateAppModal, hideS2aModal } = s2aReducer.actions
+export const { viewDevApps, viewAccApps, createApp, deleteApp, showCreateAppModal, hideS2aModal } = s2aReducer.actions
 export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors

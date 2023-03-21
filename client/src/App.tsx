@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Splash from './components/S2A/Splash'
-import S2AHome from './components/S2A/Home'
+import S2AHomeAccess from './components/S2A/HomeAccess'
+import S2AHomeDevelop from './components/S2A/HomeDevelop'
 import EditApp from './components/S2A/EditApp';
 
 import UserAppHome from './components/userapp/Home'
@@ -21,8 +22,9 @@ const App: React.FC = () => {
       <Router>
         <Routes>
           {/* S2A Routes */}
-          <Route path="*" element={<Splash />} />
-          <Route path="/S2A/home" element={<S2AHome />} />
+          <Route path="*" element={<Splash />} />\
+          <Route path="/S2A/home/develop" element={<S2AHomeDevelop/>}/>
+          <Route path="/S2A/home/access" element={<S2AHomeAccess/>} />
           <Route path="/S2A/editapp/:appid" element={<EditApp />} />
 
           {/* User App Routes */}
