@@ -458,6 +458,32 @@ async function editView(appID: number, datasourceKey: number, name: string) {
     }
 }
 
+async function deleteView(tableViewID: number) {
+    const reqForm: RequestInit = {
+        method: "DELETE",
+        mode: "cors",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+            "tableViewID": tableViewID
+        })
+    }
+
+    try {
+        const res = await fetch("https://localhost:8000/deleteView", reqForm);
+        if(!res.ok)
+            return Promise.reject("Request failed.");
+        
+        const data = await res.json();
+
+        return data.view;
+    }
+    catch(err) {
+        return Promise.reject(err);
+    }
+}
+
 /**
  * Retrieves all views associated with the App. The returned view will have the available permissions associated with the users role. 
  * @param appID The application to retrieve the views for
@@ -599,4 +625,4 @@ async function deleteRecord(viewID: number, recordID: number) {
     }
 }
 
-export default {getDevelopableApps, getAccessibleApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, createView, editView, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord, deleteRecord};
+export default {getDevelopableApps, getAccessibleApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, createView, editView, deleteView, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord, deleteRecord};
