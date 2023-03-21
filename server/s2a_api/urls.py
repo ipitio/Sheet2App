@@ -14,4 +14,10 @@ urlpatterns = [
     path('getAppDataSources', views.get_app_datasources),
     path('editDatasource', views.edit_datasource),
     path('deleteDatasource', views.delete_datasource),
+    path('editColumn', views.edit_datasource_column),
+    path('createTableView', views.create_table_view),
+    path('editTableView', views.edit_table_view),
+    path('deleteTableView', views.delete_table_view),
+    path('addRecord', views.add_record),
+    path('loadApp', views.get_views_by_app_id),
 ]

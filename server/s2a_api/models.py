@@ -34,12 +34,7 @@ class DatasourceColumn(models.Model):
     is_filter = models.BooleanField()
     is_user_filter = models.BooleanField()
     is_edit_filter = models.BooleanField()
-
-
-class AppData(models.Model):
-    app = models.ForeignKey(Application, on_delete=models.CASCADE)
-    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
-
+    
 
 class TableView(models.Model):
     app = models.ForeignKey(Application, on_delete=models.CASCADE)

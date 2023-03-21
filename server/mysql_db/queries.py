@@ -82,7 +82,7 @@ def create_datasource_column(datasource_id, column_index, name):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_table_view(app_id, datasource_id, name):
+def create_table_view(app_id):
     """
     Creates a new entry in the TableView table
 
@@ -92,9 +92,11 @@ def create_table_view(app_id, datasource_id, name):
         _type_: _description_
     """
     try:
-        TableView.objects.create(app_id=app_id, datasource_id=datasource_id, name=name)
+        TableView.objects.create(app_id=app_id)
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
     
     
 def create_detail_view(table_view_id, name, record_index):
@@ -204,19 +206,28 @@ def get_datasource_by_id(datasource_id):
     """
     try:
         datasource = Datasource.objects.get(id=datasource_id)
-        return datasource
+        return datasource, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
     
     
 def get_datasources_by_app_id(app_id):
     try:
+        # TODO FIX
         datasources = Datasource.objects.filter(appdata__app_id=app_id)
-        datasources = [to_camel_case(datasource) for datasource in datasources]
         return datasources, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
         
+
+def get_datasource_by_table_view_id(table_view_id):
+    try:
+        datasource = Datasource.objects.filter(table_view_id=table_view_id)
+        
+        return datasource, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
 
 def get_datasource_column(datasource_column_id):
     """
@@ -234,7 +245,17 @@ def get_datasource_column(datasource_column_id):
         return f"Error: {e}"
 
 
-def get_table_view(table_view_id):
+def get_views_by_app_id(app_id, role):
+    try:
+        views = TableView.objects.filter(app_id=app_id)
+        views = views.values()
+        
+        return views, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_table_view_by_id(table_view_id):
     """
     Gets a view
 
@@ -245,9 +266,45 @@ def get_table_view(table_view_id):
     """
     try:
         table_view = TableView.objects.get(id=table_view_id)
-        return table_view
+        return table_view, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_table_view_perms_for_role_by_table_view_id(table_view_id, role):
+    try:
+        table_view_perm = TableViewPerm.objects.filter(table_view_id=table_view_id,
+                                                       role=role)
+         
+        return table_view_perm, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_datasource_columns_by_table_view_id(table_view_id):
+    try:
+        # One line to get all TableViewViewableColumn entries that contain the table_view_id
+        # Then gets each DatasourceColumn object in each entry
+        datasource_columns = \
+            DatasourceColumn.objects.filter(tableviewviewablecolumn__table_view_id=table_view_id)
+         
+        return datasource_columns, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_datasource_columns_by_table_view_id_and_role(table_view_id, role):
+    try:
+        detail_views = DetailView.objects.filter(table_view_id=table_view_id, 
+                                                 detailviewperm__role=role)
+        
+        first_detail_view_id = detail_views[0].id
+        datasource_columns = \
+            DatasourceColumn.objects.filter(detailvieweditablecolumn__detail_view_id=first_detail_view_id)
+        
+        return datasource_columns, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Update
@@ -275,11 +332,11 @@ def update_app(app_id, app_name=None, role_mem_url=None):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_datasource(datasource_id, new_spreadsheet_id, new_spreadsheet_index, new_name):
+def update_datasource(datasource_id, new_spreadsheet_id, new_gid, new_name):
     try:
         datasource = Datasource.objects.get(id=datasource_id)
         datasource.spreadsheet_id = new_spreadsheet_id
-        datasource.spreadsheet_index = new_spreadsheet_index
+        datasource.gid = new_gid
         datasource.name = new_name
         datasource.save()
     except Exception as e:
@@ -317,6 +374,18 @@ def update_datasource_column(
         datasource_column.save()
     except Exception as e:
         return f"Error: {e}"
+
+
+def update_table_view(table_view_id, datasource_id, name):
+    try:
+        table_view = TableView.objects.get(id=table_view_id)
+        table_view.datasource_id = datasource_id
+        table_view.name = name
+        table_view.save()
+        
+        return {}, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Delete
@@ -382,5 +451,7 @@ def delete_table_view(table_view_id):
     try:
         view = TableView.objects.get(id=table_view_id)
         view.delete()
+        
+        return {}, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
