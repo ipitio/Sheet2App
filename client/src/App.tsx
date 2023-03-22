@@ -5,6 +5,7 @@ import Splash from './components/S2A/Splash'
 import S2AHomeAccess from './components/S2A/HomeAccess'
 import S2AHomeDevelop from './components/S2A/HomeDevelop'
 import EditApp from './components/S2A/EditApp';
+import EditAppDatasources from './components/S2A/EditAppDatasources'
 
 import UserAppHome from './components/userapp/Home'
 import TableView from './components/userapp/TableView';
@@ -26,6 +27,7 @@ const App: React.FC = () => {
           <Route path="/S2A/home/develop" element={<S2AHomeDevelop/>}/>
           <Route path="/S2A/home/access" element={<S2AHomeAccess/>} />
           <Route path="/S2A/editapp/:appid" element={<EditApp />} />
+          <Route path="/S2A/editapp/datasources/:appid" element={<EditAppDatasources />} />
 
           {/* User App Routes */}
           <Route path="/userapp/:appid/home" element={<UserAppHome />} />

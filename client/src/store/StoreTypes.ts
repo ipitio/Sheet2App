@@ -6,8 +6,11 @@ export interface App {
 }
 
 export interface Datasource {
+    id: number;
     spreadsheetID: string;
-    spreadsheetIdx: number;
+    sheetID: number;
+    name: string;
+    columns: Column[];
 }
 
 export interface Role {
@@ -72,6 +75,9 @@ export enum ColumnType {
 
 export enum ModalType {
     CreateAppModal,
+    EditAppCreateDatasourcesModal,
+    EditAppEditDatasourcesModal,
+    EditAppTableViewModal,
     AddRecordModal,
     EditRecordModal,
     DeleteRecordModal

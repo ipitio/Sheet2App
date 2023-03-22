@@ -1,4 +1,4 @@
-import { useEffect, } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -45,7 +45,7 @@ function HomeDevelop() {
 
     const handleEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
         const editButton = event.target as HTMLButtonElement;
-        navigate(`/S2A/editapp/${editButton.id}`)
+        navigate(`/S2A/editapp/datasources/${editButton.id}`)
     }
 
     return (                                                                
