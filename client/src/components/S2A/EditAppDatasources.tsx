@@ -37,6 +37,11 @@ function EditAppDatasources() {
     const currentColumn = useSelector((state: StoreState) => state.s2aReducer.currentColumn);
 
     /* REPLACE THIS SAMPLE DATA */
+
+    // TODO: WHEN WE LOAD THE DATASOURCES AND THE COLUMMS, WE NEED TO ASSOCIATE THE COLUMNS
+    // WITH THEIR RESPECTIVE DATA SOURCES. LOOK AT STORETYPES FOR DATASOURCE
+    // THE CODE WORKS WITH THE SAMPLE DATA, JUST NEED TO STORE IN Datasource.columns THE COLUMNS
+    // ASSOCAITED WITH THE DATASOURCE.
     const datasources = [
         { id: 1, name: "Data Source #1", spreadsheetURL: 'https://example.com/spreadsheet1', sheetName: "Sheet #1", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
         { id: 2, name: "Data Source #2", spreadsheetURL: 'https://example.com/spreadsheet2', sheetName: "Sheet #2", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
