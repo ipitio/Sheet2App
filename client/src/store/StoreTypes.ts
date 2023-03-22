@@ -60,10 +60,15 @@ export interface Column {
     reference: boolean,
 
     // The data types supported within this column
-    type: ColumnType,
+    type: ColumnType | string,
 
     // The ID of the column for CRUD requests
-    id: number
+    id: number,
+
+    include: boolean,
+    isFilter: boolean,
+    isUserFilter: boolean,
+    isEditFilter:boolean
 }
 
 export enum ColumnType {

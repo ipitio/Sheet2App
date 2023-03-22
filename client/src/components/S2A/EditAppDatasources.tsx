@@ -1,7 +1,7 @@
 import { KeyboardEventHandler, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState, createDatasource, setCurrentDatasource, editDatasource } from '../../store/StoreContext';
+import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState, createDatasource, setCurrentDatasource, editDatasource, setCurrentColumn } from '../../store/StoreContext';
 import { Column, ColumnType, Datasource, ModalType } from '../../store/StoreTypes';
 
 import EditAppNavBar from "./EditAppNavBar";
@@ -60,7 +60,7 @@ function EditAppDatasources() {
         { id: 20, name: "Data Source #20", spreadsheetURL: 'https://example.com/spreadsheet20', sheetName: "Sheet #20", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]}
     ]
     
-    const datasourceColumns = [
+    const datasourceColumns: Column[] = [
         {id: 1, name: "Col #1", initialValue: "sample formula #1", label: true, reference: true, type: "Boolean", include: true, isFilter: false, isUserFilter: false, isEditFilter: false},
         {id: 2, name: "Col #2", initialValue: "sample formula #2", label: false, reference: true, type: "Number", include: true, isFilter: false, isUserFilter: false, isEditFilter: false},
         {id: 3, name: "Col #3", initialValue: "sample formula #3", label: false, reference: false, type: "Boolean", include: true, isFilter: false, isUserFilter: false, isEditFilter: false},
@@ -81,10 +81,7 @@ function EditAppDatasources() {
         {id: 18, name: "Col #18", initialValue: "sample formula #18", label: false, reference: true, type: "Text", include: false, isFilter: false, isUserFilter: false, isEditFilter: false},
         {id: 19, name: "Col #19", initialValue: "sample formula #19", label: true, reference: true, type: "Number", include: false, isFilter: false, isUserFilter: false, isEditFilter: false},
         {id: 20, name: "Col #20", initialValue: "sample formula #20", label: false, reference: false, type: "Boolean", include: true, isFilter: false, isUserFilter: false, isEditFilter: false},
-        {id: 21, name: "Col #21", initialValue: "sample formula #21", label: true, reference: false, type: "Text", include: true, isFilter: false, isUserFilter: false, isEditFilter: false},
-        {id: 22, name: "Filter", initialValue: "", label: false, reference: false, type: "Boolean", isFilter: true, isUserFilter: false, isEditFilter: false},
-        {id: 24, name: "User Filter", initialValue: "", label: false, reference: false, type: "String", isFilter: false, isUserFilter: true, isEditFilter: false},
-        {id: 25, name: "Edit Filter", initialValue: "", label: false, reference: false, type: "Boolean", isFilter: false, isUserFilter: false, isEditFilter: true}  
+        {id: 21, name: "Col #21", initialValue: "sample formula #21", label: true, reference: false, type: "Text", include: true, isFilter: false, isUserFilter: false, isEditFilter: false}
     ]
 
     /* Event handler for modals. */
@@ -125,7 +122,6 @@ function EditAppDatasources() {
         if (e.key !== 'Enter') return;
 
         if (!currentDatasource || !currentColumn) return;
-
         const columns = getColumnsClone();
 
         for (let column of columns) {
@@ -276,9 +272,9 @@ function EditAppDatasources() {
                                 <div style={{ width: '10vw', border: "2px solid #87CEEB", textAlign: 'center', position: 'relative', marginLeft: '10px', marginBottom: '20px'}}>
 
                                     {/* Name/Type/Initial Value Textfields*/}
-                                    <TextField key={dsC.id} inputRef={dsNameRef} onKeyDown={handleEditDatasourceColName} variant="filled" label="Name" defaultValue={dsC.name} />
-                                    <TextField key={dsC.id} inputRef={dsTypeRef} onKeyDown={handleEditDatasourceColType} variant="filled" label="Type" defaultValue={dsC.type} />
-                                    <TextField key={dsC.id} inputRef={dsInitValRef} onKeyDown={handleEditDatasourceColInitForm} variant="filled" label="Initial Value Formula" defaultValue={dsC.initialValue} />
+                                    <TextField key={dsC.id} inputRef={dsNameRef} onKeyDown={handleEditDatasourceColName} variant="filled" label="Name" defaultValue={dsC.name} onClick={() => setCurrentColumn({column: dsC})}/>
+                                    <TextField key={dsC.id} inputRef={dsTypeRef} onKeyDown={handleEditDatasourceColType} variant="filled" label="Type" defaultValue={dsC.type} onClick={() => setCurrentColumn({column: dsC})}/>
+                                    <TextField key={dsC.id} inputRef={dsInitValRef} onKeyDown={handleEditDatasourceColInitForm} variant="filled" label="Initial Value Formula" defaultValue={dsC.initialValue} onClick={() => setCurrentColumn({column: dsC})}/>
 
                                     {/* Label and reference checkboxes. */}
                                     <FormControlLabel
