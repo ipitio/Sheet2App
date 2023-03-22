@@ -2,7 +2,8 @@ from s2a_api.models import *
 from mysql_db.utils import to_camel_case
 from django.core.serializers import serialize
 from http import HTTPStatus
-
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 # Create
 def create_creator(creator_email):
@@ -15,11 +16,14 @@ def create_creator(creator_email):
         _type_: _description_
     """
     try:
+        validate_email(creator_email)
         exists = Creator.objects.filter(email=creator_email).exists()
         if not exists:
             Creator.objects.create(email=creator_email)
             
         return {}, HTTPStatus.OK
+    except ValidationError as e:
+        return f"Error: {e}", HTTPStatus.BAD_REQUEST
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
