@@ -308,3 +308,107 @@ class CreateCreatorTest(TestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(Creator.objects.count(), 0)
 
+class CreateAppTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        Creator.objects.create(email="creator@app.com")
+
+    def test_create_app(self):
+        response = self.client.post(
+            "/createApp",
+            json.dumps({
+                "creatorEmail": "creator@app.com",
+                "appName": "Test App",
+            }),
+            content_type="application/json",
+        )
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(Application.objects.count(), 1)
+        self.assertEquals(Application.objects.get(id=1).name, "Test App")
+        self.assertEquals(Application.objects.get(id=1).creator.email, "creator@app.com")
+
+class CreateDatasourceTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        creator = Creator.objects.create(email="data@app.com")
+        Application.objects.create(
+            creator=creator,
+            name="Test App",
+            role_mem_url="https://www.google.com",
+            is_published=False,
+        )
+    
+    def test_create_datasource(self):
+        app = Application.objects.get(id=1)
+        response = self.client.post(
+            "/createDatasource",
+            json.dumps({
+                "appId": app.id,
+                "spreadsheetId": "1",
+                "gid": 1,
+                "datasourceName": "Test Data",
+            }),
+            content_type="application/json",
+        )
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(Datasource.objects.count(), 1)
+        self.assertEquals(Datasource.objects.get(id=1).name, "Test Data")
+        self.assertEquals(Datasource.objects.get(id=1).app.name, "Test App")
+
+class CreateTableViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        creator = Creator.objects.create(email="table@view.com")
+        app = Application.objects.create(
+            creator=creator,
+            name="Test App",
+            role_mem_url="https://www.google.com",
+            is_published=False,
+        )
+        Datasource.objects.create(
+            app=app, spreadsheet_id="1", gid=1, name="Test Data"
+        )
+    
+    def test_create_table_view(self):
+        app = Application.objects.get(id=1)
+        response = self.client.post(
+            "/createTableView",
+            json.dumps({
+                "appId": app.id,
+            }),
+            content_type="application/json",
+        )
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(TableView.objects.count(), 1)
+        self.assertEquals(TableView.objects.get(id=1).app.name, "Test App")
+        
+class GetDevelopableAppsTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        creator = Creator.objects.create(email="apps@creator.com")
+        Application.objects.create(
+            creator=creator,
+            name="Test App",
+            role_mem_url="https://www.google.com",
+            is_published=False,
+        )
+        Application.objects.create(
+            creator=creator,
+            name="Test App 2",
+            role_mem_url="https://www.google.com",
+            is_published=False,
+        )
+    
+    def test_get_developable_apps(self):
+        response = self.client.get(
+            "/getDevelopableApps",
+            json.dumps({
+                "email": "apps@creator.com",
+            }),
+            content_type="application/json",
+        )
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(response.json()), 2)
+        self.assertEquals(response.json()[0]["name"], "Test App")
+        self.assertEquals(response.json()[1]["name"], "Test App 2")
+    
