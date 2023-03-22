@@ -81,8 +81,17 @@ const s2aReducer = createSlice({
         renameApplication: state => {
             // TODO
         },
-        addDataSource: state => {
-            // TODO
+        createDatasource: (state, action: {payload: {spreadsheetID: string, sheetID: number, datasourceName: string}, type: string}) => {
+            if (state.currentApp) {
+                storeController.createDatasource(
+                    state.currentApp?.id,
+                    action.payload.spreadsheetID,
+                    action.payload.sheetID,
+                    action.payload.datasourceName
+                )
+            } else {
+                console.log("No active app.");
+            }
         },
         deleteDatasource: state => {
             // TODO
@@ -119,18 +128,6 @@ const s2aReducer = createSlice({
         },
         showEditAppTableViewModal: (state) => {
             state.currentModalType = ModalType.EditAppTableViewModal;
-        },
-        createDatasource: (state, action: {payload: {spreadsheetID: string, sheetID: number, datasourceName: string}, type: string}) => {
-            if (state.currentApp) {
-                storeController.createDatasource(
-                    state.currentApp?.id,
-                    action.payload.spreadsheetID,
-                    action.payload.sheetID,
-                    action.payload.datasourceName
-                )
-            } else {
-                console.log("No active app.");
-            }
         },
         hideS2aModal: (state) => {
             state.currentModalType = null;
