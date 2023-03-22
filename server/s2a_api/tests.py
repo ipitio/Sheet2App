@@ -1,51 +1,76 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from .models import *
+from .views import *
+
 from server.api.sheets.sheets_api import *
+
 
 # Create your tests here.
 class SheetsAPITestCase(TestCase):
-    spreadsheet_id='1GxYsHB5FOpZRRDDk0e5E5MpuHKpj_U7C7v6ubhcwNpQ'
-    sheet_id=0
-    range='A2:C2'
-    columns=[0, 2]
-    value_to_update='Updated cell value'
-    row_index=2
-    column_index=0
-    updated_row_data=['1', '2', '3']
+    spreadsheet_id = "1GxYsHB5FOpZRRDDk0e5E5MpuHKpj_U7C7v6ubhcwNpQ"
+    sheet_id = 0
+    range = "A2:C2"
+    columns = [0, 2]
+    value_to_update = "Updated cell value"
+    row_index = 2
+    column_index = 0
+    updated_row_data = ["1", "2", "3"]
 
     def test_get_data_when_sheet_id_is_none(self):
-        self.assertListEqual(get_data(self.spreadsheet_id), [['Some', 'Test', 'Data']])
-    
+        self.assertListEqual(get_data(self.spreadsheet_id), [["Some", "Test", "Data"]])
+
     def test_get_data_when_sheet_range_is_none(self):
-        self.assertListEqual(get_data(self.spreadsheet_id, self.sheet_id), [['Some', 'Test', 'Data'], ['Second', 'Row', 'Data']])
+        self.assertListEqual(
+            get_data(self.spreadsheet_id, self.sheet_id),
+            [["Some", "Test", "Data"], ["Second", "Row", "Data"]],
+        )
 
     def test_get_data(self):
-        self.assertListEqual(get_data(self.spreadsheet_id, self.sheet_id, self.range), [['Second', 'Row', 'Data']])
+        self.assertListEqual(
+            get_data(self.spreadsheet_id, self.sheet_id, self.range),
+            [["Second", "Row", "Data"]],
+        )
 
     def test_get_column_data(self):
-        self.assertListEqual(get_column_data(self.spreadsheet_id, self.sheet_id, self.range), [['Some', 'Second'], ['Data', 'Data']])
+        self.assertListEqual(
+            get_column_data(self.spreadsheet_id, self.sheet_id, self.range),
+            [["Some", "Second"], ["Data", "Data"]],
+        )
 
     def test_update_cell(self):
-        update_cell(self.spreadsheet_id, self.sheet_id, self.value_to_update, self.row_index, self.column_index)
-        self.assertListEqual(get_data(self.spreadsheet_id, self.sheet_id, '3:3'), [['Updated cell value']])
+        update_cell(
+            self.spreadsheet_id,
+            self.sheet_id,
+            self.value_to_update,
+            self.row_index,
+            self.column_index,
+        )
+        self.assertListEqual(
+            get_data(self.spreadsheet_id, self.sheet_id, "3:3"),
+            [["Updated cell value"]],
+        )
 
     def test_update_row(self):
         update_row(self.spreadsheet_id, self.sheet_id, self.updated_row_data, 3)
-        self.assertListEqual(get_data(self.spreadsheet_id, self.sheet_id, '4:4'), [['1', '2', '3']])
+        self.assertListEqual(
+            get_data(self.spreadsheet_id, self.sheet_id, "4:4"), [["1", "2", "3"]]
+        )
 
     # Insert a row containing Inserted Row Data into the last row of the spreadsheet
     def test_insert_row(self):
-        insert_row(self.spreadsheet_id, self.sheet_id, ['Inserted', 'Row', 'Data'])
-        self.assertListEqual(get_data(self.spreadsheet_id, self.sheet_id, '5:5'), [['Inserted', 'Row', 'Data']])
+        insert_row(self.spreadsheet_id, self.sheet_id, ["Inserted", "Row", "Data"])
+        self.assertListEqual(
+            get_data(self.spreadsheet_id, self.sheet_id, "5:5"),
+            [["Inserted", "Row", "Data"]],
+        )
 
     # After the previous test has run, delete the row at index 5. This should mean the row
     # at index 5 is now empty.
     def test_delete_row(self):
         delete_row(self.spreadsheet_id, self.sheet_id, 5)
-        self.assertListEqual(get_data(self.spreadsheet_id, self.sheet_id, '5:5'), [[]])
-from .models import *
-from .views import *
+        self.assertListEqual(get_data(self.spreadsheet_id, self.sheet_id, "5:5"), [[]])
 
 
 # Model tests
@@ -331,25 +356,30 @@ class CreateCreatorTest(TestCase):
     def test_create_creator(self):
         response = self.client.post(
             "/createCreator",
-            json.dumps({
-                "email": "create@creator.com",
-            }),
+            json.dumps(
+                {
+                    "email": "create@creator.com",
+                }
+            ),
             content_type="application/json",
         )
-        self.assertEquals(response.status_code, 200)   
+        self.assertEquals(response.status_code, 200)
         self.assertEquals(Creator.objects.count(), 1)
         self.assertEquals(Creator.objects.get(id=1).email, "create@creator.com")
 
     def test_create_creator_invalid(self):
         response = self.client.post(
             "/createCreator",
-            json.dumps({
-                "email": "",
-            }),
+            json.dumps(
+                {
+                    "email": "",
+                }
+            ),
             content_type="application/json",
         )
         self.assertEquals(response.status_code, 400)
         self.assertEquals(Creator.objects.count(), 0)
+
 
 class CreateAppTest(TestCase):
     @classmethod
@@ -359,16 +389,21 @@ class CreateAppTest(TestCase):
     def test_create_app(self):
         response = self.client.post(
             "/createApp",
-            json.dumps({
-                "creatorEmail": "creator@app.com",
-                "appName": "Test App",
-            }),
+            json.dumps(
+                {
+                    "creatorEmail": "creator@app.com",
+                    "appName": "Test App",
+                }
+            ),
             content_type="application/json",
         )
         self.assertEquals(response.status_code, 200)
         self.assertEquals(Application.objects.count(), 1)
         self.assertEquals(Application.objects.get(id=1).name, "Test App")
-        self.assertEquals(Application.objects.get(id=1).creator.email, "creator@app.com")
+        self.assertEquals(
+            Application.objects.get(id=1).creator.email, "creator@app.com"
+        )
+
 
 class CreateDatasourceTest(TestCase):
     @classmethod
@@ -380,23 +415,26 @@ class CreateDatasourceTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-    
+
     def test_create_datasource(self):
         app = Application.objects.get(id=1)
         response = self.client.post(
             "/createDatasource",
-            json.dumps({
-                "appId": app.id,
-                "spreadsheetId": "1",
-                "gid": 1,
-                "datasourceName": "Test Data",
-            }),
+            json.dumps(
+                {
+                    "appId": app.id,
+                    "spreadsheetId": "1",
+                    "gid": 1,
+                    "datasourceName": "Test Data",
+                }
+            ),
             content_type="application/json",
         )
         self.assertEquals(response.status_code, 200)
         self.assertEquals(Datasource.objects.count(), 1)
         self.assertEquals(Datasource.objects.get(id=1).name, "Test Data")
         self.assertEquals(Datasource.objects.get(id=1).app.name, "Test App")
+
 
 class CreateTableViewTest(TestCase):
     @classmethod
@@ -408,23 +446,24 @@ class CreateTableViewTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-        Datasource.objects.create(
-            app=app, spreadsheet_id="1", gid=1, name="Test Data"
-        )
-    
+        Datasource.objects.create(app=app, spreadsheet_id="1", gid=1, name="Test Data")
+
     def test_create_table_view(self):
         app = Application.objects.get(id=1)
         response = self.client.post(
             "/createTableView",
-            json.dumps({
-                "appId": app.id,
-            }),
+            json.dumps(
+                {
+                    "appId": app.id,
+                }
+            ),
             content_type="application/json",
         )
         self.assertEquals(response.status_code, 200)
         self.assertEquals(TableView.objects.count(), 1)
         self.assertEquals(TableView.objects.get(id=1).app.name, "Test App")
-        
+
+
 class GetDevelopableAppsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -441,17 +480,18 @@ class GetDevelopableAppsTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-    
+
     def test_get_developable_apps(self):
         response = self.client.get(
             "/getDevelopableApps",
-            json.dumps({
-                "email": "apps@creator.com",
-            }),
+            json.dumps(
+                {
+                    "email": "apps@creator.com",
+                }
+            ),
             content_type="application/json",
         )
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(response.json()), 2)
         self.assertEquals(response.json()[0]["name"], "Test App")
         self.assertEquals(response.json()[1]["name"], "Test App 2")
-    
