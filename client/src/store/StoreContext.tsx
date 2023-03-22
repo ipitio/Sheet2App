@@ -28,7 +28,10 @@ export interface IS2AState {
     currentModalType: ModalType | null,
 
     // The current datasource being edited
-    currentDatasource: Datasource | null
+    currentDatasource: Datasource | null,
+
+    // The current column being edited
+    currentColumn: Column | null
 }
 
 const s2aState: IS2AState = {
@@ -39,7 +42,8 @@ const s2aState: IS2AState = {
     currentView: null,
     currentRole: null,
     currentModalType: null,
-    currentDatasource: null
+    currentDatasource: null,
+    currentColumn: null
 }
 
 const s2aReducer = createSlice({
@@ -137,6 +141,9 @@ const s2aReducer = createSlice({
         },
         setViewColumns: state => {
             // TODO
+        },
+        setCurrentColumn: (state, action: {payload: {column: Column}}) => {
+            state.currentColumn = action.payload.column;
         },
         setCurrentDatasource: (state, action: {payload: {datasource: Datasource}}) => {
             state.currentDatasource = action.payload.datasource;
@@ -238,7 +245,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { viewDevApps, viewAccApps, createApp, deleteApp, showCreateAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal,
-createDatasource, setCurrentDatasource, editDatasource} = s2aReducer.actions
+createDatasource, setCurrentDatasource, editDatasource, setCurrentColumn} = s2aReducer.actions
 export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
