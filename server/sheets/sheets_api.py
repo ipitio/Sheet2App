@@ -260,9 +260,11 @@ def update_cell(spreadsheet_id, sheet_id, value_to_update, row_index, column_ind
         }
 
         # Execute the API call
-        service.spreadsheets().batchUpdate(
+        res = service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id,
             body=request_body).execute()
+
+        return res
         
     except HttpError as err:
         print(err)
@@ -298,9 +300,11 @@ def update_row(spreadsheet_id, sheet_id, updated_row_data, row_index):
         }
 
         # Execute the API call
-        service.spreadsheets().batchUpdate(
+        res = service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id,
             body=request_body).execute()
+
+        return res
         
     except HttpError as err:
         print(err)
@@ -333,9 +337,11 @@ def insert_row(spreadsheet_id, sheet_id, row_to_insert):
         }
 
         # Execute the API call
-        service.spreadsheets().batchUpdate(
+        res = service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id,
             body=request_body).execute()
+        
+        return res
         
     except HttpError as err:
         print(err)
@@ -364,10 +370,12 @@ def delete_row(spreadsheet_id, sheet_id, row_index):
         }
 
         # Execute the API call
-        service.spreadsheets().batchUpdate(
+        res = service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id,
             body=request_body).execute()
         
+        return res
+
     except HttpError as err:
         print(err)
 
