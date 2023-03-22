@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState, createDatasource } from '../../store/StoreContext';
-import { ModalType } from '../../store/StoreTypes';
+import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState, createDatasource, setCurrentDatasource, editDatasource } from '../../store/StoreContext';
+import { Column, Datasource, ModalType } from '../../store/StoreTypes';
 
 import EditAppNavBar from "./EditAppNavBar";
 import { Button, Grid, IconButton, TextField, Modal, FormControlLabel, Checkbox } from '@mui/material';
@@ -17,6 +17,11 @@ function EditAppDatasources() {
     const urlRef = useRef<HTMLInputElement>(null);
     const sheetNameRef = useRef<HTMLInputElement>(null);
 
+    /* Hooks foe editing datasource */
+    const dsNameRef = useRef<HTMLInputElement>(null);
+    const dsTypeRef = useRef<HTMLInputElement>(null);
+    const dsInitValRef = useRef<HTMLInputElement>(null);
+
     /* On mount, pull data. */
     useEffect(() => {
         // add dispatch for viewdatasources
@@ -25,30 +30,29 @@ function EditAppDatasources() {
 
     /* Redux hooks into store. */   
     const currentModalType = useSelector((state: StoreState) => state.s2aReducer.currentModalType);
-    
-
+    const currentDatasource = useSelector((state: StoreState) => state.s2aReducer.currentDatasource);
     /* REPLACE THIS SAMPLE DATA */
     const datasources = [
-        { id: 1, name: "Data Source #1", spreadsheetURL: 'https://example.com/spreadsheet1', sheetName: "Sheet #1"},
-        { id: 2, name: "Data Source #2", spreadsheetURL: 'https://example.com/spreadsheet2', sheetName: "Sheet #2"},
-        { id: 3, name: "Data Source #3", spreadsheetURL: 'https://example.com/spreadsheet3', sheetName: "Sheet #3" },
-        { id: 4, name: "Data Source #4", spreadsheetURL: 'https://example.com/spreadsheet4', sheetName: "Sheet #4"},
-        { id: 5, name: "Data Source #5", spreadsheetURL: 'https://example.com/spreadsheet5', sheetName: "Sheet #5"},
-        { id: 6, name: "Data Source #6", spreadsheetURL: 'https://example.com/spreadsheet6', sheetName: "Sheet #6"},
-        { id: 7, name: "Data Source #7", spreadsheetURL: 'https://example.com/spreadsheet7', sheetName: "Sheet #7"},
-        { id: 8, name: "Data Source #8", spreadsheetURL: 'https://example.com/spreadsheet8', sheetName: "Sheet #8"},
-        { id: 9, name: "Data Source #9", spreadsheetURL: 'https://example.com/spreadsheet9', sheetName: "Sheet #9"},
-        { id: 10, name: "Data Source #10", spreadsheetURL: 'https://example.com/spreadsheet10', sheetName: "Sheet #10"},
-        { id: 11, name: "Data Source #11", spreadsheetURL: 'https://example.com/spreadsheet11', sheetName: "Sheet #11"},
-        { id: 12, name: "Data Source #12", spreadsheetURL: 'https://example.com/spreadsheet12', sheetName: "Sheet #12" },
-        { id: 13, name: "Data Source #13", spreadsheetURL: 'https://example.com/spreadsheet13', sheetName: "Sheet #13"},
-        { id: 14, name: "Data Source #14", spreadsheetURL: 'https://example.com/spreadsheet14', sheetName: "Sheet #14"},
-        { id: 15, name: "Data Source #15", spreadsheetURL: 'https://example.com/spreadsheet15', sheetName: "Sheet #15"},
-        { id: 16, name: "Data Source #16", spreadsheetURL: 'https://example.com/spreadsheet16', sheetName: "Sheet #16" },
-        { id: 17, name: "Data Source #17", spreadsheetURL: 'https://example.com/spreadsheet17', sheetName: "Sheet #17"},
-        { id: 18, name: "Data Source #18", spreadsheetURL: 'https://example.com/spreadsheet18', sheetName: "Sheet #18"},
-        { id: 19, name: "Data Source #19", spreadsheetURL: 'https://example.com/spreadsheet19', sheetName: "Sheet #19"},
-        { id: 20, name: "Data Source #20", spreadsheetURL: 'https://example.com/spreadsheet20', sheetName: "Sheet #20"}
+        { id: 1, name: "Data Source #1", spreadsheetURL: 'https://example.com/spreadsheet1', sheetName: "Sheet #1", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 2, name: "Data Source #2", spreadsheetURL: 'https://example.com/spreadsheet2', sheetName: "Sheet #2", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 3, name: "Data Source #3", spreadsheetURL: 'https://example.com/spreadsheet3', sheetName: "Sheet #3", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[] },
+        { id: 4, name: "Data Source #4", spreadsheetURL: 'https://example.com/spreadsheet4', sheetName: "Sheet #4", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 5, name: "Data Source #5", spreadsheetURL: 'https://example.com/spreadsheet5', sheetName: "Sheet #5", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 6, name: "Data Source #6", spreadsheetURL: 'https://example.com/spreadsheet6', sheetName: "Sheet #6", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 7, name: "Data Source #7", spreadsheetURL: 'https://example.com/spreadsheet7', sheetName: "Sheet #7", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 8, name: "Data Source #8", spreadsheetURL: 'https://example.com/spreadsheet8', sheetName: "Sheet #8", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 9, name: "Data Source #9", spreadsheetURL: 'https://example.com/spreadsheet9', sheetName: "Sheet #9", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 10, name: "Data Source #10", spreadsheetURL: 'https://example.com/spreadsheet10', sheetName: "Sheet #10", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 11, name: "Data Source #11", spreadsheetURL: 'https://example.com/spreadsheet11', sheetName: "Sheet #11", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 12, name: "Data Source #12", spreadsheetURL: 'https://example.com/spreadsheet12', sheetName: "Sheet #12", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[] },
+        { id: 13, name: "Data Source #13", spreadsheetURL: 'https://example.com/spreadsheet13', sheetName: "Sheet #13", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 14, name: "Data Source #14", spreadsheetURL: 'https://example.com/spreadsheet14', sheetName: "Sheet #14", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 15, name: "Data Source #15", spreadsheetURL: 'https://example.com/spreadsheet15', sheetName: "Sheet #15", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 16, name: "Data Source #16", spreadsheetURL: 'https://example.com/spreadsheet16', sheetName: "Sheet #16", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[] },
+        { id: 17, name: "Data Source #17", spreadsheetURL: 'https://example.com/spreadsheet17', sheetName: "Sheet #17", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 18, name: "Data Source #18", spreadsheetURL: 'https://example.com/spreadsheet18', sheetName: "Sheet #18", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 19, name: "Data Source #19", spreadsheetURL: 'https://example.com/spreadsheet19', sheetName: "Sheet #19", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
+        { id: 20, name: "Data Source #20", spreadsheetURL: 'https://example.com/spreadsheet20', sheetName: "Sheet #20", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]}
     ]
     
     const datasourceColumns = [
@@ -87,7 +91,8 @@ function EditAppDatasources() {
         dispatch(showEditAppCreateDatasourcesModal());
     }
 
-    const handleOpenEditDatasourceModal = () => {
+    const handleOpenEditDatasourceModal = (datasource: Datasource) => {
+        dispatch(setCurrentDatasource({datasource: datasource}))
         dispatch(showEditAppEditDatasourcesModal());
     }
 
@@ -95,16 +100,24 @@ function EditAppDatasources() {
     const handleCreateDatasource = () => {
         dispatch(createDatasource({
             spreadsheetID: nameRef.current?.value as string,
+
+            // Default sheet id is 0 when making a new datasource
+            // TODO: should be any sheet id, but we don't have a textfield for that.
             sheetID: 0,
             datasourceName: sheetNameRef.current?.value as string
         }));
         dispatch(hideS2aModal());
     }   
 
-    const handleEditDatasourceColName = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const dsCId = event.target.id;
-        const name = event.target.value;
-        // make dispatch call
+    const handleEditDatasourceColName = () => {
+        dispatch(editDatasource({
+            datasourceKey: currentDatasource?.id as number,
+            spreadsheetID: currentDatasource?.spreadsheetID as string,
+            sheetIdx: currentDatasource?.sheetID as number,
+            datasourceName: dsNameRef.current?.value as string,
+            columns: currentDatasource?.columns as Column[]
+        }));
+        dispatch(hideS2aModal());
       }
     
     const handleEditDatasourceColType = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,9 +172,9 @@ function EditAppDatasources() {
                                 <div style={{ width: '10vw', border: "2px solid #87CEEB", textAlign: 'center', position: 'relative', marginLeft: '10px', marginBottom: '20px'}}>
 
                                     {/* Name/Type/Initial Value Textfields*/}
-                                    <TextField key={dsC.id} onChange={handleEditDatasourceColName} variant="filled" label="Name" value={dsC.name} />
-                                    <TextField key={dsC.id} onChange={handleEditDatasourceColType} variant="filled" label="Type" value={dsC.type} />
-                                    <TextField key={dsC.id} onChange={handleEditDatasourceColInitForm} variant="filled" label="Initial Value Formula" value={dsC.initialValue} />
+                                    <TextField key={dsC.id} inputRef={dsNameRef} onSubmit={handleEditDatasourceColName} variant="filled" label="Name" value={dsC.name} />
+                                    <TextField key={dsC.id} inputRef={dsTypeRef} onSubmit={handleEditDatasourceColType} variant="filled" label="Type" value={dsC.type} />
+                                    <TextField key={dsC.id} inputRef={dsInitValRef} onSubmit={handleEditDatasourceColInitForm} variant="filled" label="Initial Value Formula" value={dsC.initialValue} />
 
                                     {/* Label and reference checkboxes. */}
                                     <FormControlLabel
@@ -216,7 +229,7 @@ function EditAppDatasources() {
                                     <TextField variant="filled" label="Sheet Name" value={ds.sheetName}/>
 
                                     {/* Edit Datasource Button */}
-                                    <IconButton onClick={handleOpenEditDatasourceModal} sx={{ position: 'absolute', top: -10, right: -5 }}>
+                                    <IconButton onClick={() => {handleOpenEditDatasourceModal(ds)}} sx={{ position: 'absolute', top: -10, right: -5 }}>
                                         <EditIcon fontSize="small" />
                                     </IconButton>
                                 </div>

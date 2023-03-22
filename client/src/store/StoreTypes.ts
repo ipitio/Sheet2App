@@ -6,9 +6,11 @@ export interface App {
 }
 
 export interface Datasource {
+    id: number;
     spreadsheetID: string;
     sheetID: number;
     name: string;
+    columns: Column[];
 }
 
 export interface Role {

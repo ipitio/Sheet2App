@@ -25,7 +25,10 @@ export interface IS2AState {
     currentRole: Role | null,
 
     // The current modal type that is open on the screen (Create App)
-    currentModalType: ModalType | null
+    currentModalType: ModalType | null,
+
+    // The current datasource being edited
+    currentDatasource: Datasource | null
 }
 
 const s2aState: IS2AState = {
@@ -35,7 +38,8 @@ const s2aState: IS2AState = {
     currentApp: null,
     currentView: null,
     currentRole: null,
-    currentModalType: null
+    currentModalType: null,
+    currentDatasource: null
 }
 
 const s2aReducer = createSlice({
@@ -96,8 +100,25 @@ const s2aReducer = createSlice({
         deleteDatasource: state => {
             // TODO
         },
-        editDatasource: state => {
+        editDatasource: (state, action: {payload: {
+            datasourceKey: number,
+            spreadsheetID: string,
+            sheetIdx: number,
+            datasourceName: string,
+            columns: Column[]
+        }}) => {
             // TODO
+            if (state.currentApp) {
+                storeController.editDatasource(
+                    action.payload.datasourceKey,
+                    action.payload.spreadsheetID,
+                    action.payload.sheetIdx,
+                    action.payload.datasourceName,
+                    action.payload.columns
+                )
+            } else {
+                console.log("No active app.");
+            }
         },
         publishApp: state => {
             // TODO
@@ -116,6 +137,9 @@ const s2aReducer = createSlice({
         },
         setViewColumns: state => {
             // TODO
+        },
+        setCurrentDatasource: (state, action: {payload: {datasource: Datasource}}) => {
+            state.currentDatasource = action.payload.datasource;
         },
         showCreateAppModal: (state) => {
             state.currentModalType = ModalType.CreateAppModal;
@@ -214,7 +238,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { viewDevApps, viewAccApps, createApp, deleteApp, showCreateAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal,
-createDatasource, } = s2aReducer.actions
+createDatasource, setCurrentDatasource, editDatasource} = s2aReducer.actions
 export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
