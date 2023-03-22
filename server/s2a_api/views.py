@@ -13,7 +13,7 @@ import sheets.auth as auth
 @csrf_exempt
 def get_logged_in(request):
     body = json.loads(request.body)
-    auth_code = body['auth_code']
+    auth_code = body['authCode']
     
     email, access_token, refresh_token, response_code = auth.oauth_login_user(auth_code=auth_code)
     res_body = {
