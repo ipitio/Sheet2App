@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { KeyboardEventHandler, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState, createDatasource, setCurrentDatasource, editDatasource } from '../../store/StoreContext';
-import { Column, Datasource, ModalType } from '../../store/StoreTypes';
+import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState, createDatasource, setCurrentDatasource, editDatasource, setCurrentColumn } from '../../store/StoreContext';
+import { Column, ColumnType, Datasource, ModalType } from '../../store/StoreTypes';
 
 import EditAppNavBar from "./EditAppNavBar";
 import { Button, Grid, IconButton, TextField, Modal, FormControlLabel, Checkbox } from '@mui/material';
@@ -22,6 +22,9 @@ function EditAppDatasources() {
     const dsTypeRef = useRef<HTMLInputElement>(null);
     const dsInitValRef = useRef<HTMLInputElement>(null);
 
+    const labelCheck = useRef<HTMLInputElement>(null);
+    const referenceCheck = useRef<HTMLInputElement>(null);
+
     /* On mount, pull data. */
     useEffect(() => {
         // add dispatch for viewdatasources
@@ -31,7 +34,14 @@ function EditAppDatasources() {
     /* Redux hooks into store. */   
     const currentModalType = useSelector((state: StoreState) => state.s2aReducer.currentModalType);
     const currentDatasource = useSelector((state: StoreState) => state.s2aReducer.currentDatasource);
+    const currentColumn = useSelector((state: StoreState) => state.s2aReducer.currentColumn);
+
     /* REPLACE THIS SAMPLE DATA */
+
+    // TODO: WHEN WE LOAD THE DATASOURCES AND THE COLUMMS, WE NEED TO ASSOCIATE THE COLUMNS
+    // WITH THEIR RESPECTIVE DATA SOURCES. LOOK AT STORETYPES FOR DATASOURCE
+    // THE CODE WORKS WITH THE SAMPLE DATA, JUST NEED TO STORE IN Datasource.columns THE COLUMNS
+    // ASSOCAITED WITH THE DATASOURCE.
     const datasources = [
         { id: 1, name: "Data Source #1", spreadsheetURL: 'https://example.com/spreadsheet1', sheetName: "Sheet #1", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
         { id: 2, name: "Data Source #2", spreadsheetURL: 'https://example.com/spreadsheet2', sheetName: "Sheet #2", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
@@ -55,7 +65,7 @@ function EditAppDatasources() {
         { id: 20, name: "Data Source #20", spreadsheetURL: 'https://example.com/spreadsheet20', sheetName: "Sheet #20", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]}
     ]
     
-    const datasourceColumns = [
+    const datasourceColumns: Column[] = [
         {id: 1, name: "Col #1", initialValue: "sample formula #1", label: true, reference: true, type: "Boolean", include: true, isFilter: false, isUserFilter: false, isEditFilter: false},
         {id: 2, name: "Col #2", initialValue: "sample formula #2", label: false, reference: true, type: "Number", include: true, isFilter: false, isUserFilter: false, isEditFilter: false},
         {id: 3, name: "Col #3", initialValue: "sample formula #3", label: false, reference: false, type: "Boolean", include: true, isFilter: false, isUserFilter: false, isEditFilter: false},
@@ -76,10 +86,7 @@ function EditAppDatasources() {
         {id: 18, name: "Col #18", initialValue: "sample formula #18", label: false, reference: true, type: "Text", include: false, isFilter: false, isUserFilter: false, isEditFilter: false},
         {id: 19, name: "Col #19", initialValue: "sample formula #19", label: true, reference: true, type: "Number", include: false, isFilter: false, isUserFilter: false, isEditFilter: false},
         {id: 20, name: "Col #20", initialValue: "sample formula #20", label: false, reference: false, type: "Boolean", include: true, isFilter: false, isUserFilter: false, isEditFilter: false},
-        {id: 21, name: "Col #21", initialValue: "sample formula #21", label: true, reference: false, type: "Text", include: true, isFilter: false, isUserFilter: false, isEditFilter: false},
-        {id: 22, name: "Filter", initialValue: "", label: false, reference: false, type: "Boolean", isFilter: true, isUserFilter: false, isEditFilter: false},
-        {id: 24, name: "User Filter", initialValue: "", label: false, reference: false, type: "String", isFilter: false, isUserFilter: true, isEditFilter: false},
-        {id: 25, name: "Edit Filter", initialValue: "", label: false, reference: false, type: "Boolean", isFilter: false, isUserFilter: false, isEditFilter: true}  
+        {id: 21, name: "Col #21", initialValue: "sample formula #21", label: true, reference: false, type: "Text", include: true, isFilter: false, isUserFilter: false, isEditFilter: false}
     ]
 
     /* Event handler for modals. */
@@ -109,41 +116,139 @@ function EditAppDatasources() {
         dispatch(hideS2aModal());
     }   
 
-    const handleEditDatasourceColName = () => {
+    const getColumnsClone = (): Column[] => {
+        if (!currentDatasource || !currentColumn) return [];
+
+        const columns: Column[] = JSON.parse(JSON.stringify(currentDatasource.columns));
+        return columns;
+    }
+
+    const handleEditDatasourceColName = (e: any) => {
+        if (e.key !== 'Enter') return;
+
+        if (!currentDatasource || !currentColumn) return;
+        const columns = getColumnsClone();
+
+        for (let column of columns) {
+            if (column.id == currentColumn.id) {
+                column.name = dsNameRef.current?.value as string;
+            }
+        } 
+
         dispatch(editDatasource({
             datasourceKey: currentDatasource?.id as number,
             spreadsheetID: currentDatasource?.spreadsheetID as string,
             sheetIdx: currentDatasource?.sheetID as number,
-            datasourceName: dsNameRef.current?.value as string,
-            columns: currentDatasource?.columns as Column[]
+            datasourceName: currentDatasource?.name as string,
+            columns: columns as Column[]
         }));
         dispatch(hideS2aModal());
       }
     
-    const handleEditDatasourceColType = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const dsCId = event.target.id;
-        const type = event.target.value;
-        // make dispatch call
+    const handleEditDatasourceColType = (e:any) => {
+        if (e.key !== 'Enter') return;
+
+        if (!currentDatasource || !currentColumn) return;
+
+        const columns = getColumnsClone();
+
+        for (let column of columns) {
+            if (column.id == currentColumn.id) {
+                let columnTypeVal;
+                switch (dsTypeRef.current?.value) {
+                    case ("URL"):
+                        columnTypeVal = ColumnType.URL;
+                        break;
+                    case ("Text"):
+                        columnTypeVal = ColumnType.Text;
+                        break;
+                    case ("Boolean"):
+                        columnTypeVal = ColumnType.Boolean;
+                        break;
+                    case("Number"): 
+                        columnTypeVal = ColumnType.Number;
+                        break;
+                }
+
+                if (columnTypeVal) {
+                    column.type = columnTypeVal;
+                }
+            }
+        } 
+
+        dispatch(editDatasource({
+            datasourceKey: currentDatasource?.id as number,
+            spreadsheetID: currentDatasource?.spreadsheetID as string,
+            sheetIdx: currentDatasource?.sheetID as number,
+            datasourceName: currentDatasource?.name as string,
+            columns: currentDatasource?.columns as Column[]
+        }));
+        dispatch(hideS2aModal());
     }
 
-    const handleEditDatasourceColInitForm = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const dsCId = event.target.id;
-        const initForm = event.target.value;
-        // make dispatch call
+    const handleEditDatasourceColInitForm = (e: any) => {
+        if (e.key !== 'Enter') return;
+
+        if (!currentDatasource || !currentColumn) return;
+
+        const columns = getColumnsClone();
+
+        for (let column of columns) {
+            if (column.id == currentColumn.id) {
+                column.initialValue = dsInitValRef.current?.value;
+            }
+        } 
+
+        dispatch(editDatasource({
+            datasourceKey: currentDatasource?.id as number,
+            spreadsheetID: currentDatasource?.spreadsheetID as string,
+            sheetIdx: currentDatasource?.sheetID as number,
+            datasourceName: currentDatasource?.name as string,
+            columns: currentDatasource?.columns as Column[]
+        }));
+        dispatch(hideS2aModal());
     }
 
-    const handleEditDatasourceColLabel = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const dsC = event.target as HTMLButtonElement;
-        const label = event.target.checked;
+    const handleEditDatasourceColLabel = () => {
+        if (!currentDatasource || !currentColumn) return;
 
-        // make dispatch call
+        const columns = getColumnsClone();
+
+        for (let column of columns) {
+            if (column.id == currentColumn.id) {
+                column.label = labelCheck.current?.checked as boolean;
+            }
+        } 
+
+        dispatch(editDatasource({
+            datasourceKey: currentDatasource?.id as number,
+            spreadsheetID: currentDatasource?.spreadsheetID as string,
+            sheetIdx: currentDatasource?.sheetID as number,
+            datasourceName: currentDatasource?.name as string,
+            columns: currentDatasource?.columns as Column[]
+        }));
+        dispatch(hideS2aModal());
     }
 
-    const handleEditDatasourceColReference = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const dsC = event.target as HTMLButtonElement;
-        const ref = event.target.checked;
+    const handleEditDatasourceColReference = () => {
+        if (!currentDatasource || !currentColumn) return;
 
-        // make dispatch call
+        const columns = getColumnsClone();
+
+        for (let column of columns) {
+            if (column.id == currentColumn.id) {
+                column.label = referenceCheck.current?.checked as boolean;
+            }
+        } 
+
+        dispatch(editDatasource({
+            datasourceKey: currentDatasource?.id as number,
+            spreadsheetID: currentDatasource?.spreadsheetID as string,
+            sheetIdx: currentDatasource?.sheetID as number,
+            datasourceName: currentDatasource?.name as string,
+            columns: currentDatasource?.columns as Column[]
+        }));
+        dispatch(hideS2aModal());
     }
 
     return (
@@ -172,18 +277,19 @@ function EditAppDatasources() {
                                 <div style={{ width: '10vw', border: "2px solid #87CEEB", textAlign: 'center', position: 'relative', marginLeft: '10px', marginBottom: '20px'}}>
 
                                     {/* Name/Type/Initial Value Textfields*/}
-                                    <TextField key={dsC.id} inputRef={dsNameRef} onSubmit={handleEditDatasourceColName} variant="filled" label="Name" value={dsC.name} />
-                                    <TextField key={dsC.id} inputRef={dsTypeRef} onSubmit={handleEditDatasourceColType} variant="filled" label="Type" value={dsC.type} />
-                                    <TextField key={dsC.id} inputRef={dsInitValRef} onSubmit={handleEditDatasourceColInitForm} variant="filled" label="Initial Value Formula" value={dsC.initialValue} />
+                                    <TextField key={dsC.id} inputRef={dsNameRef} onKeyDown={handleEditDatasourceColName} variant="filled" label="Name" defaultValue={dsC.name} onClick={() => setCurrentColumn({column: dsC})}/>
+                                    <TextField key={dsC.id} inputRef={dsTypeRef} onKeyDown={handleEditDatasourceColType} variant="filled" label="Type" defaultValue={dsC.type} onClick={() => setCurrentColumn({column: dsC})}/>
+                                    <TextField key={dsC.id} inputRef={dsInitValRef} onKeyDown={handleEditDatasourceColInitForm} variant="filled" label="Initial Value Formula" defaultValue={dsC.initialValue} onClick={() => setCurrentColumn({column: dsC})}/>
 
                                     {/* Label and reference checkboxes. */}
                                     <FormControlLabel
                                         control={
                                             <Checkbox
                                                 key={dsC.id}
-                                                onChange={handleEditDatasourceColLabel}
-                                                checked={dsC.label}
+                                                onClick={handleEditDatasourceColLabel}
+                                                defaultChecked={dsC.label}
                                                 inputProps={{ 'aria-label': 'Checkbox example' }}
+                                                inputRef={labelCheck}
                                             />
                                         }
                                         label="Label"
@@ -193,9 +299,10 @@ function EditAppDatasources() {
                                         control={
                                             <Checkbox
                                                 key={dsC.id}
-                                                onChange={handleEditDatasourceColReference}
-                                                checked={dsC.reference}
+                                                onClick={handleEditDatasourceColReference}
+                                                defaultChecked={dsC.reference}
                                                 inputProps={{ 'aria-label': 'Checkbox example' }}
+                                                inputRef={referenceCheck}
                                             />
                                         }
                                         label="Reference"
