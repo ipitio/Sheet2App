@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { KeyboardEventHandler, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState, createDatasource, setCurrentDatasource, editDatasource } from '../../store/StoreContext';
@@ -121,7 +121,9 @@ function EditAppDatasources() {
         return columns;
     }
 
-    const handleEditDatasourceColName = () => {
+    const handleEditDatasourceColName = (e: any) => {
+        if (e.key !== 'Enter') return;
+
         if (!currentDatasource || !currentColumn) return;
 
         const columns = getColumnsClone();
@@ -142,7 +144,9 @@ function EditAppDatasources() {
         dispatch(hideS2aModal());
       }
     
-    const handleEditDatasourceColType = () => {
+    const handleEditDatasourceColType = (e:any) => {
+        if (e.key !== 'Enter') return;
+
         if (!currentDatasource || !currentColumn) return;
 
         const columns = getColumnsClone();
@@ -181,7 +185,9 @@ function EditAppDatasources() {
         dispatch(hideS2aModal());
     }
 
-    const handleEditDatasourceColInitForm = () => {
+    const handleEditDatasourceColInitForm = (e: any) => {
+        if (e.key !== 'Enter') return;
+
         if (!currentDatasource || !currentColumn) return;
 
         const columns = getColumnsClone();
@@ -231,7 +237,6 @@ function EditAppDatasources() {
         for (let column of columns) {
             if (column.id == currentColumn.id) {
                 column.label = referenceCheck.current?.checked as boolean;
-                console.log(referenceCheck.current?.checked as boolean)
             }
         } 
 
@@ -271,9 +276,9 @@ function EditAppDatasources() {
                                 <div style={{ width: '10vw', border: "2px solid #87CEEB", textAlign: 'center', position: 'relative', marginLeft: '10px', marginBottom: '20px'}}>
 
                                     {/* Name/Type/Initial Value Textfields*/}
-                                    <TextField key={dsC.id} inputRef={dsNameRef} onSubmit={handleEditDatasourceColName} variant="filled" label="Name" value={dsC.name} />
-                                    <TextField key={dsC.id} inputRef={dsTypeRef} onSubmit={handleEditDatasourceColType} variant="filled" label="Type" value={dsC.type} />
-                                    <TextField key={dsC.id} inputRef={dsInitValRef} onSubmit={handleEditDatasourceColInitForm} variant="filled" label="Initial Value Formula" value={dsC.initialValue} />
+                                    <TextField key={dsC.id} inputRef={dsNameRef} onKeyDown={handleEditDatasourceColName} variant="filled" label="Name" defaultValue={dsC.name} />
+                                    <TextField key={dsC.id} inputRef={dsTypeRef} onKeyDown={handleEditDatasourceColType} variant="filled" label="Type" defaultValue={dsC.type} />
+                                    <TextField key={dsC.id} inputRef={dsInitValRef} onKeyDown={handleEditDatasourceColInitForm} variant="filled" label="Initial Value Formula" defaultValue={dsC.initialValue} />
 
                                     {/* Label and reference checkboxes. */}
                                     <FormControlLabel
