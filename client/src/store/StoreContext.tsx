@@ -28,7 +28,10 @@ export interface IS2AState {
     currentModalType: ModalType | null,
 
     // The current datasource being edited
-    currentDatasource: Datasource | null
+    currentDatasource: Datasource | null,
+
+    // The current column being edited
+    currentColumn: Column | null
 }
 
 const s2aState: IS2AState = {
@@ -39,7 +42,8 @@ const s2aState: IS2AState = {
     currentView: null,
     currentRole: null,
     currentModalType: null,
-    currentDatasource: null
+    currentDatasource: null,
+    currentColumn: null
 }
 
 const s2aReducer = createSlice({

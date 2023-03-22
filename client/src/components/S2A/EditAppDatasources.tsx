@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState, createDatasource, setCurrentDatasource, editDatasource } from '../../store/StoreContext';
-import { Column, Datasource, ModalType } from '../../store/StoreTypes';
+import { Column, ColumnType, Datasource, ModalType } from '../../store/StoreTypes';
 
 import EditAppNavBar from "./EditAppNavBar";
 import { Button, Grid, IconButton, TextField, Modal, FormControlLabel, Checkbox } from '@mui/material';
@@ -22,6 +22,9 @@ function EditAppDatasources() {
     const dsTypeRef = useRef<HTMLInputElement>(null);
     const dsInitValRef = useRef<HTMLInputElement>(null);
 
+    const labelCheck = useRef<HTMLInputElement>(null);
+    const referenceCheck = useRef<HTMLInputElement>(null);
+
     /* On mount, pull data. */
     useEffect(() => {
         // add dispatch for viewdatasources
@@ -31,6 +34,8 @@ function EditAppDatasources() {
     /* Redux hooks into store. */   
     const currentModalType = useSelector((state: StoreState) => state.s2aReducer.currentModalType);
     const currentDatasource = useSelector((state: StoreState) => state.s2aReducer.currentDatasource);
+    const currentColumn = useSelector((state: StoreState) => state.s2aReducer.currentColumn);
+
     /* REPLACE THIS SAMPLE DATA */
     const datasources = [
         { id: 1, name: "Data Source #1", spreadsheetURL: 'https://example.com/spreadsheet1', sheetName: "Sheet #1", spreadsheetID: 'spreadsheet1', sheetID: 0, columns:[]},
@@ -109,41 +114,135 @@ function EditAppDatasources() {
         dispatch(hideS2aModal());
     }   
 
+    const getColumnsClone = (): Column[] => {
+        if (!currentDatasource || !currentColumn) return [];
+
+        const columns: Column[] = JSON.parse(JSON.stringify(currentDatasource.columns));
+        return columns;
+    }
+
     const handleEditDatasourceColName = () => {
+        if (!currentDatasource || !currentColumn) return;
+
+        const columns = getColumnsClone();
+
+        for (let column of columns) {
+            if (column.id == currentColumn.id) {
+                column.name = dsNameRef.current?.value as string;
+            }
+        } 
+
         dispatch(editDatasource({
             datasourceKey: currentDatasource?.id as number,
             spreadsheetID: currentDatasource?.spreadsheetID as string,
             sheetIdx: currentDatasource?.sheetID as number,
-            datasourceName: dsNameRef.current?.value as string,
-            columns: currentDatasource?.columns as Column[]
+            datasourceName: currentDatasource?.name as string,
+            columns: columns as Column[]
         }));
         dispatch(hideS2aModal());
       }
     
-    const handleEditDatasourceColType = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const dsCId = event.target.id;
-        const type = event.target.value;
-        // make dispatch call
+    const handleEditDatasourceColType = () => {
+        if (!currentDatasource || !currentColumn) return;
+
+        const columns = getColumnsClone();
+
+        for (let column of columns) {
+            if (column.id == currentColumn.id) {
+                let columnTypeVal;
+                switch (dsTypeRef.current?.value) {
+                    case ("URL"):
+                        columnTypeVal = ColumnType.URL;
+                        break;
+                    case ("Text"):
+                        columnTypeVal = ColumnType.Text;
+                        break;
+                    case ("Boolean"):
+                        columnTypeVal = ColumnType.Boolean;
+                        break;
+                    case("Number"): 
+                        columnTypeVal = ColumnType.Number;
+                        break;
+                }
+
+                if (columnTypeVal) {
+                    column.type = columnTypeVal;
+                }
+            }
+        } 
+
+        dispatch(editDatasource({
+            datasourceKey: currentDatasource?.id as number,
+            spreadsheetID: currentDatasource?.spreadsheetID as string,
+            sheetIdx: currentDatasource?.sheetID as number,
+            datasourceName: currentDatasource?.name as string,
+            columns: currentDatasource?.columns as Column[]
+        }));
+        dispatch(hideS2aModal());
     }
 
-    const handleEditDatasourceColInitForm = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const dsCId = event.target.id;
-        const initForm = event.target.value;
-        // make dispatch call
+    const handleEditDatasourceColInitForm = () => {
+        if (!currentDatasource || !currentColumn) return;
+
+        const columns = getColumnsClone();
+
+        for (let column of columns) {
+            if (column.id == currentColumn.id) {
+                column.initialValue = dsInitValRef.current?.value;
+            }
+        } 
+
+        dispatch(editDatasource({
+            datasourceKey: currentDatasource?.id as number,
+            spreadsheetID: currentDatasource?.spreadsheetID as string,
+            sheetIdx: currentDatasource?.sheetID as number,
+            datasourceName: currentDatasource?.name as string,
+            columns: currentDatasource?.columns as Column[]
+        }));
+        dispatch(hideS2aModal());
     }
 
-    const handleEditDatasourceColLabel = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const dsC = event.target as HTMLButtonElement;
-        const label = event.target.checked;
+    const handleEditDatasourceColLabel = () => {
+        if (!currentDatasource || !currentColumn) return;
 
-        // make dispatch call
+        const columns = getColumnsClone();
+
+        for (let column of columns) {
+            if (column.id == currentColumn.id) {
+                column.label = labelCheck.current?.checked as boolean;
+            }
+        } 
+
+        dispatch(editDatasource({
+            datasourceKey: currentDatasource?.id as number,
+            spreadsheetID: currentDatasource?.spreadsheetID as string,
+            sheetIdx: currentDatasource?.sheetID as number,
+            datasourceName: currentDatasource?.name as string,
+            columns: currentDatasource?.columns as Column[]
+        }));
+        dispatch(hideS2aModal());
     }
 
-    const handleEditDatasourceColReference = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const dsC = event.target as HTMLButtonElement;
-        const ref = event.target.checked;
+    const handleEditDatasourceColReference = () => {
+        if (!currentDatasource || !currentColumn) return;
 
-        // make dispatch call
+        const columns = getColumnsClone();
+
+        for (let column of columns) {
+            if (column.id == currentColumn.id) {
+                column.label = referenceCheck.current?.checked as boolean;
+                console.log(referenceCheck.current?.checked as boolean)
+            }
+        } 
+
+        dispatch(editDatasource({
+            datasourceKey: currentDatasource?.id as number,
+            spreadsheetID: currentDatasource?.spreadsheetID as string,
+            sheetIdx: currentDatasource?.sheetID as number,
+            datasourceName: currentDatasource?.name as string,
+            columns: currentDatasource?.columns as Column[]
+        }));
+        dispatch(hideS2aModal());
     }
 
     return (
@@ -181,9 +280,10 @@ function EditAppDatasources() {
                                         control={
                                             <Checkbox
                                                 key={dsC.id}
-                                                onChange={handleEditDatasourceColLabel}
-                                                checked={dsC.label}
+                                                onClick={handleEditDatasourceColLabel}
+                                                defaultChecked={dsC.label}
                                                 inputProps={{ 'aria-label': 'Checkbox example' }}
+                                                inputRef={labelCheck}
                                             />
                                         }
                                         label="Label"
@@ -193,9 +293,10 @@ function EditAppDatasources() {
                                         control={
                                             <Checkbox
                                                 key={dsC.id}
-                                                onChange={handleEditDatasourceColReference}
-                                                checked={dsC.reference}
+                                                onClick={handleEditDatasourceColReference}
+                                                defaultChecked={dsC.reference}
                                                 inputProps={{ 'aria-label': 'Checkbox example' }}
+                                                inputRef={referenceCheck}
                                             />
                                         }
                                         label="Reference"
