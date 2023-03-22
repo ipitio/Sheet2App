@@ -72,6 +72,9 @@ export enum ColumnType {
 
 export enum ModalType {
     CreateAppModal,
+    EditAppCreateDatasourcesModal,
+    EditAppEditDatasourcesModal,
+    EditAppTableViewModal,
     AddRecordModal,
     EditRecordModal,
     DeleteRecordModal

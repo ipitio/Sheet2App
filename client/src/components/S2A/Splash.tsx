@@ -11,6 +11,7 @@ import gsheetsIcon from '../../styles/googlesheets.png'
 const clientId: string = process.env.REACT_APP_OAUTH_CLIENT_ID || '';
 
 function Splash() {
+    /* React hooks. */
     const navigate = useNavigate();
 
     /* Synchronizes Google API with OAuth client id to prevent depreciation error. */
