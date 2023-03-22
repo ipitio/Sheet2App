@@ -4,3 +4,6 @@ __pycache__
 config.ini
 token.json
 .env
+db/
+dump.rdb
+```
