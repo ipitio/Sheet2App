@@ -9,18 +9,16 @@ from sheets.sheets_api import *
 
 # Create your tests here.
 class SheetsAPITestCase(TestCase):
-    spreadsheet_id = ""
-    sheet_id = 0
-    range = "A2:C2"
-    columns = [0, 2]
-    value_to_update = "Updated cell value"
-    row_index = 2
-    column_index = 0
-    updated_row_data = ["1", "2", "3"]
-
     @classmethod
     def setUpTestData(cls):
         cls.spreadsheet_id = create_spreadsheet("Test Spreadsheet")
+        cls.sheet_id = 0
+        cls.range = "A2:C2"
+        cls.columns = [0, 2]
+        cls.value_to_update = "Updated cell value"
+        cls.row_index = 2
+        cls.column_index = 0
+        cls.updated_row_data = ["1", "2", "3"]
 
     def test_get_data_when_sheet_id_is_none(self):
         self.assertListEqual(get_data(self.spreadsheet_id), [["Some", "Test", "Data"]])

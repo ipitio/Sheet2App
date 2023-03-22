@@ -90,7 +90,7 @@ def create_spreadsheet(title):
 
 # Retrieve data from a spreadsheet. If a range is specified, retrieve all data from within that range.
 # If no range is specified, returns the entire first sheet. Reads the data row by row as a default.
-def get_data(spreadsheet_id, sheet_id=None, range=None, majorDimension="ROWS"):
+def get_data(spreadsheet_id, sheet_id=None, range=None, majorDimension="ROWS") -> list:
     try:
         service = build("sheets", "v4", credentials=get_creds())
 
@@ -139,15 +139,16 @@ def get_data(spreadsheet_id, sheet_id=None, range=None, majorDimension="ROWS"):
         )
 
         # Return the data stored in the spreadsheet as a 2 dimensional list.
-        return result.get("values")
+        return result.get("values", [])
     except HttpError as err:
         print(err)
+        return []
 
 
 # Retrieve column data for certain specified columns Expects columns to be a
 # array of column indices to retrieve the data for. Returns a 2 dimensional
 # list containing the column data, where list[0] is the first column, etc...
-def get_column_data(spreadsheet_id, sheet_id, columns):
+def get_column_data(spreadsheet_id, sheet_id, columns) -> list:
     try:
         service = build("sheets", "v4", credentials=get_creds())
 
@@ -190,6 +191,7 @@ def get_column_data(spreadsheet_id, sheet_id, columns):
         return column_data
     except HttpError as err:
         print(err)
+        return []
 
 
 # Update a specific cell in the spreadsheet. This function only works for one
@@ -292,7 +294,10 @@ def update_row(spreadsheet_id, sheet_id, updated_row_data, row_index):
 # Insert a new record / row in the spreadsheet. The data in row_to_insert must be passed as a list, where every element in the list
 # corresponds to the elements in the row.
 # TODO: Allow insertion of row into any row, not just end of spreadsheet
-def insert_row(spreadsheet_id, sheet_id, row_to_insert):
+def insert_row(spreadsheet_id, sheet_id, row_to_insert, row_index=-1):
+    # If no row_index is specified, then the row is inserted at the end of the spreadsheet
+    if row_index == -1:
+        row_index = get_num_rows(spreadsheet_id, sheet_id)
     try:
         service = build("sheets", "v4", credentials=get_creds())
 
@@ -304,8 +309,8 @@ def insert_row(spreadsheet_id, sheet_id, row_to_insert):
                         "range": {
                             "sheetId": sheet_id,
                             "dimension": "ROWS",
-                            "startIndex": get_num_rows(spreadsheet_id, sheet_id),
-                            "endIndex": get_num_rows(spreadsheet_id, sheet_id) + 1,
+                            "startIndex": row_index,
+                            "endIndex": row_index + 1,
                         },
                         "inheritFromBefore": True,
                     }
@@ -421,7 +426,7 @@ def generate_row_data(row_data):
     return row
 
 
-def get_num_rows(spreadsheet_id, sheet_id):
+def get_num_rows(spreadsheet_id, sheet_id) -> int:
     try:
         service = build("sheets", "v4", credentials=get_creds())
 
@@ -436,5 +441,7 @@ def get_num_rows(spreadsheet_id, sheet_id):
             if sheet["properties"]["sheetId"] == sheet_id:
                 num_rows = sheet["properties"]["gridProperties"]["rowCount"]
                 return num_rows
+        return 0
     except HttpError as err:
         print(err)
+        return 0
