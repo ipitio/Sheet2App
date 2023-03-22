@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState } from '../../store/StoreContext';
+import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState, createDatasource } from '../../store/StoreContext';
 import { ModalType } from '../../store/StoreTypes';
 
 import EditAppNavBar from "./EditAppNavBar";
@@ -13,9 +13,9 @@ import EditIcon from '@mui/icons-material/Edit';
 function EditAppDatasources() {
     /* React hooks. */
     const dispatch = useDispatch();
-    const nameRef = useRef(null);
-    const urlRef = useRef(null);
-    const sheetNameRef = useRef(null);
+    const nameRef = useRef<HTMLInputElement>(null);
+    const urlRef = useRef<HTMLInputElement>(null);
+    const sheetNameRef = useRef<HTMLInputElement>(null);
 
     /* On mount, pull data. */
     useEffect(() => {
@@ -93,8 +93,11 @@ function EditAppDatasources() {
 
     /* Event handler for creating/editing data sources. */
     const handleCreateDatasource = () => {
-        // name in nameRef.current.value ...
-        // make dispatch call
+        dispatch(createDatasource({
+            spreadsheetID: nameRef.current?.value as string,
+            sheetID: 0,
+            datasourceName: sheetNameRef.current?.value as string
+        }));
         dispatch(hideS2aModal());
     }   
 

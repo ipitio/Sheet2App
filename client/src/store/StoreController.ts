@@ -272,11 +272,11 @@ async function getAppDataSources(appID: number): Promise<Datasource[]> {
  * Creates a datasource for the application
  * @param appID The web app to associate this datasource with
  * @param spreadsheetID The ID of the spreadsheet in Google Sheets
- * @param sheetIdx The index of the sheet in Google Sheets
+ * @param sheetID The ID of the sheet in Google Sheets
  * @param datasourceName The name of the datasource for reference within S2A
  * @returns the newly created Datasource, if the request is valid
  */
-async function createDatasource(appID: number, spreadsheetID: string, sheetIdx: number, datasourceName: string): Promise<void> {
+async function createDatasource(appID: number, spreadsheetID: string, sheetID: number, datasourceName: string): Promise<void> {
     const reqForm: RequestInit = {
         method: "POST",
         mode: "cors",
@@ -286,7 +286,7 @@ async function createDatasource(appID: number, spreadsheetID: string, sheetIdx: 
         body: JSON.stringify({
             "appID": appID,
             "spreadsheetID": spreadsheetID,
-            "sheetIdx": sheetIdx,
+            "sheetIdx": sheetID,
             "datasourceName": datasourceName
         })
     }

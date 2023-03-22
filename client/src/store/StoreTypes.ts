@@ -7,7 +7,8 @@ export interface App {
 
 export interface Datasource {
     spreadsheetID: string;
-    spreadsheetIdx: number;
+    sheetID: number;
+    name: string;
 }
 
 export interface Role {

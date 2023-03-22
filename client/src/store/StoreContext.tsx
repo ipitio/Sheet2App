@@ -120,6 +120,18 @@ const s2aReducer = createSlice({
         showEditAppTableViewModal: (state) => {
             state.currentModalType = ModalType.EditAppTableViewModal;
         },
+        createDatasource: (state, action: {payload: {spreadsheetID: string, sheetID: number, datasourceName: string}, type: string}) => {
+            if (state.currentApp) {
+                storeController.createDatasource(
+                    state.currentApp?.id,
+                    action.payload.spreadsheetID,
+                    action.payload.sheetID,
+                    action.payload.datasourceName
+                )
+            } else {
+                console.log("No active app.");
+            }
+        },
         hideS2aModal: (state) => {
             state.currentModalType = null;
         }
@@ -204,7 +216,8 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewDevApps, viewAccApps, createApp, deleteApp, showCreateAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal } = s2aReducer.actions
+export const { viewDevApps, viewAccApps, createApp, deleteApp, showCreateAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal,
+createDatasource, } = s2aReducer.actions
 export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
