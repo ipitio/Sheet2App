@@ -1,70 +1,66 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { getLoggedIn } from '../../auth/AuthController';
 
 import GoogleLogin, { GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
 import { gapi } from 'gapi-script'
 
-import gcloudIcon from '../../styles/googlecloud.png'
-import gsheetsIcon from '../../styles/googlesheets.png'
-
-const clientId: string = process.env.REACT_APP_OAUTH_CLIENT_ID || '';
+import '../../styles/Splash.css'
 
 function Splash() {
-    /* React hooks. */
     const navigate = useNavigate();
+    const [error, setError] = useState('');
 
-    /* Synchronizes Google API with OAuth client id to prevent depreciation error. */
     useEffect(() => {
+        /* Synchronizes Google API with OAuth client id to prevent depreciation error. */
         function init() {
             gapi.client.init({
-                clientId: clientId,
+                clientId: process.env.REACT_APP_OAUTH_CLIENT_ID || '',
                 scope: "email"
             });
         }
         gapi.load('client:auth2', init);
     }, []);
 
-    /* On success, navigate to home screen. */
     const onSuccess = (res: GoogleLoginResponse | GoogleLoginResponseOffline) => {
         if("code" in res && typeof res.code === "string") {
+            /* On success, navigate to home screen. */
             getLoggedIn(res.code).then(() => {
-                navigate("s2a/home");
+                navigate("S2A/home/develop");
             })
-            .catch(err => {
-                console.log("Failed to generate OAuth tokens.", err);
+            .catch(() => {
+              setError("Failed to generate OAuth tokens.");
             });
         }
         else
-            console.log("Failed to sign in.", res);
+          setError("External API failure.")
     }   
 
-    /* On failure, display error message. */
-    const onFailure = (res: any) => {
-        console.log("General failure", res);
+    const onFailure = () => {
+        setError("Failed to sign in.");
     };
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridTemplateRows: '5% 70% 25%', height: '100vh', fontFamily: 'sans-serif'}}>
+        <div id="splash-wrapper">
           {/* Grid row #1  */}
-          <div style={{ gridColumn: '1', gridRow: '1', marginLeft: '5rem', textAlign: 'left', fontSize: '2.5rem'}}>
+          <div id="title">
             Sheet2App
           </div>
-          <div style={{ gridColumn: '3', gridRow: '1', marginLeft: '5rem', textAlign: 'center', fontSize: '1.1rem', fontWeight: 'lighter'}}>
+          <div id="powered-by">
             Powered by Google Cloud
-            <img src={gcloudIcon} style={{ marginLeft: '0.5rem', marginRight: '0.5rem', verticalAlign: 'middle', height: '2rem' }}></img>
+            <img id="gcloud-icon" className="icon"></img>
             & Google Sheets
-            <img src={gsheetsIcon} style={{ marginLeft: '0.5rem', marginRight: '0.5rem', verticalAlign: 'middle', height: '2rem' }}></img>
+            <img id="gsheets-icon" className="icon"></img>
           </div>
           
           {/* Grid row #2 */}
-          <div style={{ gridColumn: '1 / span 3', gridRow: '2', justifySelf: 'center', alignSelf: 'center', height: '55vh', width: '100vw', backgroundColor: '#87CEEB'}}>
-            <div style={{ display: 'flex', marginTop: '1rem', justifyContent: 'center', fontSize: '2rem'}}>
+          <div id="center-wrapper">
+            <div id="description">
                 Straightforward. Powerful. No-Code.
             </div>
-            <div style={{ height: '65%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div id="login-button">
                 <GoogleLogin
-                    clientId={clientId}
+                    clientId={process.env.REACT_APP_OAUTH_CLIENT_ID || ''}
                     onSuccess={onSuccess}
                     onFailure={onFailure}
                     prompt="consent"
@@ -74,16 +70,17 @@ function Splash() {
                     buttonText="Sign into S2A with Google"
                 />
             </div>
+            {error && <div className="error">{error}</div>}
           </div>
 
           {/* Grid row #3 */}
-          <div style={{ gridColumn: '1', gridRow: '3', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '2px solid #87CEEB', borderRadius: '10px', margin: '2rem', padding: '2rem' }}>
+          <div id="textbox1" className="textbox">
             <p><b>Create Your Own Apps</b><br></br><br></br>Developers will be able to create their own end-user applications backed by their personal Google Sheets data. Permissions can be also be defined at an individual granularity.</p>
           </div>
-          <div style={{ gridColumn: '2', gridRow: '3', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '2px solid #87CEEB', borderRadius: '10px', margin: '2rem', padding: '2rem' }}>
+          <div id="textbox2" className="textbox">
             <p><b>Share and Access Apps</b><br></br><br></br>End-users are able to access developed apps shared with them. Within these apps, they are able to navigate through a plethora of views that allow them to indirectly create, update, and delete Google Sheets data.</p>
           </div>
-          <div style={{ gridColumn: '3', gridRow: '3', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '2px solid #87CEEB', borderRadius: '10px', margin: '2rem', padding: '2rem' }}>
+          <div id="textbox3" className="textbox">
             <p><b>Live Data Synchronization</b><br></br><br></br>End-users can see data changes performed by others in real-time for coordination and collaboration across backing Google Sheets.</p>
           </div>
         </div>

@@ -160,7 +160,7 @@ const s2aReducer = createSlice({
         showEditAppTableViewModal: (state) => {
             state.currentModalType = ModalType.EditAppTableViewModal;
         },
-        hideS2aModal: (state) => {
+        hideS2AModal: (state) => {
             state.currentModalType = null;
         }
     }
@@ -244,7 +244,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewDevApps, viewAccApps, createApp, deleteApp, showCreateAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal,
+export const { viewDevApps, viewAccApps, createApp, deleteApp, showCreateAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2AModal,
 createDatasource, setCurrentDatasource, editDatasource, setCurrentColumn} = s2aReducer.actions
 export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
 

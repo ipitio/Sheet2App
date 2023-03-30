@@ -1,7 +1,7 @@
 import { KeyboardEventHandler, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2aModal, StoreState, createDatasource, setCurrentDatasource, editDatasource, setCurrentColumn } from '../../store/StoreContext';
+import { showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2AModal, StoreState, createDatasource, setCurrentDatasource, editDatasource, setCurrentColumn } from '../../store/StoreContext';
 import { Column, ColumnType, Datasource, ModalType } from '../../store/StoreTypes';
 
 import EditAppNavBar from "./EditAppNavBar";
@@ -28,7 +28,7 @@ function EditAppDatasources() {
     /* On mount, pull data. */
     useEffect(() => {
         // add dispatch for viewdatasources
-        dispatch(hideS2aModal());
+        dispatch(hideS2AModal());
     }, []);
 
     /* Redux hooks into store. */   
@@ -91,7 +91,7 @@ function EditAppDatasources() {
 
     /* Event handler for modals. */
     const handleCloseModal = () => {
-        dispatch(hideS2aModal());
+        dispatch(hideS2AModal());
     }
 
     const handleOpenCreateDatasourceModal = () => {
@@ -113,7 +113,7 @@ function EditAppDatasources() {
             sheetID: 0,
             datasourceName: sheetNameRef.current?.value as string
         }));
-        dispatch(hideS2aModal());
+        dispatch(hideS2AModal());
     }   
 
     const getColumnsClone = (): Column[] => {
@@ -142,7 +142,7 @@ function EditAppDatasources() {
             datasourceName: currentDatasource?.name as string,
             columns: columns as Column[]
         }));
-        dispatch(hideS2aModal());
+        dispatch(hideS2AModal());
       }
     
     const handleEditDatasourceColType = (e:any) => {
@@ -183,7 +183,7 @@ function EditAppDatasources() {
             datasourceName: currentDatasource?.name as string,
             columns: currentDatasource?.columns as Column[]
         }));
-        dispatch(hideS2aModal());
+        dispatch(hideS2AModal());
     }
 
     const handleEditDatasourceColInitForm = (e: any) => {
@@ -206,7 +206,7 @@ function EditAppDatasources() {
             datasourceName: currentDatasource?.name as string,
             columns: currentDatasource?.columns as Column[]
         }));
-        dispatch(hideS2aModal());
+        dispatch(hideS2AModal());
     }
 
     const handleEditDatasourceColLabel = () => {
@@ -227,7 +227,7 @@ function EditAppDatasources() {
             datasourceName: currentDatasource?.name as string,
             columns: currentDatasource?.columns as Column[]
         }));
-        dispatch(hideS2aModal());
+        dispatch(hideS2AModal());
     }
 
     const handleEditDatasourceColReference = () => {
@@ -248,7 +248,7 @@ function EditAppDatasources() {
             datasourceName: currentDatasource?.name as string,
             columns: currentDatasource?.columns as Column[]
         }));
-        dispatch(hideS2aModal());
+        dispatch(hideS2AModal());
     }
 
     return (

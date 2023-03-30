@@ -2,39 +2,37 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDevApps, createApp, deleteApp, hideS2aModal, StoreState } from '../../store/StoreContext';
+import { viewDevApps, createApp, deleteApp, hideS2AModal, StoreState } from '../../store/StoreContext';
 import { ModalType } from '../../store/StoreTypes';
 
+import "../..styles/Home.css"
 import HomeNavBar from './HomeNavBar';
 import { Button, Grid, Modal, IconButton, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
 function HomeDevelop() {
-    /* React hooks. */
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    
-    /* On mount, pull data and display apps in development. */
+
     useEffect(() => {
         dispatch(viewDevApps());
-        dispatch(hideS2aModal());
     }, []);
 
-    /* Redux hooks into store. */   
+    /* Redux hooks into store. */
     const devApps = useSelector((state: StoreState) => state.s2aReducer.devApps);
     const currentModalType = useSelector((state: StoreState) => state.s2aReducer.currentModalType);
 
-    /* Event handlers for create app modal. */
+    /* Event handlers for UI interaction. */
+    const handleCloseModal = () => {
+        dispatch(hideS2AModal());
+    }
+
     const handleCreate = (event: React.MouseEvent<HTMLButtonElement>) => {
         const createButton = event.target as HTMLButtonElement;
         dispatch(createApp(createButton.id));
         dispatch(viewDevApps());
         handleCloseModal();
-    }
-
-    const handleCloseModal = () => {
-        dispatch(hideS2aModal());
     }
 
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -49,36 +47,36 @@ function HomeDevelop() {
     }
 
     return (                                                                
-        <div style={{ display: 'flex', flexDirection: 'column', fontFamily: 'sans-serif' }}>
+        <div id="home-wrapper">
             {/* Home Navigation Bar */}
             <HomeNavBar/>
 
             {/* Create App Modal */}
-            <Modal open={currentModalType == ModalType.CreateAppModal} onClose={handleCloseModal} BackdropProps={{ style: { backgroundColor: 'rgba(0, 0, 0, 0.4)' } }}>
-                <div style={{ backgroundColor: "#6CA6CD", padding: "30px" }}>
+            <Modal id="create-app-modal" open={currentModalType == ModalType.CreateAppModal} onClose={handleCloseModal}>
+                <div id="modal-container">
 
                     {/* App Name Textfield, Create/Discard Buttons */}
                     <TextField variant="filled" label="App Name"/>
-                    <Button onClick={handleCreate} variant="outlined" size="large" sx={{marginLeft: '50px', color:'#E1D9D1'}}>Create</Button>
-                    <Button onClick={handleCloseModal} variant="outlined" size="large" sx={{marginLeft: '50px', color:'#E1D9D1'}}>Discard</Button>
+                    <Button id="modalButton" onClick={handleCreate} variant="outlined" size="large">Create</Button>
+                    <Button id="modalButton" onClick={handleCloseModal} variant="outlined" size="large">Discard</Button>
                 </div>
             </Modal>
             
             {/* App Display */}
-            <div style={{ flex: 1, overflow: 'auto', marginTop: "75px" }}>
-                <Grid container spacing={2} sx={{ overflow: 'auto', p: 2 }}>  
+            <div id="home-display">
+                <Grid id="grid" container spacing={2}>  
 
                 {/* Map each app in development to a grid item. */}
                 {devApps.map((app) => (
                     <Grid item xs={4}>
-                        <div style={{ height: '60px', border: "2px solid #87CEEB", textAlign: 'center', position: 'relative' }}>
+                        <div id="grid-item-container">
                             {app.name}
 
                             {/* Edit and delete buttons for apps. */}
-                            <IconButton id={app.id.toString()} onClick={handleDelete} sx={{ position: 'absolute', top: 0, left: 0 }}>
+                            <IconButton id={`${app.id} grid-item-button`} onClick={handleDelete}>
                                 <DeleteIcon fontSize="small" />
                             </IconButton>
-                            <IconButton id={app.id.toString()} onClick={handleEdit} sx={{ position: 'absolute', top: 0, right: 0 }}>
+                            <IconButton id={`${app.id} grid-item-button`} onClick={handleEdit}>
                                 <EditIcon fontSize="small" />
                             </IconButton>
                         </div>
