@@ -37,13 +37,12 @@ class DatasourceColumn(models.Model):
     
 
 class TableView(models.Model):
-    app = models.ForeignKey(Application, on_delete=models.CASCADE)
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
     
     
 class DetailView(models.Model):
-    table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
     record_index = models.IntegerField()
 
