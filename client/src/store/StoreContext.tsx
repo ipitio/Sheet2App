@@ -31,7 +31,10 @@ export interface IS2AState {
     currentDatasource: Datasource | null,
 
     // The current column being edited
-    currentColumn: Column | null
+    currentColumn: Column | null,
+
+    // The current application that the user desires to delete (set when confirmation modal opens).
+    currentAppToDelete: App | null,
 }
 
 const s2aState: IS2AState = {
@@ -43,7 +46,8 @@ const s2aState: IS2AState = {
     currentRole: null,
     currentModalType: null,
     currentDatasource: null,
-    currentColumn: null
+    currentColumn: null,
+    currentAppToDelete: null,
 }
 
 const s2aReducer = createSlice({
@@ -142,6 +146,9 @@ const s2aReducer = createSlice({
         setViewColumns: state => {
             // TODO
         },
+        setCurrentApp: (state, action: PayloadAction<App>) => {
+            state.currentApp = action.payload;
+        },
         setCurrentColumn: (state, action: {payload: {column: Column}}) => {
             state.currentColumn = action.payload.column;
         },
@@ -150,6 +157,9 @@ const s2aReducer = createSlice({
         },
         showCreateAppModal: (state) => {
             state.currentModalType = ModalType.CreateAppModal;
+        },
+        showDeleteAppModal: (state) => {
+            state.currentModalType = ModalType.DeleteAppModal;
         },
         showEditAppCreateDatasourcesModal: (state) => {
             state.currentModalType = ModalType.EditAppCreateDatasourcesModal;
@@ -161,7 +171,11 @@ const s2aReducer = createSlice({
             state.currentModalType = ModalType.EditAppTableViewModal;
         },
         hideS2AModal: (state) => {
+            state.currentAppToDelete = null;
             state.currentModalType = null;
+        },
+        markAppToDelete: (state, action: PayloadAction<App>) => {
+            state.currentAppToDelete = action.payload;
         }
     }
 })
@@ -244,8 +258,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewDevApps, viewAccApps, createApp, deleteApp, showCreateAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2AModal,
-createDatasource, setCurrentDatasource, editDatasource, setCurrentColumn} = s2aReducer.actions
+export const { viewDevApps, viewAccApps, createApp, deleteApp, createDatasource, setCurrentApp, setCurrentDatasource, editDatasource, setCurrentColumn, showCreateAppModal, showDeleteAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2AModal, markAppToDelete} = s2aReducer.actions
 export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors

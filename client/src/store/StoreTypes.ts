@@ -80,6 +80,7 @@ export enum ColumnType {
 
 export enum ModalType {
     CreateAppModal,
+    DeleteAppModal,
     EditAppCreateDatasourcesModal,
     EditAppEditDatasourcesModal,
     EditAppTableViewModal,

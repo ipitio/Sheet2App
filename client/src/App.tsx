@@ -43,6 +43,7 @@ const App: React.FC = () => {
       <AddRecordModal/>
       <EditRecordModal/>
       <DeleteRecordModal/>
+      
      </Provider>
   );
 }

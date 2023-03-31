@@ -6,7 +6,7 @@ import { getLoggedOut } from '../../auth/AuthController';
 
 import { showCreateAppModal, hideS2AModal } from '../../store/StoreContext';
 
-import '../../styles/HomeNavBar.css'
+import styles from '../../styles/S2A/HomeNavBarStyles'
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, TextField } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
@@ -50,32 +50,32 @@ function HomeNavBar() {
         getLoggedOut();
         navigate("/S2A");
     };
-    
+
     return (
-        <AppBar id="nav-bar-wrapper">
+        <AppBar sx={styles.navBarWrapper}>
             <Toolbar>
-                <Typography id="nav-bar-title" variant="h6" component="div">S2A Home</Typography>
+                <Typography sx={styles.navBarTitle} variant="h6" component="div">S2A Home</Typography>
 
                 {/* Create App Button */}
                 {location.pathname === "/S2A/home/develop" && (
-                    <IconButton id="create-app-button" onClick={handleOpenModal}>
-                      <AddIcon/>
-                      Create New App
+                    <IconButton onClick={handleOpenModal} sx={styles.createAppButton}>
+                        <AddIcon/>
+                        Create New App
                     </IconButton>
                 )}
 
                 {/* Search Textfield and Navigation Buttons */}
-                <TextField id="search-app-textfield" label="Search app" variant="outlined"/>
-                <Button id="display-dev-apps-button" onClick={displayAppsInDev} color="inherit">Apps in Development</Button>
-                <Button id="display-acc-apps-button" onClick={displayAppsAccessible} color="inherit">Accessible Apps</Button>
-                <IconButton id="open-profile-button" onClick={handleProfileOpen} color="inherit">
+                <TextField sx={styles.searchAppTextfield} label="Search app" variant="outlined"/>
+                <Button onClick={displayAppsInDev} sx={styles.displayDevAppsButton} color="inherit">Apps in Development</Button>
+                <Button onClick={displayAppsAccessible} sx={styles.displayAccAppsButton} color="inherit">Accessible Apps</Button>
+                <IconButton onClick={handleProfileOpen} sx={styles.openProfileButton} color="inherit">
                     <AccountCircle />
                 </IconButton>
 
                 {/* Search Textfield and Navigation Buttons */}
                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleProfileClose}>
-                    <MenuItem>{Cookies.get("email")}</MenuItem>
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    <MenuItem> {Cookies.get("email")} </MenuItem>
+                    <MenuItem onClick={handleLogout}> Logout </MenuItem>
                 </Menu>
             </Toolbar>
         </AppBar>
