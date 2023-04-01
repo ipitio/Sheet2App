@@ -9,7 +9,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from openpyxl.utils.cell import get_column_letter
-from utils import *
+from sheets.utils import *
 
 # Allow the API to have complete control over the spreadsheet with this scope
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
