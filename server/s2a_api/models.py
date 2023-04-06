@@ -18,6 +18,7 @@ class Application(models.Model):
 
 class Datasource(models.Model):
     app = models.ForeignKey(Application, on_delete=models.CASCADE)
+    spreadsheet_url = models.TextField()
     spreadsheet_id = models.TextField()
     gid = models.IntegerField()
     name = models.TextField()
