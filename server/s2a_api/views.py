@@ -18,8 +18,8 @@ def get_logged_in(request):
     email, access_token, refresh_token, response_code = auth.oauth_login_user(auth_code=auth_code)
     res_body = {
         'email': email,
-        'access_token': access_token,
-        'refresh_token': refresh_token,
+        'accessToken': access_token,
+        'refreshToken': refresh_token,
     }
     response = HttpResponse(json.dumps(res_body), status=response_code)
     

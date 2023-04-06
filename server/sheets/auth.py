@@ -17,7 +17,7 @@ def get_client_id_secret():
 
 def oauth_login_user(auth_code):
     try:
-        os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+        os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # TODO sommehow fix this thing
         
         CLIENT_ID, CLIENT_SECRET = get_client_id_secret()
         CLIENT_CONFIG = {
