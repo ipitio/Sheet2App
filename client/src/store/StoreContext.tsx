@@ -1,6 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { App, Datasource, Role, View, Record, Column, ColumnType, AppDisplayType, ModalType } from './StoreTypes'
+import { App, Datasource, Role, View, Record, Column, ColumnType, ModalType } from './StoreTypes'
 
 import storeController from './StoreController'
 
@@ -24,11 +24,17 @@ export interface IS2AState {
     // The current role that is being edited
     currentRole: Role | null,
 
-    // The current app display type 
-    currentAppDisplayType: AppDisplayType | null,
-
     // The current modal type that is open on the screen (Create App)
-    currentModalType: ModalType | null
+    currentModalType: ModalType | null,
+
+    // The current datasource being edited
+    currentDatasource: Datasource | null,
+
+    // The current column being edited
+    currentColumn: Column | null,
+
+    // The current application that the user desires to delete (set when confirmation modal opens).
+    currentAppToDelete: App | null,
 }
 
 const s2aState: IS2AState = {
@@ -38,8 +44,10 @@ const s2aState: IS2AState = {
     currentApp: null,
     currentView: null,
     currentRole: null,
-    currentAppDisplayType: null,
-    currentModalType: null
+    currentModalType: null,
+    currentDatasource: null,
+    currentColumn: null,
+    currentAppToDelete: null,
 }
 
 const s2aReducer = createSlice({
@@ -85,14 +93,40 @@ const s2aReducer = createSlice({
         renameApplication: state => {
             // TODO
         },
-        addDataSource: state => {
-            // TODO
+        createDatasource: (state, action: {payload: {spreadsheetID: string, sheetID: number, datasourceName: string}, type: string}) => {
+            if (state.currentApp) {
+                storeController.createDatasource(
+                    state.currentApp?.id,
+                    action.payload.spreadsheetID,
+                    action.payload.sheetID,
+                    action.payload.datasourceName
+                )
+            } else {
+                console.log("No active app.");
+            }
         },
         deleteDatasource: state => {
             // TODO
         },
-        editDatasource: state => {
+        editDatasource: (state, action: {payload: {
+            datasourceKey: number,
+            spreadsheetID: string,
+            sheetIdx: number,
+            datasourceName: string,
+            columns: Column[]
+        }}) => {
             // TODO
+            if (state.currentApp) {
+                storeController.editDatasource(
+                    action.payload.datasourceKey,
+                    action.payload.spreadsheetID,
+                    action.payload.sheetIdx,
+                    action.payload.datasourceName,
+                    action.payload.columns
+                )
+            } else {
+                console.log("No active app.");
+            }
         },
         publishApp: state => {
             // TODO
@@ -112,17 +146,36 @@ const s2aReducer = createSlice({
         setViewColumns: state => {
             // TODO
         },
-        displayDevApps: (state) => {
-            state.currentAppDisplayType = AppDisplayType.AppDevelopment;
+        setCurrentApp: (state, action: PayloadAction<App>) => {
+            state.currentApp = action.payload;
         },
-        displayAccApps: (state) => {
-            state.currentAppDisplayType = AppDisplayType.AppAccess;
+        setCurrentColumn: (state, action: {payload: {column: Column}}) => {
+            state.currentColumn = action.payload.column;
+        },
+        setCurrentDatasource: (state, action: {payload: {datasource: Datasource}}) => {
+            state.currentDatasource = action.payload.datasource;
         },
         showCreateAppModal: (state) => {
             state.currentModalType = ModalType.CreateAppModal;
         },
-        hideS2aModal: (state) => {
+        showDeleteAppModal: (state) => {
+            state.currentModalType = ModalType.DeleteAppModal;
+        },
+        showEditAppCreateDatasourcesModal: (state) => {
+            state.currentModalType = ModalType.EditAppCreateDatasourcesModal;
+        },
+        showEditAppEditDatasourcesModal: (state) => {
+            state.currentModalType = ModalType.EditAppEditDatasourcesModal;
+        },
+        showEditAppTableViewModal: (state) => {
+            state.currentModalType = ModalType.EditAppTableViewModal;
+        },
+        hideS2AModal: (state) => {
+            state.currentAppToDelete = null;
             state.currentModalType = null;
+        },
+        markAppToDelete: (state, action: PayloadAction<App>) => {
+            state.currentAppToDelete = action.payload;
         }
     }
 })
@@ -205,7 +258,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewDevApps, viewAccApps, createApp, deleteApp, displayDevApps, displayAccApps, showCreateAppModal, hideS2aModal } = s2aReducer.actions
+export const { viewDevApps, viewAccApps, createApp, deleteApp, createDatasource, setCurrentApp, setCurrentDatasource, editDatasource, setCurrentColumn, showCreateAppModal, showDeleteAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2AModal, markAppToDelete} = s2aReducer.actions
 export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors

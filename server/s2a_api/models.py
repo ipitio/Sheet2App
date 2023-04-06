@@ -18,6 +18,7 @@ class Application(models.Model):
 
 class Datasource(models.Model):
     app = models.ForeignKey(Application, on_delete=models.CASCADE)
+    spreadsheet_url = models.TextField()
     spreadsheet_id = models.TextField()
     gid = models.IntegerField()
     name = models.TextField()
@@ -37,23 +38,24 @@ class DatasourceColumn(models.Model):
     
 
 class TableView(models.Model):
-    app = models.ForeignKey(Application, on_delete=models.CASCADE)
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
+    can_view = models.BooleanField()
+    can_add = models.BooleanField()
+    can_delete = models.BooleanField()
     
     
 class DetailView(models.Model):
-    table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
+    datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
     record_index = models.IntegerField()
+    can_view = models.BooleanField()
+    can_edit = models.BooleanField()
 
 
 class TableViewPerm(models.Model):
     table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
     role = models.TextField()
-    can_view = models.BooleanField()
-    can_add = models.BooleanField()
-    can_delete = models.BooleanField()
     
     
 class DetailViewPerm(models.Model):

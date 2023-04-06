@@ -6,8 +6,11 @@ export interface App {
 }
 
 export interface Datasource {
+    id: number;
     spreadsheetID: string;
-    spreadsheetIdx: number;
+    sheetID: number;
+    name: string;
+    columns: Column[];
 }
 
 export interface Role {
@@ -57,10 +60,15 @@ export interface Column {
     reference: boolean,
 
     // The data types supported within this column
-    type: ColumnType,
+    type: ColumnType | string,
 
     // The ID of the column for CRUD requests
-    id: number
+    id: number,
+
+    include: boolean,
+    isFilter: boolean,
+    isUserFilter: boolean,
+    isEditFilter:boolean
 }
 
 export enum ColumnType {
@@ -70,13 +78,12 @@ export enum ColumnType {
     URL
 }
 
-export enum AppDisplayType {
-    AppDevelopment,
-    AppAccess
-}
-
 export enum ModalType {
     CreateAppModal,
+    DeleteAppModal,
+    EditAppCreateDatasourcesModal,
+    EditAppEditDatasourcesModal,
+    EditAppTableViewModal,
     AddRecordModal,
     EditRecordModal,
     DeleteRecordModal

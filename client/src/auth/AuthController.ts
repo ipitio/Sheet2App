@@ -25,8 +25,8 @@ async function getLoggedIn(authCode: string): Promise<void>{
             
         const data = await res.json();
         Cookies.set("email", data.email);
-        Cookies.set("accessToken", data.accessToken);
-        Cookies.set("refreshToken", data.refreshToken);
+        Cookies.set("accessToken", data.access_token);
+        Cookies.set("refreshToken", data.refresh_token);
     }
     catch(err) {
         return Promise.reject(err);
