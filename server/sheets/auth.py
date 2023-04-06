@@ -50,7 +50,13 @@ def oauth_login_user(auth_code):
         access_token = credentials.token
         refresh_token = credentials.refresh_token
         
-        return email, access_token, refresh_token, HTTPStatus.OK
+        auth_info = {
+            "email": email, 
+            "access_token": access_token, 
+            "refresh_token": refresh_token
+        }
+        
+        return auth_info, HTTPStatus.OK
     
     except Exception as e:
         print(f"Error: {e}")
