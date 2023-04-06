@@ -40,20 +40,22 @@ class DatasourceColumn(models.Model):
 class TableView(models.Model):
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
+    can_view = models.BooleanField()
+    can_add = models.BooleanField()
+    can_delete = models.BooleanField()
     
     
 class DetailView(models.Model):
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
     record_index = models.IntegerField()
+    can_view = models.BooleanField()
+    can_edit = models.BooleanField()
 
 
 class TableViewPerm(models.Model):
     table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
     role = models.TextField()
-    can_view = models.BooleanField()
-    can_add = models.BooleanField()
-    can_delete = models.BooleanField()
     
     
 class DetailViewPerm(models.Model):
