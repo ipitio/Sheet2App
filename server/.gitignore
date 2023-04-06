@@ -7,3 +7,5 @@ token.json
 db/
 dump.rdb
 ```
+credentials_desktop.json
+credentials_web.json
