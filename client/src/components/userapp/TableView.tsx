@@ -1,15 +1,13 @@
 import { Box, Button, Divider, Typography } from '@mui/material';
-import { View } from '../../store/StoreTypes';
+import { Tableview, View } from '../../store/StoreTypes';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useStore, useSelector, useDispatch } from 'react-redux';
 import { IS2AState, IWebAppState, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
 
-interface TableViewProps extends View { }
-
 // TODO: GET RID OF THE ANY TYPE FOR TABLE PROPS. THIS IS JUST FOR TESTING
-function TableView(props: TableViewProps | any) {
+function TableView(props: Tableview | any) {
     const store = useStore();
     const dispatch = useDispatch();
     

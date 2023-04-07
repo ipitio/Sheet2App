@@ -1,15 +1,10 @@
 import React from 'react';
 import {Box, Button, Divider, Typography} from '@mui/material';
-import { View } from '../../store/StoreTypes';
+import { Detailview, View } from '../../store/StoreTypes';
 import EditIcon from '@mui/icons-material/Edit';
 
-interface DetailViewProps extends View {
-    // The 0-based index of the record (row number) being represented
-    recordIndex: number
-}
-
 // TODO: GET RID OF THE ANY TYPE FOR TABLE PROPS. THIS IS JUST FOR TESTING
-function DetailView(props: DetailViewProps | any) {
+function DetailView(props: Detailview | any) {
     // TODO: Make API call to the spreadsheet URL
     // let spreadsheetData = api.get
     // let columnName = spreadsheetData[0] // Since the spreadsheet is passed back as a 2d list, the first element (row-wise) contains all of the columns
