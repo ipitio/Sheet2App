@@ -33,9 +33,6 @@ export interface View {
 }
 
 export interface Record {
-    // The table this record is in
-    dataSource: Datasource
-
     // The index of the record
     index: number,
 

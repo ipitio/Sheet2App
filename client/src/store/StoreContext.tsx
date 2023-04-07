@@ -213,12 +213,14 @@ const webAppReducer = createSlice({
         },
         // Called by the AddRecordModal when changes are submitted
         addRecord: (state, action: {payload: Record, type: string}) => {
-            // TODO
-
-            // Make the API call to add the record
-
-            // On successful response, update the current table to the new table
-            // state.currentView = res.data
+            if (!state.currentView) return;
+            storeController.addRecord(state.currentView.id, action.payload)
+            .then(() => {
+                console.log("Added Record");
+            })
+            .catch((error: Error) => {
+                console.log(error);
+            })
         },
         // Called by the DeleteRecordModal when changes are submitted
         deleteRecord: (state, action: {payload: Record, type: string}) => {
@@ -259,7 +261,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { viewDevApps, viewAccApps, createApp, deleteApp, createDatasource, setCurrentApp, setCurrentDatasource, editDatasource, setCurrentColumn, showCreateAppModal, showDeleteAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2AModal, markAppToDelete} = s2aReducer.actions
-export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
+export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal, addRecord } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
 export interface StoreState {
