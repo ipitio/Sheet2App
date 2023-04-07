@@ -23,12 +23,14 @@ function HomeNavBar() {
         dispatch(hideS2AModal());
     }, []);
 
-    /* Event handlers for create app modal. */
+    /* Event handlers. */
+
+    /* If the create app button is clicked. */
     const handleOpenModal = () => {
         dispatch(showCreateAppModal());
     }
 
-    /* Event handlers for navigation bar buttons. */
+    /* If the navigational buttons are clicked. */
     const displayAppsInDev = () => {
         navigate("/S2A/home/develop")
     }
@@ -37,7 +39,7 @@ function HomeNavBar() {
         navigate("/S2A/home/access")
     }
 
-    /* Event handlers for profile menu. */
+    /* If the profile menu is clicked.  */
     const handleProfileOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -65,9 +67,9 @@ function HomeNavBar() {
                 )}
 
                 {/* Search Textfield and Navigation Buttons */}
-                <TextField sx={styles.searchAppTextfield} label="Search app" variant="outlined"/>
-                <Button onClick={displayAppsInDev} sx={styles.displayDevAppsButton} color="inherit">Apps in Development</Button>
-                <Button onClick={displayAppsAccessible} sx={styles.displayAccAppsButton} color="inherit">Accessible Apps</Button>
+                <TextField sx={styles.searchAppTextfield} label="Search app" variant="filled"/>
+                <Button onClick={displayAppsInDev} sx={{ ...styles.displayButton, ...styles.displayDevAppsButton }} color="inherit">Apps in Development</Button>
+                <Button onClick={displayAppsAccessible} sx={{ ...styles.displayButton, ...styles.displayAccAppsButton }} color="inherit">Accessible Apps</Button>
                 <IconButton onClick={handleProfileOpen} sx={styles.openProfileButton} color="inherit">
                     <AccountCircle />
                 </IconButton>
