@@ -27,6 +27,7 @@ function AddRecordModal() {
                     </DialogContentText>
                     <DialogActions>
                         <Button
+                        // TODO: Populate fields of the record with elements from the input form
                             onClick={() => dispatch(addRecord({
                                 index: 0,
                                 data: ["Some", "Example", "Fields"],

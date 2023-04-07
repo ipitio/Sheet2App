@@ -1,6 +1,6 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { hideWebAppModal, StoreState } from '../../../store/StoreContext';
+import { editRecord, hideWebAppModal, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
 
 function EditRecordModal() {
@@ -26,8 +26,14 @@ function EditRecordModal() {
                         {/** TODO: ENUMERATE THE EDITABLE COLUMNS AS FIELDS */}
                     </DialogContentText>
                     <DialogActions>
-                        <Button>
-                            {/** TODO: SEND AN API REQUEST TO EDIT RECORD WHEN CONFIRM CLICKED */}
+                        <Button
+                            // TODO: Populate the fields of the Record using elements from the input form 
+                            onClick={() => dispatch(editRecord({
+                                index: 0,
+                                data: ["some", "test", "data"],
+                                id: 0
+                            }))}
+                        >
                             Confirm
                         </Button>
                         <Button

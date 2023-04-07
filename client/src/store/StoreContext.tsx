@@ -222,6 +222,7 @@ const webAppReducer = createSlice({
         // Called by the AddRecordModal when changes are submitted
         addRecord: (state, action: {payload: Record, type: string}) => {
             if (!state.currentView) return;
+
             storeController.addRecord(state.currentView.id, action.payload)
             .then(() => {
                 console.log("Added Record");
@@ -233,6 +234,7 @@ const webAppReducer = createSlice({
         // Called by the DeleteRecordModal when changes are submitted
         deleteRecord: (state) => {
             if (!state.currentView || !state.currentRecord) return;
+
             storeController.deleteRecord(state.currentView.id, state.currentRecord.id)
             .then(() => {
                 console.log("Deleted Record");
@@ -242,13 +244,16 @@ const webAppReducer = createSlice({
             })
         },
         // Called by the EditRecordModal when changes are submitted
-        editRecord: (state, action: {payload: {oldRecord: Record, newRecord: Record}, type: string}) => {
-            // TODO
-
-            // Make the API call to edit the record
+        editRecord: (state, action: {payload: Record}) => {
+            if (!state.currentView || !state.currentRecord) return;
             
-            // On successful response, update the current table to the new table
-            // state.currentView = res.data
+            storeController.editRecord(state.currentView.id, state.currentRecord.id, action.payload)
+            .then(() => {
+                console.log("Edited Record");
+            })
+            .catch((error: Error) => {
+                console.log(error);
+            })
         },
         // Displays the AddRecord Modal
         showAddRecordModal: state => {
