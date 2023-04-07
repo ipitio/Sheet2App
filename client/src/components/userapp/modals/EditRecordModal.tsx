@@ -25,7 +25,7 @@ function EditRecordModal() {
                     <DialogContentText>
                         {/** TODO: ENUMERATE THE EDITABLE COLUMNS AS FIELDS */}
                         {
-                            currentRecord?.data.map((element) => {
+                            currentRecord?.data?.map((element) => {
                                 return (
                                     <Box
                                         sx={{
