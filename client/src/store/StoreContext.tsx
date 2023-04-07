@@ -264,7 +264,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewDevApps, viewAccApps, createApp, deleteApp, createDatasource, setCurrentApp, setCurrentDatasource, editDatasource, setCurrentColumn, showCreateAppModal, showDeleteAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2AModal, markAppToDelete} = S2AReducer .actions
+export const { viewDevApps, viewAccApps, createApp, deleteApp, createDatasource, setCurrentApp, setCurrentDatasource, editDatasource, setCurrentColumn, showCreateAppModal, showDeleteAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2AModal, markAppToDelete} = S2AReducer.actions
 export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal, addRecord } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
