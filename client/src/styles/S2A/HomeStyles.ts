@@ -7,29 +7,10 @@ const HomeStyles: StyleContainer = {
     fontFamily: 'sans-serif',
     backgroundColor: '#6CA6CD',
   },
-  modal: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontFamily: 'sans-serif',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-  },
-  modalContainer: {
-    padding: '30px',
-    borderRadius: '10px',
-    backgroundColor: '#6CA6CD',
-  },
-  modalButton: {
-    marginLeft: '50px',
-    textTransform: 'capitalize',
-    borderColor: '#3d6078',
-    backgroundColor: '#669cc1',
-    color: '#2e495c',
-  },
   homeDisplay: {
     flex: '1',
     overflow: 'auto',
-    paddingTop: '75px',
+    paddingTop: '100px',
     backgroundColor: 'white',
   },
   grid: {
@@ -57,7 +38,6 @@ const HomeStyles: StyleContainer = {
     top: '0',
     right: '0',
   },
-
 };
 
 export default HomeStyles;

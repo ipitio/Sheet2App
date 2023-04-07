@@ -21,13 +21,10 @@ function HomeDevelop() {
 
     /* Redux hooks into store. */
     const devApps = useSelector((state: StoreState) => state.s2aReducer.devApps);
-    const currentAppToDelete = useSelector((state: StoreState) => state.s2aReducer.currentAppToDelete);
-    const currentModalType = useSelector((state: StoreState) => state.s2aReducer.currentModalType);
 
-    /* React hooks into elements. */
-    const appNameTextField = useRef<HTMLDivElement>(null);
+    /* Event handlers. */
 
-    /* Event handlers for UI interaction. */
+    /* If the delete icon next to an app is clicked. */
     const handleOpenDeleteModal = (event: React.MouseEvent<HTMLButtonElement>) => {
         const deleteButton = event.currentTarget as HTMLButtonElement;
         const appToDelete = devApps.find(app => app.id == Number(deleteButton.id));
@@ -38,30 +35,7 @@ function HomeDevelop() {
         }
     }
 
-    const handleCloseModal = () => {
-        dispatch(hideS2AModal());
-    }
-
-    const handleCreate = () => {
-        const textField = appNameTextField.current;
-        const input = textField ? textField.querySelector("input") : null;
-        const appName = input ? input.value : "";
-
-        if(appName) {
-            dispatch(createApp(appName));
-            dispatch(viewDevApps());
-            handleCloseModal();
-        }
-    }
-
-    const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if(currentAppToDelete) {
-            dispatch(deleteApp(currentAppToDelete.id));
-            dispatch(viewDevApps());
-            handleCloseModal();
-        }
-    }
-
+    /* If the edit icon next to an app is clicked. */
     const handleEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
         const editButton = event.currentTarget as HTMLButtonElement;
         const appToEdit = devApps.find(app => app.id == Number(editButton.id));
@@ -76,26 +50,6 @@ function HomeDevelop() {
         <div style={styles.homeWrapper}>
             {/* Home Navigation Bar */}
             <HomeNavBar/>
-
-            {/* Create App Modal */}
-            <Modal open={currentModalType == ModalType.CreateAppModal} onClose={handleCloseModal} sx={styles.modal}>
-                <div style={styles.modalContainer}>
-
-                    {/* App Name Textfield, Create/Discard Buttons */}
-                    <TextField ref={appNameTextField} variant="filled" label="App Name"/>
-                    <Button onClick={handleCreate} variant="outlined" size="large" sx={styles.modalButton}>Create</Button>
-                    <Button onClick={handleCloseModal} variant="outlined" size="large" sx={styles.modalButton}>Discard</Button>
-                </div>
-            </Modal>
-
-            {/* Delete App Modal */}
-            <Modal open={currentModalType == ModalType.DeleteAppModal} onClose={handleCloseModal} sx={styles.modal}>
-                <div style={styles.modalContainer}>
-                     Delete {currentAppToDelete?.name} App?
-                    <Button onClick={handleDelete} variant="outlined" size="large" sx={styles.modalButton}>Confirm</Button>
-                    <Button onClick={handleCloseModal} variant="outlined" size="large" sx={styles.modalButton}>Cancel</Button>
-                </div>
-            </Modal>
             
             {/* App Display */}
             <div style={styles.homeDisplay}>

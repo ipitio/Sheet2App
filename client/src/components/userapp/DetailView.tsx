@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import {Box, Button, Divider, Typography} from '@mui/material';
-import { View } from '../../store/StoreTypes';
+import { Detailview, View } from '../../store/StoreTypes';
 import EditIcon from '@mui/icons-material/Edit';
 import { setCurrentView, showEditRecordModal } from '../../store/StoreContext';
 import { useDispatch } from 'react-redux';
