@@ -1,6 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { App, Datasource, Role, View, Record, Column, ColumnType, ModalType } from './StoreTypes'
+import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType } from './StoreTypes'
 
 import storeController from './StoreController'
 
@@ -18,8 +18,17 @@ export interface IS2AState {
     // affect currentApp itself
     currentApp: App | null,
 
-    // The current view that is being edited
-    currentView: View | null,
+    // The current datasource being edited
+    currentDatasource: Datasource | null,
+
+    // The current column being edited
+    currentColumn: Column | null,
+    
+    // The current tableview that is being edited
+    currentTableview: Tableview | null,
+
+    // The current detailview being edited
+    currentDetailview: Detailview | null,
 
     // The current role that is being edited
     currentRole: Role | null,
@@ -27,22 +36,17 @@ export interface IS2AState {
     // The current modal type that is open on the screen (Create App)
     currentModalType: ModalType | null,
 
-    // The current datasource being edited
-    currentDatasource: Datasource | null,
-
-    // The current column being edited
-    currentColumn: Column | null,
-
     // The current application that the user desires to delete (set when confirmation modal opens).
     currentAppToDelete: App | null,
 }
 
-const s2aState: IS2AState = {
+const S2AState: IS2AState = {
     devApps: [],
     accApps: [],
     datasources: [],
     currentApp: null,
-    currentView: null,
+    currentTableview: null,
+    currentDetailview: null,
     currentRole: null,
     currentModalType: null,
     currentDatasource: null,
@@ -50,9 +54,9 @@ const s2aState: IS2AState = {
     currentAppToDelete: null,
 }
 
-const s2aReducer = createSlice({
-    name: 's2aReducer',
-    initialState: s2aState,
+const S2AReducer = createSlice({
+    name: 'S2AReducer',
+    initialState: S2AState,
     reducers: {
         viewDevApps: (state) => {
             storeController.getDevelopableApps()
@@ -162,13 +166,13 @@ const s2aReducer = createSlice({
             state.currentModalType = ModalType.DeleteAppModal;
         },
         showEditAppCreateDatasourcesModal: (state) => {
-            state.currentModalType = ModalType.EditAppCreateDatasourcesModal;
+
         },
         showEditAppEditDatasourcesModal: (state) => {
-            state.currentModalType = ModalType.EditAppEditDatasourcesModal;
+
         },
         showEditAppTableViewModal: (state) => {
-            state.currentModalType = ModalType.EditAppTableViewModal;
+
         },
         hideS2AModal: (state) => {
             state.currentAppToDelete = null;
@@ -271,7 +275,7 @@ export interface StoreState {
 
 const store = configureStore({
     reducer: {
-        s2aReducer: s2aReducer.reducer,
+        S2AReducer: S2AReducer.reducer,
         webAppReducer: webAppReducer.reducer
     }
 })  

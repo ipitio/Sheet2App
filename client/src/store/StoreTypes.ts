@@ -48,7 +48,7 @@ export interface Tableview {
 	roles: Role[];
 }
 
-export interface DetailView {
+export interface Detailview {
     id: number;
 	name: string;
 
