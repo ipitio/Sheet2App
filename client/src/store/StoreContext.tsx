@@ -246,7 +246,7 @@ const webAppReducer = createSlice({
         // Called by the EditRecordModal when changes are submitted
         editRecord: (state, action: {payload: Record}) => {
             if (!state.currentView || !state.currentRecord) return;
-            
+
             storeController.editRecord(state.currentView.id, state.currentRecord.id, action.payload)
             .then(() => {
                 console.log("Edited Record");
@@ -260,8 +260,10 @@ const webAppReducer = createSlice({
             state.currentModalType = ModalType.AddRecordModal;
         },
         // Displays the EditRecord Modal
-        showEditRecordModal: state => {
+        showEditRecordModal: (state, action: {payload: Record})  => {
             state.currentModalType = ModalType.EditRecordModal;
+
+            state.currentRecord = action.payload;
         },
         // Displays the DeleteRecord Modal
         showDeleteRecordModal: (state, action: {payload: Record}) => {

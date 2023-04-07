@@ -2,16 +2,16 @@ import React, { useEffect } from 'react';
 import {Box, Button, Divider, Typography} from '@mui/material';
 import { View } from '../../store/StoreTypes';
 import EditIcon from '@mui/icons-material/Edit';
-import { setCurrentView } from '../../store/StoreContext';
+import { setCurrentView, showEditRecordModal } from '../../store/StoreContext';
 import { useDispatch } from 'react-redux';
 
-interface DetailViewProps extends View {
-    // The 0-based index of the record (row number) being represented
-    recordIndex: number
-}
+// interface DetailViewProps extends View {
+//     // The 0-based index of the record (row number) being represented
+//     recordIndex: number
+// }
 
 // TODO: GET RID OF THE ANY TYPE FOR TABLE PROPS. THIS IS JUST FOR TESTING
-function DetailView(props: DetailViewProps | any) {
+function DetailView(props: View | any) {
     const dispatch = useDispatch();
     // TODO: Make API call to the spreadsheet URL
     // let spreadsheetData = api.get
@@ -63,9 +63,9 @@ function DetailView(props: DetailViewProps | any) {
             <Button
                 id='edit-record-button'
                 sx={{
-                    display: 'flex',
-
+                    display: 'flex'
                 }}
+                onClick={() => {dispatch(showEditRecordModal(props))}}
             >
                 <Typography>
                     Edit Record

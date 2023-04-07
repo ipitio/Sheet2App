@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { editRecord, hideWebAppModal, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
@@ -7,8 +7,8 @@ function EditRecordModal() {
     // Retrieve the dispatcher for the store
     const dispatch = useDispatch();
 
-    // Retrieve the current modal that should be opened from the store
     const currentModalType = useSelector((state: StoreState) => state.webAppReducer.currentModalType);
+    const currentRecord = useSelector((state: StoreState) => state.webAppReducer.currentRecord);
 
     return (
         <Box
@@ -24,6 +24,21 @@ function EditRecordModal() {
                 <DialogContent>
                     <DialogContentText>
                         {/** TODO: ENUMERATE THE EDITABLE COLUMNS AS FIELDS */}
+                        {
+                            currentRecord?.data?.map((element) => {
+                                return (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-around'
+                                        }}
+                                    >
+                                        <TextField></TextField>
+                                    </Box>
+                                )
+                            })
+                        }
                     </DialogContentText>
                     <DialogActions>
                         <Button
