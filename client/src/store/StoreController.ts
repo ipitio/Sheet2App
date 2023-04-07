@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
-import { App, Column, ColumnType, Datasource, Record, Role, View } from "./StoreTypes";
+import { App, Column, Datasource, Record, Role, View } from "./StoreTypes";
 
 //
 // Application-related functions.
