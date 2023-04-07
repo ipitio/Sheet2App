@@ -35,29 +35,24 @@ export interface Record {
 	data: any[];
 }
 
-export interface Tableview {
-	id: number;
+export interface View {
+    id: number;
 	name: string;
 
     canView: boolean;
-    canAdd: boolean;
-    canDelete: boolean;
 	
 	datasource: Datasource;
 	
 	roles: Role[];
 }
 
-export interface Detailview {
-    id: number;
-	name: string;
+export interface Tableview {
+    canAdd: boolean;
+    canDelete: boolean;
+}
 
-    canView: boolean;
+export interface Detailview {
     canEdit: boolean;
-	
-	datasource: Datasource;
-	
-	roles: Role[];
 }
 
 export interface Role {
