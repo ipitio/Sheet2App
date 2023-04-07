@@ -23,7 +23,6 @@ function DeleteRecordModal() {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        {/** TODO: ENUMERATE THE EDITABLE COLUMNS AS FIELDS */}
                         <Typography>
                             Are you sure you want to delete this record?
                         </Typography>

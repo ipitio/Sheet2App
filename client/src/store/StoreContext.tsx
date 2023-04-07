@@ -260,10 +260,10 @@ const webAppReducer = createSlice({
             state.currentModalType = ModalType.AddRecordModal;
         },
         // Displays the EditRecord Modal
-        showEditRecordModal: state => {
+        showEditRecordModal: (state, action: {payload: Record})  => {
             state.currentModalType = ModalType.EditRecordModal;
 
-            // TODO: Take in the Record that activated this modal as the currentRecord
+            state.currentRecord = action.payload;
         },
         // Displays the DeleteRecord Modal
         showDeleteRecordModal: (state, action: {payload: Record}) => {
