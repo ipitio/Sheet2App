@@ -189,13 +189,18 @@ export interface IWebAppState {
     currentView: View | null,
     
     // The current modal type that is open on the screen (Add record modal, edit record modal, delete record modal)
-    currentModalType: ModalType | null
+    currentModalType: ModalType | null,
+
+    // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
+    // or clicks on the Delete Record button.
+    currentRecord: Record | null
 }
 
 const webAppState: IWebAppState = {
     views: [],
     currentView: null,
-    currentModalType: null
+    currentModalType: null,
+    currentRecord: null
 }
 
 const webAppReducer = createSlice({
@@ -211,6 +216,9 @@ const webAppReducer = createSlice({
             // On successful response, update the current view to the responded data
             // state.currentView = res.data
         },
+        setCurrentView: (state, action: {payload: View}) => {
+            state.currentView = action.payload;
+        },
         // Called by the AddRecordModal when changes are submitted
         addRecord: (state, action: {payload: Record, type: string}) => {
             if (!state.currentView) return;
@@ -223,13 +231,15 @@ const webAppReducer = createSlice({
             })
         },
         // Called by the DeleteRecordModal when changes are submitted
-        deleteRecord: (state, action: {payload: Record, type: string}) => {
-            // TODO
-
-            // Make the API call to delete the record
-            
-            // On successful response, update the current table to the new table
-            // state.currentView = res.data
+        deleteRecord: (state) => {
+            if (!state.currentView || !state.currentRecord) return;
+            storeController.deleteRecord(state.currentView.id, state.currentRecord.id)
+            .then(() => {
+                console.log("Deleted Record");
+            })
+            .catch((error: Error) => {
+                console.log(error);
+            })
         },
         // Called by the EditRecordModal when changes are submitted
         editRecord: (state, action: {payload: {oldRecord: Record, newRecord: Record}, type: string}) => {
@@ -249,8 +259,10 @@ const webAppReducer = createSlice({
             state.currentModalType = ModalType.EditRecordModal;
         },
         // Displays the DeleteRecord Modal
-        showDeleteRecordModal: state => {
+        showDeleteRecordModal: (state, action: {payload: Record}) => {
             state.currentModalType = ModalType.DeleteRecordModal;
+
+            state.currentRecord = action.payload;
         },
         // Hides the current Modal
         hideWebAppModal: state => {
@@ -261,7 +273,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { viewDevApps, viewAccApps, createApp, deleteApp, createDatasource, setCurrentApp, setCurrentDatasource, editDatasource, setCurrentColumn, showCreateAppModal, showDeleteAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2AModal, markAppToDelete} = s2aReducer.actions
-export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal, addRecord } = webAppReducer.actions;
+export const { setCurrentView, loadView, showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal, addRecord, deleteRecord, editRecord } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
 export interface StoreState {

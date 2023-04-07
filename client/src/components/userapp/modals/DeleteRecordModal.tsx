@@ -1,6 +1,6 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { hideWebAppModal, StoreState } from '../../../store/StoreContext';
+import { deleteRecord, hideWebAppModal, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
 
 function DeleteRecordModal() {
@@ -26,7 +26,9 @@ function DeleteRecordModal() {
                         {/** TODO: ENUMERATE THE EDITABLE COLUMNS AS FIELDS */}
                     </DialogContentText>
                     <DialogActions>
-                        <Button>
+                        <Button
+                            onClick={() => dispatch(deleteRecord())}
+                        >
                             {/** TODO: SEND AN API REQUEST TO DELETE RECORD WHEN CONFIRM CLICKED */}
                             Confirm
                         </Button>
