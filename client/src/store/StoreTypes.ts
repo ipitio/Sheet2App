@@ -46,12 +46,12 @@ export interface View {
 	roles: Role[];
 }
 
-export interface Tableview {
+export interface Tableview extends View {
     canAdd: boolean;
     canDelete: boolean;
 }
 
-export interface Detailview {
+export interface Detailview extends View {
     canEdit: boolean;
 }
 
