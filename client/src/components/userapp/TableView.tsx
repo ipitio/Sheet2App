@@ -3,20 +3,30 @@ import { Tableview, View } from '../../store/StoreTypes';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
-import { useStore, useSelector, useDispatch } from 'react-redux';
-import { IS2AState, IWebAppState, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
+import { useDispatch } from 'react-redux';
+import { setCurrentView, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
+import { Record } from '../../store/StoreTypes';
+import { useEffect } from 'react';
 
-// TODO: GET RID OF THE ANY TYPE FOR TABLE PROPS. THIS IS JUST FOR TESTING
-function TableView(props: Tableview | any) {
-    const store = useStore();
+// TODO: GET RID OF THE ANY TYPE FOR TABLE PROPS. TABLES MUST TAKE IN A TABLE PROP TO BE RENDERED
+// Presumably, the props will be retrieved as a result of an API call
+function TableView(props: View | any) {
     const dispatch = useDispatch();
+
+    // When this table view is rendered, ensure that the store state sets the currentView
+    // to this table view
+    useEffect(() => {
+        dispatch(setCurrentView(props));
+    }, [])
     
     // TODO: Make API call to the spreadsheet URL
     // let spreadsheetData = api.get
     // let columnName = spreadsheetData[0] // Since the spreadsheet is passed back as a 2d list, the first element (row-wise) contains all of the columns
 
     let testColumnHeader: string[] = ['Name', 'Age', 'Favorite Fruit', 'Occupation', 'Favorite Color']
-    let testSpreadsheetData = [['Jane', '32', 'Pear', 'Engineer', 'Blue'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor'], ['Jane', '32', 'Pear', 'Engineer'], ['Joe', '42', 'Apple', 'Doctor']]
+    let testSpreadsheetData = [['Jane', '32', 'Pear', 'Engineer', 'Blue'], ['Joe', '42', 'Apple', 'Doctor', "Red"], ['Bob', '23', 'Banana', 'Artist', 'Green']]
+
+    let spreadsheetRecords: Record[] = [{index: 0, data: testSpreadsheetData[0], id: 0}, {index: 1, data: testSpreadsheetData[1], id: 1}, {index: 2, data: testSpreadsheetData[2], id: 2}]
 
     // Find the percentage of space each cell should take in a row. This assumes that all cells take an even amount of space with the other cells.
     const cellWidthPercentage: string = (100 / testSpreadsheetData[0].length) + '%'
@@ -27,10 +37,7 @@ function TableView(props: Tableview | any) {
     // Constant to determine the spacing between each row. Change as necessary.
     const rowPadding: string = '8px'
 
-    /**
-     * Parse the spreadsheet data into rows
-     */
-    const spreadsheetData = testSpreadsheetData.map((row, index) => {
+    const tableData = spreadsheetRecords.map((record, index) => {
         // Alternate table row colors for visual clarity
         const bgColor = index % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
 
@@ -38,7 +45,6 @@ function TableView(props: Tableview | any) {
         const rounded = index == testSpreadsheetData.length - 1 ? '8px' : '0px'
 
         return (
-            // Iterate through each row and return a graphical representation of the data in the table
             <Box
                 className='table-row'
                 sx={{
@@ -51,8 +57,7 @@ function TableView(props: Tableview | any) {
                 }}
             >
                 {
-                    // Take each element in the row and place it in a cell
-                    row.map((entry) => {
+                    record.data.map((entry) => {
                         return (
                             <Typography sx={{
                                 textAlign: 'center'
@@ -116,41 +121,44 @@ function TableView(props: Tableview | any) {
             }}
         >
             {
-                Array(testSpreadsheetData.length).fill(
-                    <Box
-                        id='row-button'
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'row'
-                        }}
-                    >
-                        <Button
+                // TODO: Replace with real data array
+                spreadsheetRecords.map((record: Record) => {
+                    return (
+                        <Box
+                            id='row-button'
                             sx={{
-                                paddingY: rowPadding
+                                display: 'flex',
+                                flexDirection: 'row'
                             }}
                         >
-                            <UnfoldMoreIcon />
-                            <Typography>
-                                View
-                            </Typography>
-                        </Button>
-                        <Button
-                            sx={{
-                                paddingY: rowPadding
-                            }}
-                            onClick={
-                                () => {
-                                    dispatch(showDeleteRecordModal())
+                            <Button
+                                sx={{
+                                    paddingY: rowPadding
+                                }}
+                            >
+                                <UnfoldMoreIcon />
+                                <Typography>
+                                    View
+                                </Typography>
+                            </Button>
+                            <Button
+                                sx={{
+                                    paddingY: rowPadding
+                                }}
+                                onClick={
+                                    () => {
+                                        dispatch(showDeleteRecordModal(record))
+                                    }
                                 }
-                            }
-                        >
-                            <DeleteOutlineIcon />
-                            <Typography>
-                                Delete
-                            </Typography>
-                        </Button>
-                    </Box>
-                )
+                            >
+                                <DeleteOutlineIcon />
+                                <Typography>
+                                    Delete
+                                </Typography>
+                            </Button>
+                        </Box>
+                    )
+                })
             }
         </Box>
     )
@@ -168,7 +176,7 @@ function TableView(props: Tableview | any) {
             }}
         >
             {tableHeader}
-            {spreadsheetData}
+            {tableData}
         </Box>
     )
 
