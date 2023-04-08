@@ -27,9 +27,9 @@ async function getLoggedIn(authCode: string): Promise<void>{
             return Promise.reject("Request failed");
             
         const data = await res.json();
-        Cookies.set("email", data.email);
-        Cookies.set("accessToken", data.access_token);
-        Cookies.set("refreshToken", data.refresh_token);
+        Cookies.set("email", data.email, { httpOnly: true });
+        Cookies.set("accessToken", data.access_token, { httpOnly: true });
+        Cookies.set("refreshToken", data.refresh_token, { httpOnly: true });
     }
     catch(err) {
         return Promise.reject(err);
@@ -99,7 +99,7 @@ async function refreshAccess(): Promise <void> {
             return Promise.reject("Request failed");
             
         const data = await res.json();
-        Cookies.set("accessToken", data.accessToken);
+        Cookies.set("accessToken", data.accessToken, { httpOnly: true });
         return Promise.resolve();
     }
     catch(err) {

@@ -1,48 +1,71 @@
 import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
-import { App, Column, Datasource, Record, Role, View } from "./StoreTypes";
+import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './StoreTypes'
 
-//
-// Application-related functions.
-//
+/*
+    Helper functions for requests.
+*/
+
+/**
+ * Constructs a request form used in all the defined REST API requests. 
+ * @param method - POST/PUT/DELETE  (generally not using GET).
+ * @param data - Additional payload, if any, to include with the request.
+ * @return {Promise<RequestInit>} - A promise that resolves to the request form on success, rejects on failure.
+ */
+async function getRequestForm(method: string, data: {[key: string]: any}): Promise<RequestInit> {
+    try {
+        /* Get a fresh access token if expired. */
+        await refreshAccess();
+
+        /* Fetch information from cookies. */
+        const [email, accessToken] = [Cookies.get("email"), Cookies.get("accessToken")];
+        if(!email || !accessToken)
+            return Promise.reject("Missing email or access token.")
+
+        /* Build the request body. */
+        const bodyData = {...data, email};
+
+        /* Specify access token in authorization header and email in request body. */
+        const reqForm: RequestInit = {
+            method: method,
+            mode: "cors",
+            headers: { 
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(bodyData)
+        }
+        return reqForm;
+    }
+    catch(err) {
+        return Promise.reject(`getRequestForm failed with the error: ${err}`)
+    }
+}
+
+/*
+    Functions for API requests.
+*/
 
 /**
  * Requests an array of all apps that the user has permission to develop. 
  * @return {Promise<App[]>} - A promise that resolves to the array of apps on success, rejects on failure.
  */
 async function getDevelopableApps(): Promise<App[]> {
-    await refreshAccess();
-
-    /* Fetch information from cookies. */
-    const email = Cookies.get("email");
-    const accessToken = Cookies.get("accessToken");
-
-    if(!email || !accessToken)
-        return Promise.reject("Missing email or access token.")
-
-    /* Specify user email in request body. */
-    const reqForm: RequestInit = {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json",
-            'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({"email": email})
-    }
-    
-    /* Send request and return promise resolving to array of developable apps. */
     try {
+        /* Build request form. */
+        const reqForm = await getRequestForm("POST", {});
+
+        /* Send request and return promise resolving to array of developable apps if successful. */
         const res = await fetch("http://localhost:8000/getDevelopableApps", reqForm);
         if(!res.ok)
-            return Promise.reject("Request failed");
+            return Promise.reject(`getDevelopableApps request failed with status: ${res.status}`);
             
         const data = await res.json();
-        const dApps: App[] = data.apps;
-        return dApps;
+        const apps: App[] = data.apps;
+        return apps;
     }
     catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`getDevelopableApps failed with the error: ${err}`);
     }
 }
 
@@ -51,38 +74,20 @@ async function getDevelopableApps(): Promise<App[]> {
  * @return {Promise<App[]>} - A promise that resolves to the array of apps on success, rejects on failure.
  */
 async function getAccessibleApps(): Promise<App[]> {
-    await refreshAccess();
-
-    /* Fetch information from cookies. */
-    const email = Cookies.get("email");
-    const accessToken = Cookies.get("accessToken");
-
-    if(!email || !accessToken)
-        return Promise.reject("Missing email or access token.")
-
-    /* Specify user email in request body. */
-    const reqForm: RequestInit = {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json",
-            'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({"email": email})
-    }
-
-    /* Send request and return promise resolving to array of useable apps. */
     try {
-        const res = await fetch("https://localhost:8000/getUsableApps", reqForm);
+        const reqForm = await getRequestForm("POST", {});
+
+        /* Send request and return promise resolving to array of accessible apps if successful. */
+        const res = await fetch("http://localhost:8000/getAccessibleApps", reqForm);
         if(!res.ok) 
-            return Promise.reject("Request failed.");
+            return Promise.reject(`getAccessibleApps request failed with status: ${res.status}`);
         
         const data = await res.json();
-        const uApps: App[] = data.apps;
-        return uApps;
+        const apps: App[] = data.apps;
+        return apps;
     }
     catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`getAccessibleApps failed with the error: ${err}`);
     }
 }
 
@@ -91,430 +96,559 @@ async function getAccessibleApps(): Promise<App[]> {
  * @param {string} appName - The name of the application.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function createApp(appName: String): Promise<void> {
-    /* Fetch information from cookies. */
-    const email = Cookies.get("email");
-    if(!email)
-        return Promise.reject("Missing email.")
-
-    /* Specify app metadata in request body. */
-    const reqForm: RequestInit= {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({"email": email, "name": appName})
-    }
-
-    /* Send request and return promise resolving if creation successful. */
+async function createApp(appName: string): Promise<void> {
     try {
-        const res = await fetch("https://localhost:8000/createApp", reqForm);
+        const reqForm = await getRequestForm("POST", {"appName": appName});
+
+        /* Send request and return promise resolving if creation successful. */
+        const res = await fetch("http://localhost:8000/createApp", reqForm);
         if(!res.ok)
-            return Promise.reject("Request failed.");
+            return Promise.reject(`createApp request failed with status: ${res.status}`);
         
         return Promise.resolve();
     }
     catch(err) {
-        return Promise.reject(err);
-    }
-}
-
-/**
- * Requests to change the name of an existing application. 
- * @param {number} appID - The id of the application.
- * @param {string} appName - The name of the application.
- * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
- */
-async function editAppName(appID: number, appName: string): Promise<void> { 
-    /* Specify new app name in request body. */
-    const reqForm: RequestInit = {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({"appID": appID, "appName": appName})
-    }
-
-    /* Send request and return promise resolving if app name change successful. */
-    try {
-        const res = await fetch("https://localhost:8000/editAppName", reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
-        
-        return Promise.resolve();
-    }
-    catch(err) {
-        return Promise.reject(err);
-    }
-}
-
-/**
- * Requests to create a new app where the user is the creator.
- * @param {number} appID - The id of the application.
- * @param {string} roleMemUrl - The URL to the spreadsheet that contains the roles for users within the app.
- * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
- */
-async function editAppRoleMemUrl(appID: number, roleMemUrl: string): Promise<void> {
-    /* Specify new app roleMemUrl in request body. */
-    const reqForm: RequestInit = {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({"appID": appID, "roleMemUrl": roleMemUrl})
-    }
-
-    /* Send request and return promise resolving if app roleMemUrl change successful. */
-    try {
-        const res = await fetch("https://localhost:8000/editAppRoleMemUrl", reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
-        
-        return Promise.resolve();
-    }
-    catch(err) {
-        return Promise.reject(err);
-    }
-}
-
-/**
- * Requests to publish an application. 
- * @param {number} appID - The id of the application.
- * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
- */
-async function publishApp(appID: number): Promise<void> {
-    /* Specify which app to publish in request body. */
-    const reqForm: RequestInit = {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({"appID": appID})
-    }
-
-    /* Send request and return promise resolving if publishing successful. */
-    try {
-        const res = await fetch("https://localhost:8000/publishApp", reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
-        
-        return Promise.resolve();
-    }
-    catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`createApp failed with the error: ${err}`);
     }
 }
 
 /**
  * Requests to delete an application. 
- * @param {number} appId - The id of the application.
+ * @param {App} app - The application to delete.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function deleteApp(appId: number): Promise<void> {
-    /* Specify which app to delete in request body. */
-    const reqForm: RequestInit = {
-        method: "DELETE",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({"appId": appId})
-    }
-
-    /* Send request and return promise resolving if publishing successful. */
+async function deleteApp(app: App): Promise<void> {
     try {
-        const res = await fetch("https://localhost:8000/deleteApp", reqForm);
+        const reqForm = await getRequestForm("DELETE", {"app": app});
+
+        /* Send request and return promise resolving if deletion successful. */
+        const res = await fetch("http://localhost:8000/deleteApp", reqForm);
         if(!res.ok)
-            return Promise.reject("Request failed.");
+            return Promise.reject(`deleteApp request failed with status: ${res.status}`);
         
         return Promise.resolve();
     }
     catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`deleteApp failed with the error: ${err}`);
     }
 }
 
 /**
- * Requests an array of all data sources for a particular app.
- * @param {number} appID - The id of the application.
- * @return {Promise<void>} - A promise that resolves the array of data sources on success, rejects on failure.
+ * Requests to edit an application. 
+ * @param {App} app - The application to edit, with the updated information.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function getAppDataSources(appID: number): Promise<Datasource[]> {
-    /* Specify which app's data sources to get. */
-    const reqForm: RequestInit = {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({"appID": appID})
-    }
-
+async function editApp(app: App): Promise <void> {  
     try {
-        const res = await fetch("https://localhost:8000/getAppDataSources", reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
-        
-        const data = await res.json();
-        const uApps: Datasource[] = data.apps;
-        return uApps;
-    }
-    catch(err) {
-        return Promise.reject(err);
-    }
-}
+        const reqForm = await getRequestForm("PUT", {"app": app});
 
-/**
- * Creates a datasource for the application
- * @param appID The web app to associate this datasource with
- * @param spreadsheetID The ID of the spreadsheet in Google Sheets
- * @param sheetID The ID of the sheet in Google Sheets
- * @param datasourceName The name of the datasource for reference within S2A
- * @returns the newly created Datasource, if the request is valid
- */
-async function createDatasource(appID: number, spreadsheetID: string, sheetID: number, datasourceName: string): Promise<void> {
-    const reqForm: RequestInit = {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "appID": appID,
-            "spreadsheetID": spreadsheetID,
-            "sheetIdx": sheetID,
-            "datasourceName": datasourceName
-        })
-    }
-
-    try {
-        const res = await fetch("https://localhost:8000/createDatasource", reqForm);
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch("http://localhost:8000/editApp", reqForm);
         if(!res.ok)
-            return Promise.reject("Request failed.");
-        
+            return Promise.reject(`editApp request failed with status: ${res.status}`);
         
         return Promise.resolve();
     }
     catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`editApp failed with the error: ${err}`);
     }
 }
 
 /**
- * Edits a Datasource for a web application. Allows changes to the spreadsheet ID, sheet index, or name.
- * @param datasourceKey The primary key of the datasource within the SQL database
- * @param spreadsheetID The NEW spreadsheetID of the Datasource
- * @param sheetIdx The NEW sheetIdx of the Datasource
- * @param datasourceName The NEW datasourceName of the Datasource
- * @returns 
+ * Requests an array of all datasources for a particular app.
+ * @param {App} app - The application to get the datasources of.
+ * @return {Promise<void>} - A promise that resolves to the array of datasources on success, rejects on failure.
  */
-async function editDatasource(datasourceKey: number, spreadsheetID: string, sheetIdx: number, datasourceName: string, columns: Column[]): Promise<void> {
-    const reqForm: RequestInit = {
-        method: "PUT",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "datasourceKey": datasourceKey,
-            "spreadsheetID": spreadsheetID,
-            "sheetIdx": sheetIdx,
-            "datasourceName": datasourceName,
-            "columns": columns
-        })
-    }
-
+async function getAppDatasources(app: App): Promise<Datasource[]> {
     try {
-        const res = await fetch("https://localhost:8000/editDatasource", reqForm);
+        const reqForm = await getRequestForm("POST", {"app": app});
+
+        /* Send request and return promise resolving to array of datasources if successful. */
+        const res = await fetch("http://localhost:8000/getAppDataSources", reqForm);
         if(!res.ok)
-            return Promise.reject("Request failed.");
+            return Promise.reject(`getAppDatasources request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const datasources: Datasource[] = data.datasources;
+        return datasources;
+    }
+    catch(err) {
+        return Promise.reject(`getAppDatasources failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests to create a datasource for a particular app.
+ * @param {App} app - The application to create the datasource for.
+ * @param {string} datasourceName - The name the datasource will have.
+ * @param {string} spreadsheetUrl - THe URL of the spreadsheet the datasource will be backed by.
+ * @param {string} sheetName - The name of the sheet within the spreadsheet the datasource will be associated with.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure. 
+ */
+async function createDatasource(app: App, datasourceName: string, spreadsheetUrl: string, sheetName: string): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("POST", {"app": app, "datasourceName": datasourceName, "spreadsheetUrl": spreadsheetUrl, "sheetName": sheetName});
+
+        /* Send request and return promise resolving if creation successful. */
+        const res = await fetch("http://localhost:8000/createDatasource", reqForm);
+        if(!res.ok)
+            return Promise.reject(`createDatasource request failed with status: ${res.status}`);
         
         return Promise.resolve();
     }
     catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`createDatasource failed with the error: ${err}`);
     }
 }
 
 /**
- * Edits the attributes of a single column within a specified datasource
- * @param datasourceKey The primary key of the datasource that contains the column to be edited
- * @param columnKey The primary key of the column in the SQL database
- * @param column The NEW column to update the columnKey values to
+ * Requests to edit a datasource.
+ * @param {Datasource} datasource - The datasource to edit, with the updated information.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editColumn(datasourceKey: number, columnKey: number, column: Column): Promise<void> {
-    const reqForm: RequestInit = {
-        method: "PUT",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "datasourceKey": datasourceKey,
-            "columnKey": columnKey,
-            "column": column
-        })
-    }
-
+async function editDatasource(datasource: Datasource): Promise<void> {
     try {
-        const res = await fetch("https://localhost:8000/editColumn", reqForm);
+        const reqForm = await getRequestForm("PUT", {"datasource": datasource});
+        
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch("http://localhost:8000/editDatasource", reqForm);  
         if(!res.ok)
-            return Promise.reject("Request failed.");
+            return Promise.reject(`editDatasource request failed with status: ${res.status}`);
         
         return Promise.resolve();
     }
     catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`editDatasource failed with the error: ${err}`);
     }
 }
 
 /**
- * Deletes a Datasource from the SQL database
- * @param datasourceKey The primary key of the Datasource to delete
+ * Requests to delete a datasource.
+ * @param {Datasource} datasource - The datasource to delete.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function deleteDatasource(datasourceKey: number): Promise<void> {
-    const reqForm: RequestInit = {
-        method: "DELETE",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "datasourceKey": datasourceKey
-        })
-    }
-
+async function deleteDatasource(datasource: Datasource): Promise<void> {
     try {
-        const res = await fetch("https://localhost:8000/deleteDatasource", reqForm);
+        const reqForm = await getRequestForm("DELETE", {"datasource": datasource});
+        
+        /* Send request and return promise resolving if deletion successful. */
+        const res = await fetch("http://localhost:8000/deleteDatasource", reqForm);
         if(!res.ok)
-            return Promise.reject("Request failed.");
+            return Promise.reject(`deleteDatasource request failed with status: ${res.status}`);
         
         return Promise.resolve();
     }
     catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`deleteDatasource failed with the error: ${err}`);
     }
 }
 
 /**
- * Create a view for an app
- * @param appID The app to create the view for
+ * Requests an array of all datasource columns for a particular datasource. 
+ * @param {Datasource} datasource - The datasource to obtain the columns of. 
+ * @return {Promise<Column[]>} - A promise that resolves to the array of datasource columns on success, rejects on failure.
  */
-async function createView(appID: number) {
-    const reqForm: RequestInit = {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "appID": appID
-        })
-    }
-
+async function getDatasourceColumns(datasource: Datasource): Promise<Column[]> {
     try {
-        const res = await fetch("https://localhost:8000/createView", reqForm);
+        const reqForm = await getRequestForm("POST", {"datasource": datasource});
+        
+        /* Send request and return promise resolving to an array of datasource columns if successful. */
+        const res = await fetch("http://localhost:8000/getDatasourceColumns", reqForm);
         if(!res.ok)
-            return Promise.reject("Request failed.");
+            return Promise.reject(`getDatasourceColumns request failed with status: ${res.status}`);
         
         const data = await res.json();
-
-        return data.view;
+        const datasourceColumns: Column[] = data.datasourceColumns;
+        return datasourceColumns;
     }
     catch(err) {
-        return Promise.reject(err);
-    }
-}
-
-async function editView(appID: number, datasourceKey: number, name: string) {
-    const reqForm: RequestInit = {
-        method: "PUT",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "appID": appID,
-            "datasourceKey": datasourceKey,
-            "name": name
-        })
-    }
-
-    try {
-        const res = await fetch("https://localhost:8000/editView", reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
-        
-        const data = await res.json();
-
-        return data.view;
-    }
-    catch(err) {
-        return Promise.reject(err);
-    }
-}
-
-async function deleteView(viewID: number) {
-    const reqForm: RequestInit = {
-        method: "DELETE",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "viewID": viewID
-        })
-    }
-
-    try {
-        const res = await fetch("https://localhost:8000/deleteView", reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
-        
-        const data = await res.json();
-
-        return data.view;
-    }
-    catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`getDatasourceColumns failed with the error: ${err}`);
     }
 }
 
 /**
- * Retrieves all views associated with the App. The returned view will have the available permissions associated with the users role. 
- * @param appID The application to retrieve the views for
- * @param role The Role of the end user requesting the views. Used for permissions
+ * Requests to edit datasource columns.
+ * @param {Column[]} datasourceColumn - The datasource columns to edit, with the updated information.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function getViewsByAppID(appID: number, role: Role) {
-    const reqForm: RequestInit = {
-        method: "GET",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "appID": appID,
-            "role": role
-        })
-    }
-
+async function editDatasourceColumns(datasourceColumns: Column[]): Promise<void> {
     try {
-        const res = await fetch("https://localhost:8000/getViewsByAppID", reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
+        const reqForm = await getRequestForm("PUT", {"datasourceColumns": datasourceColumns});
         
-        const data = await res.json();
-
-        return data.views;
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch("http://localhost:8000/editDatasourceColumns", reqForm);
+        if(!res.ok)
+            return Promise.reject(`editDatasourceColumns request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
     }
     catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`editDatasourceColumns failed with the error: ${err}`);
     }
 }
+
+/**
+ * Requests an array of all tableviews for a particular app.
+ * @param {App} app - The application to get the tableviews of.
+ * @return {Promise<Tableview[]>} - A promise that resolves to the array of tableviews on success, rejects on failure.
+ */
+async function getAppTableviews(app: App): Promise<Tableview[]> {
+    try {
+        const reqForm = await getRequestForm("POST", {"app": app});
+        
+        /* Send request and return promise resolving to the array of tableviews if successful. */
+        const res = await fetch("http://localhost:8000/getAppTableviews", reqForm);
+        if(!res.ok)
+            return Promise.reject(`getAppTableviews request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const tableviews: Tableview[] = data.tableviews;
+        return tableviews;
+    }
+    catch(err) {
+        return Promise.reject(`getAppTableviews failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests to create a tableview for a particular app with a particular datasource.
+ * @param {App} app - The application to create the tableview for.
+ * @param {string} tableviewName - The name the tableview will have.
+ * @param {Datasource} datasource - The datasource the tableview will be created with.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+async function createTableview(app: App, tableviewName: string, datasource: Datasource): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("POST", {"app": app, "tableviewName": tableviewName, "datasource": datasource});
+
+        /* Send request and return promise resolving if creation successful. */
+        const res = await fetch("http://localhost:8000/createTableview", reqForm);
+        if(!res.ok)
+            return Promise.reject(`createTableview request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`createTableview failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests to edit a tableview.
+ * @param {Tableview} tableview - The tableview to edit, with the updated information.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+async function editTableview(tableview: Tableview): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("PUT", {"tableview": tableview});
+
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch("http://localhost:8000/editTableview", reqForm);
+        if(!res.ok)
+            return Promise.reject(`editTableview request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`editTableview failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests to delete a tableview.
+ * @param {Tableview} tableview - The tableview to delete.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+async function deleteTableview(tableview: Tableview): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("DELETE", {"tableview": tableview});
+
+        /* Send request and return promise resolving if deletion successful. */
+        const res = await fetch("http://localhost:8000/deleteTableview", reqForm);
+        if(!res.ok)
+            return Promise.reject(`deleteTableview request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`deleteTableview failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests an array of all tableview columns for a particular tableview.
+ * @param {Tableview} tableview - The tableview to obtain the columns of.
+ * @return {Promise<Column[]>} - A promise that resolves to the array of tableview columns on success, rejects on failure.
+ */
+async function getTableviewColumns(tableview: Tableview): Promise<Column[]> {
+    try {
+        const reqForm = await getRequestForm("POST", {"tableview": tableview});
+        
+        /* Send request and return promise resolving to an array of tableview columns if successful. */
+        const res = await fetch("http://localhost:8000/getTableviewColumns", reqForm);
+        if(!res.ok)
+            return Promise.reject(`getTableviewColumns request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const tableviewColumns: Column[] = data.tableviewColumns;
+        return tableviewColumns;
+    }
+    catch(err) {
+        return Promise.reject(`getTableviewColumns failed with the error: ${err}`);
+    }
+}
+
+
+/**
+ * Requests to edit tableview columns.
+ * @param {Tableview} tableview - The tableview whose columns to edit.
+ * @param {Column[]} tableviewColumns - The tableview columns to edit, with the updated information.
+ * @param {boolean[]} filterColumn - The array of boolean values corresponding to each record indicating if the record should be shown in the view. If empty, no filter.
+ * @param {string[]} userFilterColumn- The array of string values corresponding to each record indicating if the view should show this user the record. If empty, no filter.
+ * @return {Promise<Column[]>} - A promise that resolves to the array of tableview columns on success, rejects on failure.
+ */
+async function editTableviewColumns(tableview: Tableview, tableviewColumns: Column[], filterColumn: boolean[], userFilterColumn: string[]): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewColumns": tableviewColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn});
+        
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch("http://localhost:8000/editTableviewColumns", reqForm);
+        if(!res.ok)
+            return Promise.reject(`editTableviewColumns request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`editTableviewColumns failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests an array of all tableview roles for a particular tableview.
+ * @param {Tableview} tableview - The tableview to obtain the roles of.
+ * @return {Promise<Role[]>} - A promise that resolves to the array of tableview roles on success, rejects on failure.
+ */
+async function getTableviewRoles(tableview: Tableview): Promise<Role[]> {
+    try {
+        const reqForm = await getRequestForm("POST", {"tableview": tableview});
+        
+        /* Send request and return promise resolving to an array of tableview roles if successful. */
+        const res = await fetch("http://localhost:8000/getTableviewRoles", reqForm);
+        if(!res.ok)
+            return Promise.reject(`getTableviewRoles request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const tableviewRoles: Role[] = data.tableviewRoles;
+        return tableviewRoles;
+    }
+    catch(err) {
+        return Promise.reject(`getTableviewRoles failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests to edit tableview roles.
+ * @param {Tableview} tableview - The tableview whose roles to edit.
+ * @param {Role[]} tableviewRoles - The array of roles that should be given permission for the tableview.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+async function editTableviewRoles(tableview: Tableview, tableviewRoles: Role[]): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewRoles": tableviewRoles});
+        
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch("http://localhost:8000/editTableviewRoles", reqForm);
+        if(!res.ok)
+            return Promise.reject(`editTableviewRoles request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`editTableviewRoles failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests an array of all detailviews for a particular app.
+ * @param {App} app - The application to get the detailviews of.
+ * @return {Promise<Detailview[]>} - A promise that resolves to the array of detailviews on success, rejects on failure.
+ */
+async function getAppDetailviews(app: App): Promise<Detailview[]> {
+    try {
+        const reqForm = await getRequestForm("POST", {"app": app});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch("http://localhost:8000/getAppDetailviews", reqForm);
+        if(!res.ok)
+            return Promise.reject(`getAppDetailviews equest failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const detailviews: Detailview[] = data.detailviews;
+        return detailviews;
+    }
+    catch(err) {
+        return Promise.reject(`getAppDetailviews failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests to create a detailview for a particular app with a particular datasource.
+ * @param {App} app - The application to create the detailview for.
+ * @param {string} detailviewName - The name the detailview will have.
+ * @param {Datasource} datasource - The datasource the detailview will be created with.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+async function createDetailview(app: App, detailviewName: string, datasource: Datasource): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("POST", {"app": app, "detailviewName": detailviewName, "datasource": datasource});
+
+        /* Send request and return promise resolving if creation successful. */
+        const res = await fetch("http://localhost:8000/createDetailview", reqForm);
+        if(!res.ok)
+            return Promise.reject(`createDetailview request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`createDetailview failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests to edit a detailview.
+ * @param {Detailview} detailview - The detailview to edit, with the updated information.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+async function editDetailview(detailview: Detailview): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("PUT", {"detailview": detailview});
+
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch("http://localhost:8000/editDetailview", reqForm);
+        if(!res.ok)
+            return Promise.reject(`editDetailview request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`editDetailview failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests to delete a detailview.
+ * @param {Detailview} detailview- The detailview to delete.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+async function deleteDetailview(detailview: Detailview): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("DELETE", {"detailview": detailview});
+
+        /* Send request and return promise resolving if deletion successful. */
+        const res = await fetch("http://localhost:8000/deleteDetailview", reqForm);
+        if(!res.ok)
+            return Promise.reject(`deleteDetailview request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`deleteDetailview failed with the error: ${err}`);
+    }
+}
+
+
+/**
+ * Requests an array of all detailview columns for a particular detailview.
+ * @param {Detailview} detailview - The detailview to obtain the columns of.
+ * @return {Promise<Column[]>} - A promise that resolves to the array of detailview columns on success, rejects on failure.
+ */
+async function getDetailviewColumns(detailview: Detailview): Promise<Column[]> {
+    try {
+        const reqForm = await getRequestForm("POST", {"detailview": detailview});
+        
+        /* Send request and return promise resolving to an array of detailview columns if successful. */
+        const res = await fetch("http://localhost:8000/getDetailviewColumns", reqForm);
+        if(!res.ok)
+            return Promise.reject(`getDetailviewColumns request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const detailviewColumns: Column[] = data.detailviewColumns;
+        return detailviewColumns;
+    }
+    catch(err) {
+        return Promise.reject(`getDetailviewColumns failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests to edit detailview columns.
+ * @param {Detailview} detailview- The detailview whose columns to edit.
+ * @param {Column[]} detailviewColumns - The detailview columns to edit, with the updated information.
+ * @param {boolean[]} editFilterColumn - THe array of boolean values corresponding to each record indicating if the view should allow this user to edit the record. If empty, no filter.
+ * @return {Promise<Column[]>} - A promise that resolves to the array of tableview columns on success, rejects on failure.
+ */
+async function editDetailviewColumns(detailview: Detailview, detailviewColumns: Column[], editFilterColumn: boolean[]): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("PUT", {"detailview": detailview, "detailviewColumns": detailviewColumns, "editFilterColumn": editFilterColumn});
+        
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch("http://localhost:8000/editDetailviewColumns", reqForm);
+        if(!res.ok)
+            return Promise.reject(`editDetailviewColumns request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`editDetailviewColumns failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests an array of all detailview roles for a particular detailview
+ * @param {Detailview} detailview - The detailview to obtain the roles of.
+ * @return {Promise<Role[]>} - A promise that resolves to the array of detailview roles on success, rejects on failure.
+ */
+async function getDetailviewRoles(detailview: Detailview): Promise<Role[]> {
+    try {
+        const reqForm = await getRequestForm("POST", {"detailview": detailview});
+        
+        /* Send request and return promise resolving to an array of detailview roles if successful. */
+        const res = await fetch("http://localhost:8000/getDetailviewRoles", reqForm);
+        if(!res.ok)
+            return Promise.reject(`getDetailviewRoles request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const detailviewRoles: Role[] = data.detailviewRoles;
+        return detailviewRoles;
+    }
+    catch(err) {
+        return Promise.reject(`getDetailviewRoles failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests to edit detailview roles.
+ * @param {Detailview} detailview - The detailview whose roles to edit.
+ * @param {Role[]} detailviewRoles - The array of roles that should be given permission for the detailview.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role[]): Promise<void> {
+    try {
+        const reqForm = await getRequestForm("PUT", {"detailview": detailview, "detailviewRoles": detailviewRoles});
+        
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch("http://localhost:8000/editDetailviewRoles", reqForm);
+        if(!res.ok)
+            return Promise.reject(`editTableviewRoles request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`editTableviewRoles failed with the error: ${err}`);
+    }
+}
+
+// -> END for S2A.
 
 /**
  * Adds a record to a View. By default, this will append the new record to the last row of the spreadsheet.
@@ -535,7 +669,7 @@ async function addRecord(viewID: number, recordToAdd: Record) {
     }
 
     try {
-        const res = await fetch("https://localhost:8000/addRecord", reqForm);
+        const res = await fetch("http://localhost:8000/addRecord", reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         
@@ -551,13 +685,6 @@ async function addRecord(viewID: number, recordToAdd: Record) {
     }
 }
 
-/**
- * Edits a record in the Google Sheets database
- * @param viewID The ID of the View to add the record to
- * @param recordID The ID of the record to edit
- * @param editedRecord The new record values 
- * @returns The updated View with the edited record
- */
 async function editRecord(viewID: number, recordID: number, editedRecord: Record) {
     const reqForm: RequestInit = {
         method: "PUT",
@@ -573,7 +700,7 @@ async function editRecord(viewID: number, recordID: number, editedRecord: Record
     }
 
     try {
-        const res = await fetch("https://localhost:8000/editRecord", reqForm);
+        const res = await fetch("http://localhost:8000/editRecord", reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         
@@ -609,7 +736,7 @@ async function deleteRecord(viewID: number, recordID: number) {
     }
 
     try {
-        const res = await fetch("https://localhost:8000/deleteRecord", reqForm);
+        const res = await fetch("http://localhost:8000/deleteRecord", reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         
@@ -625,4 +752,13 @@ async function deleteRecord(viewID: number, recordID: number) {
     }
 }
 
-export default {getDevelopableApps, getAccessibleApps, createApp, editAppName, editAppRoleMemUrl, publishApp, deleteApp, getAppDataSources, createDatasource, editDatasource, createView, editView, deleteView, editColumn, deleteDatasource, getViewsByAppID, addRecord, editRecord, deleteRecord};
+export default {getDevelopableApps, getAccessibleApps, createApp, deleteApp, editApp, 
+                getAppDatasources, createDatasource, editDatasource, deleteDatasource,
+                getDatasourceColumns, editDatasourceColumns, 
+                getAppTableviews, createTableview, editTableview, deleteTableview, 
+                getTableviewColumns, editTableviewColumns, 
+                getTableviewRoles, editTableviewRoles,  
+                getAppDetailviews, createDetailview, editDetailview, deleteDetailview, 
+                getDetailviewColumns,editDetailviewColumns, 
+                getDetailviewRoles, editDetailviewRoles, 
+                addRecord, editRecord, deleteRecord};
