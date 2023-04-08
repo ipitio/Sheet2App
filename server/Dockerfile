@@ -11,8 +11,8 @@ ENV password=default-password
 ENV port=3306
 ENV database=Sheet2App
 
-#ENV CLIENT_ID=1043255060654-pg1vucmm5iibpt7qsvdmsq5khahnkak7.apps.googleusercontent.com
-#ENV CLIENT_SECRET=****
+ENV CLIENT_ID=1043255060654-pg1vucmm5iibpt7qsvdmsq5khahnkak7.apps.googleusercontent.com
+ENV CLIENT_SECRET=****
 
 ENV cache=redis
 
