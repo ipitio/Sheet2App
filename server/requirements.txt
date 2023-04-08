@@ -1,12 +1,18 @@
 django
 django-cors-headers
+django-health-check
 djangorestframework
 google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
+hiredis
 inflection
 mysqlclient
 mysql-connector-python
 openpyxl
 pylint-django # https://stackoverflow.com/a/58255140 # https://stackoverflow.com/a/68346742
+pytest-django
+pytest-xdist[psutil]
+python-dotenv
+redis
 utils

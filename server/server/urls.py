@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("s2a_api.urls")),
+    path("ht/", include('health_check.urls')),
 ]

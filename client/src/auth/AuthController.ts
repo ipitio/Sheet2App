@@ -1,5 +1,8 @@
 import Cookies from 'js-cookie';
-import jwt from 'jsonwebtoken';
+const { TextEncoder, TextDecoder } = require('text-encoding-utf-8');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+const jose = require('jose')
 
 /**
  * Requests OAuth access/refresh tokens, and user email from backend server, then stores them as cookies.
@@ -24,9 +27,9 @@ async function getLoggedIn(authCode: string): Promise<void>{
             return Promise.reject("Request failed");
             
         const data = await res.json();
-        Cookies.set("email", data.email);
-        Cookies.set("accessToken", data.access_token);
-        Cookies.set("refreshToken", data.refresh_token);
+        Cookies.set("email", data.email, { httpOnly: true });
+        Cookies.set("accessToken", data.access_token, { httpOnly: true });
+        Cookies.set("refreshToken", data.refresh_token, { httpOnly: true });
     }
     catch(err) {
         return Promise.reject(err);
@@ -54,7 +57,7 @@ function checkAccess(): boolean {
      
      /* Parse out the expiration date from the access token. */
      try {
-         const tokenData = jwt.decode(accessToken) as any;
+         const tokenData = jose.JWT.decode(accessToken);
          const exp: number = tokenData.exp * 1000; 
          const curr: number = Date.now();
  
@@ -96,7 +99,7 @@ async function refreshAccess(): Promise <void> {
             return Promise.reject("Request failed");
             
         const data = await res.json();
-        Cookies.set("accessToken", data.accessToken);
+        Cookies.set("accessToken", data.accessToken, { httpOnly: true });
         return Promise.resolve();
     }
     catch(err) {

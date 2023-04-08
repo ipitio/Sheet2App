@@ -50,6 +50,9 @@ def get_credentials(tokens):
         Credentials: the Credentials object to be used for Google sheets operations
     """
     creds = Credentials.from_authorized_user_info(tokens)
+    if not creds.valid:
+        creds.refresh(Request())
+
     return creds
 
 
