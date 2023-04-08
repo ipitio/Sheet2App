@@ -1,0 +1,3 @@
+data/*[^.gitignore]
+log/db.s2a.err
+*#*

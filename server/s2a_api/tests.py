@@ -1,10 +1,24 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.test.client import Client
+from dotenv import load_dotenv
+import os
+import pytest
 
 from .models import *
 from .views import *
 
 from sheets.sheets_api import *
+
+c = Client()
+
+load_dotenv()
+username=os.getenv('DJANGO_SUPERUSER_USERNAME', 'admin')
+password=os.getenv('DJANGO_SUPERUSER_PASSWORD', 'password')
+
+#c.login(username=username, password=password)
+
+pytestmark = pytest.mark.django_db
 
 
 # Create your tests here.
@@ -335,9 +349,7 @@ class TableViewColumnModelTest(TestCase):
         col = DatasourceColumn.objects.filter(datasource=data).first()
         table = TableView.objects.filter(datasource=data).first()
         view_col = TableViewViewableColumn.objects.filter(table_view=table).first()
-        self.assertEquals(
-            view_col.table_view.app.creator.email, "col@table.com"
-        )
+        self.assertEquals(view_col.table_view.app.creator.email, "col@table.com")
 
 
 class DetailViewColumnModelTest(TestCase):

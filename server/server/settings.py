@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = "django-insecure-6$rv^n$y75w$#=gz+u_19w8jp+p!^fd&29t==w15vn1tkc-fvl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -40,6 +41,11 @@ INSTALLED_APPS = [
     "s2a_api.apps.ApiConfig",
     "rest_framework",
     "corsheaders",
+    'health_check',
+    'health_check.db',
+    'health_check.cache',
+    'health_check.storage',
+    'health_check.contrib.migrations',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +57,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 ROOT_URLCONF = "server.urls"
@@ -87,6 +95,9 @@ DATABASES = {
         "PASSWORD": auth.PASSWORD,
         "HOST": auth.HOST,
         "PORT": auth.PORT,
+        "OPTIONS": {
+            'connect_timeout': 10,
+        },
     }
 }
 
@@ -129,7 +140,23 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 STATIC_URL = "static/"
 
+if DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://' + os.environ.get('cache', 'localhost') + ':6379/0',
+    }
+}
+CACHE_TTL = 60 * 15
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = CACHE_TTL
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
+
+CONN_MAX_AGE = 60
+CONN_HEALTH_CHECKS = True

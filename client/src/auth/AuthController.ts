@@ -1,5 +1,8 @@
 import Cookies from 'js-cookie';
-import jwt from 'jsonwebtoken';
+const { TextEncoder, TextDecoder } = require('text-encoding-utf-8');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+const jose = require('jose')
 
 /**
  * Requests OAuth access/refresh tokens, and user email from backend server, then stores them as cookies.
@@ -54,7 +57,7 @@ function checkAccess(): boolean {
      
      /* Parse out the expiration date from the access token. */
      try {
-         const tokenData = jwt.decode(accessToken) as any;
+         const tokenData = jose.JWT.decode(accessToken);
          const exp: number = tokenData.exp * 1000; 
          const curr: number = Date.now();
  

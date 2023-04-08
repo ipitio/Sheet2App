@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+  redis:
+    container_name: redis
+    restart: on-failure
+    build: ./cache
+    ports:
+      - 6379:6379
+    networks:
+      - app_network
+
+  mysql:
+    container_name: mysql
+    restart: on-failure
+    build: ./db
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./db/log:/var/log/mysql
+    networks:
+      - app_network
+
+  django:
+    container_name: django
+    restart: on-failure
+    build: ./server
+    ports:
+      - 8000:8000
+    depends_on:
+      - redis
+      - mysql
+    networks:
+      - app_network
+
+  node:
+    container_name: node
+    restart: on-failure
+    build: ./client
+    ports:
+      - 3000:3000
+    depends_on:
+      - django
+    networks:
+      - app_network
+
+networks:
+  app_network:

@@ -1,0 +1,25 @@
+name: frontend
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Build and run
+      run: |
+        docker compose up -d --build
+
+    - name: Test frontend
+      run: |
+        sleep 20
+        frontend_container_id=$(docker ps -q --filter "name=node")
+        docker exec $frontend_container_id npm run test -- --watchAll=false
