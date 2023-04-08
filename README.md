@@ -24,6 +24,7 @@ Install WSL2, Docker Desktop, and VSCode Extensions
 
 1. Rename your `server/s2a_api/migrations` folder to something else.
 2. Set the OAuth Client ID environment variable in `client/Dockerfile`
+3. Set the OAuth Client ID and Secret environment variables in `server/Dockerfile`
 
 ### Start
 
