@@ -12,7 +12,7 @@ class Creator(models.Model):
 class Application(models.Model):
     creator = models.ForeignKey(Creator, on_delete=models.CASCADE)
     name = models.TextField()
-    role_mem_url = models.TextField()
+    role_mem_url = models.TextField(null=True)
     is_published = models.BooleanField()
 
 

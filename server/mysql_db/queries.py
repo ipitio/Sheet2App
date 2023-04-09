@@ -205,7 +205,7 @@ def get_apps_by_email(creator_email):
 
 def get_all_apps_with_creator_email():
     try:
-        apps = Application.objects.all().values(
+        apps = Application.objects.exclude(role_mem_url__isnull=True).values(
             'id', 'name', 'creator_id__email', "role_mem_url", "is_published"
         )
         
