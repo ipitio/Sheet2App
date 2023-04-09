@@ -1,187 +1,506 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from "@reduxjs/toolkit"
+import { useDispatch } from 'react-redux'
+
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
 import storeController from './StoreController'
 
+const dispatch = useDispatch();
+
 export interface IS2AState {
-    // A list of all apps owned by the user
-    devApps: App[],
+    /* An array of developable apps for the current user. Set when navigating onto developable apps screen. */
+    devApps: App[] | null,
 
-    // A list of all apps accessible to the user
-    accApps: App[],
+    /* An array of accessible apps for the current user. Set when anvigating onto accessible apps screen. */
+    accApps: App[] | null,
 
-    // A list of data sources that have been retrieved from the database for the current user's app
-    datasources: Datasource[],
+    /* An array of datasources belonging to the current app. Set when navigating onto edit datasources screen. */
+    datasources: Datasource[] | null,
 
-    // The current application that the user is editing. Since the owner can only edit one application at a time on a web page, all changes requested
-    // affect currentApp itself
+    /* An array of datasource columns belonging to the current datasource. Set when navigating onto edit datasource columns screen. */
+    datasourceColumns: Column[] | null,
+
+    /* An array of tableviews belonging to the current app. Set when navigating on edit tableviews screen. */
+    tableviews: Tableview[] | null,
+
+    /* An array of tableview columns belonging to the current tableview. Set when navigating onto edit tableview columns screen. */
+    tableviewColumns: Column[] | null,
+
+    /* An array of tableview roles belonging to the current tableview. Set when navigating onto edit tableview roles screen. */
+    tableviewRoles: Role[] | null,
+
+    /* An array of detailviews belonging to the current app. Set when navigating on edit detailviews screen. */
+    detailviews: Detailview[] | null,
+
+    /* An array of detailview columns belonging to the current detailview. Set when navigating onto edit detailview columns screen. */
+    detailviewColumns: Column[] | null,
+
+    /* An array of detailview roles belonging to the current detailview. Set when navigating onto edit detailview roles screen. */
+    detailviewRoles: Role[] | null,
+
+    /* The current app being edited. Set when the user begins editing an app. */
     currentApp: App | null,
 
-    // The current datasource being edited
+    /* The current datasource being edited. Set when the user begins editing a datasource. */
     currentDatasource: Datasource | null,
-
-    // The current column being edited
-    currentColumn: Column | null,
     
-    // The current tableview that is being edited
+    /* The current tableview that is being edited. Set when the user begins editing a tableview. */
     currentTableview: Tableview | null,
 
-    // The current detailview being edited
+    /* The current detailview being edited. Set when the user begins editing a detailview, */
     currentDetailview: Detailview | null,
 
-    // The current role that is being edited
-    currentRole: Role | null,
-
-    // The current modal type that is open on the screen (Create App)
+    /* The type of modal currently open for creation/edit/deletion. */
     currentModalType: ModalType | null,
 
-    // The current application that the user desires to delete (set when confirmation modal opens).
+    /* The app marked for edit on confirmation. */
+    currentAppToEdit: App | null,
+
+    /* The datasource marked for edit on confirmation. */
+    currentDatasourceToEdit: Datasource | null,
+
+    /* The tableview marked for edit on confirmation. */
+    currentTableviewToEdit: Tableview | null,
+
+    /* The detailview marked for edit on confirmation. */
+    currentDetailviewToEdit: Detailview | null,
+
+    /* The app marked for deletion on confirmation. */
     currentAppToDelete: App | null,
+
+    /* The datasource marked for deletion on confirmation. */
+    currentDatasourceToDelete: Datasource | null,
+
+    /* The tableview marked for deletion on confirmation. */
+    currentTableviewToDelete: Tableview | null,
+
+    /* The detailview marked for deletion on confirmation. */
+    currentDetailviewToDelete: Detailview | null,
 }
 
 const S2AState: IS2AState = {
-    devApps: [],
-    accApps: [],
-    datasources: [],
+    devApps: null,
+    accApps: null,
+    datasources: null,
+    datasourceColumns: null,
+    tableviews: null,
+    tableviewColumns: null,
+    tableviewRoles: null,
+    detailviews: null,
+    detailviewColumns: null,
+    detailviewRoles: null,
+
     currentApp: null,
+    currentDatasource: null,
     currentTableview: null,
     currentDetailview: null,
-    currentRole: null,
     currentModalType: null,
-    currentDatasource: null,
-    currentColumn: null,
+
+    currentAppToEdit: null,
+    currentDatasourceToEdit: null,
+    currentTableviewToEdit: null,
+    currentDetailviewToEdit: null,
+
     currentAppToDelete: null,
+    currentDatasourceToDelete: null,
+    currentTableviewToDelete: null,
+    currentDetailviewToDelete: null,
 }
 
 const S2AReducer = createSlice({
     name: 'S2AReducer',
     initialState: S2AState,
     reducers: {
+        /* App related reducers. */
         viewDevApps: (state) => {
             storeController.getDevelopableApps()
                 .then((devApps: App[]) => {
                     state.devApps = devApps;
+                    console.log("Retrieved developable apps.");
                 })
                 .catch((error: Error) => {
-                    console.log(error);
+                    console.log(`viewDevApps failed with the error ${error}`);
                 });
         },
         viewAccApps: (state) => {
             storeController.getAccessibleApps()
                 .then((accApps: App[]) => {
                     state.accApps = accApps;
+                    console.log("Retrieved accessible apps.");
                 })
                 .catch((error: Error) => {
-                    console.log(error);
+                    console.log(`viewAccApps failed with the error ${error}`);
                 });
         },
         createApp: (state, action: PayloadAction<string>) => {
-           storeController.createApp(action.payload)
+            storeController.createApp(action.payload)
                 .then(() => {
-                    console.log("Created App");
+                    dispatch(finishCreation());
                 })
                 .catch((error: Error) => {
-                    console.log(error);
+                    console.log(`createApp failed with the error ${error}`);
                 })
         },
-        deleteApp: (state, action: PayloadAction<number>) => {
-            storeController.deleteApp(action.payload)
-                .then(() => {
-                    console.log("Deleted App");
-                })
-                .catch((error: Error) => {
-                    console.log(error);
-                })
-        },
-        renameApplication: state => {
-            // TODO
-        },
-        createDatasource: (state, action: {payload: {spreadsheetID: string, sheetID: number, datasourceName: string}, type: string}) => {
-            if (state.currentApp) {
-                storeController.createDatasource(
-                    state.currentApp?.id,
-                    action.payload.spreadsheetID,
-                    action.payload.sheetID,
-                    action.payload.datasourceName
-                )
-            } else {
-                console.log("No active app.");
+        editApp: (state, action: PayloadAction<App>) => {
+            if(state.currentAppToEdit) {
+                storeController.editApp(action.payload) 
+                    .then(() => {
+                        dispatch(finishEdit())
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editApp failed with the error ${error}`);
+                    })
             }
         },
-        deleteDatasource: state => {
-            // TODO
-        },
-        editDatasource: (state, action: {payload: {
-            datasourceKey: number,
-            spreadsheetID: string,
-            sheetIdx: number,
-            datasourceName: string,
-            columns: Column[]
-        }}) => {
-            // TODO
-            if (state.currentApp) {
-                storeController.editDatasource(
-                    action.payload.datasourceKey,
-                    action.payload.spreadsheetID,
-                    action.payload.sheetIdx,
-                    action.payload.datasourceName,
-                    action.payload.columns
-                )
-            } else {
-                console.log("No active app.");
+        deleteApp: (state) => {
+            if(state.currentAppToDelete) {
+                storeController.deleteApp(state.currentAppToDelete)
+                    .then(() => {
+                        dispatch(finishDeletion());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`deleteApp failed with the error ${error}`);
+                    })
             }
         },
-        publishApp: state => {
-            // TODO
+
+        /* Datasource related reducers. */
+        viewDatasources: (state) => {
+            if(state.currentApp) {
+                storeController.getAppDatasources(state.currentApp) 
+                    .then((datasources: Datasource[]) => {
+                        state.datasources = datasources;
+                        console.log("Retrieved datasources.");
+                    })
+                    .catch((error: Error) => {
+                        console.log(`viewDatasources failed with the error ${error}`);
+                    })
+            }
         },
-        viewDatasources: state => {
-            // TODO
+        createDatasource: (state, action: PayloadAction<{ datasourceName: string, spreadsheetUrl: string, sheetName: string }>) => {
+            if(state.currentApp) {
+                storeController.createDatasource(state.currentApp, action.payload.datasourceName, action.payload.spreadsheetUrl, action.payload.sheetName)
+                    .then(() => {
+                        dispatch(finishCreation());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`createDatasource failed with the error ${error}`);
+                    })
+            }
         },
-        setViewName: state => {
-            // TODO
+        editDatasource: (state, action: PayloadAction<Datasource>) => {
+            if(state.currentDatasourceToEdit) {
+                storeController.editDatasource(action.payload)
+                    .then(() => {
+                        dispatch(finishEdit());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editDatasource failed with the error ${error}`);
+                    })
+            }
         },
-        setViewDatasource: state => {
-            // TODO
+        deleteDatasource: (state, action: PayloadAction<Datasource>) => {
+            if(state.currentDatasourceToDelete) {
+                storeController.deleteDatasource(action.payload)
+                    .then(() => {
+                        dispatch(finishDeletion());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`deleteDatasource failed with the error ${error}`);
+                    })
+            }
         },
-        setViewType: state => {
-            // TODO
+
+        /* Datasource column related reducers. */
+        viewDatasourceColumns: (state) => {
+            if(state.currentDatasource) {
+                storeController.getDatasourceColumns(state.currentDatasource) 
+                    .then((datasourceColumns: Column[]) => {
+                        state.datasourceColumns = datasourceColumns;
+                        console.log("Retrieved datasource columns.");
+                    })
+                    .catch((error: Error) => {
+                        console.log(`viewDatasourceColumns failed with the error ${error}`);
+                    })
+            }
         },
-        setViewColumns: state => {
-            // TODO
+        editDatasourceColumns: (state, action: PayloadAction<Column[]>) => {
+            if(state.currentDatasource) {
+                storeController.editDatasourceColumns(state.currentDatasource, action.payload) 
+                    .then(() => {
+                        dispatch(finishEdit());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editDatasourceColumns failed with the error ${error}`);
+                    })
+            }
         },
+
+        /* Tableview related reducers. */
+        viewTableviews: (state) => {
+            if(state.currentApp) {
+                storeController.getAppTableviews(state.currentApp)       
+                    .then((tableviews: Tableview[]) => {
+                        state.tableviews = tableviews;
+                        console.log("Retrieved tableviews.")
+                    })
+                    .catch((error: Error) => {
+                        console.log(`viewTableviews failed with the error ${error}`);
+                    })
+            }
+        },
+        createTableview: (state, action: PayloadAction<{ tableviewName: string, datasource: Datasource }>) => {
+            if(state.currentApp) {
+                storeController.createTableview(state.currentApp, action.payload.tableviewName, action.payload.datasource)
+                    .then(() => {
+                        dispatch(finishCreation());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`createTableview failed with the error ${error}`);
+                    })
+            }
+        },
+        editTableview: (state, action: PayloadAction<Tableview>) => {
+            if(state.currentTableviewToEdit) {
+                storeController.editTableview(action.payload) 
+                    .then(() => {
+                        dispatch(finishEdit());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editTableview failed with the error ${error}`);
+                    })
+            }
+        },  
+        deleteTableview: (state, action: PayloadAction<Tableview>) => {
+            if(state.currentTableviewToDelete) {
+                storeController.deleteTableview(action.payload)
+                    .then(() => {
+                        dispatch(finishDeletion());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`deleteTableview failed with the error ${error}`);
+                    })
+            }
+        },
+
+        /* Tableview column related reducers. */
+        viewTableviewColumns: (state) => {
+            if(state.currentTableview) {
+                storeController.getTableviewColumns(state.currentTableview) 
+                    .then((tableviewColumns: Column[]) => {
+                        state.tableviewColumns = tableviewColumns;
+                        console.log("Retrieved tableview columns.")
+                    })
+                    .catch((error: Error) => {
+                        console.log(`viewTableviewColumns failed with the error ${error}`);
+                    })
+                }
+        },
+        editTableviewColumns: (state, action: PayloadAction<{ tableviewColumns: Column[], filterColumn: boolean[], userFilterColumn: string[] }>) => {
+            if(state.currentTableview) {
+                storeController.editTableviewColumns(state.currentTableview, action.payload.tableviewColumns, action.payload.filterColumn, action.payload.userFilterColumn)
+                    .then(() => {
+                        dispatch(finishEdit());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editTableviewColumns failed with the error ${error}`);
+                    })
+            }
+        },
+
+        /* Tableview role related reducers. */
+        viewTableviewRoles: (state) => {
+            if(state.currentTableview) {
+                storeController.getTableviewRoles(state.currentTableview)
+                    .then((tableviewRoles: Role[]) => {
+                        state.tableviewRoles = tableviewRoles;
+                        console.log("Retrieved tableview roles.")
+                    })
+                    .catch((error: Error) => {
+                        console.log(`viewTableviewRoles failed with the error ${error}`);
+                    })
+            }
+        },
+        editTableviewRoles: (state, action: PayloadAction<Role[]>) => {
+            if(state.currentTableview) {
+                storeController.editTableviewRoles(state.currentTableview, action.payload) 
+                    .then(() => {
+                        dispatch(finishEdit());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editTableviewRoles failed with the error ${error}`);
+                    })
+            }
+        },
+
+        /* Detailview related reducers. */
+        viewDetailviews: (state) => {
+            if(state.currentApp) {
+                storeController.getAppDetailviews(state.currentApp)       
+                    .then((detailviews: Detailview[]) => {
+                        state.detailviews = detailviews;
+                        console.log("Retrieved detailviews.")
+                    })
+                    .catch((error: Error) => {
+                        console.log(`viewDetailviews failed with the error ${error}`);
+                    })
+            }
+        },
+        createDetailview: (state, action: PayloadAction<{ detailviewName: string, datasource: Datasource }>) => {
+            if(state.currentApp) {
+                storeController.createDetailview(state.currentApp, action.payload.detailviewName, action.payload.datasource)
+                    .then(() => {
+                        dispatch(finishCreation());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`createDetailview failed with the error ${error}`);
+                    })
+            }
+        },
+        editDetailview: (state, action: PayloadAction<Detailview>) => {
+            if(state.currentDetailviewToEdit) {
+                storeController.editDetailview(action.payload) 
+                    .then(() => {
+                        dispatch(finishEdit());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editDetailview failed with the error ${error}`);
+                    })
+            }
+        },
+        deleteDetailview: (state, action: PayloadAction<Detailview>) => {
+            if(state.currentDetailviewToDelete) {
+                storeController.deleteDetailview(action.payload)
+                    .then(() => {
+                        dispatch(finishDeletion());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`deleteDetailview failed with the error ${error}`);
+                    })
+            }
+        },
+
+        /* Detailview column related reducers. */
+        viewDetailviewColumns: (state) => {
+            if(state.currentDetailview) {
+                storeController.getDetailviewColumns(state.currentDetailview) 
+                    .then((detailviewColumns: Column[]) => {
+                        state.detailviewColumns = detailviewColumns;
+                        console.log("Retrieved detailview columns.")
+                    })
+                    .catch((error: Error) => {
+                        console.log(`viewDetailviewColumns failed with the error ${error}`);
+                    })
+                }
+        },
+        editDetailviewColumns: (state, action: PayloadAction<{ detailviewColumns: Column[], editFilterColumn: boolean[] }>) => {
+            if(state.currentDetailview) {
+                storeController.editDetailviewColumns(state.currentDetailview, action.payload.detailviewColumns, action.payload.editFilterColumn)
+                    .then(() => {
+                        dispatch(finishEdit());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editDetailviewColumns failed with the error ${error}`);
+                    })
+            }
+        },
+
+        /* Detailview role related reducers. */
+        viewDetailviewRoles: (state) => {
+            if(state.currentDetailview) {
+                storeController.getDetailviewRoles(state.currentDetailview)
+                    .then((detailviewRoles: Role[]) => {
+                        state.detailviewRoles = detailviewRoles;
+                        console.log("Retrieved detailview roles.")
+                    })
+                    .catch((error: Error) => {
+                        console.log(`viewDetailviewRoles failed with the error ${error}`);
+                    })
+            }
+        },
+        editDetailviewRoles: (state, action: PayloadAction<Role[]>) => {
+            if(state.currentDetailview) {
+                storeController.editDetailviewRoles(state.currentDetailview, action.payload) 
+                    .then(() => {
+                        dispatch(finishEdit());
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editDetailviewRoles failed with the error ${error}`);
+                    })
+            }
+        },
+        
+        /* Set current resource reducers. */
         setCurrentApp: (state, action: PayloadAction<App>) => {
             state.currentApp = action.payload;
         },
-        setCurrentColumn: (state, action: {payload: {column: Column}}) => {
-            state.currentColumn = action.payload.column;
+        setCurrentDatasource: (state, action: PayloadAction<Datasource>) => {
+            state.currentDatasource = action.payload;
         },
-        setCurrentDatasource: (state, action: {payload: {datasource: Datasource}}) => {
-            state.currentDatasource = action.payload.datasource;
+        setCurrentTableview: (state, action: PayloadAction<Tableview>) => {
+            state.currentTableview = action.payload;
         },
-        showCreateAppModal: (state) => {
-            state.currentModalType = ModalType.CreateAppModal;
+        setCurrentDetailview: (state, action: PayloadAction<Detailview>) => {
+            state.currentDetailview = action.payload;
         },
-        showDeleteAppModal: (state) => {
-            state.currentModalType = ModalType.DeleteAppModal;
+        setCurrentModalType: (state, action: PayloadAction<ModalType>) => {
+            state.currentModalType = action.payload;
         },
-        showEditAppCreateDatasourcesModal: (state) => {
 
+        /* Mark resource edit reducers. */
+        markAppToEdit: (state, action: PayloadAction<App>) => {
+            state.currentAppToEdit = action.payload;
         },
-        showEditAppEditDatasourcesModal: (state) => {
+        markDatasourceToEdit: (state, action: PayloadAction<Datasource>) => {
+            state.currentDatasourceToEdit = action.payload;
+        },
+        markTableviewToEdit: (state, action: PayloadAction<Tableview>) => {
+            state.currentTableviewToEdit = action.payload;
+        },
+        markDetailviewToEdit: (state, action: PayloadAction<Detailview>) => {
+            state.currentDetailviewToEdit = action.payload;
+        },
 
-        },
-        showEditAppTableViewModal: (state) => {
-
-        },
-        hideS2AModal: (state) => {
-            state.currentAppToDelete = null;
-            state.currentModalType = null;
-        },
+        /* Mark resource delete reducers. */
         markAppToDelete: (state, action: PayloadAction<App>) => {
             state.currentAppToDelete = action.payload;
-        }
+        },
+        markDatasourceToDelete: (state, action: PayloadAction<Datasource>) => {
+            state.currentDatasourceToDelete = action.payload;
+        },
+        markTableviewToDelete: (state, action: PayloadAction<Tableview>) => {
+            state.currentTableviewToDelete = action.payload;
+        },
+        markDetailviewToDelete: (state, action: PayloadAction<Detailview>) => {
+            state.currentDetailviewToDelete = action.payload;
+        },
+
+        /* State clearing reducers. */
+        finishCreation: (state) => {
+            state.currentModalType = null;
+
+            console.log("Finished/cancelled creation of resource..")
+        },
+        finishEdit: (state) => {    
+            state.currentAppToDelete = null;
+            state.currentDatasourceToDelete = null;
+            state.currentTableviewToDelete = null;
+            state.currentDetailviewToDelete = null;
+            state.currentModalType = null;
+
+            console.log("Finished/cancelled edit of resource.")
+        },
+        finishDeletion: (state) => {
+            state.currentAppToDelete = null;
+            state.currentDatasourceToDelete = null;
+            state.currentTableviewToDelete = null;
+            state.currentDetailviewToDelete = null;
+            state.currentModalType = null;
+
+            console.log("Finished/cancelled deletion of resource.")
+        },
     }
 })
 
@@ -284,8 +603,22 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewDevApps, viewAccApps, createApp, deleteApp, createDatasource, setCurrentApp, setCurrentDatasource, editDatasource, setCurrentColumn, showCreateAppModal, showDeleteAppModal, showEditAppCreateDatasourcesModal, showEditAppEditDatasourcesModal, hideS2AModal, markAppToDelete} = S2AReducer.actions
-export const { setCurrentView, loadView, showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal, addRecord, deleteRecord, editRecord } = webAppReducer.actions;
+export const { viewDevApps, viewAccApps, createApp, editApp, deleteApp,
+               viewDatasources, createDatasource, editDatasource, deleteDatasource, 
+               viewDatasourceColumns, editDatasourceColumns, 
+               viewTableviews, createTableview, editTableview, deleteTableview,
+               viewTableviewColumns, editTableviewColumns, 
+               viewTableviewRoles, editTableviewRoles,
+               viewDetailviews, createDetailview, editDetailview, deleteDetailview,
+               viewDetailviewColumns, editDetailviewColumns, 
+               viewDetailviewRoles, editDetailviewRoles, 
+               setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
+               markAppToEdit, markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
+               markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
+               finishCreation, finishEdit, finishDeletion  
+            } = S2AReducer.actions
+
+export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal, addRecord } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
 export interface StoreState {
