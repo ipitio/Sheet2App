@@ -115,27 +115,9 @@ def get_usable_apps(request):
 @csrf_exempt
 def edit_app_name(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
-    new_app_name = body["appName"]
+    app = body["app"]
 
-    output, response_code = queries.update_app(app_id=app_id, app_name=new_app_name)
-    res_body = {"app": output}
-    response = HttpResponse(
-        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
-    )
-
-    return response
-
-
-@csrf_exempt
-def edit_app_role_mem_url(request):
-    body = json.loads(request.body)
-    app_id = body["appID"]
-    new_role_mem_url = body["roleMemUrl"]
-
-    output, response_code = queries.update_app(
-        app_id=app_id, role_mem_url=new_role_mem_url
-    )
+    output, response_code = queries.update_app(app=app)
     res_body = {"app": output}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -161,7 +143,7 @@ def publish_app(request):
 @csrf_exempt
 def delete_app(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
+    app_id = body["app"]["id"]
 
     output, response_code = queries.delete_app(app_id=app_id)
     res_body = {"app": output}

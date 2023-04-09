@@ -331,7 +331,7 @@ def get_datasource_columns_by_table_view_id_and_role(table_view_id, role):
 
 
 # Update
-def update_app(app_id, app_name=None, role_mem_url=None):
+def update_app(app):
     """
     Updates an app
 
@@ -343,11 +343,10 @@ def update_app(app_id, app_name=None, role_mem_url=None):
         tuple: output of the query, 200 if query was successful, 500 if not
     """
     try:
-        app = Application.objects.get(id=app_id)
-        if app_name != None:
-            app.name = app_name
-        if role_mem_url != None:
-            app.role_mem_url = role_mem_url
+        app_id = app["id"]
+        updated_app = Application.objects.get(id=app_id)
+        updated_app.name = app["name"]
+        updated_app.role_mem_url = app["roleMemUrl"]
         app.save()
 
         return app, HTTPStatus.OK
