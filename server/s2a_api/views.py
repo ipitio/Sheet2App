@@ -80,7 +80,7 @@ def get_developable_apps(request):
     body = json.loads(request.body)
     creator_email = body["email"]
     
-    apps, response_code = queries.get_all_apps_with_creator_email()
+    apps, response_code = queries.get_all_unpublished_apps_with_creator_email()
     
     developable_apps = []
     for app in apps:
@@ -89,6 +89,9 @@ def get_developable_apps(request):
             continue
 
         role_mem_url = app["role_mem_url"]
+        if role_mem_url == None:
+            continue
+        
         spreadsheet_id = sheets.utils.get_spreadsheet_id(role_mem_url)
         gid = sheets.utils.get_gid(role_mem_url)
         

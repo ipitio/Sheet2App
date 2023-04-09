@@ -209,9 +209,9 @@ def get_apps_by_email(creator_email):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def get_all_apps_with_creator_email():
+def get_all_unpublished_apps_with_creator_email():
     try:
-        apps = Application.objects.exclude(role_mem_url__isnull=True).values(
+        apps = Application.objects.filter(is_published=False).values(
             'id', 'name', 'creator_id__email', "role_mem_url", "is_published"
         )
         
@@ -220,7 +220,7 @@ def get_all_apps_with_creator_email():
             isPublished=F("is_published"), 
             creatorEmail=F("creator_id__email")
         )
-        print(type(apps))
+        
         return apps, HTTPStatus.OK
     except Exception as e:
         print(e)
