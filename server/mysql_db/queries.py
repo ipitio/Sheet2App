@@ -401,38 +401,24 @@ def update_datasource(datasource):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_datasource_column(
-    datasource_column_id,
-    new_name,
-    new_initial_value,
-    new_is_link_text,
-    new_is_table_ref,
-    new_value_type,
-):
-    """
-    Updates a datasource column
-
-    Args:
-        datasource_column_id (int): the id of the datasource column
-        new_name (string): the new name of the datasource column
-        new_initial_value (string): the new initial value of the datasource column
-        new_is_link_text (boolean): the new is link text of the datasource column
-        new_is_table_ref (boolean): the new is table ref of the datasource column
-        new_value_type (string): the new value type of the datasource column
-    Returns:
-        _type_: _description_
-    """
+def update_datasource_columns(columns):
     try:
-        datasource_column = DatasourceColumn.objects.get(id=datasource_column_id)
-        datasource_column.name = new_name
-        datasource_column.initial_value = new_initial_value
-        datasource_column.is_link_text = new_is_link_text
-        datasource_column.is_table_ref = new_is_table_ref
-        datasource_column.value_type = new_value_type
-        datasource_column.save()
+        for column in columns:
+            updated_column = DatasourceColumn.objects.get(id=column["id"])
+            updated_column.name = column["name"]
+            updated_column.initial_value = column["initialValue"]
+            updated_column.is_link_text = column["isLabel"]
+            updated_column.is_table_ref = column["isRef"]
+            updated_column.value_type = column["type"]
+            
+            updated_column.is_filter = column["isFilter"]
+            updated_column.is_user_filter = column["isUserFilter"]
+            updated_column.is_edit_filter = column["isEditFilter"]
+            updated_column.save()
 
-        return datasource_column, HTTPStatus.OK
+        return {}, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 

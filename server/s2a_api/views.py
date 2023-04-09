@@ -260,26 +260,13 @@ def get_datasource_columns(request):
     return response
 
 
-def edit_datasource_column(request):
+def edit_datasource_columns(request):
     body = json.loads(request.body)
-    datasource_id = body["datasourceKey"]
-    datasource_column_id = body["columnKey"]
-    new_name = body["column"]["name"]
-    new_initial_value = body["column"]["initialValue"]
-    new_is_label = body["column"]["label"]
-    new_is_reference = body["column"]["reference"]
-    new_type = body["column"]["type"]
+    columns = body["datasourceColumns"]
+    # TODO create / delete corresponding TableViewViewableColumn and DetailViewEditableColumns 
+    output, response_code = queries.update_datasource_column(columns=columns)
 
-    output, response_code = queries.update_datasource_column(
-        datasource_column_id=datasource_column_id,
-        new_name=new_name,
-        new_initial_value=new_initial_value,
-        new_is_link_text=new_is_label,
-        new_is_table_ref=new_is_reference,
-        new_value_type=new_type,
-    )
-
-    res_body = {"datasource": output}
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
