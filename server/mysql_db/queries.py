@@ -323,6 +323,26 @@ def get_table_view_perms_for_role_by_table_view_id(table_view_id, role):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+def get_datasource_columns_by_datasource_id(datasource_id):
+    try:
+        datasource_columns = DatasourceColumn.objects.filter(datasource_id=datasource_id).values()
+        datasource_columns = datasource_columns.annotate(
+            initialValue=F("initial_value"),
+            isLabel=F("is_link_text"),
+            isRef=F("is_table_ref"),
+            type=F("value_type"),
+            isFilter=F("is_filter"),
+            isUserFilter=F("is_user_filter"),
+            isEditFilter=F("is_edit_filter")
+        )
+        datasource_columns = list(datasource_columns)
+        
+        return datasource_columns, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 def get_datasource_columns_by_table_view_id(table_view_id):
     try:
         datasource = TableView.objects.get(id=table_view_id).datasource

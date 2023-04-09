@@ -243,6 +243,20 @@ def delete_datasource(request):
     return response
 
 
+def get_datasource_columns(request):
+    body = json.loads(request.body)
+    datasource_id = body["datasource"]["id"]
+    
+    columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource_id)
+
+    res_body = { "datasourceColumns": columns }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
 def edit_datasource_column(request):
     body = json.loads(request.body)
     datasource_id = body["datasourceKey"]
