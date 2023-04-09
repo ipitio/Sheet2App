@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { StoreState, showCreateDatasourceModal, showCreateTableviewModal, showCreateDetailviewModal, hideS2AModal } from '../../store/StoreContext';
+import { StoreState, setCurrentModalType, resetAll } from '../../store/StoreContext';
+import { ModalType } from '../../store/StoreTypes'
 
 import styles from '../../styles/S2A/EditAppNavBarStyles';
 import { AppBar, Toolbar, Typography, Button, IconButton, TextField } from '@mui/material';
@@ -15,11 +16,11 @@ function EditAppNavBar() {
     const dispatch = useDispatch();
     
     useEffect(() => {
-        dispatch(hideS2AModal());
+        dispatch(setCurrentModalType(null));
     }, []);
 
     /* Redux hooks into store. */   
-    const currApp = useSelector((state: StoreState) => state.s2aReducer.currentApp);
+    const currApp = useSelector((state: StoreState) => state.S2AReducer.currentApp);
 
     /* Conditional rendering of UI. */
     const createButtonText = (
@@ -35,13 +36,13 @@ function EditAppNavBar() {
     /* Event handler for creation of resources. */
     const createResource = () => {
         if(location.pathname.startsWith("/S2A/editapp/datasources/"))
-            dispatch(showCreateDatasourceModal());
+            dispatch(setCurrentModalType(ModalType.CreateDatasourceModal));
         if(location.pathname.startsWith("/S2A/editapp/tableviews/"))
-            dispatch(showCreateTableviewModal());
+            dispatch(setCurrentModalType(ModalType.CreateTableviewModal));
         if(location.pathname.startsWith("/S2A/editapp/detailviews/"))
-            dispatch(showCreateDetailviewModal());
+            dispatch(setCurrentModalType(ModalType.CreateDetailviewModal));
     }
-    
+
     /* Event handlers for navigation bar buttons. */
     const displayDatasources = () => {
         currApp ? navigate(`/S2A/editapp/datasources/${currApp.id}`) : navigate("/")
@@ -60,6 +61,7 @@ function EditAppNavBar() {
     }
 
     const handleReturn = () => {
+        dispatch(resetAll());
         navigate("/S2A/home/develop");
     }
 
@@ -67,10 +69,7 @@ function EditAppNavBar() {
         <AppBar style={styles.navBarWrapper}>
             <Toolbar>
                 <Typography sx={styles.navBarTitle} variant="h6" component="div">S2A Edit App</Typography>
-
-                {/* Create Datasource Modal */}
                 
-
                 {/* Create Resource Button */}
                 {createButtonText && (
                     <IconButton onClick={createResource} sx={styles.createButton}>

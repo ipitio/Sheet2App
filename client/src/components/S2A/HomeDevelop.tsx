@@ -2,12 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDevApps, createApp, deleteApp, setCurrentApp, showDeleteAppModal, hideS2AModal, markAppToDelete, StoreState } from '../../store/StoreContext';
+import { viewDevApps, setCurrentApp, setCurrentModalType, markAppToDelete, StoreState } from '../../store/StoreContext';
 import { ModalType } from '../../store/StoreTypes';
 
 import styles from '../../styles/S2A/HomeStyles'
 import HomeNavBar from './HomeNavBar';
-import { Button, Grid, Modal, IconButton, TextField } from '@mui/material';
+import { Grid, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
@@ -20,7 +20,7 @@ function HomeDevelop() {
     }, []);
 
     /* Redux hooks into store. */
-    const devApps = useSelector((state: StoreState) => state.s2aReducer.devApps);
+    const devApps = useSelector((state: StoreState) => state.S2AReducer.devApps);
 
     /* Event handlers. */
 
@@ -31,7 +31,7 @@ function HomeDevelop() {
 
         if(appToDelete) {
             dispatch(markAppToDelete(appToDelete));
-            dispatch(showDeleteAppModal());
+            dispatch(setCurrentModalType(ModalType.DeleteAppModal));
         }
     }
 
