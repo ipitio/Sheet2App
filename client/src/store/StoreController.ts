@@ -657,11 +657,10 @@ async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role
 // -> END for S2A.
 
 /**
- * Requests an array of all detailviews for a particular app.
+ * Requests an object containing all Tableviews and Detailviews associated with a web app
  * @param {App} app - The application to get the detailviews of.
- * @return {Promise<Detailview[]>} - A promise that resolves to the array of detailviews on success, rejects on failure.
  */
-async function loadApp(app: App): Promise<{tableviews: Tableview[], detailviews: Detailview[]}> {
+async function loadApp(app: App): Promise<Datasource[]> {
     try {
         const reqForm = await getRequestForm("GET", {"app": app});
         
@@ -671,10 +670,9 @@ async function loadApp(app: App): Promise<{tableviews: Tableview[], detailviews:
             return Promise.reject(`loadApp equest failed with status: ${res.status}`);
         
         const data = await res.json();
-        const tableviews: Tableview[] = data.tableviews;
-        const detailviews: Detailview[] = data.detailviews;
+        const datasources: Datasource[] = data.datasources;
 
-        return {tableviews: tableviews, detailviews: detailviews};
+        return datasources;
     }
     catch(err) {
         return Promise.reject(`getAppDetailviews failed with the error: ${err}`);
@@ -792,4 +790,7 @@ export default {getDevelopableApps, getAccessibleApps, createApp, deleteApp, edi
                 getAppDetailviews, createDetailview, editDetailview, deleteDetailview, 
                 getDetailviewColumns,editDetailviewColumns, 
                 getDetailviewRoles, editDetailviewRoles, 
-                addRecord, editRecord, deleteRecord};
+                addRecord, editRecord, deleteRecord,
+            
+                loadApp,
+            };
