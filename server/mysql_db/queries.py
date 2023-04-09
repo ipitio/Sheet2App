@@ -49,14 +49,16 @@ def create_app(creator_email, app_name, role_mem_url):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_datasource(app_id, spreadsheet_id, gid, name):
+def create_datasource(app_id, spreadsheet_url, spreadsheet_id, gid, datasource_name):
     try:
         new_datasource = Datasource.objects.create(
-            app=app_id, spreadsheet_id=spreadsheet_id, gid=gid, name=name
+            app_id=app_id, spreadsheet_url=spreadsheet_url, 
+            spreadsheet_id=spreadsheet_id, gid=gid, name=datasource_name
         )
-
+        
         return new_datasource, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -68,7 +70,7 @@ def create_datasource_column(datasource_id, column_index, name):
         new_datasource_column = {}
         if not exists:
             new_datasource_column = DatasourceColumn.objects.create(
-                datasource=datasource_id,
+                datasource_id=datasource_id,
                 column_index=column_index,
                 name=name,
                 initial_value="",
@@ -79,8 +81,10 @@ def create_datasource_column(datasource_id, column_index, name):
                 is_user_filter=False,
                 is_edit_filter=False,
             )
+        print(new_datasource_column)
         return new_datasource_column, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -214,7 +218,7 @@ def get_all_apps_with_creator_email():
             isPublished=F("is_published"), 
             creatorEmail=F("creator_id__email")
         )
-        
+        print(type(apps))
         return apps, HTTPStatus.OK
     except Exception as e:
         print(e)
@@ -239,10 +243,18 @@ def get_datasource_by_id(datasource_id):
 
 def get_datasources_by_app_id(app_id):
     try:
-        # TODO FIX
-        datasources = Datasource.objects.filter(app=app_id)
+        datasources = Datasource.objects.filter(app=app_id).values(
+            "id", "name", "spreadsheet_url", "gid"
+        )
+        datasources = datasources.annotate(
+            spreadsheetUrl=F("spreadsheet_url"),
+            sheetName=F("gid")
+        )
+        datasources = list(datasources)
+        
         return datasources, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 

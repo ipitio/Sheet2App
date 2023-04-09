@@ -157,28 +157,33 @@ def delete_app(request):
 @csrf_exempt
 def create_datasource(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
-    spreadsheet_id = body["spreadsheetID"]
-    gid = body["gid"]
-    name = body["datasourceName"]
-
-    spreadsheet_headers = sheets.get_data(
-        spreadsheet_id=spreadsheet_id, sheet_id=gid, range="1:1", majorDimension="ROWS"
-    )
+    app_id = body["app"]["id"]
+    spreadsheet_url = body["spreadsheetUrl"]
+    sheetName = body["sheetName"]
+    datasource_name = body["datasourceName"]
+    
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    gid = sheets.utils.get_gid(spreadsheet_url)
 
     new_datasource, response_code = queries.create_datasource(
-        app_id=app_id, spreadsheet_id=spreadsheet_id, gid=gid, name=name
+        app_id=app_id, spreadsheet_url=spreadsheet_url, 
+        spreadsheet_id=spreadsheet_id, gid=gid, datasource_name=datasource_name
     )
 
     # Create all datasource columns from the datasource
-    datasource_id = new_datasource
-    # fix Object of type "None" is not subscriptable
-    #for column_index, header in enumerate(spreadsheet_headers[0]):
-    #    new_datasource_column, response_code = queries.create_datasource_column(
-    #        datasource_id=datasource_id, column_index=column_index, name=header
-    #    )
-    #    if response_code != HTTPStatus.OK:
-    #       break
+    spreadsheet_headers = sheets_api.get_data(
+        spreadsheet_id=spreadsheet_id, sheet_id=gid, range="1:1", majorDimension="ROWS"
+    )[0]
+
+    datasource_id = new_datasource.id
+    for i, header in enumerate(spreadsheet_headers):
+        if header == '':
+            continue
+        
+        column, response_code = queries.create_datasource_column(
+            datasource_id=datasource_id, column_index=i, name=header
+        )
+    
 
     res_body = {"datasource": new_datasource}
     response = HttpResponse(
@@ -191,9 +196,10 @@ def create_datasource(request):
 @csrf_exempt
 def get_app_datasources(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
+    app_id = body["app"]["id"]
 
     datasources, response_code = queries.get_datasources_by_app_id(app_id=app_id)
+    
     res_body = {"datasources": datasources}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
