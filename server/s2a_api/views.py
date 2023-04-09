@@ -47,7 +47,8 @@ def create_creator(request):
     email = body["email"]
 
     output, response_code = queries.create_creator(creator_email=email)
-    res_body = {"creator": output}
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -65,7 +66,8 @@ def create_app(request):
     output, response_code = queries.create_app(
         creator_email=creator_email, app_name=app_name, role_mem_url=role_mem_url
     )
-    res_body = {"app": output}
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -118,7 +120,8 @@ def edit_app(request):
     app = body["app"]
 
     output, response_code = queries.update_app(app=app)
-    res_body = {"app": output}
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -132,7 +135,8 @@ def publish_app(request):
     app_id = body["appID"]
 
     output, response_code = queries.publish_app(app_id=app_id)
-    res_body = {"app": output}
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -146,7 +150,8 @@ def delete_app(request):
     app_id = body["app"]["id"]
 
     output, response_code = queries.delete_app(app_id=app_id)
-    res_body = {"app": output}
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -185,7 +190,7 @@ def create_datasource(request):
         )
     
 
-    res_body = {"datasource": new_datasource}
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -211,18 +216,11 @@ def get_app_datasources(request):
 @csrf_exempt
 def edit_datasource(request):
     body = json.loads(request.body)
-    datasource_id = body["datasourceKey"]
-    spreadsheet_id = body["spreadsheetID"]
-    gid = body["gid"]
-    name = body["datasourceName"]
+    datasource = body["datasource"]
 
-    output, response_code = queries.update_datasource(
-        datasource_id=datasource_id,
-        new_spreadsheet_id=spreadsheet_id,
-        new_gid=gid,
-        new_name=name,
-    )
-    res_body = {"datasource": output}
+    output, response_code = queries.update_datasource(datasource=datasource)
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -233,11 +231,11 @@ def edit_datasource(request):
 @csrf_exempt
 def delete_datasource(request):
     body = json.loads(request.body)
-    datasource_id = body["datasourceKey"]
+    datasource_id = body["datasource"]["id"]
 
     output, response_code = queries.delete_datasource(datasource_id=datasource_id)
-    res_body = {"datasource": output}
-
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )

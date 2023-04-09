@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.models import F
 
+import sheets.utils
+
 
 # Create
 def create_creator(creator_email):
@@ -366,13 +368,13 @@ def update_app(app):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_datasource(datasource_id, new_spreadsheet_id, new_gid, new_name):
+def update_datasource(datasource):
     try:
-        datasource = Datasource.objects.get(id=datasource_id)
-        datasource.spreadsheet_id = new_spreadsheet_id
-        datasource.gid = new_gid
-        datasource.name = new_name
-        datasource.save()
+        updated_datasource = Datasource.objects.get(id=datasource["id"])
+        updated_datasource.spreadsheet_url = datasource["spreadsheetUrl"]
+        updated_datasource.spreadsheet_id = sheets.utils.get_spreadsheet_id(datasource["spreadsheetUrl"])
+        updated_datasource.name = datasource["name"]
+        updated_datasource.save()
 
         return datasource, HTTPStatus.OK
     except Exception as e:
