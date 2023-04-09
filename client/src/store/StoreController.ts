@@ -181,7 +181,7 @@ async function getAppDatasources(app: App): Promise<Datasource[]> {
  * Requests to create a datasource for a particular app.
  * @param {App} app - The application to create the datasource for.
  * @param {string} datasourceName - The name the datasource will have.
- * @param {string} spreadsheetUrl - THe URL of the spreadsheet the datasource will be backed by.
+ * @param {string} spreadsheetUrl - The URL of the spreadsheet the datasource will be backed by.
  * @param {string} sheetName - The name of the sheet within the spreadsheet the datasource will be associated with.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure. 
  */
@@ -268,12 +268,13 @@ async function getDatasourceColumns(datasource: Datasource): Promise<Column[]> {
 
 /**
  * Requests to edit datasource columns.
- * @param {Column[]} datasourceColumn - The datasource columns to edit, with the updated information.
+ * @param {Datasource} datasource - The datasource whose columns to edit.
+ * @param {Column[]} datasourceColumns - The datasource columns to edit, with the updated information.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editDatasourceColumns(datasourceColumns: Column[]): Promise<void> {
+async function editDatasourceColumns(datasource: Datasource, datasourceColumns: Column[]): Promise<void> {
     try {
-        const reqForm = await getRequestForm("PUT", {"datasourceColumns": datasourceColumns});
+        const reqForm = await getRequestForm("PUT", {"datasource": datasource, "datasourceColumns": datasourceColumns});
         
         /* Send request and return promise resolving if edit successful. */
         const res = await fetch("http://localhost:8000/editDatasourceColumns", reqForm);
