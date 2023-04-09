@@ -6,8 +6,9 @@ import json
 from http import HTTPStatus
 
 import mysql_db.queries as queries
-import sheets.sheets_api as sheets
+import sheets.sheets_api as sheets_api
 import sheets.auth as auth
+import sheets.utils
 
 from django.forms import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
@@ -59,9 +60,10 @@ def create_app(request):
     body = json.loads(request.body)
     creator_email = body["email"]
     app_name = body["appName"]
+    role_mem_url = body["roleMemUrl"]
 
     output, response_code = queries.create_app(
-        creator_email=creator_email, app_name=app_name
+        creator_email=creator_email, app_name=app_name, role_mem_url=role_mem_url
     )
     res_body = {"app": output}
     response = HttpResponse(
@@ -74,10 +76,30 @@ def create_app(request):
 @csrf_exempt
 def get_developable_apps(request):
     body = json.loads(request.body)
-    email = body["email"]
+    creator_email = body["email"]
+    
+    apps, response_code = queries.get_all_apps_with_creator_email()
+    
+    developable_apps = []
+    for app in apps:
+        if app["creatorEmail"] == creator_email:
+            developable_apps.append(app)
+            continue
 
-    apps, response_code = queries.get_apps_by_email(creator_email=email)
-    res_body = {"apps": apps}
+        role_mem_url = app["role_mem_url"]
+        spreadsheet_id = sheets.utils.get_spreadsheet_id(role_mem_url)
+        gid = sheets.utils.get_gid(role_mem_url)
+        
+        developers_col = ["A"]
+        developers_list = sheets_api.get_column_data(
+            spreadsheet_id=spreadsheet_id, sheet_id=gid, columns=developers_col
+        )[0]
+
+        if creator_email in developers_list[1:]:
+            developable_apps.append(app)
+            
+    
+    res_body = {"apps": developable_apps }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )

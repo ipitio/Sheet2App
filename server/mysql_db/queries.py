@@ -4,6 +4,7 @@ from django.core.serializers import serialize
 from http import HTTPStatus
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.db.models import F
 
 
 # Create
@@ -27,7 +28,7 @@ def create_creator(creator_email):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_app(creator_email, app_name):
+def create_app(creator_email, app_name, role_mem_url):
     """
     Creates a new entry in the App table
 
@@ -38,9 +39,9 @@ def create_app(creator_email, app_name):
         _type_: _description_
     """
     try:
-        creator, created = Creator.objects.get_or_create(email=creator_email)
+        creator = Creator.objects.get(email=creator_email)
         new_app = Application.objects.create(
-            creator=creator.id, name=app_name, role_mem_url=None, is_published=False
+            creator=creator, name=app_name, role_mem_url=role_mem_url, is_published=False
         )
 
         return new_app, HTTPStatus.OK
@@ -169,7 +170,7 @@ def get_creator(creator_email):
         _type_: _description_
     """
     try:
-        creator = Creator.objects.get(email=creator_email)
+        creator = Creator.objects.filter(email=creator_email).values()[0]
         return creator, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
@@ -199,6 +200,24 @@ def get_apps_by_email(creator_email):
 
         return apps, HTTPStatus.OK
     except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_all_apps_with_creator_email():
+    try:
+        apps = Application.objects.all().values(
+            'id', 'name', 'creator_id__email', "role_mem_url", "is_published"
+        )
+        
+        apps = apps.annotate(
+            roleMemUrl=F("role_mem_url"), 
+            isPublished=F("is_published"), 
+            creatorEmail=F("creator_id__email")
+        )
+        
+        return apps, HTTPStatus.OK
+    except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
