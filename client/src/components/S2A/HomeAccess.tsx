@@ -1,4 +1,4 @@
-import { useEffect, } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -20,7 +20,9 @@ function HomeAccess() {
     /* Redux hooks into store. */   
     const accApps = useSelector((state: StoreState) => state.s2aReducer.accApps);
 
-    /* Event handlers for access screen. */
+    /* Event handlers. */
+
+    /* If the access icon next to an app is clicked. */
     const handleAccess = (event: React.MouseEvent<HTMLButtonElement>) => {
         const accessButton = event.currentTarget as HTMLButtonElement;
         navigate(`/userapp/${accessButton.id}/home`)

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getLoggedIn } from '../../auth/AuthController';
 
 import GoogleLogin, { GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
-import { gapi } from 'gapi-script'
+import { gapi } from '../../local_modules/gapi-script-esm';
 
 import styles from '../../styles/S2A/SplashStyles'
 
@@ -11,8 +11,9 @@ function Splash() {
     const navigate = useNavigate();
     const [error, setError] = useState('');
 
+    /* Synchronizes Google API with OAuth client id to prevent depreciation error. */
     useEffect(() => {
-        /* Synchronizes Google API with OAuth client id to prevent depreciation error. */
+        if (!gapi) return;
         function init() {
             gapi.client.init({
                 clientId: process.env.REACT_APP_OAUTH_CLIENT_ID || '',
@@ -20,7 +21,7 @@ function Splash() {
             });
         }
         gapi.load('client:auth2', init);
-    }, []);
+    }, [gapi]);
 
     const onSuccess = (res: GoogleLoginResponse | GoogleLoginResponseOffline) => {
         if("code" in res && typeof res.code === "string") {

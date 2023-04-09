@@ -1,10 +1,11 @@
+# from configparser:
 from configparser import ConfigParser
 
 config = ConfigParser()
-config.read("mysql_db/config.ini")
+import os
 
-HOST = config.get("auth", "host")
-USER = config.get("auth", "user")
-PASSWORD = config.get("auth", "password")
-PORT = config.get("auth", "port")
-DATABASE = config.get("auth", "database")
+HOST = os.environ.get("host", "localhost")
+USER = os.environ.get("user", "root")
+PASSWORD = os.environ.get("password", "default-password")
+PORT = os.environ.get("port", "3306")
+DATABASE = os.environ.get("database", "Sheet2App")

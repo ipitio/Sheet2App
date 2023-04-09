@@ -1,52 +1,93 @@
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { StoreState } from '../../store/StoreContext';
+import { StoreState, showCreateDatasourceModal, showCreateTableviewModal, showCreateDetailviewModal, hideS2AModal } from '../../store/StoreContext';
 
-import { AppBar, Toolbar, Button, TextField } from '@mui/material';
+import styles from '../../styles/S2A/EditAppNavBarStyles';
+import { AppBar, Toolbar, Typography, Button, IconButton, TextField } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+
 
 function EditAppNavBar() {
+    const location = useLocation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    
+    useEffect(() => {
+        dispatch(hideS2AModal());
+    }, []);
 
     /* Redux hooks into store. */   
     const currApp = useSelector((state: StoreState) => state.s2aReducer.currentApp);
 
+    /* Conditional rendering of UI. */
+    const createButtonText = (
+        location.pathname.startsWith("/S2A/editapp/datasources/") ? 
+            "Create New Datasource" :
+        location.pathname.startsWith("/S2A/editapp/tableviews/") ? 
+            "Create New Tableview" :
+        location.pathname.startsWith("/S2A/editapp/detailviews/") ?
+            "Create New Detailview" :
+        ""
+    )
+
+    /* Event handler for creation of resources. */
+    const createResource = () => {
+        if(location.pathname.startsWith("/S2A/editapp/datasources/"))
+            dispatch(showCreateDatasourceModal());
+        if(location.pathname.startsWith("/S2A/editapp/tableviews/"))
+            dispatch(showCreateTableviewModal());
+        if(location.pathname.startsWith("/S2A/editapp/detailviews/"))
+            dispatch(showCreateDetailviewModal());
+    }
+    
     /* Event handlers for navigation bar buttons. */
     const displayDatasources = () => {
         currApp ? navigate(`/S2A/editapp/datasources/${currApp.id}`) : navigate("/")
     }
 
-    const displayViews = () => {
-        currApp ? navigate(`/S2A/editapp/views/${currApp.id}`) : navigate("/")
+    const displayTableviews = () => {
+        currApp ? navigate(`/S2A/editapp/tableviews/${currApp.id}`) : navigate("/")
+    }
+    
+    const displayDetailviews = () => {
+        currApp ? navigate(`/S2A/editapp/detailviews/${currApp.id}`) : navigate("/")
     }
     
     const displayRoles = () => {
         currApp ? navigate(`/S2A/editapp/roles/${currApp.id}`) : navigate("/")
     }
 
-    const handleSaveChanges = () => {
-        navigate("/S2A/home");
-    }
-
-    const handleDiscardChanges = () => {
-        navigate("/S2A/home");
+    const handleReturn = () => {
+        navigate("/S2A/home/develop");
     }
 
     return (
-        <AppBar style={{ backgroundColor: '#6CA6CD' }}>
+        <AppBar style={styles.navBarWrapper}>
             <Toolbar>
-                <TextField
-                    variant="outlined"
-                    label="App Name"
-                    sx={{ flexGrow: 0.8 }}
-                />
+                <Typography sx={styles.navBarTitle} variant="h6" component="div">S2A Edit App</Typography>
+
+                {/* Create Datasource Modal */}
+                
+
+                {/* Create Resource Button */}
+                {createButtonText && (
+                    <IconButton onClick={createResource} sx={styles.createButton}>
+                        <AddIcon />
+                        {createButtonText}
+                    </IconButton>
+                )}
+
+                {/* Edit App Name Textfield */}
+                <TextField sx={styles.editAppTextfield} variant="outlined" label="App Name"/>
 
                 {/* Navigation Buttons */}
-                <Button onClick={displayDatasources} color="inherit" sx={{ marginLeft: '40vw' }}>App Data Sources</Button>
-                <Button onClick={displayViews}  color="inherit" sx={{ marginLeft: '10px' }}>App Views</Button>
-                <Button onClick={displayRoles}  color="inherit" sx={{ marginLeft: '10px' }}>App Role Management</Button>
-                <Button onClick={handleSaveChanges} color="inherit" sx={{ marginLeft: '10px' }}>Save</Button>
-                <Button onClick={handleDiscardChanges} color="inherit" sx={{ marginLeft: '10px' }}>Discard</Button>
+                <Button onClick={displayDatasources} sx={{ ...styles.displayButton, ...styles.displayDatasourcesButton }} color="inherit">App Data Sources</Button>
+                <Button onClick={displayTableviews} sx={{ ...styles.displayButton, ...styles.displayTableviewsButton }} color="inherit">App Tableviews</Button>
+                <Button onClick={displayDetailviews}sx={{ ...styles.displayButton, ...styles.displayDetailviewsButton }}  color="inherit">App Detailviews</Button>
+                <Button onClick={displayRoles} sx={{ ...styles.displayButton, ...styles.displayRolesButton }} color="inherit">App Role Management</Button>
+                <Button onClick={handleReturn} sx={{ ...styles.displayButton, ...styles.displayReturnButton }}  color="inherit">Return To Home</Button>
             </Toolbar>
         </AppBar>
     );

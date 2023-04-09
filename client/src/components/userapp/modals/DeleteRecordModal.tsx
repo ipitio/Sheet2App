@@ -1,14 +1,14 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { hideWebAppModal, StoreState } from '../../../store/StoreContext';
+import { deleteRecord, hideWebAppModal, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
 
 function DeleteRecordModal() {
     // Retrieve the dispatcher for the store
     const dispatch = useDispatch();
 
-    // Retrieve the current modal that should be opened from the store
     const currentModalType = useSelector((state: StoreState) => state.webAppReducer.currentModalType);
+    const currentRecord = useSelector((state: StoreState) => state.webAppReducer.currentRecord);
 
     return (
         <Box
@@ -23,10 +23,34 @@ function DeleteRecordModal() {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        {/** TODO: ENUMERATE THE EDITABLE COLUMNS AS FIELDS */}
+                        <Typography>
+                            Are you sure you want to delete this record?
+                        </Typography>
+
+                        <Divider />
+
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                justifyContent: 'space-evenly'
+                            }}
+                        >
+                            {
+                                currentRecord?.data.map((element) => {
+                                    return (
+                                        <Typography>
+                                            {element}
+                                        </Typography>
+                                    )
+                                })
+                            }
+                        </Box>
                     </DialogContentText>
                     <DialogActions>
-                        <Button>
+                        <Button
+                            onClick={() => dispatch(deleteRecord())}
+                        >
                             {/** TODO: SEND AN API REQUEST TO DELETE RECORD WHEN CONFIRM CLICKED */}
                             Confirm
                         </Button>

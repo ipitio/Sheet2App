@@ -1,0 +1,28 @@
+name: backend
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Build and run
+      run: |
+        sed -i "s/ENV REACT_APP_OAUTH_CLIENT_ID=.*/ENV REACT_APP_OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID/" Client/Dockerfile
+        sed -i "s/ENV CLIENT_ID=.*/ENV CLIENT_ID=$OAUTH_CLIENT_ID/" server/Dockerfile
+        sed -i "s/ENV CLIENT_SECRET=.*/ENV CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }}/" server/Dockerfile
+        docker compose up -d --build
+
+    - name: Test
+      run: |
+        sleep 20
+        django_container_id=$(docker ps -q --filter "name=django")
+        docker exec $django_container_id pytest -n logical
