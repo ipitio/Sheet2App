@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
 import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './StoreTypes'
+import { Dictionary } from "@reduxjs/toolkit";
 
 /* Define constants for constructing a URL to reach Django server. */
 const DJANGO_HOST = process.env.DJANGO_HOST;
@@ -708,104 +709,76 @@ async function loadDatasource(datasource: Datasource): Promise<{columns: Column[
 }
 
 /**
- * Adds a record to a View. By default, this will append the new record to the last row of the spreadsheet.
- * @param view The View to add the record to
- * @param recordToAdd The new record to add to the view
+ * Adds a record to the specified datasource
+ * @returns the new data and columns after adding a record to the datasource
  */
-async function addRecord(viewID: number, recordToAdd: Record) {
-    const reqForm: RequestInit = {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "viewID": viewID,
-            "recordToAdd": recordToAdd
-        })
-    }
-
+async function addRecord(datasource: Datasource, record: Dictionary<string>): Promise<{columns: Column[], columnData: any[][]}> {
     try {
-        const res = await fetch(`${DJANGO_URL}/addRecord`, reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
+        const reqForm = await getRequestForm("POST", {"datasource": datasource, "record": record});
         
-        /**
-         * Expects a response containing the new view with the record added to it.
-         */
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`loadApp equest failed with status: ${res.status}`);
+        
         const data = await res.json();
+        const columns: Column[] = data.columns;
+        const columnData: any[][] = data.columnData;
 
-        return data.spreadsheet_data;
+        return {
+            columns: columns,
+            columnData: columnData
+        };
     }
     catch(err) {
-        return Promise.reject(err);
-    }
-}
-
-async function editRecord(viewID: number, recordID: number, editedRecord: Record) {
-    const reqForm: RequestInit = {
-        method: "PUT",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "viewID": viewID,
-            "recordID": recordID,
-            "editedRecord": editedRecord
-        })
-    }
-
-    try {
-        const res = await fetch(`${DJANGO_URL}/editRecord`, reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
-        
-        /**
-         * Expects a response containing the new view with the record added to it.
-         */
-        const data = await res.json();
-
-        return data.spreadsheet_data;
-    }
-    catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`loadTableView failed with the error: ${err}`);
     }
 }
 
 /**
- * Deletes a record associated with a View
- * @param viewID The View associated with the record
- * @param recordID The ID of the record to delete
- * @returns Returns the new View with the record deleted from it, if the request is successful
+ * Adds a record to the specified datasource
+ * @returns the new data and columns after adding a record to the datasource
  */
-async function deleteRecord(viewID: number, recordID: number) {
-    const reqForm: RequestInit = {
-        method: "DELETE",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "viewID": viewID,
-            "recordID": recordID
-        })
-    }
-
+async function editRecord(datasource: Datasource, recordID: number, record: Dictionary<string>): Promise<{columns: Column[], columnData: any[][]}> {
     try {
-        const res = await fetch(`${DJANGO_URL}/deleteRecord`, reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
+        const reqForm = await getRequestForm("PUT", {"datasource": datasource, "recordID": recordID, "record": record});
         
-        /**
-         * Expects a response containing the new view with the record added to it.
-         */
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`loadApp equest failed with status: ${res.status}`);
+        
         const data = await res.json();
+        const columns: Column[] = data.columns;
+        const columnData: any[][] = data.columnData;
 
-        return data.spreadsheet_data;
+        return {
+            columns: columns,
+            columnData: columnData
+        };
     }
     catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`loadTableView failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Load a specific datasource in the web app
+ * @returns the data and columns associated with the specified datasource
+ */
+async function deleteRecord(datasource: Datasource, recordID: number) {
+    try {
+        const reqForm = await getRequestForm("DELETE", {"datasource": datasource, "recordID": recordID});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`loadApp equest failed with status: ${res.status}`);
+        
+        const data = await res.json();
+    }
+    catch(err) {
+        return Promise.reject(`loadTableView failed with the error: ${err}`);
     }
 }
 
@@ -818,7 +791,6 @@ export default {getDevelopableApps, getAccessibleApps, createApp, deleteApp, edi
                 getAppDetailviews, createDetailview, editDetailview, deleteDetailview, 
                 getDetailviewColumns,editDetailviewColumns, 
                 getDetailviewRoles, editDetailviewRoles, 
-                addRecord, editRecord, deleteRecord,
             
-                loadApp, loadDatasource
+                loadApp, loadDatasource, addRecord, editRecord, deleteRecord,
             };
