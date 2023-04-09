@@ -657,6 +657,31 @@ async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role
 // -> END for S2A.
 
 /**
+ * Requests an array of all detailviews for a particular app.
+ * @param {App} app - The application to get the detailviews of.
+ * @return {Promise<Detailview[]>} - A promise that resolves to the array of detailviews on success, rejects on failure.
+ */
+async function loadApp(app: App): Promise<{tableviews: Tableview[], detailviews: Detailview[]}> {
+    try {
+        const reqForm = await getRequestForm("GET", {"app": app});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`loadApp equest failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const tableviews: Tableview[] = data.tableviews;
+        const detailviews: Detailview[] = data.detailviews;
+
+        return {tableviews: tableviews, detailviews: detailviews};
+    }
+    catch(err) {
+        return Promise.reject(`getAppDetailviews failed with the error: ${err}`);
+    }
+}
+
+/**
  * Adds a record to a View. By default, this will append the new record to the last row of the spreadsheet.
  * @param view The View to add the record to
  * @param recordToAdd The new record to add to the view
