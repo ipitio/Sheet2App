@@ -680,6 +680,10 @@ async function loadApp(app: App): Promise<Datasource[]> {
     }
 }
 
+/**
+ * Load a specific datasource in the web app
+ * @returns the data and columns associated with the specified datasource
+ */
 async function loadDatasource(datasource: Datasource): Promise<{columns: Column[], columnData: any[][]}> {
     try {
         const reqForm = await getRequestForm("GET", {"datasource": datasource});
