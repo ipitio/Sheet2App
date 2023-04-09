@@ -113,7 +113,7 @@ def get_usable_apps(request):
 
 
 @csrf_exempt
-def edit_app_name(request):
+def edit_app(request):
     body = json.loads(request.body)
     app = body["app"]
 
