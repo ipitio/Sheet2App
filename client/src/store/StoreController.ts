@@ -655,6 +655,7 @@ async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role
 }
 
 // -> END for S2A.
+// NOTE: Some naming logistics... to prevent duplicate method names, we use "load" for the web apps
 
 /**
  * Requests an object containing all Tableviews and Detailviews associated with a web app
@@ -676,6 +677,29 @@ async function loadApp(app: App): Promise<Datasource[]> {
     }
     catch(err) {
         return Promise.reject(`getAppDetailviews failed with the error: ${err}`);
+    }
+}
+
+async function loadDatasource(datasource: Datasource): Promise<{columns: Column[], columnData: any[][]}> {
+    try {
+        const reqForm = await getRequestForm("GET", {"datasource": datasource});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`loadApp equest failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const columns: Column[] = data.columns;
+        const columnData: any[][] = data.columnData;
+
+        return {
+            columns: columns,
+            columnData: columnData
+        };
+    }
+    catch(err) {
+        return Promise.reject(`loadTableView failed with the error: ${err}`);
     }
 }
 
@@ -792,5 +816,5 @@ export default {getDevelopableApps, getAccessibleApps, createApp, deleteApp, edi
                 getDetailviewRoles, editDetailviewRoles, 
                 addRecord, editRecord, deleteRecord,
             
-                loadApp,
+                loadApp, loadDatasource
             };
