@@ -1,5 +1,5 @@
 import mysql.connector
-from configparser import ConfigParser
+import os
 
 
 def connect_to_database():
@@ -10,14 +10,12 @@ def connect_to_database():
     Returns:
         MySQLConnection: An instance of the database connection
     """
-    config = ConfigParser()
-    config.read("config.ini")
 
     db = mysql.connector.connect(
-        host=config.get("auth", "host"),
-        user=config.get("auth", "user"),
-        passwd=config.get("auth", "password"),
-        database=config.get("auth", "database"),
+        host=os.getenv("MYSQL_HOST"),
+        user=os.getenv("MYSQL_USER"),
+        passwd=os.getenv("MYSQL_PASSWORD"),
+        database=os.getenv("MYSQL_DATABASE"),
     )
     return db
 
@@ -28,13 +26,11 @@ def init_database():
     named "Sheet2App". This function should only be called if the "Sheet2App" database
     does not exist.
     """
-    config = ConfigParser()
-    config.read("../../config.ini")
 
     db = mysql.connector.connect(
-        host=config.get("auth", "host"),
-        user=config.get("auth", "user"),
-        passwd=config.get("auth", "password"),
+        host=os.getenv("MYSQL_HOST"),
+        user=os.getenv("MYSQL_USER"),
+        passwd=os.getenv("MYSQL_PASSWORD"),
     )
     cursor = db.cursor()
     cursor.execute("CREATE DATABASE Sheet2App")

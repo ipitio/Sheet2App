@@ -2,6 +2,10 @@ import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
 import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './StoreTypes'
 
+const DJANGO_HOST = process.env.DJANGO_HOST;
+const DJANGO_PORT = process.env.DJANGO_PORT;
+const DJANGO_PROTOCOL = process.env.DJANGO_PROTOCOL;
+const DJANGO_URL = `${DJANGO_PROTOCOL}://${DJANGO_HOST}:${DJANGO_PORT}`;
 /*
     Helper functions for requests.
 */
@@ -56,7 +60,7 @@ async function getDevelopableApps(): Promise<App[]> {
         const reqForm = await getRequestForm("POST", {});
 
         /* Send request and return promise resolving to array of developable apps if successful. */
-        const res = await fetch("http://localhost:8000/getDevelopableApps", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getDevelopableApps`, reqForm);
         if(!res.ok)
             return Promise.reject(`getDevelopableApps request failed with status: ${res.status}`);
             
@@ -78,7 +82,7 @@ async function getAccessibleApps(): Promise<App[]> {
         const reqForm = await getRequestForm("POST", {});
 
         /* Send request and return promise resolving to array of accessible apps if successful. */
-        const res = await fetch("http://localhost:8000/getAccessibleApps", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getAccessibleApps`, reqForm);
         if(!res.ok) 
             return Promise.reject(`getAccessibleApps request failed with status: ${res.status}`);
         
@@ -101,7 +105,7 @@ async function createApp(appName: string): Promise<void> {
         const reqForm = await getRequestForm("POST", {"appName": appName});
 
         /* Send request and return promise resolving if creation successful. */
-        const res = await fetch("http://localhost:8000/createApp", reqForm);
+        const res = await fetch(`${DJANGO_URL}/createApp`, reqForm);
         if(!res.ok)
             return Promise.reject(`createApp request failed with status: ${res.status}`);
         
@@ -122,7 +126,7 @@ async function deleteApp(app: App): Promise<void> {
         const reqForm = await getRequestForm("DELETE", {"app": app});
 
         /* Send request and return promise resolving if deletion successful. */
-        const res = await fetch("http://localhost:8000/deleteApp", reqForm);
+        const res = await fetch(`${DJANGO_URL}/deleteApp`, reqForm);
         if(!res.ok)
             return Promise.reject(`deleteApp request failed with status: ${res.status}`);
         
@@ -143,7 +147,7 @@ async function editApp(app: App): Promise <void> {
         const reqForm = await getRequestForm("PUT", {"app": app});
 
         /* Send request and return promise resolving if edit successful. */
-        const res = await fetch("http://localhost:8000/editApp", reqForm);
+        const res = await fetch(`${DJANGO_URL}/editApp`, reqForm);
         if(!res.ok)
             return Promise.reject(`editApp request failed with status: ${res.status}`);
         
@@ -164,7 +168,7 @@ async function getAppDatasources(app: App): Promise<Datasource[]> {
         const reqForm = await getRequestForm("POST", {"app": app});
 
         /* Send request and return promise resolving to array of datasources if successful. */
-        const res = await fetch("http://localhost:8000/getAppDataSources", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getAppDatasources`, reqForm);
         if(!res.ok)
             return Promise.reject(`getAppDatasources request failed with status: ${res.status}`);
         
@@ -190,7 +194,7 @@ async function createDatasource(app: App, datasourceName: string, spreadsheetUrl
         const reqForm = await getRequestForm("POST", {"app": app, "datasourceName": datasourceName, "spreadsheetUrl": spreadsheetUrl, "sheetName": sheetName});
 
         /* Send request and return promise resolving if creation successful. */
-        const res = await fetch("http://localhost:8000/createDatasource", reqForm);
+        const res = await fetch(`${DJANGO_URL}/createDatasource`, reqForm);
         if(!res.ok)
             return Promise.reject(`createDatasource request failed with status: ${res.status}`);
         
@@ -211,7 +215,7 @@ async function editDatasource(datasource: Datasource): Promise<void> {
         const reqForm = await getRequestForm("PUT", {"datasource": datasource});
         
         /* Send request and return promise resolving if edit successful. */
-        const res = await fetch("http://localhost:8000/editDatasource", reqForm);  
+        const res = await fetch(`${DJANGO_URL}/editDatasource`, reqForm); 
         if(!res.ok)
             return Promise.reject(`editDatasource request failed with status: ${res.status}`);
         
@@ -232,7 +236,7 @@ async function deleteDatasource(datasource: Datasource): Promise<void> {
         const reqForm = await getRequestForm("DELETE", {"datasource": datasource});
         
         /* Send request and return promise resolving if deletion successful. */
-        const res = await fetch("http://localhost:8000/deleteDatasource", reqForm);
+        const res = await fetch(`${DJANGO_URL}/deleteDatasource`, reqForm);
         if(!res.ok)
             return Promise.reject(`deleteDatasource request failed with status: ${res.status}`);
         
@@ -253,7 +257,7 @@ async function getDatasourceColumns(datasource: Datasource): Promise<Column[]> {
         const reqForm = await getRequestForm("POST", {"datasource": datasource});
         
         /* Send request and return promise resolving to an array of datasource columns if successful. */
-        const res = await fetch("http://localhost:8000/getDatasourceColumns", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getDatasourceColumns`, reqForm);
         if(!res.ok)
             return Promise.reject(`getDatasourceColumns request failed with status: ${res.status}`);
         
@@ -277,7 +281,7 @@ async function editDatasourceColumns(datasource: Datasource, datasourceColumns: 
         const reqForm = await getRequestForm("PUT", {"datasource": datasource, "datasourceColumns": datasourceColumns});
         
         /* Send request and return promise resolving if edit successful. */
-        const res = await fetch("http://localhost:8000/editDatasourceColumns", reqForm);
+        const res = await fetch(`${DJANGO_URL}/editDatasourceColumns`, reqForm);
         if(!res.ok)
             return Promise.reject(`editDatasourceColumns request failed with status: ${res.status}`);
         
@@ -298,7 +302,7 @@ async function getAppTableviews(app: App): Promise<Tableview[]> {
         const reqForm = await getRequestForm("POST", {"app": app});
         
         /* Send request and return promise resolving to the array of tableviews if successful. */
-        const res = await fetch("http://localhost:8000/getAppTableviews", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getAppTableviews`, reqForm);
         if(!res.ok)
             return Promise.reject(`getAppTableviews request failed with status: ${res.status}`);
         
@@ -323,7 +327,7 @@ async function createTableview(app: App, tableviewName: string, datasource: Data
         const reqForm = await getRequestForm("POST", {"app": app, "tableviewName": tableviewName, "datasource": datasource});
 
         /* Send request and return promise resolving if creation successful. */
-        const res = await fetch("http://localhost:8000/createTableview", reqForm);
+        const res = await fetch(`${DJANGO_URL}/createTableview`, reqForm);
         if(!res.ok)
             return Promise.reject(`createTableview request failed with status: ${res.status}`);
         
@@ -344,7 +348,7 @@ async function editTableview(tableview: Tableview): Promise<void> {
         const reqForm = await getRequestForm("PUT", {"tableview": tableview});
 
         /* Send request and return promise resolving if edit successful. */
-        const res = await fetch("http://localhost:8000/editTableview", reqForm);
+        const res = await fetch(`${DJANGO_URL}/editTableview`, reqForm);
         if(!res.ok)
             return Promise.reject(`editTableview request failed with status: ${res.status}`);
         
@@ -365,7 +369,7 @@ async function deleteTableview(tableview: Tableview): Promise<void> {
         const reqForm = await getRequestForm("DELETE", {"tableview": tableview});
 
         /* Send request and return promise resolving if deletion successful. */
-        const res = await fetch("http://localhost:8000/deleteTableview", reqForm);
+        const res = await fetch(`${DJANGO_URL}/deleteTableview`, reqForm);
         if(!res.ok)
             return Promise.reject(`deleteTableview request failed with status: ${res.status}`);
         
@@ -386,7 +390,7 @@ async function getTableviewColumns(tableview: Tableview): Promise<Column[]> {
         const reqForm = await getRequestForm("POST", {"tableview": tableview});
         
         /* Send request and return promise resolving to an array of tableview columns if successful. */
-        const res = await fetch("http://localhost:8000/getTableviewColumns", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getTableviewColumns`, reqForm);
         if(!res.ok)
             return Promise.reject(`getTableviewColumns request failed with status: ${res.status}`);
         
@@ -413,7 +417,7 @@ async function editTableviewColumns(tableview: Tableview, tableviewColumns: Colu
         const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewColumns": tableviewColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn});
         
         /* Send request and return promise resolving if edit successful. */
-        const res = await fetch("http://localhost:8000/editTableviewColumns", reqForm);
+        const res = await fetch(`${DJANGO_URL}/editTableviewColumns`, reqForm);
         if(!res.ok)
             return Promise.reject(`editTableviewColumns request failed with status: ${res.status}`);
         
@@ -434,7 +438,7 @@ async function getTableviewRoles(tableview: Tableview): Promise<Role[]> {
         const reqForm = await getRequestForm("POST", {"tableview": tableview});
         
         /* Send request and return promise resolving to an array of tableview roles if successful. */
-        const res = await fetch("http://localhost:8000/getTableviewRoles", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getTableviewRoles`, reqForm);
         if(!res.ok)
             return Promise.reject(`getTableviewRoles request failed with status: ${res.status}`);
         
@@ -458,7 +462,7 @@ async function editTableviewRoles(tableview: Tableview, tableviewRoles: Role[]):
         const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewRoles": tableviewRoles});
         
         /* Send request and return promise resolving if edit successful. */
-        const res = await fetch("http://localhost:8000/editTableviewRoles", reqForm);
+        const res = await fetch(`${DJANGO_URL}/editTableviewRoles`, reqForm);
         if(!res.ok)
             return Promise.reject(`editTableviewRoles request failed with status: ${res.status}`);
         
@@ -479,7 +483,7 @@ async function getAppDetailviews(app: App): Promise<Detailview[]> {
         const reqForm = await getRequestForm("POST", {"app": app});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
-        const res = await fetch("http://localhost:8000/getAppDetailviews", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getAppDetailviews`, reqForm);
         if(!res.ok)
             return Promise.reject(`getAppDetailviews equest failed with status: ${res.status}`);
         
@@ -504,7 +508,7 @@ async function createDetailview(app: App, detailviewName: string, datasource: Da
         const reqForm = await getRequestForm("POST", {"app": app, "detailviewName": detailviewName, "datasource": datasource});
 
         /* Send request and return promise resolving if creation successful. */
-        const res = await fetch("http://localhost:8000/createDetailview", reqForm);
+        const res = await fetch(`${DJANGO_URL}/createDetailview`, reqForm);
         if(!res.ok)
             return Promise.reject(`createDetailview request failed with status: ${res.status}`);
         
@@ -525,7 +529,7 @@ async function editDetailview(detailview: Detailview): Promise<void> {
         const reqForm = await getRequestForm("PUT", {"detailview": detailview});
 
         /* Send request and return promise resolving if edit successful. */
-        const res = await fetch("http://localhost:8000/editDetailview", reqForm);
+        const res = await fetch(`${DJANGO_URL}/editDetailview`, reqForm);
         if(!res.ok)
             return Promise.reject(`editDetailview request failed with status: ${res.status}`);
         
@@ -546,7 +550,7 @@ async function deleteDetailview(detailview: Detailview): Promise<void> {
         const reqForm = await getRequestForm("DELETE", {"detailview": detailview});
 
         /* Send request and return promise resolving if deletion successful. */
-        const res = await fetch("http://localhost:8000/deleteDetailview", reqForm);
+        const res = await fetch(`${DJANGO_URL}/deleteDetailview`, reqForm);
         if(!res.ok)
             return Promise.reject(`deleteDetailview request failed with status: ${res.status}`);
         
@@ -568,7 +572,7 @@ async function getDetailviewColumns(detailview: Detailview): Promise<Column[]> {
         const reqForm = await getRequestForm("POST", {"detailview": detailview});
         
         /* Send request and return promise resolving to an array of detailview columns if successful. */
-        const res = await fetch("http://localhost:8000/getDetailviewColumns", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getDetailviewColumns`, reqForm);
         if(!res.ok)
             return Promise.reject(`getDetailviewColumns request failed with status: ${res.status}`);
         
@@ -593,7 +597,7 @@ async function editDetailviewColumns(detailview: Detailview, detailviewColumns: 
         const reqForm = await getRequestForm("PUT", {"detailview": detailview, "detailviewColumns": detailviewColumns, "editFilterColumn": editFilterColumn});
         
         /* Send request and return promise resolving if edit successful. */
-        const res = await fetch("http://localhost:8000/editDetailviewColumns", reqForm);
+        const res = await fetch(`${DJANGO_URL}/editDetailviewColumns`, reqForm);
         if(!res.ok)
             return Promise.reject(`editDetailviewColumns request failed with status: ${res.status}`);
         
@@ -614,7 +618,7 @@ async function getDetailviewRoles(detailview: Detailview): Promise<Role[]> {
         const reqForm = await getRequestForm("POST", {"detailview": detailview});
         
         /* Send request and return promise resolving to an array of detailview roles if successful. */
-        const res = await fetch("http://localhost:8000/getDetailviewRoles", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getDetailviewRoles`, reqForm);
         if(!res.ok)
             return Promise.reject(`getDetailviewRoles request failed with status: ${res.status}`);
         
@@ -638,7 +642,7 @@ async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role
         const reqForm = await getRequestForm("PUT", {"detailview": detailview, "detailviewRoles": detailviewRoles});
         
         /* Send request and return promise resolving if edit successful. */
-        const res = await fetch("http://localhost:8000/editDetailviewRoles", reqForm);
+        const res = await fetch(`${DJANGO_URL}/editDetailviewRoles`, reqForm);
         if(!res.ok)
             return Promise.reject(`editTableviewRoles request failed with status: ${res.status}`);
         
@@ -670,7 +674,7 @@ async function addRecord(viewID: number, recordToAdd: Record) {
     }
 
     try {
-        const res = await fetch("http://localhost:8000/addRecord", reqForm);
+        const res = await fetch(`${DJANGO_URL}/addRecord`, reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         
@@ -701,7 +705,7 @@ async function editRecord(viewID: number, recordID: number, editedRecord: Record
     }
 
     try {
-        const res = await fetch("http://localhost:8000/editRecord", reqForm);
+        const res = await fetch(`${DJANGO_URL}/editRecord`, reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         
@@ -737,7 +741,7 @@ async function deleteRecord(viewID: number, recordID: number) {
     }
 
     try {
-        const res = await fetch("http://localhost:8000/deleteRecord", reqForm);
+        const res = await fetch(`${DJANGO_URL}/deleteRecord`, reqForm);
         if(!res.ok)
             return Promise.reject("Request failed.");
         

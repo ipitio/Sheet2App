@@ -16,7 +16,7 @@ function Splash() {
         if (!gapi) return;
         function init() {
             gapi.client.init({
-                clientId: process.env.REACT_APP_OAUTH_CLIENT_ID || '',
+                clientId: process.env.OAUTH_CLIENT_ID || '',
                 scope: "email"
             });
         }
@@ -61,7 +61,7 @@ function Splash() {
             </div>
             <div style={styles.loginButton}>
                 <GoogleLogin
-                    clientId={process.env.REACT_APP_OAUTH_CLIENT_ID || ''}
+                    clientId={process.env.OAUTH_CLIENT_ID || ''}
                     onSuccess={onSuccess}
                     onFailure={onFailure}
                     prompt="consent"
