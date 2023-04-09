@@ -28,6 +28,8 @@ services:
     build: ./server
     ports:
       - 8000:8000
+    volumes:
+      - ./server:/server
     depends_on:
       - redis
       - mysql
@@ -40,6 +42,8 @@ services:
     build: ./client
     ports:
       - 3000:3000
+    volumes:
+      - ./client:/client
     depends_on:
       - django
     networks:
