@@ -2,10 +2,12 @@ import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
 import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './StoreTypes'
 
+/* Define constants for constructing a URL to reach Django server. */
 const DJANGO_HOST = process.env.DJANGO_HOST;
 const DJANGO_PORT = process.env.DJANGO_PORT;
 const DJANGO_PROTOCOL = process.env.DJANGO_PROTOCOL;
 const DJANGO_URL = `${DJANGO_PROTOCOL}://${DJANGO_HOST}:${DJANGO_PORT}`;
+
 /*
     Helper functions for requests.
 */
@@ -561,8 +563,7 @@ async function deleteDetailview(detailview: Detailview): Promise<void> {
     }
 }
 
-
-/**
+/*
  * Requests an array of all detailview columns for a particular detailview.
  * @param {Detailview} detailview - The detailview to obtain the columns of.
  * @return {Promise<Column[]>} - A promise that resolves to the array of detailview columns on success, rejects on failure.
