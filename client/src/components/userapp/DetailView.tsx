@@ -47,7 +47,7 @@ function DetailView(props: View | any) {
             >
                 {
                     testColumnHeader.map((columnHeader) => {
-                        return <div>{columnHeader}</div>
+                        return <div key={columnHeader}>{columnHeader}</div>
                     })
                 }
             </Box>

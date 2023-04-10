@@ -46,6 +46,7 @@ function TableView(props: View | any) {
 
         return (
             <Box
+                key={record.id}
                 className='table-row'
                 sx={{
                     display: 'grid',
@@ -61,7 +62,8 @@ function TableView(props: View | any) {
                         return (
                             <Typography sx={{
                                 textAlign: 'center'
-                            }}>
+                            }}
+                            key={entry}>
                                 {entry}
                             </Typography>
                         )
@@ -87,7 +89,7 @@ function TableView(props: View | any) {
                 {
                     testColumnHeader.map((columnHeader) => {
                         return (
-                            <Typography
+                            <Typography key={columnHeader}
                                 sx={{
                                     textAlign: 'center',
                                     fontWeight: 'bold',
@@ -125,6 +127,7 @@ function TableView(props: View | any) {
                 spreadsheetRecords.map((record: Record) => {
                     return (
                         <Box
+                            key={record.id}
                             id='row-button'
                             sx={{
                                 display: 'flex',

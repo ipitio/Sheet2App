@@ -39,7 +39,7 @@ function DeleteRecordModal() {
                             {
                                 currentRecord?.data.map((element) => {
                                     return (
-                                        <Typography>
+                                        <Typography key={element}>
                                             {element}
                                         </Typography>
                                     )

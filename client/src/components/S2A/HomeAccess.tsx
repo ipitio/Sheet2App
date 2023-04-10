@@ -39,7 +39,7 @@ function HomeAccess() {
 
                 {/* Map each app in development to a grid item. */}
                 {accApps.map((app) => (
-                    <Grid item xs={2}>
+                    <Grid item xs={2} key={app.id}>
                         <div style={styles.gridItemContainer}>
                             {app.name}
 
