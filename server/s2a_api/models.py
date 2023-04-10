@@ -69,6 +69,11 @@ class TableViewViewableColumn(models.Model):
     datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
 
 
+class DetailViewViewableColumn(models.Model):
+    detail_view = models.ForeignKey(DetailView, on_delete=models.CASCADE)
+    datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
+
+
 class DetailViewEditableColumn(models.Model):
     detail_view = models.ForeignKey(DetailView, on_delete=models.CASCADE)
     datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
