@@ -10,8 +10,8 @@ Team Penguins
 
 Install Docker and Compose Plugin
 
-* [Manually](https://docs.docker.com/compose/install/linux/#install-using-the-repository)
-* [One Click](https://www.docker.com/products/docker-desktop)
+* [CLI Only](https://docs.docker.com/compose/install/linux/#install-using-the-repository)
+* [Docker Desktop](https://www.docker.com/products/docker-desktop)
 
 #### Windows
 
@@ -26,9 +26,11 @@ Install WSL2, Docker Desktop, and VSCode Extensions
 2. Set the OAuth Client ID environment variable in `client/Dockerfile`
 3. Set the OAuth Client ID and Secret environment variables in `server/Dockerfile`
 
-### Start
+### Starting
 
-Run `docker compose up` to start the app. Add:
+    docker compose up
+
+This starts everything for you. Add:
 
 * `-d` to start in detached mode,
 * `--build` to rebuild the images.
@@ -40,39 +42,53 @@ Please wait a moment for the following to become available:
   * The default username is `admin` with password `password`
 * The server's health checks at <http://localhost:8000/ht>.
 
-### Test
+### Stopping
 
-#### Frontend
+    docker compose down
 
-[![frontend](https://github.com/alexanderleong1/Sheet2App/actions/workflows/frontend.yml/badge.svg)](https://github.com/alexanderleong1/Sheet2App/actions/workflows/frontend.yml)
-
-Run `docker exec -it node npm test` to run the frontend's tests in interactive mode.
-
-Alternatively, run `docker exec node npm test -- --watchAll=false`.
-
-#### Backend
-
-[![backend](https://github.com/alexanderleong1/Sheet2App/actions/workflows/backend.yml/badge.svg)](https://github.com/alexanderleong1/Sheet2App/actions/workflows/backend.yml)
-
-Run `docker exec django pytest` to run the backend's tests. Add:
-
-* `-n logical` to run tests in parallel,
-* `-v` for verbose output.
-
-##### Monitor Cache
-
-If you started in detached mode, run `docker exec redis redis-cli monitor` to monitor the Redis cache.
-
-##### Flush Cache
-
-Run `docker exec redis redis-cli flushall` to flush the Redis cache.
-
-> WARNING | This will delete all data in the cache. Do not run in production.
-
-### Stop
-
-If you started in detached mode, run `docker compose down` to stop the app. Add:
+This stops everything for you. Add:
 
 * `-v` to remove its volumes,
 * `--rmi all` to remove its images,
 * `-t 0` to stop immediately.
+
+### Testing
+
+[![frontend](https://github.com/alexanderleong1/Sheet2App/actions/workflows/frontend.yml/badge.svg)](https://github.com/alexanderleong1/Sheet2App/actions/workflows/frontend.yml) [![backend](https://github.com/alexanderleong1/Sheet2App/actions/workflows/backend.yml/badge.svg)](https://github.com/alexanderleong1/Sheet2App/actions/workflows/backend.yml)
+
+#### Frontend
+
+    docker exec -it node npm test
+
+This runs the frontend's tests in interactive mode. Alternatively, run:
+
+    docker exec node npm test -- --watchAll=false
+
+#### Backend
+
+    docker exec django pytest
+
+This runs the backend's tests. Add:
+
+* `-n logical` to run the tests in parallel,
+* `-v` for verbose output.
+
+##### MySQL
+
+You can start a MySQL shell with:
+
+    docker exec -it mysql mysql -u root -p default-password
+
+##### Redis
+
+If you started in detached mode, you can monitor Redis with:
+
+    docker exec redis redis-cli monitor
+
+Clear it with:
+
+    docker exec redis redis-cli flushall
+
+> ###### Note
+>
+> The cache is not persistent. It will be cleared when you stop the app.

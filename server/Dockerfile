@@ -1,23 +1,29 @@
 FROM python
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 WORKDIR /server
 ADD . ./
 EXPOSE 8000
 RUN pip3 install -r requirements.txt
 RUN apt-get update && apt-get install -y netcat
 
-ENV host=mysql
-ENV user=root
-ENV password=default-password
-ENV port=3306
-ENV database=Sheet2App
+ENV MYSQL_HOST=mysql
+ENV MYSQL_USER=root
+ENV MYSQL_PASSWORD=default-password
+ENV MYSQL_PORT=3306
+ENV MYSQL_DATABASE=Sheet2App
 
-ENV CLIENT_ID=1043255060654-pg1vucmm5iibpt7qsvdmsq5khahnkak7.apps.googleusercontent.com
-ENV CLIENT_SECRET=****
+ENV OAUTH_CLIENT_ID=1043255060654-pg1vucmm5iibpt7qsvdmsq5khahnkak7.apps.googleusercontent.com
+ENV OAUTH_CLIENT_SECRET=****
 
-ENV cache=redis
+ENV REDIS_HOST=redis
 
 ENV DJANGO_SUPERUSER_USERNAME=admin
 ENV DJANGO_SUPERUSER_EMAIL=admin@local.host
 ENV DJANGO_SUPERUSER_PASSWORD=password
+
+ENV NODE_HOST=node
+ENV NODE_PORT=3000
+ENV NODE_PROTOCOL=http
 
 CMD [ "bash", "./start.sh", "mysql" ]

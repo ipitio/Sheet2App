@@ -37,8 +37,10 @@ function Splash() {
           setError("External API failure.")
     }   
 
-    const onFailure = () => {
-        setError("Failed to sign in.");
+    const onFailure = (error: any) => {
+        if("error" in error && error["error"] === "popup_closed_by_user") {
+           setError("Failed to sign in.");
+        }
     };
 
     return (

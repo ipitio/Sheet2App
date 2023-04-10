@@ -150,7 +150,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://' + os.environ.get('cache', 'localhost') + ':6379/0',
+        'LOCATION': 'redis://' + os.getenv("REDIS_HOST", "localhost") + ':6379/0',
     }
 }
 CACHE_TTL = 60 * 15

@@ -1,55 +1,51 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { useDispatch } from 'react-redux'
-
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
 import storeController from './StoreController'
 
-const dispatch = useDispatch();
-
 export interface IS2AState {
     /* An array of developable apps for the current user. Set when navigating onto developable apps screen. */
-    devApps: App[] | null,
+    devApps: App[],
 
     /* An array of accessible apps for the current user. Set when anvigating onto accessible apps screen. */
-    accApps: App[] | null,
+    accApps: App[],
 
     /* An array of datasources belonging to the current app. Set when navigating onto edit datasources screen. */
-    datasources: Datasource[] | null,
+    datasources: Datasource[],
 
     /* An array of datasource columns belonging to the current datasource. Set when navigating onto edit datasource columns screen. */
-    datasourceColumns: Column[] | null,
+    datasourceColumns: Column[],
 
     /* An array of tableviews belonging to the current app. Set when navigating on edit tableviews screen. */
-    tableviews: Tableview[] | null,
+    tableviews: Tableview[],
 
     /* An array of tableview columns belonging to the current tableview. Set when navigating onto edit tableview columns screen. */
-    tableviewColumns: Column[] | null,
+    tableviewColumns: Column[],
 
     /* An array of tableview roles belonging to the current tableview. Set when navigating onto edit tableview roles screen. */
-    tableviewRoles: Role[] | null,
+    tableviewRoles: Role[],
 
     /* An array of detailviews belonging to the current app. Set when navigating on edit detailviews screen. */
-    detailviews: Detailview[] | null,
+    detailviews: Detailview[],
 
     /* An array of detailview columns belonging to the current detailview. Set when navigating onto edit detailview columns screen. */
-    detailviewColumns: Column[] | null,
+    detailviewColumns: Column[],
 
     /* An array of detailview roles belonging to the current detailview. Set when navigating onto edit detailview roles screen. */
-    detailviewRoles: Role[] | null,
+    detailviewRoles: Role[],
 
-    /* The current app being edited. Set when the user begins editing an app. */
+    /* The current app focus. Set when the user navigates into edit app. */
     currentApp: App | null,
 
-    /* The current datasource being edited. Set when the user begins editing a datasource. */
+    /* The current datasource focus. Set when the user navigates into edit datasource. */
     currentDatasource: Datasource | null,
     
-    /* The current tableview that is being edited. Set when the user begins editing a tableview. */
+    /* The current tableview focus. Set when the user navigates into edit tableview. */
     currentTableview: Tableview | null,
 
-    /* The current detailview being edited. Set when the user begins editing a detailview, */
+    /* The current detailview focus. Set when the user navigates into edit detailview. */
     currentDetailview: Detailview | null,
 
     /* The type of modal currently open for creation/edit/deletion. */
@@ -81,16 +77,16 @@ export interface IS2AState {
 }
 
 const S2AState: IS2AState = {
-    devApps: null,
-    accApps: null,
-    datasources: null,
-    datasourceColumns: null,
-    tableviews: null,
-    tableviewColumns: null,
-    tableviewRoles: null,
-    detailviews: null,
-    detailviewColumns: null,
-    detailviewRoles: null,
+    devApps: [],
+    accApps: [],
+    datasources: [],
+    datasourceColumns: [],
+    tableviews: [],
+    tableviewColumns: [],
+    tableviewRoles: [],
+    detailviews: [],
+    detailviewColumns: [],
+    detailviewRoles: [],
 
     currentApp: null,
     currentDatasource: null,
@@ -137,7 +133,7 @@ const S2AReducer = createSlice({
         createApp: (state, action: PayloadAction<string>) => {
             storeController.createApp(action.payload)
                 .then(() => {
-                    dispatch(finishCreation());
+                    console.log("Created app.");
                 })
                 .catch((error: Error) => {
                     console.log(`createApp failed with the error ${error}`);
@@ -147,7 +143,7 @@ const S2AReducer = createSlice({
             if(state.currentAppToEdit) {
                 storeController.editApp(action.payload) 
                     .then(() => {
-                        dispatch(finishEdit())
+                        console.log("Edited app.")
                     })
                     .catch((error: Error) => {
                         console.log(`editApp failed with the error ${error}`);
@@ -158,7 +154,7 @@ const S2AReducer = createSlice({
             if(state.currentAppToDelete) {
                 storeController.deleteApp(state.currentAppToDelete)
                     .then(() => {
-                        dispatch(finishDeletion());
+                        console.log("Deleted app.");
                     })
                     .catch((error: Error) => {
                         console.log(`deleteApp failed with the error ${error}`);
@@ -183,7 +179,7 @@ const S2AReducer = createSlice({
             if(state.currentApp) {
                 storeController.createDatasource(state.currentApp, action.payload.datasourceName, action.payload.spreadsheetUrl, action.payload.sheetName)
                     .then(() => {
-                        dispatch(finishCreation());
+                        console.log("Created datasource.");
                     })
                     .catch((error: Error) => {
                         console.log(`createDatasource failed with the error ${error}`);
@@ -194,7 +190,7 @@ const S2AReducer = createSlice({
             if(state.currentDatasourceToEdit) {
                 storeController.editDatasource(action.payload)
                     .then(() => {
-                        dispatch(finishEdit());
+                        console.log("Edited datasource.");
                     })
                     .catch((error: Error) => {
                         console.log(`editDatasource failed with the error ${error}`);
@@ -205,7 +201,7 @@ const S2AReducer = createSlice({
             if(state.currentDatasourceToDelete) {
                 storeController.deleteDatasource(action.payload)
                     .then(() => {
-                        dispatch(finishDeletion());
+                        console.log("Deleted datasource.");
                     })
                     .catch((error: Error) => {
                         console.log(`deleteDatasource failed with the error ${error}`);
@@ -230,7 +226,7 @@ const S2AReducer = createSlice({
             if(state.currentDatasource) {
                 storeController.editDatasourceColumns(state.currentDatasource, action.payload) 
                     .then(() => {
-                        dispatch(finishEdit());
+                        console.log("Edited datasource columns.");
                     })
                     .catch((error: Error) => {
                         console.log(`editDatasourceColumns failed with the error ${error}`);
@@ -255,7 +251,7 @@ const S2AReducer = createSlice({
             if(state.currentApp) {
                 storeController.createTableview(state.currentApp, action.payload.tableviewName, action.payload.datasource)
                     .then(() => {
-                        dispatch(finishCreation());
+                        console.log("Created tableview.");
                     })
                     .catch((error: Error) => {
                         console.log(`createTableview failed with the error ${error}`);
@@ -266,7 +262,7 @@ const S2AReducer = createSlice({
             if(state.currentTableviewToEdit) {
                 storeController.editTableview(action.payload) 
                     .then(() => {
-                        dispatch(finishEdit());
+                        console.log("Edited tableview.");
                     })
                     .catch((error: Error) => {
                         console.log(`editTableview failed with the error ${error}`);
@@ -277,7 +273,7 @@ const S2AReducer = createSlice({
             if(state.currentTableviewToDelete) {
                 storeController.deleteTableview(action.payload)
                     .then(() => {
-                        dispatch(finishDeletion());
+                        console.log("Deleted tableview.");
                     })
                     .catch((error: Error) => {
                         console.log(`deleteTableview failed with the error ${error}`);
@@ -302,7 +298,7 @@ const S2AReducer = createSlice({
             if(state.currentTableview) {
                 storeController.editTableviewColumns(state.currentTableview, action.payload.tableviewColumns, action.payload.filterColumn, action.payload.userFilterColumn)
                     .then(() => {
-                        dispatch(finishEdit());
+                        console.log("Edited tableview columns.");
                     })
                     .catch((error: Error) => {
                         console.log(`editTableviewColumns failed with the error ${error}`);
@@ -327,7 +323,7 @@ const S2AReducer = createSlice({
             if(state.currentTableview) {
                 storeController.editTableviewRoles(state.currentTableview, action.payload) 
                     .then(() => {
-                        dispatch(finishEdit());
+                        console.log("Edited tableview roles.")
                     })
                     .catch((error: Error) => {
                         console.log(`editTableviewRoles failed with the error ${error}`);
@@ -352,7 +348,7 @@ const S2AReducer = createSlice({
             if(state.currentApp) {
                 storeController.createDetailview(state.currentApp, action.payload.detailviewName, action.payload.datasource)
                     .then(() => {
-                        dispatch(finishCreation());
+                        console.log("Created detailview.");
                     })
                     .catch((error: Error) => {
                         console.log(`createDetailview failed with the error ${error}`);
@@ -363,7 +359,7 @@ const S2AReducer = createSlice({
             if(state.currentDetailviewToEdit) {
                 storeController.editDetailview(action.payload) 
                     .then(() => {
-                        dispatch(finishEdit());
+                        console.log("Edited detailview.");
                     })
                     .catch((error: Error) => {
                         console.log(`editDetailview failed with the error ${error}`);
@@ -374,7 +370,7 @@ const S2AReducer = createSlice({
             if(state.currentDetailviewToDelete) {
                 storeController.deleteDetailview(action.payload)
                     .then(() => {
-                        dispatch(finishDeletion());
+                        console.log("Deleted detailview.");
                     })
                     .catch((error: Error) => {
                         console.log(`deleteDetailview failed with the error ${error}`);
@@ -399,7 +395,7 @@ const S2AReducer = createSlice({
             if(state.currentDetailview) {
                 storeController.editDetailviewColumns(state.currentDetailview, action.payload.detailviewColumns, action.payload.editFilterColumn)
                     .then(() => {
-                        dispatch(finishEdit());
+                        console.log("Edited detailview columns.");
                     })
                     .catch((error: Error) => {
                         console.log(`editDetailviewColumns failed with the error ${error}`);
@@ -424,7 +420,7 @@ const S2AReducer = createSlice({
             if(state.currentDetailview) {
                 storeController.editDetailviewRoles(state.currentDetailview, action.payload) 
                     .then(() => {
-                        dispatch(finishEdit());
+                        console.log("Edited detailview roles.");
                     })
                     .catch((error: Error) => {
                         console.log(`editDetailviewRoles failed with the error ${error}`);
@@ -445,7 +441,7 @@ const S2AReducer = createSlice({
         setCurrentDetailview: (state, action: PayloadAction<Detailview>) => {
             state.currentDetailview = action.payload;
         },
-        setCurrentModalType: (state, action: PayloadAction<ModalType>) => {
+        setCurrentModalType: (state, action: PayloadAction<ModalType | null>) => {
             state.currentModalType = action.payload;
         },
 
@@ -481,13 +477,13 @@ const S2AReducer = createSlice({
         finishCreation: (state) => {
             state.currentModalType = null;
 
-            console.log("Finished/cancelled creation of resource..")
+            console.log("Finished/cancelled creation of resource.")
         },
         finishEdit: (state) => {    
-            state.currentAppToDelete = null;
-            state.currentDatasourceToDelete = null;
-            state.currentTableviewToDelete = null;
-            state.currentDetailviewToDelete = null;
+            state.currentAppToEdit = null;
+            state.currentDatasourceToEdit = null;
+            state.currentTableviewToEdit = null;
+            state.currentDetailviewToEdit = null;
             state.currentModalType = null;
 
             console.log("Finished/cancelled edit of resource.")
@@ -500,6 +496,36 @@ const S2AReducer = createSlice({
             state.currentModalType = null;
 
             console.log("Finished/cancelled deletion of resource.")
+        },
+        resetAll: (state) => {
+            state.devApps = [],
+            state.accApps = [],
+            state.datasources = [],
+            state.datasourceColumns = [],
+            state.tableviews = [],
+            state.tableviewColumns = [],
+            state.tableviewRoles = [],
+            state.detailviews = [],
+            state.detailviewColumns = [],
+            state.detailviewRoles = [],
+
+            state.currentApp = null,
+            state.currentDatasource = null,
+            state.currentTableview = null,
+            state.currentDetailview = null,
+            state.currentModalType = null,
+
+            state.currentAppToEdit = null,
+            state.currentDatasourceToEdit = null,
+            state.currentTableviewToEdit = null,
+            state.currentDetailviewToEdit = null,
+
+            state.currentAppToDelete = null,
+            state.currentDatasourceToDelete = null,
+            state.currentTableviewToDelete = null,
+            state.currentDetailviewToDelete = null
+
+            console.log("Complete reset of store state.")
         },
     }
 })
@@ -615,14 +641,14 @@ export const { viewDevApps, viewAccApps, createApp, editApp, deleteApp,
                setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
                markAppToEdit, markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
                markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
-               finishCreation, finishEdit, finishDeletion  
+               finishCreation, finishEdit, finishDeletion, resetAll
             } = S2AReducer.actions
 
-export const { showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal, addRecord } = webAppReducer.actions;
+export const { setCurrentView, addRecord, editRecord, deleteRecord, showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
 export interface StoreState {
-    s2aReducer: IS2AState, 
+    S2AReducer: IS2AState, 
     webAppReducer: IWebAppState
 }
 

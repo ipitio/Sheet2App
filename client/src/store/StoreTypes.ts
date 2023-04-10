@@ -60,11 +60,14 @@ export interface Role {
 }
 
 export enum ModalType {
+	/* S2A */
     CreateAppModal,
     DeleteAppModal,
     CreateDatasourceModal,
     CreateTableviewModal,
     CreateDetailviewModal,
+
+	/* User App */
     AddRecordModal,
     EditRecordModal,
     DeleteRecordModal

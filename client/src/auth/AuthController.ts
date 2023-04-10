@@ -4,6 +4,11 @@ global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 const jose = require('jose')
 
+const DJANGO_HOST = process.env.DJANGO_HOST;
+const DJANGO_PORT = process.env.DJANGO_PORT;
+const DJANGO_PROTOCOL = process.env.DJANGO_PROTOCOL;
+const DJANGO_URL = `${DJANGO_PROTOCOL}://${DJANGO_HOST}:${DJANGO_PORT}`;
+
 /**
  * Requests OAuth access/refresh tokens, and user email from backend server, then stores them as cookies.
  * @param {string} authCode - The authorization code provided by the GoogleLogin component on login.
@@ -22,7 +27,7 @@ async function getLoggedIn(authCode: string): Promise<void>{
     
     /* Send request and set tokens in response as cookies. */
     try {
-        const res = await fetch("http://localhost:8000/getLoggedIn", reqForm);
+        const res = await fetch(`${DJANGO_URL}/getLoggedIn`, reqForm);
         if(!res.ok)
             return Promise.reject("Request failed");
             
@@ -94,7 +99,7 @@ async function refreshAccess(): Promise <void> {
 
     /* Send request and set token in response as cookie. */
     try {
-        const res = await fetch("http://localhost:8000/refreshAccess", reqForm);
+        const res = await fetch(`${DJANGO_URL}/refreshAccess`, reqForm);
         if(!res.ok)
             return Promise.reject("Request failed");
             

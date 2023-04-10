@@ -27,7 +27,7 @@ function EditRecordModal() {
                         {
                             currentRecord?.data?.map((element) => {
                                 return (
-                                    <Box
+                                    <Box key={element}
                                         sx={{
                                             display: 'flex',
                                             flexDirection: 'row',

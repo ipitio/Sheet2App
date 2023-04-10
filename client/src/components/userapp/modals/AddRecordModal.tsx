@@ -25,7 +25,8 @@ function AddRecordModal() {
                     <DialogContentText>
                         {/** TODO: ENUMERATE THE EDITABLE COLUMNS AS FIELDS */}
                         {
-                            currentView?.columns?.map((column) => {
+                            /*
+                                currentView?.columns?.map((column) => {
                                 return (
                                     <Box
                                     sx={{
@@ -38,6 +39,7 @@ function AddRecordModal() {
                                 </Box>
                                 )
                             })
+                            */
                         }
                     </DialogContentText>
                     <DialogActions>

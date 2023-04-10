@@ -4,7 +4,8 @@ import { useDispatch} from 'react-redux';
 
 import { getLoggedOut } from '../../auth/AuthController';
 
-import { showCreateAppModal, hideS2AModal } from '../../store/StoreContext';
+import { setCurrentModalType } from '../../store/StoreContext';
+import { ModalType } from '../../store/StoreTypes';
 
 import styles from '../../styles/S2A/HomeNavBarStyles'
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, TextField } from '@mui/material';
@@ -20,14 +21,14 @@ function HomeNavBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     useEffect(() => {
-        dispatch(hideS2AModal());
+        dispatch(setCurrentModalType(null));
     }, []);
 
     /* Event handlers. */
 
     /* If the create app button is clicked. */
     const handleOpenModal = () => {
-        dispatch(showCreateAppModal());
+        dispatch(setCurrentModalType(ModalType.CreateAppModal));
     }
 
     /* If the navigational buttons are clicked. */

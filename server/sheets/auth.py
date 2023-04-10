@@ -1,23 +1,24 @@
 import os
 from http import HTTPStatus
-
-from dotenv import get_key
-from dotenv import load_dotenv
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 
+NODE_HOST = os.getenv('NODE_HOST')
+NODE_PORT = os.getenv('NODE_PORT')
+NODE_PROTOCOL = os.getenv('NODE_PROTOCOL')
+NODE_URL = f"{NODE_PROTOCOL}://{NODE_HOST}:{NODE_PORT}"
 
 def get_client_id_secret():
-    load_dotenv()
-    CLIENT_ID = os.getenv('CLIENT_ID')
-    CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+    CLIENT_ID = os.getenv('OAUTH_CLIENT_ID')
+    CLIENT_SECRET = os.getenv('OAUTH_CLIENT_SECRET')
 
     return CLIENT_ID, CLIENT_SECRET
 
 
 def oauth_login_user(auth_code):
     try:
-        os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # TODO sommehow fix this thing
+        if os.getenv('NODE_PROTOCOL') == 'http':
+            os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
         
         CLIENT_ID, CLIENT_SECRET = get_client_id_secret()
         CLIENT_CONFIG = {
@@ -37,7 +38,7 @@ def oauth_login_user(auth_code):
         flow = Flow.from_client_config(
             client_config=CLIENT_CONFIG,
             scopes=SCOPES,
-            redirect_uri="http://localhost:3000"
+            redirect_uri=f"{NODE_URL}"
         )
         
         flow.fetch_token(code=auth_code)
