@@ -181,6 +181,7 @@ def get_column_data(spreadsheet_id, sheet_id, columns) -> list:
             .batchGet(
                 spreadsheetId=spreadsheet_id,
                 ranges=ranges,
+                majorDimension="COLUMNS",
             )
             .execute()
         )
@@ -189,7 +190,7 @@ def get_column_data(spreadsheet_id, sheet_id, columns) -> list:
         # entry in the list represents a column of data
         column_data = []
         for values in result.get("valueRanges"):
-            column_data.append(values.get("values"))
+            column_data.extend(values.get("values"))
 
         return column_data
     except HttpError as err:

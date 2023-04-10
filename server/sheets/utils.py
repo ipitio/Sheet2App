@@ -29,3 +29,17 @@ def generate_row_data(row_data):
     
     # Return a list of parsable objects that represent a row of data within the spreadsheet.
     return values
+
+
+def get_spreadsheet_id(url):
+    # ex: https://docs.google.com/spreadsheets/d/1mxIVSQbNFoYjqtO2A5i-WBIrXtc7URaJdTBT5zpTO1A/edit#gid=0
+    split = url.split("/d/")
+    split = split[1].split("/")
+    
+    return split[0]
+
+
+def get_gid(url):
+    # ex: https://docs.google.com/spreadsheets/d/1mxIVSQbNFoYjqtO2A5i-WBIrXtc7URaJdTBT5zpTO1A/edit#gid=0
+    return url.split("gid=")[1]
+    

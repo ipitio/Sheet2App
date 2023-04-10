@@ -6,8 +6,9 @@ import json
 from http import HTTPStatus
 
 import mysql_db.queries as queries
-import sheets.sheets_api as sheets
+import sheets.sheets_api as sheets_api
 import sheets.auth as auth
+import sheets.utils
 
 from django.forms import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
@@ -46,7 +47,8 @@ def create_creator(request):
     email = body["email"]
 
     output, response_code = queries.create_creator(creator_email=email)
-    res_body = {"creator": output}
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -59,11 +61,13 @@ def create_app(request):
     body = json.loads(request.body)
     creator_email = body["email"]
     app_name = body["appName"]
+    role_mem_url = body.get("roleMemUrl", None)
 
     output, response_code = queries.create_app(
-        creator_email=creator_email, app_name=app_name
+        creator_email=creator_email, app_name=app_name, role_mem_url=role_mem_url
     )
-    res_body = {"app": output}
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -74,10 +78,33 @@ def create_app(request):
 @csrf_exempt
 def get_developable_apps(request):
     body = json.loads(request.body)
-    email = body["email"]
+    creator_email = body["email"]
+    
+    apps, response_code = queries.get_all_unpublished_apps_with_creator_email()
+    
+    developable_apps = []
+    for app in apps:
+        if app["creatorEmail"] == creator_email:
+            developable_apps.append(app)
+            continue
 
-    apps, response_code = queries.get_apps_by_email(creator_email=email)
-    res_body = {"apps": apps}
+        role_mem_url = app["role_mem_url"]
+        if role_mem_url == None:
+            continue
+        
+        spreadsheet_id = sheets.utils.get_spreadsheet_id(role_mem_url)
+        gid = sheets.utils.get_gid(role_mem_url)
+        
+        developers_col = ["A"]
+        developers_list = sheets_api.get_column_data(
+            spreadsheet_id=spreadsheet_id, sheet_id=gid, columns=developers_col
+        )[0]
+
+        if creator_email in developers_list[1:]:
+            developable_apps.append(app)
+            
+    
+    res_body = {"apps": developable_apps }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -91,30 +118,13 @@ def get_usable_apps(request):
 
 
 @csrf_exempt
-def edit_app_name(request):
+def edit_app(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
-    new_app_name = body["appName"]
+    app = body["app"]
 
-    output, response_code = queries.update_app(app_id=app_id, app_name=new_app_name)
-    res_body = {"app": output}
-    response = HttpResponse(
-        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
-    )
-
-    return response
-
-
-@csrf_exempt
-def edit_app_role_mem_url(request):
-    body = json.loads(request.body)
-    app_id = body["appID"]
-    new_role_mem_url = body["roleMemUrl"]
-
-    output, response_code = queries.update_app(
-        app_id=app_id, role_mem_url=new_role_mem_url
-    )
-    res_body = {"app": output}
+    output, response_code = queries.update_app(app=app)
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -128,7 +138,8 @@ def publish_app(request):
     app_id = body["appID"]
 
     output, response_code = queries.publish_app(app_id=app_id)
-    res_body = {"app": output}
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -139,10 +150,11 @@ def publish_app(request):
 @csrf_exempt
 def delete_app(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
+    app_id = body["app"]["id"]
 
     output, response_code = queries.delete_app(app_id=app_id)
-    res_body = {"app": output}
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -153,30 +165,35 @@ def delete_app(request):
 @csrf_exempt
 def create_datasource(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
-    spreadsheet_id = body["spreadsheetID"]
-    gid = body["gid"]
-    name = body["datasourceName"]
-
-    spreadsheet_headers = sheets.get_data(
-        spreadsheet_id=spreadsheet_id, sheet_id=gid, range="1:1", majorDimension="ROWS"
-    )
+    app_id = body["app"]["id"]
+    spreadsheet_url = body["spreadsheetUrl"]
+    sheetName = body["sheetName"]
+    datasource_name = body["datasourceName"]
+    
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    gid = sheets.utils.get_gid(spreadsheet_url)
 
     new_datasource, response_code = queries.create_datasource(
-        app_id=app_id, spreadsheet_id=spreadsheet_id, gid=gid, name=name
+        app_id=app_id, spreadsheet_url=spreadsheet_url, 
+        spreadsheet_id=spreadsheet_id, gid=gid, datasource_name=datasource_name
     )
 
     # Create all datasource columns from the datasource
-    datasource_id = new_datasource
-    # fix Object of type "None" is not subscriptable
-    #for column_index, header in enumerate(spreadsheet_headers[0]):
-    #    new_datasource_column, response_code = queries.create_datasource_column(
-    #        datasource_id=datasource_id, column_index=column_index, name=header
-    #    )
-    #    if response_code != HTTPStatus.OK:
-    #       break
+    spreadsheet_headers = sheets_api.get_data(
+        spreadsheet_id=spreadsheet_id, sheet_id=gid, range="1:1", majorDimension="ROWS"
+    )[0]
 
-    res_body = {"datasource": new_datasource}
+    datasource_id = new_datasource.id
+    for i, header in enumerate(spreadsheet_headers):
+        if header == '':
+            continue
+        
+        column, response_code = queries.create_datasource_column(
+            datasource_id=datasource_id, column_index=i, name=header
+        )
+    
+
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -187,9 +204,10 @@ def create_datasource(request):
 @csrf_exempt
 def get_app_datasources(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
+    app_id = body["app"]["id"]
 
     datasources, response_code = queries.get_datasources_by_app_id(app_id=app_id)
+    
     res_body = {"datasources": datasources}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -201,18 +219,11 @@ def get_app_datasources(request):
 @csrf_exempt
 def edit_datasource(request):
     body = json.loads(request.body)
-    datasource_id = body["datasourceKey"]
-    spreadsheet_id = body["spreadsheetID"]
-    gid = body["gid"]
-    name = body["datasourceName"]
+    datasource = body["datasource"]
 
-    output, response_code = queries.update_datasource(
-        datasource_id=datasource_id,
-        new_spreadsheet_id=spreadsheet_id,
-        new_gid=gid,
-        new_name=name,
-    )
-    res_body = {"datasource": output}
+    output, response_code = queries.update_datasource(datasource=datasource)
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -223,11 +234,11 @@ def edit_datasource(request):
 @csrf_exempt
 def delete_datasource(request):
     body = json.loads(request.body)
-    datasource_id = body["datasourceKey"]
+    datasource_id = body["datasource"]["id"]
 
     output, response_code = queries.delete_datasource(datasource_id=datasource_id)
-    res_body = {"datasource": output}
-
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -235,26 +246,27 @@ def delete_datasource(request):
     return response
 
 
-def edit_datasource_column(request):
+def get_datasource_columns(request):
     body = json.loads(request.body)
-    datasource_id = body["datasourceKey"]
-    datasource_column_id = body["columnKey"]
-    new_name = body["column"]["name"]
-    new_initial_value = body["column"]["initialValue"]
-    new_is_label = body["column"]["label"]
-    new_is_reference = body["column"]["reference"]
-    new_type = body["column"]["type"]
+    datasource_id = body["datasource"]["id"]
+    
+    columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource_id)
 
-    output, response_code = queries.update_datasource_column(
-        datasource_column_id=datasource_column_id,
-        new_name=new_name,
-        new_initial_value=new_initial_value,
-        new_is_link_text=new_is_label,
-        new_is_table_ref=new_is_reference,
-        new_value_type=new_type,
+    res_body = { "datasourceColumns": columns }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
 
-    res_body = {"datasource": output}
+    return response
+
+
+def edit_datasource_columns(request):
+    body = json.loads(request.body)
+    columns = body["datasourceColumns"]
+    # TODO create / delete corresponding TableViewViewableColumn and DetailViewEditableColumns 
+    output, response_code = queries.update_datasource_column(columns=columns)
+
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -285,6 +297,20 @@ def edit_table_view(request):
     output, response_code = queries.update_table_view(
         table_view_id=table_view_id, datasource_id=datasource_id, name=name
     )
+
+    res_body = {"tableView": output}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def get_app_table_views(request):
+    body = json.loads(request.body)
+    app_id = body["app"]["id"]
+
+    output, response_code = queries.update_table_view()
 
     res_body = {"tableView": output}
     response = HttpResponse(

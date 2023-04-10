@@ -4,6 +4,9 @@ from django.core.serializers import serialize
 from http import HTTPStatus
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.db.models import F
+
+import sheets.utils
 
 
 # Create
@@ -27,7 +30,7 @@ def create_creator(creator_email):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_app(creator_email, app_name):
+def create_app(creator_email, app_name, role_mem_url):
     """
     Creates a new entry in the App table
 
@@ -38,9 +41,9 @@ def create_app(creator_email, app_name):
         _type_: _description_
     """
     try:
-        creator, created = Creator.objects.get_or_create(email=creator_email)
+        creator = Creator.objects.get(email=creator_email)
         new_app = Application.objects.create(
-            creator=creator.id, name=app_name, role_mem_url=None, is_published=False
+            creator=creator, name=app_name, role_mem_url=role_mem_url, is_published=False
         )
 
         return new_app, HTTPStatus.OK
@@ -48,14 +51,16 @@ def create_app(creator_email, app_name):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_datasource(app_id, spreadsheet_id, gid, name):
+def create_datasource(app_id, spreadsheet_url, spreadsheet_id, gid, datasource_name):
     try:
         new_datasource = Datasource.objects.create(
-            app=app_id, spreadsheet_id=spreadsheet_id, gid=gid, name=name
+            app_id=app_id, spreadsheet_url=spreadsheet_url, 
+            spreadsheet_id=spreadsheet_id, gid=gid, name=datasource_name
         )
-
+        
         return new_datasource, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -67,7 +72,7 @@ def create_datasource_column(datasource_id, column_index, name):
         new_datasource_column = {}
         if not exists:
             new_datasource_column = DatasourceColumn.objects.create(
-                datasource=datasource_id,
+                datasource_id=datasource_id,
                 column_index=column_index,
                 name=name,
                 initial_value="",
@@ -78,8 +83,10 @@ def create_datasource_column(datasource_id, column_index, name):
                 is_user_filter=False,
                 is_edit_filter=False,
             )
+        print(new_datasource_column)
         return new_datasource_column, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -169,7 +176,7 @@ def get_creator(creator_email):
         _type_: _description_
     """
     try:
-        creator = Creator.objects.get(email=creator_email)
+        creator = Creator.objects.filter(email=creator_email).values()[0]
         return creator, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
@@ -202,6 +209,24 @@ def get_apps_by_email(creator_email):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+def get_all_unpublished_apps_with_creator_email():
+    try:
+        apps = Application.objects.filter(is_published=False).values(
+            'id', 'name', 'creator_id__email', "role_mem_url", "is_published"
+        )
+        
+        apps = apps.annotate(
+            roleMemUrl=F("role_mem_url"), 
+            isPublished=F("is_published"), 
+            creatorEmail=F("creator_id__email")
+        )
+        
+        return apps, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 def get_datasource_by_id(datasource_id):
     """
     Gets a datasource
@@ -220,10 +245,18 @@ def get_datasource_by_id(datasource_id):
 
 def get_datasources_by_app_id(app_id):
     try:
-        # TODO FIX
-        datasources = Datasource.objects.filter(app=app_id)
+        datasources = Datasource.objects.filter(app=app_id).values(
+            "id", "name", "spreadsheet_url", "gid"
+        )
+        datasources = datasources.annotate(
+            spreadsheetUrl=F("spreadsheet_url"),
+            sheetName=F("gid")
+        )
+        datasources = list(datasources)
+        
         return datasources, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -290,6 +323,26 @@ def get_table_view_perms_for_role_by_table_view_id(table_view_id, role):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+def get_datasource_columns_by_datasource_id(datasource_id):
+    try:
+        datasource_columns = DatasourceColumn.objects.filter(datasource_id=datasource_id).values()
+        datasource_columns = datasource_columns.annotate(
+            initialValue=F("initial_value"),
+            isLabel=F("is_link_text"),
+            isRef=F("is_table_ref"),
+            type=F("value_type"),
+            isFilter=F("is_filter"),
+            isUserFilter=F("is_user_filter"),
+            isEditFilter=F("is_edit_filter")
+        )
+        datasource_columns = list(datasource_columns)
+        
+        return datasource_columns, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 def get_datasource_columns_by_table_view_id(table_view_id):
     try:
         datasource = TableView.objects.get(id=table_view_id).datasource
@@ -311,8 +364,18 @@ def get_datasource_columns_by_table_view_id_and_role(table_view_id, role):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+def get_table_views_by_app_id(app_id):
+    try:
+        table_views = TableView
+        
+        return table_views, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 # Update
-def update_app(app_id, app_name=None, role_mem_url=None):
+def update_app(app):
     """
     Updates an app
 
@@ -324,11 +387,10 @@ def update_app(app_id, app_name=None, role_mem_url=None):
         tuple: output of the query, 200 if query was successful, 500 if not
     """
     try:
-        app = Application.objects.get(id=app_id)
-        if app_name != None:
-            app.name = app_name
-        if role_mem_url != None:
-            app.role_mem_url = role_mem_url
+        app_id = app["id"]
+        updated_app = Application.objects.get(id=app_id)
+        updated_app.name = app["name"]
+        updated_app.role_mem_url = app["roleMemUrl"]
         app.save()
 
         return app, HTTPStatus.OK
@@ -336,51 +398,37 @@ def update_app(app_id, app_name=None, role_mem_url=None):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_datasource(datasource_id, new_spreadsheet_id, new_gid, new_name):
+def update_datasource(datasource):
     try:
-        datasource = Datasource.objects.get(id=datasource_id)
-        datasource.spreadsheet_id = new_spreadsheet_id
-        datasource.gid = new_gid
-        datasource.name = new_name
-        datasource.save()
+        updated_datasource = Datasource.objects.get(id=datasource["id"])
+        updated_datasource.spreadsheet_url = datasource["spreadsheetUrl"]
+        updated_datasource.spreadsheet_id = sheets.utils.get_spreadsheet_id(datasource["spreadsheetUrl"])
+        updated_datasource.name = datasource["name"]
+        updated_datasource.save()
 
         return datasource, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_datasource_column(
-    datasource_column_id,
-    new_name,
-    new_initial_value,
-    new_is_link_text,
-    new_is_table_ref,
-    new_value_type,
-):
-    """
-    Updates a datasource column
-
-    Args:
-        datasource_column_id (int): the id of the datasource column
-        new_name (string): the new name of the datasource column
-        new_initial_value (string): the new initial value of the datasource column
-        new_is_link_text (boolean): the new is link text of the datasource column
-        new_is_table_ref (boolean): the new is table ref of the datasource column
-        new_value_type (string): the new value type of the datasource column
-    Returns:
-        _type_: _description_
-    """
+def update_datasource_columns(columns):
     try:
-        datasource_column = DatasourceColumn.objects.get(id=datasource_column_id)
-        datasource_column.name = new_name
-        datasource_column.initial_value = new_initial_value
-        datasource_column.is_link_text = new_is_link_text
-        datasource_column.is_table_ref = new_is_table_ref
-        datasource_column.value_type = new_value_type
-        datasource_column.save()
+        for column in columns:
+            updated_column = DatasourceColumn.objects.get(id=column["id"])
+            updated_column.name = column["name"]
+            updated_column.initial_value = column["initialValue"]
+            updated_column.is_link_text = column["isLabel"]
+            updated_column.is_table_ref = column["isRef"]
+            updated_column.value_type = column["type"]
+            
+            updated_column.is_filter = column["isFilter"]
+            updated_column.is_user_filter = column["isUserFilter"]
+            updated_column.is_edit_filter = column["isEditFilter"]
+            updated_column.save()
 
-        return datasource_column, HTTPStatus.OK
+        return {}, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
