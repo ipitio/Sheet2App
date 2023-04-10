@@ -50,7 +50,6 @@ class DetailView(models.Model):
     app = models.ForeignKey(Application, on_delete=models.CASCADE)
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
-    record_index = models.IntegerField()
     can_view = models.BooleanField()
     can_edit = models.BooleanField()
 
