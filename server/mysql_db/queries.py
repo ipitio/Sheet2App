@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.models import F
 
+import mysql_db.utils
 import sheets.utils
 
 
@@ -210,12 +211,7 @@ def get_all_unpublished_apps_with_creator_email():
         apps = Application.objects.filter(is_published=False).values(
             'id', 'name', 'creator_id__email', "role_mem_url", "is_published"
         )
-        
-        apps = apps.annotate(
-            roleMemUrl=F("role_mem_url"), 
-            isPublished=F("is_published"), 
-            creatorEmail=F("creator_id__email")
-        )
+        apps = mysql_db.utils.annotate_apps(apps)
         
         return apps, HTTPStatus.OK
     except Exception as e:
@@ -244,10 +240,7 @@ def get_datasources_by_app_id(app_id):
         datasources = Datasource.objects.filter(app=app_id).values(
             "id", "name", "spreadsheet_url", "gid"
         )
-        datasources = datasources.annotate(
-            spreadsheetUrl=F("spreadsheet_url"),
-            sheetName=F("gid")
-        )
+        datasources = mysql_db.utils.annotate_datasources(datasources)
         datasources = list(datasources)
         
         return datasources, HTTPStatus.OK
@@ -262,10 +255,7 @@ def get_datasource_by_table_view_id(table_view_id):
         datasource = Datasource.objects.filter(id=table.datasource_id).values(
             "id", "name", "spreadsheet_url", "gid"
         )[0]
-        datasources = datasources.annotate(
-            spreadsheetUrl=F("spreadsheet_url"),
-            sheetName=F("gid")
-        )
+        datasource = mysql_db.utils.annotate_datasources(datasource)
 
         return datasource, HTTPStatus.OK
     except Exception as e:
@@ -276,15 +266,7 @@ def get_datasource_by_table_view_id(table_view_id):
 def get_datasource_columns_by_datasource_id(datasource_id):
     try:
         datasource_columns = DatasourceColumn.objects.filter(datasource_id=datasource_id).values()
-        datasource_columns = datasource_columns.annotate(
-            initialValue=F("initial_value"),
-            isLabel=F("is_link_text"),
-            isRef=F("is_table_ref"),
-            type=F("value_type"),
-            isFilter=F("is_filter"),
-            isUserFilter=F("is_user_filter"),
-            isEditFilter=F("is_edit_filter")
-        )
+        datasource_columns = mysql_db.utils.annotate_datasource_columns(datasource_columns)
         datasource_columns = list(datasource_columns)
         
         return datasource_columns, HTTPStatus.OK
@@ -293,36 +275,10 @@ def get_datasource_columns_by_datasource_id(datasource_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def get_datasource_columns_by_table_view_id(table_view_id):
-    try:
-        datasource = TableView.objects.get(id=table_view_id).datasource
-        datasource_columns = DatasourceColumn.objects.filter(datasource=datasource)
-
-        return datasource_columns, HTTPStatus.OK
-    except Exception as e:
-        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
-def get_datasource_columns_by_table_view_id_and_role(table_view_id, role):
-    try:
-        perm = TableViewPerm.objects.get(table_view=table_view_id, role=role)
-        datasource_columns = DatasourceColumn.objects.filter(
-            datasource=perm.table_view.datasource
-        )
-        return datasource_columns, HTTPStatus.OK
-    except Exception as e:
-        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
 def get_table_views_by_app_id(app_id):
     try:
         table_views = TableView.objects.filter(app_id=app_id).values()
-        table_views = table_views.annotate(
-            canView=F("can_view"),
-            canAdd=F("can_add"),
-            canDelete=F("can_delete")
-        )
-        
+        table_views = mysql_db.utils.annotate_table_views(table_views)
         table_views = list(table_views)
         
         return table_views, HTTPStatus.OK
@@ -337,6 +293,19 @@ def get_roles_for_table_view(table_view_id):
         roles = [perm["role"] for perm in table_view_perms]
         
         return roles, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_table_view_viewable_columns(table_view_id):
+    try:
+        columns = DatasourceColumn.objects.filter(tableviewviewablecolumn__table_view_id=table_view_id)
+        columns = columns.values()
+        columns = mysql_db.utils.annotate_datasource_columns(columns)
+        columns = list(columns)
+
+        return {}, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR

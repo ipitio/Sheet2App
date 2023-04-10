@@ -25,5 +25,7 @@ urlpatterns = [
     path('getAppTableviews', views.get_app_table_views),
     path('deleteTableview', views.delete_table_view),
     
+    path('getTableviewColumns', views.get_table_view_columns),
+    
     path('addRecord', views.add_record),
 ]

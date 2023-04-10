@@ -347,6 +347,20 @@ def delete_table_view(request):
     return response
 
 
+def get_table_view_columns(request):
+    body = json.loads(request.body)
+    table_view_id = body["tableview"]["id"]
+
+    columns, response_code = queries.get_table_view_viewable_columns(table_view_id=table_view_id)
+
+    res_body = { "tableviewColumns": columns }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
 def add_record(request):
     body = json.loads(request.body)
     table_view_id = body["viewID"]
