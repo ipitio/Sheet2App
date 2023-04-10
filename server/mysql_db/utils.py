@@ -49,3 +49,10 @@ def annotate_table_views(table_views):
         canDelete=F("can_delete")
     )
     return table_views
+
+
+def annotate_detail_views(detail_views):
+    detail_views = detail_views.annotate(
+        canView=F("can_view"),
+        canEdit=F("can_edit")
+    )

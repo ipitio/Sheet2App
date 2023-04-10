@@ -433,12 +433,25 @@ def get_app_detail_views(request):
 
     detail_views, response_code = queries.get_detail_views_by_app_id(app_id=app_id)
 
-    res_body = { "detailviews": detail_views }
+    detail_view_store_objs = []
+    for detail_view in detail_views:
+        detail_view_obj = detail_view
+        
+        datasource, response_code = queries.get_datasource_by_detail_view_id(detail_view["id"])
+        roles, response_code = queries.get_roles_for_detail_view(detail_view["id"])
+        
+        detail_view_obj["datasource"] = datasource
+        detail_view_obj["roles"] = roles
+        
+        detail_view_store_objs.append(detail_view_obj)
+
+    res_body = { "detailviews": detail_view_store_objs }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
 
     return response
+
 
 def add_record(request):
     body = json.loads(request.body)

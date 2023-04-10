@@ -285,6 +285,20 @@ def get_datasource_by_table_view_id(table_view_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+def get_datasource_by_detail_view_id(detail_view_id):
+    try:
+        detail_view = DetailView.objects.get(id=detail_view_id)
+        datasource = Datasource.objects.filter(id=detail_view.datasource_id).values(
+            "id", "name", "spreadsheet_url", "gid"
+        )[0]
+        datasource = mysql_db.utils.annotate_datasources(datasource)
+
+        return datasource, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 def get_datasource_columns_by_datasource_id(datasource_id):
     try:
         datasource_columns = DatasourceColumn.objects.filter(datasource_id=datasource_id).values()
@@ -340,6 +354,17 @@ def get_detail_views_by_app_id(app_id):
         detail_views = list(detail_views)
         
         return detail_views, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_roles_for_detail_view(detail_view_id):
+    try:
+        detail_view_perms = DetailViewPerm.objects.filter(detail_view_id=detail_view_id).values()
+        roles = [perm["role"] for perm in detail_view_perms]
+        
+        return roles, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
