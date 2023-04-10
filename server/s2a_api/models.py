@@ -38,6 +38,7 @@ class DatasourceColumn(models.Model):
     
 
 class TableView(models.Model):
+    app = models.ForeignKey(Application, on_delete=models.CASCADE)
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
     can_view = models.BooleanField()
