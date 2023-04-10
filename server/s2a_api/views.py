@@ -276,11 +276,15 @@ def edit_datasource_columns(request):
 
 def create_table_view(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
+    app_id = body["app"]["id"]
+    table_view_name = body["tableviewName"]
+    datasource_id = body["datasource"]["id"]
 
-    output, response_code = queries.create_table_view(app_id=app_id)
+    output, response_code = queries.create_table_view(
+        table_view_name=table_view_name, datasource_id=datasource_id
+    )
 
-    res_body = {"tableView": output}
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -290,15 +294,11 @@ def create_table_view(request):
 
 def edit_table_view(request):
     body = json.loads(request.body)
-    table_view_id = body["tableViewId"]
-    datasource_id = body["datasourceId"]
-    name = body["name"]
+    table_view = body["tableview"]
 
-    output, response_code = queries.update_table_view(
-        table_view_id=table_view_id, datasource_id=datasource_id, name=name
-    )
+    output, response_code = queries.update_table_view(table_view=table_view)
 
-    res_body = {"tableView": output}
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -335,11 +335,11 @@ def get_app_table_views(request):
 
 def delete_table_view(request):
     body = json.loads(request.body)
-    table_view_id = body["tableViewId"]
+    table_view_id = body["tableview"]["id"]
 
     output, response_code = queries.delete_table_view(table_view_id=table_view_id)
 
-    res_body = {"tableView": output}
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )

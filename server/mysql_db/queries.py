@@ -90,20 +90,16 @@ def create_datasource_column(datasource_id, column_index, name):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_table_view(app_id):
-    """
-    Creates a new entry in the TableView table
-
-    Args:
-        app_id (int): the id of the app
-    Returns:
-        _type_: _description_
-    """
+def create_table_view(table_view_name, datasource_id):
     try:
-        new_table_view = TableView.objects.create(app_id=app_id)
+        new_table_view = TableView.objects.create(
+            datasource_id=datasource_id, name=table_view_name, 
+            can_view=True, can_add=True, can_delete=True
+        )
 
         return new_table_view, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -404,15 +400,19 @@ def update_datasource_columns(columns):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_table_view(table_view_id, datasource_id, name):
+def update_table_view(table_view):
     try:
-        table_view = TableView.objects.get(id=table_view_id)
-        table_view.datasource = datasource_id
-        table_view.name = name
-        table_view.save()
+        updated_table_view = TableView.objects.get(id=table_view["id"])
+        updated_table_view.datasource = table_view["datasource_id"]
+        updated_table_view.name = table_view["name"]
+        updated_table_view.can_view = table_view["canView"]
+        updated_table_view.can_add = table_view["canAdd"]
+        updated_table_view.can_delete = table_view["canDelete"]
+        updated_table_view.save()
 
         return table_view, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -472,18 +472,10 @@ def delete_datasource_column(datasource_column_id):
 
 
 def delete_table_view(table_view_id):
-    """
-    Deletes a view
-
-    Args:
-        table_view_id (int): the id of the view
-    Returns:
-        _type_: _description_
-    """
     try:
-        view = TableView.objects.get(id=table_view_id)
-        view.delete()
+        table_view = TableView.objects.get(id=table_view_id)
+        table_view.delete()
 
-        return None, HTTPStatus.OK
+        return {}, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
