@@ -453,6 +453,20 @@ def get_app_detail_views(request):
     return response
 
 
+def edit_detail_view(request):
+    body = json.loads(request.body)
+    detail_view = body["detailview"]
+
+    output, response_code = queries.update_detail_view(detail_view=detail_view)
+
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
 def add_record(request):
     body = json.loads(request.body)
     table_view_id = body["viewID"]

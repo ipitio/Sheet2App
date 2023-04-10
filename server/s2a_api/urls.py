@@ -33,6 +33,7 @@ urlpatterns = [
     
     path('createDetailview', views.create_detail_view),
     path('getAppDetailviews', views.get_app_detail_views),
+    path('editDetailview', views.edit_detail_view),
     
     path('addRecord', views.add_record),
 ]

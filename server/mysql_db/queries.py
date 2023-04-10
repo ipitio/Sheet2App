@@ -431,14 +431,14 @@ def update_datasource_columns(columns):
 def update_table_view(table_view):
     try:
         updated_table_view = TableView.objects.get(id=table_view["id"])
-        updated_table_view.datasource = table_view["datasource_id"]
+        updated_table_view.datasource_id = table_view["datasource_id"]
         updated_table_view.name = table_view["name"]
         updated_table_view.can_view = table_view["canView"]
         updated_table_view.can_add = table_view["canAdd"]
         updated_table_view.can_delete = table_view["canDelete"]
         updated_table_view.save()
 
-        return table_view, HTTPStatus.OK
+        return {}, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
@@ -485,6 +485,21 @@ def update_table_view_role_perms(table_view_id, roles):
                 table_view_id=table_view_id, role=role_name
             )
             
+        return {}, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def update_detail_view(detail_view):
+    try:
+        update_detail_view = DetailView.objects.get(id=detail_view["id"])
+        update_detail_view.datasource_id = detail_view["datasource_id"]
+        update_detail_view.name = detail_view["name"]
+        update_detail_view.can_view = detail_view["canView"]
+        update_detail_view.can_edit = detail_view["canEdit"]
+        update_detail_view.save()
+        
         return {}, HTTPStatus.OK
     except Exception as e:
         print(e)
