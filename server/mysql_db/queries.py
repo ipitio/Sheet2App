@@ -364,6 +364,16 @@ def get_datasource_columns_by_table_view_id_and_role(table_view_id, role):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+def get_table_views_by_app_id(app_id):
+    try:
+        table_views = TableView
+        
+        return table_views, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 # Update
 def update_app(app):
     """

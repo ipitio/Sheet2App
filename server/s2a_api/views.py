@@ -306,6 +306,20 @@ def edit_table_view(request):
     return response
 
 
+def get_app_table_views(request):
+    body = json.loads(request.body)
+    app_id = body["app"]["id"]
+
+    output, response_code = queries.update_table_view()
+
+    res_body = {"tableView": output}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
 def get_views_by_app_id(request):
     body = json.loads(request.body)
     app_id = body["appID"]
