@@ -508,14 +508,6 @@ def update_detail_view(detail_view):
 
 # Delete
 def delete_app(app_id):
-    """
-    Deletes an app
-
-    Args:
-        app_id (int): the id of the app
-    Returns:
-        _type_: _description_
-    """
     try:
         app = Application.objects.get(id=app_id)
         app.delete()
@@ -526,14 +518,6 @@ def delete_app(app_id):
 
 
 def delete_datasource(datasource_id):
-    """
-    Deletes a datasource
-
-    Args:
-        datasource_id (int): the id of the datasource
-    Returns:
-        _type_: _description_
-    """
     try:
         datasource = Datasource.objects.get(id=datasource_id)
         datasource.delete()
@@ -544,14 +528,6 @@ def delete_datasource(datasource_id):
 
 
 def delete_datasource_column(datasource_column_id):
-    """
-    Deletes a datasource column
-
-    Args:
-        datasource_column_id (int): the id of the datasource column
-    Returns:
-        _type_: _description_
-    """
     try:
         datasource_column = DatasourceColumn.objects.get(id=datasource_column_id)
         datasource_column.delete()
@@ -565,6 +541,16 @@ def delete_table_view(table_view_id):
     try:
         table_view = TableView.objects.get(id=table_view_id)
         table_view.delete()
+
+        return {}, HTTPStatus.OK
+    except Exception as e:
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def delete_detail_view(detail_view_id):
+    try:
+        detail_view = DetailView.objects.get(id=detail_view_id)
+        detail_view.delete()
 
         return {}, HTTPStatus.OK
     except Exception as e:
