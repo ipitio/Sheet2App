@@ -263,63 +263,17 @@ def get_datasources_by_app_id(app_id):
 def get_datasource_by_table_view_id(table_view_id):
     try:
         table = TableView.objects.get(id=table_view_id)
-        datasource = Datasource.objects.get(id=table.datasource.id)
+        datasource = Datasource.objects.filter(id=table.datasource_id).values(
+            "id", "name", "spreadsheet_url", "gid"
+        )[0]
+        datasources = datasources.annotate(
+            spreadsheetUrl=F("spreadsheet_url"),
+            sheetName=F("gid")
+        )
 
         return datasource, HTTPStatus.OK
     except Exception as e:
-        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
-def get_datasource_column(datasource_column_id):
-    """
-    Gets a datasource column
-
-    Args:
-        datasource_column_id (int): the id of the datasource column
-    Returns:
-        _type_: _description_
-    """
-    try:
-        datasource_column = DatasourceColumn.objects.get(id=datasource_column_id)
-        return datasource_column, HTTPStatus.OK
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def get_views_by_app_id(app_id, role):
-    try:
-        views = TableView.objects.filter(app=app_id)
-        views = views.values()
-
-        return views, HTTPStatus.OK
-    except Exception as e:
-        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
-def get_table_view_by_id(table_view_id):
-    """
-    Gets a view
-
-    Args:
-        table_view_id (int): the id of the view
-    Returns:
-        _type_: _description_
-    """
-    try:
-        table_view = TableView.objects.get(id=table_view_id)
-        return table_view, HTTPStatus.OK
-    except Exception as e:
-        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
-def get_table_view_perms_for_role_by_table_view_id(table_view_id, role):
-    try:
-        table_view_perm = TableViewPerm.objects.filter(
-            table_view=table_view_id, role=role
-        )
-
-        return table_view_perm, HTTPStatus.OK
-    except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -366,9 +320,27 @@ def get_datasource_columns_by_table_view_id_and_role(table_view_id, role):
 
 def get_table_views_by_app_id(app_id):
     try:
-        table_views = TableView
+        table_views = TableView.objects.filter(app_id=app_id).values()
+        table_views = table_views.annotate(
+            canView=F("can_view"),
+            canAdd=F("can_add"),
+            canDelete=F("can_delete")
+        )
+        
+        table_views = list(table_views)
         
         return table_views, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def get_roles_for_table_view(table_view_id):
+    try:
+        table_view_perms = TableViewPerm.objects.filter(table_view_id=table_view_id).values()
+        roles = [perm["role"] for perm in table_view_perms]
+        
+        return roles, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR

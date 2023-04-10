@@ -263,7 +263,7 @@ def get_datasource_columns(request):
 def edit_datasource_columns(request):
     body = json.loads(request.body)
     columns = body["datasourceColumns"]
-    # TODO create / delete corresponding TableViewViewableColumn and DetailViewEditableColumns 
+
     output, response_code = queries.update_datasource_column(columns=columns)
 
     res_body = {}
@@ -310,73 +310,22 @@ def get_app_table_views(request):
     body = json.loads(request.body)
     app_id = body["app"]["id"]
 
-    output, response_code = queries.update_table_view()
+    table_views, response_code = queries.get_table_views_by_app_id(app_id=app_id)
+    
+    table_view_store_objs = []
+    for table_view in table_views:
+        table_view_obj = table_view
+        
+        datasource, response_code = queries.get_datasource_by_table_view_id(table_view["id"])
+        roles, response_code = queries.get_roles_for_table_view(table_view["id"])
+        
+        table_view_obj["datasource"] = datasource
+        table_view_obj["roles"] = roles
+        
+        table_view_store_objs.append(table_view_obj)
+        
 
-    res_body = {"tableView": output}
-    response = HttpResponse(
-        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
-    )
-
-    return response
-
-
-def get_views_by_app_id(request):
-    body = json.loads(request.body)
-    app_id = body["appID"]
-    role = body["role"]
-
-    table_view_data, response_code = queries.get_views_by_app_id(app_id=app_id)
-
-    # For each view associated with the app, get the data in the corresponding spreadsheet,
-    # get the can view, add, and delete bools for the given role, get the list of columns the
-    # role can edit for this table
-    views = []
-    for table_view in table_view_data:
-        table_view_id = table_view["id"]
-
-        datasource, response_code = queries.get_datasource_by_table_view_id()
-        spreadsheet_id = datasource.spreadsheet_id
-        gid = datasource.gid
-
-        # Retrieve the spreadsheet data for all viewable columns in the table_view
-        displayed_column_indexes = [
-            column.column_index
-            for column in queries.get_datasource_columns_by_table_view_id()[0]
-        ]
-        sheet_data = sheets.get_column_data(
-            spreadsheet_id=spreadsheet_id,
-            sheet_id=gid,
-            columns=displayed_column_indexes,
-        )
-
-        (
-            table_view_perms,
-            response_code,
-        ) = queries.get_table_view_perms_for_role_by_table_view_id(
-            table_view_id=table_view_id, role=role
-        )
-
-        # Get the columns that the given role is able to edit on this table
-        # Pick the first detail view that is associated with this table_view_id AND the given role
-        # find the columns that the detail view can edit
-        editable_columns, response_code = [
-            column.column_index
-            for column in queries.get_datasource_columns_by_table_view_id_and_role(
-                table_view_id=table_view_id, role=role
-            )[0]
-        ]
-        views.append(
-            {
-                "data": sheet_data,
-                "id": table_view.id,
-                "role_can_view": table_view_perms.can_view,
-                "role_can_add": table_view_perms.can_add,
-                "role_can_delete": table_view_perms.can_delete,
-                "editable_column_indexes": editable_columns,
-            }
-        )
-
-    res_body = {"views": views}
+    res_body = {"tableviews": table_view_store_objs}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
