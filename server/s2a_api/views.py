@@ -392,6 +392,23 @@ def get_table_view_roles(request):
     return response
 
 
+def edit_table_view_roles(request):
+    body = json.loads(request.body)
+    table_view_id = body["tableview"]["id"]
+    roles = body["tableviewRoles"]
+
+    output, response_code = queries.update_table_view_role_perms(
+        table_view_id=table_view_id, roles=roles
+    )
+
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
 def add_record(request):
     body = json.loads(request.body)
     table_view_id = body["viewID"]
