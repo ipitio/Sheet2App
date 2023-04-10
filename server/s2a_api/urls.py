@@ -20,10 +20,10 @@ urlpatterns = [
     
     path('editDatasourceColumns', views.edit_datasource_columns),
     
-    path('createTableView', views.create_table_view),
-    path('editTableView', views.edit_table_view),
+    path('createTableview', views.create_table_view),
+    path('editTableview', views.edit_table_view),
     path('getAppTableviews', views.get_app_table_views),
-    path('deleteTableView', views.delete_table_view),
+    path('deleteTableview', views.delete_table_view),
     
     path('addRecord', views.add_record),
 ]
