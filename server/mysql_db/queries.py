@@ -97,6 +97,17 @@ def create_table_view(table_view_name, datasource_id):
             datasource_id=datasource_id, name=table_view_name, 
             can_view=True, can_add=True, can_delete=True
         )
+        
+        # By default all columns of the datasource the table view uses are viewable
+        table_view_id = new_table_view.id
+        columns = DatasourceColumn.objects.filter(datasource_id=datasource_id).values()
+        
+        for column in columns:
+            column_id = column["id"]
+            viewable_column = TableViewViewableColumn.objects.create(
+                table_view_id=table_view_id,
+                datasource_column_id=column_id
+            )
 
         return new_table_view, HTTPStatus.OK
     except Exception as e:
@@ -380,6 +391,34 @@ def update_table_view(table_view):
         updated_table_view.save()
 
         return table_view, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def update_table_view_viewable_columns(table_view_id, columns):
+    try:
+        for column in columns:
+            column_id = column["id"]
+            viewable = column["viewable"]
+            
+            column_to_update = Datasource.objects.get(id=column_id)
+            exists_in_viewable_cols = TableViewViewableColumn.objects.exists(
+                table_view_id=table_view_id, datasource_column_id=column_id
+            )
+            
+            if viewable and not exists_in_viewable_cols:
+                viewable_column = TableViewViewableColumn.objects.create(
+                    table_view_id=table_view_id, datasource_column_id=column_id
+                )
+            elif not viewable and exists_in_viewable_cols:
+                entry = TableViewViewableColumn.objects.get(
+                    table_view_id=table_view_id, datasource_column_id=column_id
+                )
+                entry.delete()
+                
+
+        return {}, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR

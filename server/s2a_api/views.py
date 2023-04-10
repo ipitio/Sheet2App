@@ -363,9 +363,12 @@ def get_table_view_columns(request):
 
 def edit_table_view_columns(request):
     body = json.loads(request.body)
+    table_view_id = body["tableview"]["id"]
     columns = body["tableviewColumns"]
 
-    output, response_code = queries.update_datasource_columns(columns=columns)
+    output, response_code = queries.update_table_view_viewable_columns(
+        table_view_id=table_view_id, columns=columns
+    )
 
     res_body = {}
     response = HttpResponse(
