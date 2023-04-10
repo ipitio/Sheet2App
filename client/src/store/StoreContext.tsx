@@ -24,6 +24,12 @@ export interface IS2AState {
     /* An array of tableview columns belonging to the current tableview. Set when navigating onto edit tableview columns screen. */
     tableviewColumns: Column[],
 
+    /* An array of boolean values representing the filter column belonging to a tableview. */
+    filterColumn: boolean[],
+
+    /* An array of string values representing the user filter column belonging to a tableview. */
+    userFilterColumn: string[],
+
     /* An array of tableview roles belonging to the current tableview. Set when navigating onto edit tableview roles screen. */
     tableviewRoles: Role[],
 
@@ -32,6 +38,9 @@ export interface IS2AState {
 
     /* An array of detailview columns belonging to the current detailview. Set when navigating onto edit detailview columns screen. */
     detailviewColumns: Column[],
+
+    /* An array of boolean values representing the edit filter column belonging to a detailview. */
+    editFilterColumn: boolean[],
 
     /* An array of detailview roles belonging to the current detailview. Set when navigating onto edit detailview roles screen. */
     detailviewRoles: Role[],
@@ -50,9 +59,6 @@ export interface IS2AState {
 
     /* The type of modal currently open for creation/edit/deletion. */
     currentModalType: ModalType | null,
-
-    /* The app marked for edit on confirmation. */
-    currentAppToEdit: App | null,
 
     /* The datasource marked for edit on confirmation. */
     currentDatasourceToEdit: Datasource | null,
@@ -79,13 +85,19 @@ export interface IS2AState {
 const S2AState: IS2AState = {
     devApps: [],
     accApps: [],
+
     datasources: [],
     datasourceColumns: [],
+
     tableviews: [],
     tableviewColumns: [],
+    filterColumn: [],
+    userFilterColumn: [],
     tableviewRoles: [],
+
     detailviews: [],
     detailviewColumns: [],
+    editFilterColumn: [],
     detailviewRoles: [],
 
     currentApp: null,
@@ -94,7 +106,6 @@ const S2AState: IS2AState = {
     currentDetailview: null,
     currentModalType: null,
 
-    currentAppToEdit: null,
     currentDatasourceToEdit: null,
     currentTableviewToEdit: null,
     currentDetailviewToEdit: null,
@@ -140,15 +151,13 @@ const S2AReducer = createSlice({
                 })
         },
         editApp: (state, action: PayloadAction<App>) => {
-            if(state.currentAppToEdit) {
-                storeController.editApp(action.payload) 
-                    .then(() => {
-                        console.log("Edited app.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editApp failed with the error ${error}`);
-                    })
-            }
+            storeController.editApp(action.payload) 
+                .then(() => {
+                    console.log("Edited app.")
+                })
+                .catch((error: Error) => {
+                    console.log(`editApp failed with the error ${error}`);
+                })
         },
         deleteApp: (state) => {
             if(state.currentAppToDelete) {
@@ -197,9 +206,9 @@ const S2AReducer = createSlice({
                     })
             }
         },
-        deleteDatasource: (state, action: PayloadAction<Datasource>) => {
+        deleteDatasource: (state) => {
             if(state.currentDatasourceToDelete) {
-                storeController.deleteDatasource(action.payload)
+                storeController.deleteDatasource(state.currentDatasourceToDelete)
                     .then(() => {
                         console.log("Deleted datasource.");
                     })
@@ -285,8 +294,10 @@ const S2AReducer = createSlice({
         viewTableviewColumns: (state) => {
             if(state.currentTableview) {
                 storeController.getTableviewColumns(state.currentTableview) 
-                    .then((tableviewColumns: Column[]) => {
+                    .then(([tableviewColumns, filterColumn, userFilterColumn]) => {
                         state.tableviewColumns = tableviewColumns;
+                        state.filterColumn = filterColumn;
+                        state.userFilterColumn = userFilterColumn;
                         console.log("Retrieved tableview columns.")
                     })
                     .catch((error: Error) => {
@@ -382,8 +393,9 @@ const S2AReducer = createSlice({
         viewDetailviewColumns: (state) => {
             if(state.currentDetailview) {
                 storeController.getDetailviewColumns(state.currentDetailview) 
-                    .then((detailviewColumns: Column[]) => {
+                    .then(([detailviewColumns, editFilterColumn]) => {
                         state.detailviewColumns = detailviewColumns;
+                        state.editFilterColumn = editFilterColumn;
                         console.log("Retrieved detailview columns.")
                     })
                     .catch((error: Error) => {
@@ -446,9 +458,6 @@ const S2AReducer = createSlice({
         },
 
         /* Mark resource edit reducers. */
-        markAppToEdit: (state, action: PayloadAction<App>) => {
-            state.currentAppToEdit = action.payload;
-        },
         markDatasourceToEdit: (state, action: PayloadAction<Datasource>) => {
             state.currentDatasourceToEdit = action.payload;
         },
@@ -480,7 +489,6 @@ const S2AReducer = createSlice({
             console.log("Finished/cancelled creation of resource.")
         },
         finishEdit: (state) => {    
-            state.currentAppToEdit = null;
             state.currentDatasourceToEdit = null;
             state.currentTableviewToEdit = null;
             state.currentDetailviewToEdit = null;
@@ -500,13 +508,19 @@ const S2AReducer = createSlice({
         resetAll: (state) => {
             state.devApps = [],
             state.accApps = [],
+
             state.datasources = [],
             state.datasourceColumns = [],
+
             state.tableviews = [],
             state.tableviewColumns = [],
+            state.filterColumn = [],
+            state.userFilterColumn = [],
             state.tableviewRoles = [],
+
             state.detailviews = [],
             state.detailviewColumns = [],
+            state.editFilterColumn = [],
             state.detailviewRoles = [],
 
             state.currentApp = null,
@@ -515,7 +529,6 @@ const S2AReducer = createSlice({
             state.currentDetailview = null,
             state.currentModalType = null,
 
-            state.currentAppToEdit = null,
             state.currentDatasourceToEdit = null,
             state.currentTableviewToEdit = null,
             state.currentDetailviewToEdit = null,
@@ -639,7 +652,7 @@ export const { viewDevApps, viewAccApps, createApp, editApp, deleteApp,
                viewDetailviewColumns, editDetailviewColumns, 
                viewDetailviewRoles, editDetailviewRoles, 
                setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
-               markAppToEdit, markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
+               markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
                markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
                finishCreation, finishEdit, finishDeletion, resetAll
             } = S2AReducer.actions

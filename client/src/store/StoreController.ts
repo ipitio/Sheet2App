@@ -387,7 +387,7 @@ async function deleteTableview(tableview: Tableview): Promise<void> {
  * @param {Tableview} tableview - The tableview to obtain the columns of.
  * @return {Promise<Column[]>} - A promise that resolves to the array of tableview columns on success, rejects on failure.
  */
-async function getTableviewColumns(tableview: Tableview): Promise<Column[]> {
+async function getTableviewColumns(tableview: Tableview): Promise<[Column[], boolean[], string[]]> {
     try {
         const reqForm = await getRequestForm("POST", {"tableview": tableview});
         
@@ -398,7 +398,10 @@ async function getTableviewColumns(tableview: Tableview): Promise<Column[]> {
         
         const data = await res.json();
         const tableviewColumns: Column[] = data.tableviewColumns;
-        return tableviewColumns;
+        const filterColumn: boolean[] = data.filterColumn;
+        const userFilterColumn: string[] = data.userFilterColumn;
+        
+        return [tableviewColumns, filterColumn, userFilterColumn];
     }
     catch(err) {
         return Promise.reject(`getTableviewColumns failed with the error: ${err}`);
@@ -568,7 +571,7 @@ async function deleteDetailview(detailview: Detailview): Promise<void> {
  * @param {Detailview} detailview - The detailview to obtain the columns of.
  * @return {Promise<Column[]>} - A promise that resolves to the array of detailview columns on success, rejects on failure.
  */
-async function getDetailviewColumns(detailview: Detailview): Promise<Column[]> {
+async function getDetailviewColumns(detailview: Detailview): Promise<[Column[], boolean[]]> {
     try {
         const reqForm = await getRequestForm("POST", {"detailview": detailview});
         
@@ -579,7 +582,9 @@ async function getDetailviewColumns(detailview: Detailview): Promise<Column[]> {
         
         const data = await res.json();
         const detailviewColumns: Column[] = data.detailviewColumns;
-        return detailviewColumns;
+        const editFilterColumn: boolean[] = data.editFilterColumn;
+        
+        return [detailviewColumns, editFilterColumn];
     }
     catch(err) {
         return Promise.reject(`getDetailviewColumns failed with the error: ${err}`);
