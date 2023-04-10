@@ -91,10 +91,10 @@ def create_datasource_column(datasource_id, column_index, name):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_table_view(table_view_name, datasource_id):
+def create_table_view(app_id, table_view_name, datasource_id):
     try:
         new_table_view = TableView.objects.create(
-            datasource_id=datasource_id, name=table_view_name, 
+            app_id=app_id, datasource_id=datasource_id, name=table_view_name, 
             can_view=True, can_add=True, can_delete=True
         )
         
