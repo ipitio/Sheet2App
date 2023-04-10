@@ -411,11 +411,12 @@ def edit_table_view_roles(request):
 
 def create_detail_view(request):
     body = json.loads(request.body)
-    table_view_id = body["tableview"]["id"]
-    roles = body["tableviewRoles"]
+    app_id = body["app"]["id"]
+    name = body["detailviewName"]
+    datasource_id = body["datasource"]["id"]
 
-    output, response_code = queries.update_table_view_role_perms(
-        table_view_id=table_view_id, roles=roles
+    output, response_code = queries.create_detail_view(
+        app_id=app_id, name=name, datasource_id=datasource_id
     )
 
     res_body = {}
@@ -425,6 +426,19 @@ def create_detail_view(request):
 
     return response
 
+
+def get_app_detail_views(request):
+    body = json.loads(request.body)
+    app_id = body["app"]["id"]
+
+    detail_views, response_code = queries.get_detail_views_by_app_id(app_id=app_id)
+
+    res_body = { "detailviews": detail_views }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
 
 def add_record(request):
     body = json.loads(request.body)

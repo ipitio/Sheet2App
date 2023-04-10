@@ -115,22 +115,33 @@ def create_table_view(app_id, table_view_name, datasource_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_detail_view(table_view_id, name, record_index):
-    """
-    Creates a new entry in the DetailView table
-
-    Args:
-        table_view_id (int): id of the table view associated with this detail view
-        name (string): the name of the detail view
-        record_index (int): the index of the record the detail view holds
-    """
+def create_detail_view(app_id, name, datasource_id):
     try:
         new_detail_view = DetailView.objects.create(
-            table_view=table_view_id, name=name, record_index=record_index
+            app_id=app_id, name=name, datasource_id=datasource_id,
+            can_view=True, can_edit=True
         )
+        
+        # By default all columns of the datasource the detail view uses are viewable and editable
+        detail_view_id = new_detail_view.id
+        columns = DatasourceColumn.objects.filter(datasource_id=datasource_id).values()
+        
+        for column in columns:
+            column_id = column["id"]
+            
+            viewable_column = DetailViewViewableColumn.objects.create(
+                detail_view_id=detail_view_id,
+                datasource_column_id=column_id
+            )
+            
+            editable_column = DetailViewEditableColumn.objects.create(
+                detail_view_id=detail_view_id,
+                datasource_column_id=column_id
+            )
 
         return new_detail_view, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -317,6 +328,18 @@ def get_table_view_viewable_columns(table_view_id):
         columns = list(columns)
 
         return {}, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_detail_views_by_app_id(app_id):
+    try:
+        detail_views = DetailView.objects.filter(app_id=app_id).values()
+        detail_views = mysql_db.utils.annotate_detail_views(detail_views)
+        detail_views = list(detail_views)
+        
+        return detail_views, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR

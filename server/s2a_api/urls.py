@@ -31,5 +31,8 @@ urlpatterns = [
     path('getTableviewColumns', views.get_table_view_columns),
     path('editTableviewColumns', views.edit_table_view_columns),
     
+    path('createDetailview', views.create_detail_view),
+    path('getAppDetailviews', views.get_app_detail_views),
+    
     path('addRecord', views.add_record),
 ]
