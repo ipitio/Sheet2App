@@ -560,7 +560,7 @@ def add_record(request):
     )
 
     datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
-    record_data_array = [None] * len(datasource_columns)
+    record_data_array = [""] * len(datasource_columns)
     
     for column in datasource_columns:
         col_name = column["name"]
@@ -577,10 +577,50 @@ def add_record(request):
     )
 
     # Get and send the refreshed data in response
-    data = sheets.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    data = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)
     res_body = {"spreadsheet_data": data}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
 
     return response
+
+
+def edit_record(request):
+    body = json.loads(request.body)
+    datasource = body["datasource"]
+    record_data = body["record"]
+    record_index = body["recordID"]
+    
+    spreadsheet_id = datasource.spreadsheet_id
+    gid = datasource.gid
+
+    datasource, response_code = queries.get_datasource_by_id(
+        datasource_id=datasource["id"]
+    )
+
+    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+    record_data_array = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)[record_index]
+    
+    for column in datasource_columns:
+        col_name = column["name"]
+        col_index = column["column_index"]
+        
+        if col_name in record_data:
+            record_data_array[col_index] = record_data[col_name]
+        
+
+    sheets_api.update_row(
+        spreadsheet_id=spreadsheet_id, sheet_id=gid, 
+        updated_row_data=record_data_array, row_index=record_index
+    )
+
+    # Get and send the refreshed data in response
+    data = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    res_body = {"spreadsheet_data": data}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+

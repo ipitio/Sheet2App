@@ -43,4 +43,5 @@ urlpatterns = [
     path('editDetailviewColumns', views.edit_detail_view_columns),
     
     path('addRecord', views.add_record),
+    path('editRecord', views.edit_record),
 ]
