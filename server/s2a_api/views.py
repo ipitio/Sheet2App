@@ -515,6 +515,20 @@ def edit_detail_view_columns(request):
     return response
 
 
+def get_detail_view_roles(request):
+    body = json.loads(request.body)
+    detail_view_id = body["detailview"]["id"]
+
+    roles, response_code = queries.get_roles_for_detail_view(detail_view_id=detail_view_id)
+
+    res_body = { "detailviewRoles": roles }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
 def add_record(request):
     body = json.loads(request.body)
     table_view_id = body["viewID"]

@@ -326,7 +326,7 @@ def get_table_views_by_app_id(app_id):
 def get_roles_for_table_view(table_view_id):
     try:
         table_view_perms = TableViewPerm.objects.filter(table_view_id=table_view_id).values()
-        roles = [perm["role"] for perm in table_view_perms]
+        roles = [{ "name": perm["role"] } for perm in table_view_perms]
         
         return roles, HTTPStatus.OK
     except Exception as e:
@@ -362,7 +362,7 @@ def get_detail_views_by_app_id(app_id):
 def get_roles_for_detail_view(detail_view_id):
     try:
         detail_view_perms = DetailViewPerm.objects.filter(detail_view_id=detail_view_id).values()
-        roles = [perm["role"] for perm in detail_view_perms]
+        roles = [{ "name": perm["role"] } for perm in detail_view_perms]
         
         return roles, HTTPStatus.OK
     except Exception as e:
