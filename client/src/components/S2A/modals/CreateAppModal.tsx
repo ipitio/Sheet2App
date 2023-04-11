@@ -39,11 +39,11 @@ function CreateAppModal() {
     return (
         <Modal open={currentModalType == ModalType.CreateAppModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
-
-                {/* App Name TextField, Create/Cancel Buttons */}
+                
+                {/* App Name TextField */}
                 <TextField ref={appNameRef} variant="filled" label="App Name"/>
 
-                {/* Confirm/Cancel Buttons */}
+                {/* Create/Cancel Buttons */}
                 <Button onClick={handleCreate} variant="outlined" size="large" sx={styles.modalButton}>Create</Button>
                 <Button onClick={handleCloseModal} variant="outlined" size="large" sx={styles.modalButton}>Cancel</Button>
             </div>

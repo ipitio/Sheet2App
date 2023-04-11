@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { StoreState, setCurrentModalType, resetAll } from '../../store/StoreContext';
+import { setCurrentModalType, resetAll, StoreState } from '../../store/StoreContext';
 import { ModalType } from '../../store/StoreTypes'
 
 import styles from '../../styles/S2A/EditAppNavBarStyles';
@@ -69,7 +69,7 @@ function EditAppNavBar() {
         <AppBar style={styles.navBarWrapper}>
             <Toolbar>
                 <Typography sx={styles.navBarTitle} variant="h6" component="div">S2A Edit App</Typography>
-                
+
                 {/* Create Resource Button */}
                 {createButtonText && (
                     <IconButton onClick={createResource} sx={styles.createButton}>

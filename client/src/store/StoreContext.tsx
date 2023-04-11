@@ -489,6 +489,15 @@ const S2AReducer = createSlice({
             console.log("Finished/cancelled creation of resource.")
         },
         finishEdit: (state) => {    
+            state.datasourceColumns = [];
+
+            state.tableviewColumns = [];
+            state.filterColumn = [];
+            state.userFilterColumn = [];
+
+            state.detailviewColumns = [];
+            state.editFilterColumn = [];
+            
             state.currentDatasourceToEdit = null;
             state.currentTableviewToEdit = null;
             state.currentDetailviewToEdit = null;

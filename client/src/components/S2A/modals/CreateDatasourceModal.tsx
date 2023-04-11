@@ -16,7 +16,7 @@ function CreateDatasourceModal() {
 
     /* React hooks into elements. */
     const datasourceNameRef = useRef<HTMLDivElement>(null);
-    const spreadsheetURLRef = useRef<HTMLDivElement>(null);
+    const spreadsheetUrlRef = useRef<HTMLDivElement>(null);
     const sheetNameRef = useRef<HTMLDivElement>(null);
 
     /* Event handlers. */
@@ -31,14 +31,14 @@ function CreateDatasourceModal() {
         let input = datasourceNameRef?.current?.querySelector("input");
         const datasourceName = input ? input.value : "";
 
-        input = spreadsheetURLRef?.current?.querySelector("input");
-        const spreadsheetURL = input ? input.value : "";
+        input = spreadsheetUrlRef?.current?.querySelector("input");
+        const spreadsheetUrl = input ? input.value : "";
 
         input = sheetNameRef?.current?.querySelector("input");
         const sheetName = input ? input.value : "";
 
-        if(datasourceName && spreadsheetURL && sheetName ) {
-            dispatch(createDatasource({"datasourceName": datasourceName, "spreadsheetUrl": spreadsheetURL, "sheetName": sheetName}));
+        if(datasourceName && spreadsheetUrl && sheetName ) {
+            dispatch(createDatasource({"datasourceName": datasourceName, "spreadsheetUrl": spreadsheetUrl, "sheetName": sheetName}));
             dispatch(viewDatasources());
             handleCloseModal();
         }
@@ -48,12 +48,12 @@ function CreateDatasourceModal() {
         <Modal open={currentModalType == ModalType.CreateDatasourceModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
 
-                {/* Datasource Name/Spreadsheet URL/Sheet Name TextFields */}
-                <TextField ref={datasourceNameRef} variant="filled" label="Datasource Name"/>
-                <TextField ref={spreadsheetURLRef} variant="filled" label="Spreadsheet URL"/>
-                <TextField ref={sheetNameRef} variant="filled" label="Sheet Name"/>
+                {/* Datasource Name/Spreadsheet Url/Sheet Name TextFields */}
+                <TextField ref={datasourceNameRef} variant="filled" label="Datasource Name" sx={styles.modalTextfield}/>
+                <TextField ref={spreadsheetUrlRef} variant="filled" label="Spreadsheet URL" sx={styles.modalTextfield}/>
+                <TextField ref={sheetNameRef} variant="filled" label="Sheet Name" sx={styles.modalTextfield}/>
 
-                {/* Confirm/Cancel Buttons */}
+                {/* Create/Cancel Buttons */}
                 <Button onClick={handleCreate} variant="outlined" size="large" sx={styles.modalButton}>Create</Button>
                 <Button onClick={handleCloseModal} variant="outlined" size="large" sx={styles.modalButton}>Cancel</Button>
             </div>
