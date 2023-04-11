@@ -341,7 +341,7 @@ def get_table_view_viewable_columns(table_view_id):
         columns = mysql_db.utils.annotate_datasource_columns(columns)
         columns = list(columns)
 
-        return {}, HTTPStatus.OK
+        return columns, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
@@ -368,6 +368,20 @@ def get_roles_for_detail_view(detail_view_id):
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_detail_view_viewable_columns(detail_view_id):
+    try:
+        columns = DatasourceColumn.objects.filter(detailviewviewablecolumn__detail_view_id=detail_view_id)
+        columns = columns.values()
+        columns = mysql_db.utils.annotate_datasource_columns(columns)
+        columns = list(columns)
+
+        return columns, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
 
 
 # Update

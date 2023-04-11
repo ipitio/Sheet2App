@@ -481,6 +481,24 @@ def delete_detail_view(request):
     return response
 
 
+def get_detail_view_columns(request):
+    body = json.loads(request.body)
+    detail_view_id = body["detailview"]["id"]
+
+    columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view_id)
+
+    res_body = {
+        "detailviewColumns": columns,
+        # "editFilterColumn": []
+    }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+
 def add_record(request):
     body = json.loads(request.body)
     table_view_id = body["viewID"]
