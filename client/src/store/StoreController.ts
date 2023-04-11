@@ -662,7 +662,7 @@ async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role
  * Requests an object containing all Tableviews and Detailviews associated with a web app
  * @param {App} app - The application to get the detailviews of.
  */
-async function loadApp(app: App): Promise<Datasource[]> {
+async function loadApp(app: App): Promise<Tableview[]> {
     try {
         const reqForm = await getRequestForm("GET", {"app": app});
         
@@ -672,9 +672,9 @@ async function loadApp(app: App): Promise<Datasource[]> {
             return Promise.reject(`loadApp equest failed with status: ${res.status}`);
         
         const data = await res.json();
-        const datasources: Datasource[] = data.datasources;
+        const tableviews: Tableview[] = data.tableviews;
 
-        return datasources;
+        return tableviews;
     }
     catch(err) {
         return Promise.reject(`getAppDetailviews failed with the error: ${err}`);
