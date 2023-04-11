@@ -385,9 +385,9 @@ async function deleteTableview(tableview: Tableview): Promise<void> {
 /**
  * Requests an array of all tableview columns for a particular tableview.
  * @param {Tableview} tableview - The tableview to obtain the columns of.
- * @return {Promise<Column[]>} - A promise that resolves to the array of tableview columns on success, rejects on failure.
+ * @return {[Promise<Column[]>, boolean[] | null, string[] | null]} - A promise that resolves to the array of tableview columns and filter columns on success, rejects on failure.
  */
-async function getTableviewColumns(tableview: Tableview): Promise<[Column[], boolean[], string[]]> {
+async function getTableviewColumns(tableview: Tableview): Promise<[Column[], boolean[] | null, string[] | null]> {
     try {
         const reqForm = await getRequestForm("POST", {"tableview": tableview});
         
@@ -398,8 +398,8 @@ async function getTableviewColumns(tableview: Tableview): Promise<[Column[], boo
         
         const data = await res.json();
         const tableviewColumns: Column[] = data.tableviewColumns;
-        const filterColumn: boolean[] = data.filterColumn;
-        const userFilterColumn: string[] = data.userFilterColumn;
+        const filterColumn: boolean[] | null = data.filterColumn;
+        const userFilterColumn: string[] | null = data.userFilterColumn;
         
         return [tableviewColumns, filterColumn, userFilterColumn];
     }
@@ -413,11 +413,11 @@ async function getTableviewColumns(tableview: Tableview): Promise<[Column[], boo
  * Requests to edit tableview columns.
  * @param {Tableview} tableview - The tableview whose columns to edit.
  * @param {Column[]} tableviewColumns - The tableview columns to edit, with the updated information.
- * @param {boolean[]} filterColumn - The array of boolean values corresponding to each record indicating if the record should be shown in the view. If empty, no filter.
- * @param {string[]} userFilterColumn- The array of string values corresponding to each record indicating if the view should show this user the record. If empty, no filter.
- * @return {Promise<Column[]>} - A promise that resolves to the array of tableview columns on success, rejects on failure.
+ * @param {boolean[] | null} filterColumn - The array of boolean values corresponding to each record indicating if the record should be shown in the view. If null, no filter.
+ * @param {string[] | null} userFilterColumn- The array of string values corresponding to each record indicating if the view should show this user the record. If null, no filter.
+ * @return {Promise <void>} - A promise that resolves on success, rejects on failure.
  */
-async function editTableviewColumns(tableview: Tableview, tableviewColumns: Column[], filterColumn: boolean[], userFilterColumn: string[]): Promise<void> {
+async function editTableviewColumns(tableview: Tableview, tableviewColumns: Column[], filterColumn: boolean[] | null, userFilterColumn: string[] | null): Promise<void> {
     try {
         const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewColumns": tableviewColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn});
         
@@ -566,12 +566,12 @@ async function deleteDetailview(detailview: Detailview): Promise<void> {
     }
 }
 
-/*
+/**
  * Requests an array of all detailview columns for a particular detailview.
  * @param {Detailview} detailview - The detailview to obtain the columns of.
- * @return {Promise<Column[]>} - A promise that resolves to the array of detailview columns on success, rejects on failure.
+ * @return {Promise<Column[]> | null} - A promise that resolves to the array of detailview columns and filter column on success, rejects on failure.
  */
-async function getDetailviewColumns(detailview: Detailview): Promise<[Column[], boolean[]]> {
+async function getDetailviewColumns(detailview: Detailview): Promise<[Column[], boolean[] | null]> {
     try {
         const reqForm = await getRequestForm("POST", {"detailview": detailview});
         
@@ -581,8 +581,8 @@ async function getDetailviewColumns(detailview: Detailview): Promise<[Column[], 
             return Promise.reject(`getDetailviewColumns request failed with status: ${res.status}`);
         
         const data = await res.json();
-        const detailviewColumns: Column[] = data.detailviewColumns;
-        const editFilterColumn: boolean[] = data.editFilterColumn;
+        const detailviewColumns: Column[]  = data.detailviewColumns;
+        const editFilterColumn: boolean[] | null = data.editFilterColumn;
         
         return [detailviewColumns, editFilterColumn];
     }
@@ -595,8 +595,8 @@ async function getDetailviewColumns(detailview: Detailview): Promise<[Column[], 
  * Requests to edit detailview columns.
  * @param {Detailview} detailview- The detailview whose columns to edit.
  * @param {Column[]} detailviewColumns - The detailview columns to edit, with the updated information.
- * @param {boolean[]} editFilterColumn - THe array of boolean values corresponding to each record indicating if the view should allow this user to edit the record. If empty, no filter.
- * @return {Promise<Column[]>} - A promise that resolves to the array of tableview columns on success, rejects on failure.
+ * @param {boolean[] | null} editFilterColumn - THe array of boolean values corresponding to each record indicating if the view should allow this user to edit the record. If null, no filter.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
 async function editDetailviewColumns(detailview: Detailview, detailviewColumns: Column[], editFilterColumn: boolean[]): Promise<void> {
     try {

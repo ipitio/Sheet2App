@@ -25,10 +25,10 @@ export interface IS2AState {
     tableviewColumns: Column[],
 
     /* An array of boolean values representing the filter column belonging to a tableview. */
-    filterColumn: boolean[],
+    filterColumn: boolean[] | null,
 
     /* An array of string values representing the user filter column belonging to a tableview. */
-    userFilterColumn: string[],
+    userFilterColumn: string[] | null,
 
     /* An array of tableview roles belonging to the current tableview. Set when navigating onto edit tableview roles screen. */
     tableviewRoles: Role[],
@@ -40,7 +40,7 @@ export interface IS2AState {
     detailviewColumns: Column[],
 
     /* An array of boolean values representing the edit filter column belonging to a detailview. */
-    editFilterColumn: boolean[],
+    editFilterColumn: boolean[] | null,
 
     /* An array of detailview roles belonging to the current detailview. Set when navigating onto edit detailview roles screen. */
     detailviewRoles: Role[],
@@ -305,7 +305,7 @@ const S2AReducer = createSlice({
                     })
                 }
         },
-        editTableviewColumns: (state, action: PayloadAction<{ tableviewColumns: Column[], filterColumn: boolean[], userFilterColumn: string[] }>) => {
+        editTableviewColumns: (state, action: PayloadAction<{ tableviewColumns: Column[], filterColumn: boolean[] | null, userFilterColumn: string[] | null}>) => {
             if(state.currentTableview) {
                 storeController.editTableviewColumns(state.currentTableview, action.payload.tableviewColumns, action.payload.filterColumn, action.payload.userFilterColumn)
                     .then(() => {
@@ -494,23 +494,30 @@ const S2AReducer = createSlice({
             state.tableviewColumns = [];
             state.filterColumn = [];
             state.userFilterColumn = [];
+            state.tableviewRoles = [];
 
             state.detailviewColumns = [];
             state.editFilterColumn = [];
+            state.detailviewRoles = [];
+
+            state.currentDatasource = null;
+            state.currentTableview = null;
+            state.currentDetailview = null;
+            state.currentModalType = null;
             
             state.currentDatasourceToEdit = null;
             state.currentTableviewToEdit = null;
             state.currentDetailviewToEdit = null;
-            state.currentModalType = null;
 
             console.log("Finished/cancelled edit of resource.")
         },
         finishDeletion: (state) => {
+            state.currentModalType = null;
+            
             state.currentAppToDelete = null;
             state.currentDatasourceToDelete = null;
             state.currentTableviewToDelete = null;
             state.currentDetailviewToDelete = null;
-            state.currentModalType = null;
 
             console.log("Finished/cancelled deletion of resource.")
         },
