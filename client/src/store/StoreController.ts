@@ -713,7 +713,7 @@ async function loadTableview(datasource: Datasource): Promise<Detailview> {
  * Adds a record to the specified datasource
  * @returns the new data and columns after adding a record to the datasource
  */
-async function addRecord(datasource: Datasource, record: Dictionary<string>): Promise<{columns: Column[], columnData: any[][]}> {
+async function addRecord(datasource: Datasource, record: Record): Promise<{columns: Column[], columnData: any[][]}> {
     try {
         const reqForm = await getRequestForm("POST", {"datasource": datasource, "record": record});
         
@@ -740,7 +740,7 @@ async function addRecord(datasource: Datasource, record: Dictionary<string>): Pr
  * Adds a record to the specified datasource
  * @returns the new data and columns after adding a record to the datasource
  */
-async function editRecord(datasource: Datasource, recordID: number, record: Dictionary<string>): Promise<{columns: Column[], columnData: any[][]}> {
+async function editRecord(datasource: Datasource, recordID: number, record: Record): Promise<{columns: Column[], columnData: any[][]}> {
     try {
         const reqForm = await getRequestForm("PUT", {"datasource": datasource, "recordID": recordID, "record": record});
         
