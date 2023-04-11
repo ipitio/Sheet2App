@@ -669,7 +669,7 @@ async function loadApp(app: App): Promise<Tableview[]> {
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
         if(!res.ok)
-            return Promise.reject(`loadApp equest failed with status: ${res.status}`);
+            return Promise.reject(`loadApp request failed with status: ${res.status}`);
         
         const data = await res.json();
         const tableviews: Tableview[] = data.tableviews;
@@ -678,30 +678,26 @@ async function loadApp(app: App): Promise<Tableview[]> {
     }
     catch(err) {
         return Promise.reject(`getAppDetailviews failed with the error: ${err}`);
-    }
+    }   
 }
 
 /**
- * Load a specific datasource in the web app
- * @returns the data and columns associated with the specified datasource
+ * Load a specific tableview in the web app
+ * @returns a single detail view that the user has access to
  */
-async function loadDatasource(datasource: Datasource): Promise<{columns: Column[], columnData: any[][]}> {
+async function loadTableview(datasource: Datasource): Promise<Detailview> {
     try {
         const reqForm = await getRequestForm("GET", {"datasource": datasource});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
-        const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
+        const res = await fetch(`${DJANGO_URL}/loadTableview`, reqForm);
         if(!res.ok)
-            return Promise.reject(`loadApp equest failed with status: ${res.status}`);
+            return Promise.reject(`loadTableview request failed with status: ${res.status}`);
         
         const data = await res.json();
-        const columns: Column[] = data.columns;
-        const columnData: any[][] = data.columnData;
+        const view = data.detailview;
 
-        return {
-            columns: columns,
-            columnData: columnData
-        };
+        return view;
     }
     catch(err) {
         return Promise.reject(`loadTableView failed with the error: ${err}`);
@@ -717,9 +713,9 @@ async function addRecord(datasource: Datasource, record: Dictionary<string>): Pr
         const reqForm = await getRequestForm("POST", {"datasource": datasource, "record": record});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
-        const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
+        const res = await fetch(`${DJANGO_URL}/addRecord`, reqForm);
         if(!res.ok)
-            return Promise.reject(`loadApp equest failed with status: ${res.status}`);
+            return Promise.reject(`addRecord request failed with status: ${res.status}`);
         
         const data = await res.json();
         const columns: Column[] = data.columns;
@@ -744,9 +740,9 @@ async function editRecord(datasource: Datasource, recordID: number, record: Dict
         const reqForm = await getRequestForm("PUT", {"datasource": datasource, "recordID": recordID, "record": record});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
-        const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
+        const res = await fetch(`${DJANGO_URL}/editRecord`, reqForm);
         if(!res.ok)
-            return Promise.reject(`loadApp equest failed with status: ${res.status}`);
+            return Promise.reject(`editRecord request failed with status: ${res.status}`);
         
         const data = await res.json();
         const columns: Column[] = data.columns;
@@ -771,9 +767,9 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
         const reqForm = await getRequestForm("DELETE", {"datasource": datasource, "recordID": recordID});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
-        const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
+        const res = await fetch(`${DJANGO_URL}/deleteRecord`, reqForm);
         if(!res.ok)
-            return Promise.reject(`loadApp equest failed with status: ${res.status}`);
+            return Promise.reject(`deleteRecord request failed with status: ${res.status}`);
         
         const data = await res.json();
     }
@@ -792,5 +788,5 @@ export default {getDevelopableApps, getAccessibleApps, createApp, deleteApp, edi
                 getDetailviewColumns,editDetailviewColumns, 
                 getDetailviewRoles, editDetailviewRoles, 
             
-                loadApp, loadDatasource, addRecord, editRecord, deleteRecord,
+                loadApp, loadTableview, addRecord, editRecord, deleteRecord,
             };
