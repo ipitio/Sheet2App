@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
 import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './StoreTypes'
+import { Dictionary } from "@reduxjs/toolkit";
 
 /* Define constants for constructing a URL to reach Django server. */
 const DJANGO_HOST = process.env.DJANGO_HOST;
@@ -660,106 +661,125 @@ async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role
 }
 
 // -> END for S2A.
+// NOTE: Some naming logistics... to prevent duplicate method names, we use "load" for the web apps
 
 /**
- * Adds a record to a View. By default, this will append the new record to the last row of the spreadsheet.
- * @param view The View to add the record to
- * @param recordToAdd The new record to add to the view
+ * Requests an object containing all Tableviews and Detailviews associated with a web app
+ * @param {App} app - The application to get the detailviews of.
  */
-async function addRecord(viewID: number, recordToAdd: Record) {
-    const reqForm: RequestInit = {
-        method: "POST",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "viewID": viewID,
-            "recordToAdd": recordToAdd
-        })
-    }
-
+async function loadApp(app: App): Promise<Tableview[]> {
     try {
+        const reqForm = await getRequestForm("GET", {"app": app});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`loadApp request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const tableviews: Tableview[] = data.tableviews;
+
+        return tableviews;
+    }
+    catch(err) {
+        return Promise.reject(`getAppDetailviews failed with the error: ${err}`);
+    }   
+}
+
+/**
+ * Load a specific tableview in the web app
+ * @returns a single detail view that the user has access to
+ */
+async function loadTableview(datasource: Datasource): Promise<Detailview> {
+    try {
+        const reqForm = await getRequestForm("GET", {"datasource": datasource});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/loadTableview`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`loadTableview request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const view = data.detailview;
+
+        return view;
+    }
+    catch(err) {
+        return Promise.reject(`loadTableView failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Adds a record to the specified datasource
+ * @returns the new data and columns after adding a record to the datasource
+ */
+async function addRecord(datasource: Datasource, record: Dictionary<string>): Promise<{columns: Column[], columnData: any[][]}> {
+    try {
+        const reqForm = await getRequestForm("POST", {"datasource": datasource, "record": record});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/addRecord`, reqForm);
         if(!res.ok)
-            return Promise.reject("Request failed.");
+            return Promise.reject(`addRecord request failed with status: ${res.status}`);
         
-        /**
-         * Expects a response containing the new view with the record added to it.
-         */
         const data = await res.json();
+        const columns: Column[] = data.columns;
+        const columnData: any[][] = data.columnData;
 
-        return data.spreadsheet_data;
+        return {
+            columns: columns,
+            columnData: columnData
+        };
     }
     catch(err) {
-        return Promise.reject(err);
-    }
-}
-
-async function editRecord(viewID: number, recordID: number, editedRecord: Record) {
-    const reqForm: RequestInit = {
-        method: "PUT",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "viewID": viewID,
-            "recordID": recordID,
-            "editedRecord": editedRecord
-        })
-    }
-
-    try {
-        const res = await fetch(`${DJANGO_URL}/editRecord`, reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
-        
-        /**
-         * Expects a response containing the new view with the record added to it.
-         */
-        const data = await res.json();
-
-        return data.spreadsheet_data;
-    }
-    catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`loadTableView failed with the error: ${err}`);
     }
 }
 
 /**
- * Deletes a record associated with a View
- * @param viewID The View associated with the record
- * @param recordID The ID of the record to delete
- * @returns Returns the new View with the record deleted from it, if the request is successful
+ * Adds a record to the specified datasource
+ * @returns the new data and columns after adding a record to the datasource
  */
-async function deleteRecord(viewID: number, recordID: number) {
-    const reqForm: RequestInit = {
-        method: "DELETE",
-        mode: "cors",
-        headers: { 
-            "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({
-            "viewID": viewID,
-            "recordID": recordID
-        })
-    }
-
+async function editRecord(datasource: Datasource, recordID: number, record: Dictionary<string>): Promise<{columns: Column[], columnData: any[][]}> {
     try {
-        const res = await fetch(`${DJANGO_URL}/deleteRecord`, reqForm);
-        if(!res.ok)
-            return Promise.reject("Request failed.");
+        const reqForm = await getRequestForm("PUT", {"datasource": datasource, "recordID": recordID, "record": record});
         
-        /**
-         * Expects a response containing the new view with the record added to it.
-         */
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/editRecord`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`editRecord request failed with status: ${res.status}`);
+        
         const data = await res.json();
+        const columns: Column[] = data.columns;
+        const columnData: any[][] = data.columnData;
 
-        return data.spreadsheet_data;
+        return {
+            columns: columns,
+            columnData: columnData
+        };
     }
     catch(err) {
-        return Promise.reject(err);
+        return Promise.reject(`loadTableView failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Load a specific datasource in the web app
+ * @returns the data and columns associated with the specified datasource
+ */
+async function deleteRecord(datasource: Datasource, recordID: number) {
+    try {
+        const reqForm = await getRequestForm("DELETE", {"datasource": datasource, "recordID": recordID});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/deleteRecord`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`deleteRecord request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+    }
+    catch(err) {
+        return Promise.reject(`loadTableView failed with the error: ${err}`);
     }
 }
 
@@ -772,4 +792,6 @@ export default {getDevelopableApps, getAccessibleApps, createApp, deleteApp, edi
                 getAppDetailviews, createDetailview, editDetailview, deleteDetailview, 
                 getDetailviewColumns,editDetailviewColumns, 
                 getDetailviewRoles, editDetailviewRoles, 
-                addRecord, editRecord, deleteRecord};
+            
+                loadApp, loadTableview, addRecord, editRecord, deleteRecord,
+            };
