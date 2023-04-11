@@ -563,6 +563,8 @@ export interface IWebAppState {
     // An array of Views that have been previously loaded by the user
     views: View[],
 
+    currentDatasource: Datasource | null,
+
     // The current view denotes the view that changes (add, edit, delete record) will apply to, since the user can only be on
     // one view at a time.
     currentView: View | null,
@@ -577,6 +579,7 @@ export interface IWebAppState {
 
 const webAppState: IWebAppState = {
     views: [],
+    currentDatasource: null,
     currentView: null,
     currentModalType: null,
     currentRecord: null
@@ -600,9 +603,9 @@ const webAppReducer = createSlice({
         },
         // Called by the AddRecordModal when changes are submitted
         addRecord: (state, action: {payload: Record, type: string}) => {
-            if (!state.currentView) return;
+            if (!state.currentDatasource) return;
 
-            storeController.addRecord(state.currentView.id, action.payload)
+            storeController.addRecord(state.currentDatasource, action.payload)
             .then(() => {
                 console.log("Added Record");
             })
@@ -612,9 +615,9 @@ const webAppReducer = createSlice({
         },
         // Called by the DeleteRecordModal when changes are submitted
         deleteRecord: (state) => {
-            if (!state.currentView || !state.currentRecord) return;
+            if (!state.currentDatasource || !state.currentRecord) return;
 
-            storeController.deleteRecord(state.currentView.id, state.currentRecord.id)
+            storeController.deleteRecord(state.currentDatasource, state.currentRecord.id)
             .then(() => {
                 console.log("Deleted Record");
             })
@@ -624,9 +627,9 @@ const webAppReducer = createSlice({
         },
         // Called by the EditRecordModal when changes are submitted
         editRecord: (state, action: {payload: Record}) => {
-            if (!state.currentView || !state.currentRecord) return;
+            if (!state.currentDatasource || !state.currentRecord) return;
 
-            storeController.editRecord(state.currentView.id, state.currentRecord.id, action.payload)
+            storeController.editRecord(state.currentDatasource, state.currentRecord.id, action.payload)
             .then(() => {
                 console.log("Edited Record");
             })
