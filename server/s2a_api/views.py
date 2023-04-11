@@ -365,10 +365,14 @@ def edit_table_view_columns(request):
     body = json.loads(request.body)
     table_view_id = body["tableview"]["id"]
     columns = body["tableviewColumns"]
+    filter_column = body["filterColumn"]            # boolean array
+    user_filter_column = body["userFilterColumn"]   # string array
 
     output, response_code = queries.update_table_view_viewable_columns(
         table_view_id=table_view_id, columns=columns
     )
+    
+    
 
     res_body = {}
     response = HttpResponse(
