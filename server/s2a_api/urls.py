@@ -37,6 +37,7 @@ urlpatterns = [
     path('deleteDetailview', views.delete_detail_view),
     
     path('getDetailviewColumns', views.get_detail_view_columns),
+    path('editDetailviewColumns', views.edit_detail_view_columns),
     
     path('addRecord', views.add_record),
 ]

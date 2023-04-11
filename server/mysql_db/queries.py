@@ -464,7 +464,6 @@ def update_table_view_viewable_columns(table_view_id, columns):
             column_id = column["id"]
             viewable = column["viewable"]
             
-            column_to_update = Datasource.objects.get(id=column_id)
             exists_in_viewable_cols = TableViewViewableColumn.objects.exists(
                 table_view_id=table_view_id, datasource_column_id=column_id
             )
@@ -514,6 +513,49 @@ def update_detail_view(detail_view):
         update_detail_view.can_edit = detail_view["canEdit"]
         update_detail_view.save()
         
+        return {}, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def update_detail_view_viewable_columns(detail_view_id, columns):
+    try:
+        for column in columns:
+            column_id = column["id"]
+            viewable = column["viewable"]
+            editable = column["editable"]
+            
+            exists_in_viewable_cols = DetailViewViewableColumn.objects.exists(
+                detail_view_id=detail_view_id, datasource_column_id=column_id
+            )
+            exists_in_editable_cols = DetailViewEditableColumn.objects.exists(
+                detail_view_id=detail_view_id, datasource_column_id=column_id
+            )
+
+            
+            if viewable and not exists_in_viewable_cols:
+                viewable_column = TableViewViewableColumn.objects.create(
+                    detail_view_id=detail_view_id, datasource_column_id=column_id
+                )
+            elif not viewable and exists_in_viewable_cols:
+                entry = TableViewViewableColumn.objects.get(
+                    detail_view_id=detail_view_id, datasource_column_id=column_id
+                )
+                entry.delete()
+                
+                
+            if editable and not exists_in_editable_cols:
+                editable_column = DetailViewEditableColumn.objects.create(
+                    detail_view_id=detail_view_id, datasource_column_id=column_id
+                )
+            elif not editable and exists_in_editable_cols:
+                entry = DetailViewEditableColumn.objects.get(
+                    detail_view_id=detail_view_id, datasource_column_id=column_id
+                )
+                entry.delete()
+                
+
         return {}, HTTPStatus.OK
     except Exception as e:
         print(e)
