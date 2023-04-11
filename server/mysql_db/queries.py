@@ -562,6 +562,26 @@ def update_detail_view_viewable_columns(detail_view_id, columns):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+def update_detail_view_role_perms(detail_view_id, roles):
+    try:
+        # Remove permissions from all roles first
+        detail_view_role_perms = DetailViewPerm.objects.filter(detail_view_id=detail_view_id)
+        detail_view_role_perms.delete()
+        
+        # Create new role perms
+        for role in roles:
+            role_name = role["name"]
+            new_role_perm = TableViewPerm.objects.create(
+                detail_view_id=detail_view_id, role=role_name
+            )
+            
+        return {}, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+
 # Delete
 def delete_app(app_id):
     try:
