@@ -552,23 +552,28 @@ def edit_detail_view_roles(request):
 
 def add_record(request):
     body = json.loads(request.body)
-    table_view_id = body["viewID"]
-    record_data = body["recordToAdd"]["data"]
+    datasource = body["datasource"]
+    record_data = body["record"]
 
-    # Get the datasource that corresponds to this view
-    table_view, response_code = queries.get_table_view_by_id(
-        table_view_id=table_view_id
-    )
-    datasource_id = table_view.datasource
     datasource, response_code = queries.get_datasource_by_id(
-        datasource_id=datasource_id
+        datasource_id=datasource["id"]
     )
 
-    # Insert the record information into the sheet
+    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+    record_data_array = [None] * len(datasource_columns)
+    
+    for column in datasource_columns:
+        col_name = column["name"]
+        col_index = column["column_index"]
+        
+        if col_name in record_data:
+            record_data_array[col_index] = record_data[col_name]
+        
+
     spreadsheet_id = datasource.spreadsheet_id
     gid = datasource.gid
-    sheets.insert_row(
-        spreadsheet_id=spreadsheet_id, sheet_id=gid, row_to_insert=record_data
+    sheets_api.insert_row(
+        spreadsheet_id=spreadsheet_id, sheet_id=gid, row_to_insert=record_data_array
     )
 
     # Get and send the refreshed data in response
