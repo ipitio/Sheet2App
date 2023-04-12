@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { viewDevApps, setCurrentApp, setCurrentModalType, markAppToDelete, StoreState } from '../../store/StoreContext';
-import { ModalType } from '../../store/StoreTypes';
+import { App, ModalType } from '../../store/StoreTypes';
 
 import styles from '../../styles/S2A/HomeStyles'
 import HomeNavBar from './HomeNavBar';
@@ -20,7 +20,80 @@ function HomeDevelop() {
     }, []);
 
     /* Redux hooks into store. */
-    const devApps = useSelector((state: StoreState) => state.S2AReducer.devApps);
+    //const devApps = useSelector((state: StoreState) => state.S2AReducer.devApps);
+    const devApps: App[] = [
+        {
+          id: 1,
+          name: "My First App",
+          creatorEmail: "johndoe@example.com",
+          roleMemUrl: "https://example.com/role/membership",
+          isPublished: true
+        },
+        {
+          id: 2,
+          name: "My Second App",
+          creatorEmail: "janedoe@example.com",
+          roleMemUrl: "https://example.com/role/membership",
+          isPublished: false
+        },
+        {
+          id: 3,
+          name: "Awesome App",
+          creatorEmail: "johndoe@example.com",
+          roleMemUrl: "https://example.com/role/membership",
+          isPublished: true
+        },
+        {
+          id: 4,
+          name: "Cool App",
+          creatorEmail: "janedoe@example.com",
+          roleMemUrl: "https://example.com/role/membership",
+          isPublished: false
+        },
+        {
+          id: 5,
+          name: "My Awesome App",
+          creatorEmail: "johndoe@example.com",
+          roleMemUrl: "https://example.com/role/membership",
+          isPublished: true
+        },
+        {
+          id: 6,
+          name: "My Cool App",
+          creatorEmail: "janedoe@example.com",
+          roleMemUrl: "https://example.com/role/membership",
+          isPublished: false
+        },
+        {
+          id: 7,
+          name: "Amazing App",
+          creatorEmail: "johndoe@example.com",
+          roleMemUrl: "https://example.com/role/membership",
+          isPublished: true
+        },
+        {
+          id: 8,
+          name: "Incredible App",
+          creatorEmail: "janedoe@example.com",
+          roleMemUrl: "https://example.com/role/membership",
+          isPublished: false
+        },
+        {
+          id: 9,
+          name: "Another App",
+          creatorEmail: "johndoe@example.com",
+          roleMemUrl: "https://example.com/role/membership",
+          isPublished: true
+        },
+        {
+          id: 10,
+          name: "Yet Another App",
+          creatorEmail: "janedoe@example.com",
+          roleMemUrl: "https://example.com/role/membership",
+          isPublished: false
+        }
+      ];
+      
 
     /* Event handlers. */
 

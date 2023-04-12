@@ -10,17 +10,19 @@ const EditAppNavBarStyles: StyleContainer = {
     flexGrow: 0.1,
   },
   createButton: {
+    marginLeft: '30px',
     fontSize: '1rem',
     color: 'white',
     borderRadius: 2,
     borderColor: '#53809e',
-    borderWidth: '0.5px',
+    borderWidth: '2px',
     borderStyle: 'solid',
     background: 'linear-gradient(to bottom, #5a8cad, #6CA6CD)',
   },
   editAppTextfield: {
-    marginLeft: '5vw',
-    flexGrow: 0.8,
+    marginLeft: '100px',
+    minWidth: '400px',
+    background: 'linear-gradient(to bottom, #5a8cad, #6CA6CD)',
   },
   displayButton: {
     textTransform: 'capitalize',
@@ -32,19 +34,19 @@ const EditAppNavBarStyles: StyleContainer = {
     background: '#5a8cad',
   },
   displayDatasourcesButton: {
-    marginLeft: '5vw',
+    marginLeft: '250px',
   },
   displayTableviewsButton: {
-    marginLeft: '1vw',
+    marginLeft: '10px',
   },
   displayDetailviewsButton: {
-    marginLeft: '1vw',
+    marginLeft: '10px',
   },
   displayRolesButton: {
-    marginLeft: '1vw',
+    marginLeft: '10px',
   },
   displayReturnButton: {
-    marginLeft: '1vw',
+    marginLeft: '10px',
   },
 };
 

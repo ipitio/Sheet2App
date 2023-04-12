@@ -6,9 +6,9 @@
         "@babel/core": "7.21.4",
         "@babel/eslint-parser": "^7.21.3",
         "@babel/plugin-transform-modules-commonjs": "^7.21.2",
-        "@babel/preset-typescript": "7.21.4",
         "@babel/preset-env": "7.21.4",
         "@babel/preset-react": "7.18.6",
+        "@babel/preset-typescript": "7.21.4",
         "@emotion/react": "^11.10.6",
         "@emotion/styled": "^11.10.6",
         "@jest/types": "29.5.0",
@@ -56,10 +56,10 @@
         "web-vitals": "^2.1.4"
     },
     "scripts": {
-        "start": "react-scripts start",
-        "build": "react-scripts build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject"
+        "start": "./node_modules/.bin/react-scripts start",
+        "build": "./node_modules/.bin/react-scripts build",
+        "test": "./node_modules/.bin/react-scripts test",
+        "eject": "./node_modules/.bin/react-scripts eject"
     },
     "browserslist": {
         "production": [

@@ -25,6 +25,8 @@ Install WSL2, Docker Desktop, and VSCode Extensions
 1. Rename your `server/s2a_api/migrations` folder to something else.
 2. Set the OAuth Client ID environment variable in `client/Dockerfile`
 3. Set the OAuth Client ID and Secret environment variables in `server/Dockerfile`
+4. Store your Google Service Account credentials in `server/sheets/credentials.json`
+5. Store your Token in `server/token.json` (for testing purposes only)
 
 ### Starting
 
@@ -54,13 +56,13 @@ This stops everything for you. Add:
 
 ### Testing
 
-[![frontend](https://github.com/alexanderleong1/Sheet2App/actions/workflows/frontend.yml/badge.svg)](https://github.com/alexanderleong1/Sheet2App/actions/workflows/frontend.yml) [![backend](https://github.com/alexanderleong1/Sheet2App/actions/workflows/backend.yml/badge.svg)](https://github.com/alexanderleong1/Sheet2App/actions/workflows/backend.yml)
+[![status](https://github.com/alexanderleong1/Sheet2App/actions/workflows/tests.yml/badge.svg)](https://github.com/alexanderleong1/Sheet2App/actions/workflows/tests.yml)
 
 #### Frontend
 
     docker exec -it node npm test
 
-This runs the frontend's tests in interactive mode. Alternatively, run:
+This runs the client's tests in interactive mode. Alternatively, run:
 
     docker exec node npm test -- --watchAll=false
 
@@ -73,13 +75,13 @@ This runs the backend's tests. Add:
 * `-n logical` to run the tests in parallel,
 * `-v` for verbose output.
 
-##### MySQL
+##### Database
 
 You can start a MySQL shell with:
 
     docker exec -it mysql mysql -u root -p default-password
 
-##### Redis
+##### Cache
 
 If you started in detached mode, you can monitor Redis with:
 

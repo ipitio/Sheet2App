@@ -1,0 +1,53 @@
+name: status
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_call:
+    inputs:
+      OAUTH_CLIENT_ID:
+        description: 'OAuth client ID'
+        required: true
+        type: string
+    secrets:
+      OAUTH_CLIENT_SECRET:
+        description: 'OAuth client secret'
+        required: true
+      CREDS_JSON:
+        description: 'Google credentials JSON'
+        required: true
+      TOKEN_JSON:
+        description: 'Google token JSON'
+        required: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Build and run
+      run: |
+        sed -i "s/ENV REACT_APP_OAUTH_CLIENT_ID=.*/ENV REACT_APP_OAUTH_CLIENT_ID=${{ inputs.OAUTH_CLIENT_ID }}/" client/Dockerfile
+        sed -i "s/ENV OAUTH_CLIENT_ID=.*/ENV OAUTH_CLIENT_ID=${{ inputs.OAUTH_CLIENT_ID }}/" server/Dockerfile
+        sed -i "s/ENV OAUTH_CLIENT_SECRET=.*/ENV OAUTH_CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }}/" server/Dockerfile
+        sed -i 's@ENV CREDS_JSON=.*@ENV CREDS_JSON="${{ secrets.CREDS_JSON }}"@' server/Dockerfile
+        sed -i 's@ENV TOKEN_JSON=.*@ENV TOKEN_JSON="${{ secrets.TOKEN_JSON }}"@' server/Dockerfile
+        docker compose up -d --build
+
+    - name: Test backend
+      run: |
+        sleep 20
+        django_container_id=$(docker ps -q --filter "name=django")
+        docker exec $django_container_id pytest -n logical
+
+    - name: Test frontend
+      if: success() || failure()
+      run: |
+        frontend_container_id=$(docker ps -q --filter "name=node")
+        docker exec $frontend_container_id npm run test -- --watchAll=false

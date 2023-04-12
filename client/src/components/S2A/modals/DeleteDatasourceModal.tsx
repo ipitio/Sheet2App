@@ -1,17 +1,17 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDevApps, deleteApp, finishDeletion, StoreState } from '../../../store/StoreContext';
+import { viewDatasources, deleteDatasource, finishDeletion, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/ModalStyles';
 import { Button, Modal } from '@mui/material';
 
 
-function DeleteAppModal() {
+function DeleteDatasourceModal() {
     const dispatch = useDispatch();
 
     /* Redux hooks into store. */
-    const currentAppToDelete = useSelector((state: StoreState) => state.S2AReducer.currentAppToDelete);
+    const currentDatasourceToDelete = useSelector((state: StoreState) => state.S2AReducer.currentDatasourceToDelete);
     const currentModalType = useSelector((state: StoreState) => state.S2AReducer.currentModalType);
 
     /* Event handlers. */
@@ -23,17 +23,17 @@ function DeleteAppModal() {
 
     /* If the user confirms deletion. */
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if(currentAppToDelete) {
-            dispatch(deleteApp());
-            dispatch(viewDevApps());
+        if(currentDatasourceToDelete) {
+            dispatch(deleteDatasource());
+            dispatch(viewDatasources());
             handleCloseModal();
         }
     }
 
     return (
-        <Modal open={currentModalType == ModalType.DeleteAppModal} onClose={handleCloseModal} sx={styles.modal}>
+        <Modal open={currentModalType == ModalType.DeleteDatasourceModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
-                Delete {currentAppToDelete?.name} App?
+                Delete {currentDatasourceToDelete?.name} App?
 
                 {/* Confirm/Cancel Buttons */}
                 <Button onClick={handleDelete} variant="outlined" size="large" sx={styles.modalButton}>Confirm</Button>
@@ -43,4 +43,4 @@ function DeleteAppModal() {
     );
 }
 
-export default DeleteAppModal;
+export default DeleteDatasourceModal;

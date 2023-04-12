@@ -12,6 +12,8 @@ import EditAppDatasources from './components/S2A/EditAppDatasources'
 import CreateAppModal from './components/S2A/modals/CreateAppModal';
 import DeleteAppModal from './components/S2A/modals/DeleteAppModal';
 import CreateDatasourceModal from './components/S2A/modals/CreateDatasourceModal';
+import EditDatasourceModal from './components/S2A/modals/EditDatasourceModal';
+import DeleteDatasourceModal from './components/S2A/modals/DeleteDatasourceModal';
 
 import UserAppHome from './components/userapp/Home'
 import TableView from './components/userapp/TableView';
@@ -20,6 +22,7 @@ import DetailView from './components/userapp/DetailView';
 import AddRecordModal from './components/userapp/modals/AddRecordModal';
 import EditRecordModal from './components/userapp/modals/EditRecordModal';
 import DeleteRecordModal from './components/userapp/modals/DeleteRecordModal';
+import EditAppDatasourceColumns from './components/S2A/EditAppDatasourceColumns';
 
 const App: React.FC = () => {
   return (
@@ -27,18 +30,19 @@ const App: React.FC = () => {
       <Router>
         <Routes>
           {/* S2A Routes */}
-          <Route path="*" element={<Splash />} />\
+          <Route path="*" element={<Splash/>}/>
           <Route path="/S2A/home/develop" element={<S2AHomeDevelop/>}/>
-          <Route path="/S2A/home/access" element={<S2AHomeAccess/>} />
-          <Route path="/S2A/editapp/datasources/:appid" element={<EditAppDatasources />} />
+          <Route path="/S2A/home/access" element={<S2AHomeAccess/>}/>
+          <Route path="/S2A/editapp/datasources/:appid" element={<EditAppDatasources/>}/>
+          <Route path="/S2A/editapp/datasources/datasourcecolumns/:appid" element={<EditAppDatasourceColumns/>}/>
 
           {/* User App Routes */}
-          <Route path="/userapp/:appid/home" element={<UserAppHome />} />
-          <Route path="/userapp/:appid/tableview/:tableviewid" element={<TableView />} />
+          <Route path="/userapp/:appid/home" element={<UserAppHome/>} />
+          <Route path="/userapp/:appid/tableview/:tableviewid" element={<TableView/>}/>
 
           {/* TESTING. TODO: REMOVE */}
-          <Route path="/test/table" element={<TableView/>} />
-          <Route path="/test/detail" element={<DetailView/>} />
+          <Route path="/test/table" element={<TableView/>}/>
+          <Route path="/test/detail" element={<DetailView/>}/>
         </Routes>
       </Router>
       
@@ -46,6 +50,8 @@ const App: React.FC = () => {
       <CreateAppModal/>
       <DeleteAppModal/>
       <CreateDatasourceModal/>
+      <EditDatasourceModal/>
+      <DeleteDatasourceModal/>
 
       {/* User App Modals */}
       <AddRecordModal/>

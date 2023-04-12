@@ -13,6 +13,9 @@ const ModalStyles: StyleContainer = {
     borderRadius: '10px',
     backgroundColor: '#6CA6CD',
   },
+  modalTextfield: {
+    marginLeft: '30px',
+  },
   modalButton: {
     marginLeft: '50px',
     textTransform: 'capitalize',

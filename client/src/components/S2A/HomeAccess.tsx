@@ -19,8 +19,8 @@ function HomeAccess() {
 
     /* Redux hooks into store. */   
     const accApps = useSelector((state: StoreState) => state.S2AReducer.accApps);
-
-    /* Event handlers. */
+      
+    /* Event handlers. */   
 
     /* If the access icon next to an app is clicked. */
     const handleAccess = (event: React.MouseEvent<HTMLButtonElement>) => {

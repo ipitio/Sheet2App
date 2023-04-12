@@ -1,4 +1,5 @@
 from __future__ import print_function
+import json
 
 import os.path
 
@@ -25,13 +26,18 @@ def get_creds():
     creds = None
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    elif os.getenv("TOKEN_JSON"):
+        creds = get_credentials(json.loads(os.getenv("TOKEN_JSON", "")))
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
+            if not os.path.exists(CREDENTIALS):
+                with open(CREDENTIALS, "w") as f:
+                    f.write(os.getenv("CREDS_JSON", ""))
             flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS, SCOPES)
-            creds = flow.run_local_server(port=0)
+            creds = flow.run_local_server(port=8001)
         # Save the credentials for the next run
         with open("token.json", "w") as token:
             token.write(creds.to_json())
