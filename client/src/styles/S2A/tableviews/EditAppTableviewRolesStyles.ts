@@ -1,13 +1,13 @@
-import { StyleContainer } from "./StyleContainer";
+import { StyleContainer } from "../types/StyleContainer";
 
-const EditAppDatasourceColumnsStyles: StyleContainer = {
-  editAppDatasourceColumnsWrapper: {
+const EditAppTableviewRolesStyles: StyleContainer = {
+  editAppTableviewRolesWrapper: {
     display: 'flex',
     flexDirection: 'column',
     fontFamily: 'sans-serif',
     backgroundColor: '#6CA6CD',
   },
-  editAppDatasourceColumnsDisplay: {
+  editAppTableviewRolesDisplay: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -35,25 +35,31 @@ const EditAppDatasourceColumnsStyles: StyleContainer = {
     marginTop: '30px',
   },
   gridItemContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: '200px',
-    height: '310px',
-    marginBottom: '25px',
+    height: '80px',
     border: '2px solid #87CEEB',
     textAlign: 'center',
     position: 'relative',
   },
-  columnElement: {
-    marginTop: '15px',
-    marginLeft: '10px',
-    marginRight: '10px',
-    marginBottom: '10px',
+  deleteTableviewButton: {
+    position: 'absolute',
+    bottom: '0', 
+    right: '65%',
   },
-  columnCheckbox: {
-    maxHeight: '10px',
-    marginLeft: '25px',
+  editTableviewColumnsButton: {
+    position: 'absolute',
+    bottom: '0',
+    right: '50%',
+  },
+  editTableviewRolesButton: {
+    position: 'absolute',
+    bottom: '0',
+    right: '35%',
+  },
+  editTableviewButton: {
+    position: 'absolute',
+    bottom: '0',
+    right: '20%',
   },
 };
 
-export default EditAppDatasourceColumnsStyles;
+export default EditAppTableviewRolesStyles;

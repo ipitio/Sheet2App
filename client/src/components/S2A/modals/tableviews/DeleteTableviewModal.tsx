@@ -1,17 +1,16 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDatasources, deleteDatasource, finishDeletion, StoreState } from '../../../store/StoreContext';
-import { ModalType } from '../../../store/StoreTypes';
+import { viewTableviews, deleteTableview, finishDeletion, StoreState } from '../../../../store/StoreContext';
+import { ModalType } from '../../../../store/StoreTypes';
 
-import styles from '../../../styles/S2A/ModalStyles';
+import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal } from '@mui/material';
 
-
-function DeleteDatasourceModal() {
+function DeleteTableviewModal() {
     const dispatch = useDispatch();
 
     /* Redux hooks into store. */
-    const currentDatasourceToDelete = useSelector((state: StoreState) => state.S2AReducer.currentDatasourceToDelete);
+    const currentTableviewToDelete = useSelector((state: StoreState) => state.S2AReducer.currentTableviewToDelete);
     const currentModalType = useSelector((state: StoreState) => state.S2AReducer.currentModalType);
 
     /* Event handlers. */
@@ -23,17 +22,17 @@ function DeleteDatasourceModal() {
 
     /* If the user confirms deletion. */
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if(currentDatasourceToDelete) {
-            dispatch(deleteDatasource());
-            dispatch(viewDatasources());
+        if(currentTableviewToDelete) {
+            dispatch(deleteTableview());
+            dispatch(viewTableviews());
             handleCloseModal();
         }
     }
 
     return (
-        <Modal open={currentModalType == ModalType.DeleteDatasourceModal} onClose={handleCloseModal} sx={styles.modal}>
+        <Modal open={currentModalType == ModalType.DeleteTableviewModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
-                Delete {currentDatasourceToDelete?.name} App?
+                Delete {currentTableviewToDelete?.name} App?
 
                 {/* Confirm/Cancel Buttons */}
                 <Button onClick={handleDelete} variant="outlined" size="large" sx={styles.modalButton}>Confirm</Button>
@@ -43,4 +42,4 @@ function DeleteDatasourceModal() {
     );
 }
 
-export default DeleteDatasourceModal;
+export default DeleteTableviewModal;

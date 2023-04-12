@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { setCurrentModalType, resetAll, StoreState } from '../../store/StoreContext';
-import { ModalType } from '../../store/StoreTypes'
+import { setCurrentModalType, resetAll, StoreState } from '../../../store/StoreContext';
+import { ModalType } from '../../../store/StoreTypes'
 
-import styles from '../../styles/S2A/EditAppNavBarStyles';
+import styles from '../../../styles/S2A/navbars/EditAppNavBarStyles';
 import { AppBar, Toolbar, Typography, Button, IconButton, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 

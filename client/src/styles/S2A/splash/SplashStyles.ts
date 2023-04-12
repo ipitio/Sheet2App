@@ -1,4 +1,4 @@
-import { StyleContainer } from "./StyleContainer";
+import { StyleContainer } from "../types/StyleContainer";
 
 const SplashStyles: StyleContainer = {
   splashWrapper: {
@@ -30,10 +30,10 @@ const SplashStyles: StyleContainer = {
     height: '2rem',
   },
   gcloud: {
-    content: `url(${require("./googlecloud.png")})`,
+    content: `url(${require("../images/googlecloud.png")})`,
   },
   gsheets: {
-    content: `url(${require("./googlesheets.png")})`,
+    content: `url(${require("../images/googlesheets.png")})`,
   },
   centerWrapper: {
     gridColumn: '1 / span 3',

@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch} from 'react-redux';
 
-import { getLoggedOut } from '../../auth/AuthController';
+import { getLoggedOut } from '../../../auth/AuthController';
 
-import { setCurrentModalType } from '../../store/StoreContext';
-import { ModalType } from '../../store/StoreTypes';
+import { setCurrentModalType } from '../../../store/StoreContext';
+import { ModalType } from '../../../store/StoreTypes';
 
-import styles from '../../styles/S2A/HomeNavBarStyles'
+import styles from '../../../styles/S2A/navbars/HomeNavBarStyles'
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, TextField } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';

@@ -1,4 +1,4 @@
-import { StyleContainer } from "./StyleContainer";
+import { StyleContainer } from "../types/StyleContainer";
 
 const EditAppDatasourcesStyles: StyleContainer = {
   editAppDatasourcesWrapper: {
@@ -38,7 +38,6 @@ const EditAppDatasourcesStyles: StyleContainer = {
     bottom: '0',
     right: '25%',
   },
-  
 };
 
 export default EditAppDatasourcesStyles;

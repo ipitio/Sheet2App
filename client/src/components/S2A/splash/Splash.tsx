@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { getLoggedIn } from '../../auth/AuthController';
+import { getLoggedIn } from '../../../auth/AuthController';
 
 import GoogleLogin, { GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
-import { gapi } from '../../local_modules/gapi-script-esm';
+import { gapi } from '../../../local_modules/gapi-script-esm';
 
-import styles from '../../styles/S2A/SplashStyles'
+import styles from '../../../styles/S2A/splash/SplashStyles'
 
 function Splash() {
     const navigate = useNavigate();

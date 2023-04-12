@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDatasourceColumns, editDatasourceColumns, StoreState } from '../../store/StoreContext';
-import { Column, ModalType } from '../../store/StoreTypes';
+import { viewDatasourceColumns, editDatasourceColumns, StoreState } from '../../../store/StoreContext';
+import { Column, ModalType } from '../../../store/StoreTypes';
 
-import styles from '../../styles/S2A/EditAppDatasourceColumnsStyles';
-import EditColumnsNavBar from "./EditColumnsNavBar";
+import styles from '../../../styles/S2A/datasources/EditAppDatasourceColumnsStyles';
+import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
 import { Grid, Checkbox, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 
@@ -150,135 +150,135 @@ function EditAppDatasourceColumns() {
           editable: true
         },
         {
-            id: 11,
-            name: 'Column 11',
-            initialValue: '',
-            isLabel: false,
-            isRef: false,
-            type: 'Text',
-            isFilter: true,
-            isUserFilter: true,
-            isEditFilter: false,
-            viewable: false,
-            editable: true
-          },
-          {
-            id: 12,
-            name: 'Column 12',
-            initialValue: '',
-            isLabel: false,
-            isRef: true,
-            type: 'Number',
-            isFilter: true,
-            isUserFilter: false,
-            isEditFilter: false,
-            viewable: null,
-            editable: null
-          },
-          {
-            id: 13,
-            name: 'Column 13',
-            initialValue: '',
-            isLabel: false,
-            isRef: false,
-            type: 'URL',
-            isFilter: false,
-            isUserFilter: false,
-            isEditFilter: true,
-            viewable: true,
-            editable: true
-          },
-          {
-            id: 14,
-            name: 'Column 14',
-            initialValue: '',
-            isLabel: true,
-            isRef: false,
-            type: 'Text',
-            isFilter: false,
-            isUserFilter: false,
-            isEditFilter: true,
-            viewable: false,
-            editable: false
-          },
-          {
-            id: 15,
-            name: 'Column 15',
-            initialValue: '',
-            isLabel: false,
-            isRef: true,
-            type: 'Number',
-            isFilter: true,
-            isUserFilter: true,
-            isEditFilter: false,
-            viewable: null,
-            editable: null
-          },
-          {
-            id: 16,
-            name: 'Column 16',
-            initialValue: '',
-            isLabel: false,
-            isRef: false,
-            type: 'Text',
-            isFilter: true,
-            isUserFilter: false,
-            isEditFilter: false,
-            viewable: false,
-            editable: true
-          },
-          {
-            id: 17,
-            name: 'Column 17',
-            initialValue: '',
-            isLabel: false,
-            isRef: false,
-            type: 'URL',
-            isFilter: true,
-            isUserFilter: true,
-            isEditFilter: false,
-            viewable: false,
-            editable: false
-          },
-          {
-            id: 18,
-            name: 'Column 18',
-            initialValue: '',
-            isLabel: false,
-            isRef: true,
-            type: 'Number',
-            isFilter: false,
-            isUserFilter: false,
-            isEditFilter: true,
-            viewable: true,
-            editable: true
-          },
-          {
-            id: 19,
-            name: 'Column 19',
-            initialValue: '',
-            isLabel: false,
-            isRef: false,
-            type: 'Text',
-            isFilter: false,
-            isUserFilter: true,
-            isEditFilter: false,
-            viewable: null,
-            editable: null
-          },
-          {
-            id: 20,
-            name: 'Column 20',
-            initialValue: '',
-            isLabel: true,
-            isRef: false,
-            type: 'URL',
-            isFilter: true,
-            isUserFilter: false,
-            isEditFilter: false,
-            viewable: false,
-            editable: true
-          },
+          id: 11,
+          name: 'Column 11',
+          initialValue: '',
+          isLabel: false,
+          isRef: false,
+          type: 'Text',
+          isFilter: true,
+          isUserFilter: true,
+          isEditFilter: false,
+          viewable: false,
+          editable: true
+        },
+        {
+          id: 12,
+          name: 'Column 12',
+          initialValue: '',
+          isLabel: false,
+          isRef: true,
+          type: 'Number',
+          isFilter: true,
+          isUserFilter: false,
+          isEditFilter: false,
+          viewable: null,
+          editable: null
+        },
+        {
+          id: 13,
+          name: 'Column 13',
+          initialValue: '',
+          isLabel: false,
+          isRef: false,
+          type: 'URL',
+          isFilter: false,
+          isUserFilter: false,
+          isEditFilter: true,
+          viewable: true,
+          editable: true
+        },
+        {
+          id: 14,
+          name: 'Column 14',
+          initialValue: '',
+          isLabel: true,
+          isRef: false,
+          type: 'Text',
+          isFilter: false,
+          isUserFilter: false,
+          isEditFilter: true,
+          viewable: false,
+          editable: false
+        },
+        {
+          id: 15,
+          name: 'Column 15',
+          initialValue: '',
+          isLabel: false,
+          isRef: true,
+          type: 'Number',
+          isFilter: true,
+          isUserFilter: true,
+          isEditFilter: false,
+          viewable: null,
+          editable: null
+        },
+        {
+          id: 16,
+          name: 'Column 16',
+          initialValue: '',
+          isLabel: false,
+          isRef: false,
+          type: 'Text',
+          isFilter: true,
+          isUserFilter: false,
+          isEditFilter: false,
+          viewable: false,
+          editable: true
+        },
+        {
+          id: 17,
+          name: 'Column 17',
+          initialValue: '',
+          isLabel: false,
+          isRef: false,
+          type: 'URL',
+          isFilter: true,
+          isUserFilter: true,
+          isEditFilter: false,
+          viewable: false,
+          editable: false
+        },
+        {
+          id: 18,
+          name: 'Column 18',
+          initialValue: '',
+          isLabel: false,
+          isRef: true,
+          type: 'Number',
+          isFilter: false,
+          isUserFilter: false,
+          isEditFilter: true,
+          viewable: true,
+          editable: true
+        },
+        {
+          id: 19,
+          name: 'Column 19',
+          initialValue: '',
+          isLabel: false,
+          isRef: false,
+          type: 'Text',
+          isFilter: false,
+          isUserFilter: true,
+          isEditFilter: false,
+          viewable: null,
+          editable: null
+        },
+        {
+          id: 20,
+          name: 'Column 20',
+          initialValue: '',
+          isLabel: true,
+          isRef: false,
+          type: 'URL',
+          isFilter: true,
+          isUserFilter: false,
+          isEditFilter: false,
+          viewable: false,
+          editable: true
+        },
      ]
 
     /* React state for datasource columns. */
@@ -346,8 +346,8 @@ function EditAppDatasourceColumns() {
 
     return (
         <div style={styles.editAppDatasourceColumnsWrapper}>
-            {/* Navigation Bar for Columns */}
-            <EditColumnsNavBar/>
+            {/* Inner Navigation Bar */}
+            <EditAppInnerNavBar/>
 
             {/* Edit App Datasource Columns Display */}
             <div style={styles.editAppDatasourceColumnsDisplay}>

@@ -2,11 +2,11 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDevApps, setCurrentApp, setCurrentModalType, markAppToDelete, StoreState } from '../../store/StoreContext';
-import { App, ModalType } from '../../store/StoreTypes';
+import { viewDevApps, setCurrentApp, setCurrentModalType, markAppToDelete, StoreState } from '../../../store/StoreContext';
+import { App, ModalType } from '../../../store/StoreTypes';
 
-import styles from '../../styles/S2A/HomeStyles'
-import HomeNavBar from './HomeNavBar';
+import styles from '../../../styles/S2A/home/HomeStyles'
+import HomeNavBar from '../navbars/HomeNavBar';
 import { Grid, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';

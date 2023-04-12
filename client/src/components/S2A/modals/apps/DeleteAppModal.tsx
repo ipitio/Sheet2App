@@ -1,9 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDevApps, deleteApp, finishDeletion, StoreState } from '../../../store/StoreContext';
-import { ModalType } from '../../../store/StoreTypes';
+import { viewDevApps, deleteApp, finishDeletion, StoreState } from '../../../../store/StoreContext';
+import { ModalType } from '../../../../store/StoreTypes';
 
-import styles from '../../../styles/S2A/ModalStyles';
+import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal } from '@mui/material';
 
 

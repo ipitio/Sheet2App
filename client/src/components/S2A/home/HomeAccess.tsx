@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewAccApps, StoreState } from '../../store/StoreContext';
+import { viewAccApps, StoreState } from '../../../store/StoreContext';
 
-import styles from "../../styles/S2A/HomeStyles"
-import HomeNavBar from './HomeNavBar';
+import styles from "../../../styles/S2A/home/HomeStyles"
+import HomeNavBar from '../navbars/HomeNavBar';
 import { Grid, IconButton } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 

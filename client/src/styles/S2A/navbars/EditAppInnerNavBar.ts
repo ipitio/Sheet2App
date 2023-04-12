@@ -1,6 +1,6 @@
-import { StyleContainer } from "./StyleContainer";
+import { StyleContainer } from "../types/StyleContainer";
 
-const EditColumnsNavBarStyles: StyleContainer = {
+const EditAppInnerNavBarStyles: StyleContainer = {
   navBarWrapper: {
     paddingTop: '1vh',
     paddingBottom: '1vh',
@@ -14,4 +14,4 @@ const EditColumnsNavBarStyles: StyleContainer = {
   },
 };
 
-export default EditColumnsNavBarStyles;
+export default EditAppInnerNavBarStyles;

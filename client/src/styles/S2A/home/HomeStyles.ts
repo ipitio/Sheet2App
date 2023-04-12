@@ -1,4 +1,4 @@
-import { StyleContainer } from "./StyleContainer";
+import { StyleContainer } from "../types/StyleContainer";
 
 const HomeStyles: StyleContainer = {
   homeWrapper: {

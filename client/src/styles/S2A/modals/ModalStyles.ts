@@ -1,4 +1,4 @@
-import { StyleContainer } from "./StyleContainer";
+import { StyleContainer } from "../types/StyleContainer";
 
 const ModalStyles: StyleContainer = {
   modal: {
@@ -15,6 +15,13 @@ const ModalStyles: StyleContainer = {
   },
   modalTextfield: {
     marginLeft: '30px',
+  },
+  modalCheckbox: {
+    marginLeft: '30px',
+  },
+  modalDropdown: {
+    marginLeft: '20px',
+    minWidth: '200px',
   },
   modalButton: {
     marginLeft: '50px',

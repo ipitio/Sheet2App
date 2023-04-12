@@ -4,16 +4,23 @@ import { Provider } from 'react-redux'
 
 import store from './store/StoreContext'
 
-import Splash from './components/S2A/Splash'
-import S2AHomeAccess from './components/S2A/HomeAccess'
-import S2AHomeDevelop from './components/S2A/HomeDevelop'
-import EditAppDatasources from './components/S2A/EditAppDatasources'
+import Splash from './components/S2A/splash/Splash'
+import S2AHomeAccess from './components/S2A/home/HomeAccess'
+import S2AHomeDevelop from './components/S2A/home/HomeDevelop'
+import EditAppDatasources from './components/S2A/datasources/EditAppDatasources'
+import EditAppDatasourceColumns from './components/S2A/datasources/EditAppDatasourceColumns';
+import EditAppTableviews from './components/S2A/tableviews/EditAppTableviews';
+import EditAppTableviewColumns from './components/S2A/tableviews/EditAppTableviewColumns';
+import EditAppTableviewRoles from './components/S2A/tableviews/EditAppTableviewRoles';
 
-import CreateAppModal from './components/S2A/modals/CreateAppModal';
-import DeleteAppModal from './components/S2A/modals/DeleteAppModal';
-import CreateDatasourceModal from './components/S2A/modals/CreateDatasourceModal';
-import EditDatasourceModal from './components/S2A/modals/EditDatasourceModal';
-import DeleteDatasourceModal from './components/S2A/modals/DeleteDatasourceModal';
+import CreateAppModal from './components/S2A/modals/apps/CreateAppModal';
+import DeleteAppModal from './components/S2A/modals/apps/DeleteAppModal';
+import CreateDatasourceModal from './components/S2A/modals/datasources/CreateDatasourceModal';
+import EditDatasourceModal from './components/S2A/modals/datasources/EditDatasourceModal';
+import DeleteDatasourceModal from './components/S2A/modals/datasources/DeleteDatasourceModal';
+import CreateTableviewModal from './components/S2A/modals/tableviews/CreateTableviewModal';
+import EditTableviewModal from './components/S2A/modals/tableviews/EditTableviewModal';
+import DeleteTableviewModal from './components/S2A/modals/tableviews/DeleteTableviewModal';
 
 import UserAppHome from './components/userapp/Home'
 import TableView from './components/userapp/TableView';
@@ -22,7 +29,7 @@ import DetailView from './components/userapp/DetailView';
 import AddRecordModal from './components/userapp/modals/AddRecordModal';
 import EditRecordModal from './components/userapp/modals/EditRecordModal';
 import DeleteRecordModal from './components/userapp/modals/DeleteRecordModal';
-import EditAppDatasourceColumns from './components/S2A/EditAppDatasourceColumns';
+
 
 const App: React.FC = () => {
   return (
@@ -35,6 +42,9 @@ const App: React.FC = () => {
           <Route path="/S2A/home/access" element={<S2AHomeAccess/>}/>
           <Route path="/S2A/editapp/datasources/:appid" element={<EditAppDatasources/>}/>
           <Route path="/S2A/editapp/datasources/datasourcecolumns/:appid" element={<EditAppDatasourceColumns/>}/>
+          <Route path="/S2A/editapp/tableviews/:appid" element={<EditAppTableviews/>}/>
+          <Route path="/S2A/editapp/tableviews/tableviewcolumns/:appid" element={<EditAppTableviewColumns/>}/>
+          <Route path="/S2A/editapp/tableviews/tableviewroles/:appid" element={<EditAppTableviewRoles/>}/>
 
           {/* User App Routes */}
           <Route path="/userapp/:appid/home" element={<UserAppHome/>} />
@@ -52,6 +62,9 @@ const App: React.FC = () => {
       <CreateDatasourceModal/>
       <EditDatasourceModal/>
       <DeleteDatasourceModal/>
+      <CreateTableviewModal/>
+      <EditTableviewModal/>
+      <DeleteTableviewModal/>
 
       {/* User App Modals */}
       <AddRecordModal/>

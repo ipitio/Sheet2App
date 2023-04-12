@@ -42,8 +42,6 @@ export interface View {
     canView: boolean;
 	
 	datasource: Datasource;
-	
-	roles: Role[];
 }
 
 export interface Tableview extends View {
@@ -63,10 +61,15 @@ export enum ModalType {
 	/* S2A */
     CreateAppModal,
     DeleteAppModal,
+
     CreateDatasourceModal,
 	EditDatasourceModal,
 	DeleteDatasourceModal,
+
     CreateTableviewModal,
+	EditTableviewModal,
+	DeleteTableviewModal,
+	
     CreateDetailviewModal,
 
 	/* User App */

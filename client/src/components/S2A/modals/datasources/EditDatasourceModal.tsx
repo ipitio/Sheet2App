@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDatasources, editDatasource, finishEdit, StoreState } from '../../../store/StoreContext';
-import { Datasource, ModalType } from '../../../store/StoreTypes';
+import { viewDatasources, editDatasource, finishEdit, StoreState } from '../../../../store/StoreContext';
+import { Datasource, ModalType } from '../../../../store/StoreTypes';
 
-import styles from '../../../styles/S2A/ModalStyles';
+import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal, TextField } from '@mui/material';
 
 
@@ -15,7 +15,7 @@ function EditDatasourceModal() {
     const currentDatasourceToEdit = useSelector((state: StoreState) => state.S2AReducer.currentDatasourceToEdit);
     const currentModalType = useSelector((state: StoreState) => state.S2AReducer.currentModalType);
 
-    /* React states for textfields. */
+    /* React state for datasource changes. */
     const [changedDatasource, setDatasource] = useState<Datasource>({
         id: currentDatasourceToEdit?.id ?? 0,
         name: currentDatasourceToEdit?.name ?? "",

@@ -99,6 +99,29 @@ async function getAccessibleApps(): Promise<App[]> {
 }
 
 /**
+ * Requests an array of all roles for a particular app.
+ * @param {App} app - The application to obtain the roles of.
+ * @return {Promise<Role[]>} - A promise that resolves to the array of roles on success, rejects on failure.
+ */
+async function getAppRoles(app: App): Promise<Role[]> {
+    try {
+        const reqForm = await getRequestForm("GET", {"app": app});
+
+        /* Send request and return promise resolving to array of roles if successful. */
+        const res = await fetch(`${DJANGO_URL}/getAppRoles`, reqForm);
+        if(!res.ok) 
+            return Promise.reject(`getAppRoles request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const roles: Role[] = data.roles;
+        return roles;
+    }
+    catch(err) {
+        return Promise.reject(`getAppRoles failed with the error: ${err}`);
+    }
+}
+
+/**
  * Requests to create a new app where the user is the creator.
  * @param {string} appName - The name of the application.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
@@ -783,7 +806,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
     }
 }
 
-export default {getDevelopableApps, getAccessibleApps, createApp, deleteApp, editApp, 
+export default {getDevelopableApps, getAccessibleApps, getAppRoles, createApp, deleteApp, editApp, 
                 getAppDatasources, createDatasource, editDatasource, deleteDatasource,
                 getDatasourceColumns, editDatasourceColumns, 
                 getAppTableviews, createTableview, editTableview, deleteTableview, 

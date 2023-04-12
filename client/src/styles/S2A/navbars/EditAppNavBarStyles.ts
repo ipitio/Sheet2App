@@ -1,6 +1,6 @@
-import { StyleContainer } from "./StyleContainer";
+import { StyleContainer } from "../types/StyleContainer";
 
-const HomeNavBarStyles: StyleContainer = {
+const EditAppNavBarStyles: StyleContainer = {
   navBarWrapper: {
     paddingTop: '1vh',
     paddingBottom: '1vh',
@@ -9,19 +9,19 @@ const HomeNavBarStyles: StyleContainer = {
   navBarTitle: {
     flexGrow: 0.1,
   },
-  createAppButton: {
+  createButton: {
+    marginLeft: '30px',
     fontSize: '1rem',
     color: 'white',
     borderRadius: 2,
     borderColor: '#53809e',
-    borderWidth: '0.5px',
+    borderWidth: '2px',
     borderStyle: 'solid',
     background: 'linear-gradient(to bottom, #5a8cad, #6CA6CD)',
   },
-  searchAppTextfield: {
-    height: '55px',
-    flexGrow: 0.75,
-    marginLeft: 'auto',
+  editAppTextfield: {
+    marginLeft: '100px',
+    minWidth: '400px',
     background: 'linear-gradient(to bottom, #5a8cad, #6CA6CD)',
   },
   displayButton: {
@@ -33,15 +33,21 @@ const HomeNavBarStyles: StyleContainer = {
     borderRadius: '8px',
     background: '#5a8cad',
   },
-  displayDevAppsButton: {
-    marginLeft: '200px',
+  displayDatasourcesButton: {
+    marginLeft: '250px',
   },
-  displayAccAppsButton: {
+  displayTableviewsButton: {
     marginLeft: '10px',
   },
-  openProfileButton: {
+  displayDetailviewsButton: {
+    marginLeft: '10px',
+  },
+  displayRolesButton: {
+    marginLeft: '10px',
+  },
+  displayReturnButton: {
     marginLeft: '10px',
   },
 };
 
-export default HomeNavBarStyles;
+export default EditAppNavBarStyles;
