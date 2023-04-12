@@ -86,7 +86,7 @@ function CreateTableviewModal() {
                     <InputLabel>Datasource</InputLabel>
                     <Select ref={datasourceNameRef} label="Datasource">
                         {datasources.map((ds) => (
-                            <MenuItem value={ds.name}>{ds.name}</MenuItem>
+                            <MenuItem value={ds.name} key={ds.id}>{ds.name}</MenuItem>
                         ))}
                     </Select>
                 </FormControl>
