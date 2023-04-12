@@ -778,7 +778,7 @@ async function addRecord(datasource: Datasource, record: Record): Promise<{colum
         };
     }
     catch(err) {
-        return Promise.reject(`loadTableView failed with the error: ${err}`);
+        return Promise.reject(`addRecord failed with the error: ${err}`);
     }
 }
 
@@ -805,7 +805,7 @@ async function editRecord(datasource: Datasource, recordID: number, record: Reco
         };
     }
     catch(err) {
-        return Promise.reject(`loadTableView failed with the error: ${err}`);
+        return Promise.reject(`editRecord failed with the error: ${err}`);
     }
 }
 
@@ -825,7 +825,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
         const data = await res.json();
     }
     catch(err) {
-        return Promise.reject(`loadTableView failed with the error: ${err}`);
+        return Promise.reject(`deleteRecord failed with the error: ${err}`);
     }
 }
 
