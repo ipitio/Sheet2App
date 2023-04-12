@@ -492,3 +492,17 @@ def get_num_rows(spreadsheet_id, sheet_id) -> int:
     except HttpError as err:
         print(err)
         return 0
+    
+    
+def get_end_user_roles(role_mem_url, email):
+    spreadsheet_id = get_spreadsheet_id(role_mem_url)
+    sheet_id = get_gid(role_mem_url)
+    
+    role_data = get_data(spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, majorDimension="COLUMNS")
+    
+    roles = []
+    for role_col in role_data[1:]:
+        if email in role_col[1:]:
+            roles.append(role_col[0])
+            
+    return roles

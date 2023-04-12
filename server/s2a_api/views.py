@@ -680,3 +680,36 @@ def edit_record(request):
 
     return response
 
+
+def get_app_table_views_for_role(request):
+    body = json.loads(request.body)
+    email = body["email"]
+    app_id = body["app"]["id"]
+    role_mem_url = body["app"]["roleMemUrl"]
+    
+    roles = sheets_api.get_end_user_roles(role_mem_url=role_mem_url, email=email)
+    
+    table_views, response_code = queries.get_table_views_for_roles(
+        app_id=app_id, roles=roles
+    )
+    
+    res_body = {"tableviews": table_views}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+
+def load_table_view_column_data(request):
+    body = json.loads(request.body)
+    
+    
+    
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response

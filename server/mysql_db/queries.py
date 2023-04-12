@@ -341,6 +341,26 @@ def get_table_views_by_app_id(app_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
     
     
+def get_table_views_for_roles(app_id, roles):
+    try:
+        table_views_for_role = []
+        
+        for role in roles:
+            table_views = TableView.objects.filter(app_id=app_id).values()
+            table_views = mysql_db.utils.annotate_table_views(table_views)
+            table_views = list(table_views)
+            
+            for table_view in table_views:
+                if TableViewPerm.objects.exists(table_view_id=table_view["id"], role=role):
+                    table_views_for_role.append(table_view)
+        
+        
+        return table_views_for_role, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
 def get_roles_for_table_view(table_view_id):
     try:
         table_view_perms = TableViewPerm.objects.filter(table_view_id=table_view_id).values()
