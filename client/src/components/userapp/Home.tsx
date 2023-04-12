@@ -1,8 +1,11 @@
 import { Box } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import DatasourceNavBar from './DatasourceNavBar';
+import { useDispatch } from 'react-redux';
 
 function Home() {
+    const dispatch = useDispatch();
+
     return (
         <Box>
             <DatasourceNavBar />

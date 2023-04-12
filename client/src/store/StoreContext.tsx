@@ -560,6 +560,8 @@ const S2AReducer = createSlice({
 })
 
 export interface IWebAppState {
+    app: App | null,
+
     // An array of Views that have been previously loaded by the user
     tableviews: Tableview[],
 
@@ -578,6 +580,7 @@ export interface IWebAppState {
 }
 
 const webAppState: IWebAppState = {
+    app: null,
     tableviews: [],
     currentDatasource: null,
     currentView: null,
@@ -600,6 +603,15 @@ const webAppReducer = createSlice({
         },
         setCurrentView: (state, action: {payload: View}) => {
             state.currentView = action.payload;
+        },
+        loadTableview: (state, action: {payload: Datasource}) => {
+            storeController.loadTableview(action.payload)
+            .then(() => {
+
+            })
+            .catch((error: Error) => {
+                console.log(error);
+            })
         },
         // Called by the AddRecordModal when changes are submitted
         addRecord: (state, action: {payload: Record, type: string}) => {
@@ -676,7 +688,9 @@ export const { viewDevApps, viewAccApps, createApp, editApp, deleteApp,
                finishCreation, finishEdit, finishDeletion, resetAll
             } = S2AReducer.actions
 
-export const { setCurrentView, addRecord, editRecord, deleteRecord, showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
+export const { setCurrentView, addRecord, editRecord, deleteRecord,
+    showAddRecordModal, showEditRecordModal, showDeleteRecordModal,
+    hideWebAppModal, loadTableview } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
 export interface StoreState {

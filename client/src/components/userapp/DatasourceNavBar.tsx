@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch} from 'react-redux';
+import { useDispatch, useSelector} from 'react-redux';
 
 import { getLoggedOut } from '../../auth/AuthController';
 
-import { setCurrentModalType } from '../../store/StoreContext';
-import { ModalType } from '../../store/StoreTypes';
+import { StoreState, setCurrentModalType, loadTableview } from '../../store/StoreContext';
+import { Datasource, ModalType, Tableview, View } from '../../store/StoreTypes';
 
 import styles from '../../styles/S2A/HomeNavBarStyles'
-import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, TextField } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, Box, TextField, SwipeableDrawer } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
-import AddIcon from '@mui/icons-material/Add';
+import MenuIcon from '@mui/icons-material/Menu';
+import Drawer from '@mui/material/Drawer';
 
 import Cookies from 'js-cookie';
 
@@ -20,17 +21,162 @@ function DatasourceNavBar() {
     const dispatch = useDispatch();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-    const tableviews = useSelector((state: StoreState) => state.webAppReducer.tableviews);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-    // useEffect(() => {
-    //     dispatch(setCurrentModalType(null));
-    // }, []);
+    const app = useSelector((state: StoreState) => state.webAppReducer.app);
+    // const tableviews = useSelector((state: StoreState) => state.webAppReducer.tableviews);
+
+    const tableviews: View[] = [
+        {
+            id: 0, 
+            name: "First Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },
+        {
+            id: 1, 
+            name: "Second Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },
+        {
+            id: 2, 
+            name: "Third Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },        {
+            id: 0, 
+            name: "First Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },
+        {
+            id: 1, 
+            name: "Second Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },
+        {
+            id: 2, 
+            name: "Third Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },        {
+            id: 0, 
+            name: "First Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },
+        {
+            id: 1, 
+            name: "Second Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },
+        {
+            id: 2, 
+            name: "Third Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },        {
+            id: 0, 
+            name: "First Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },
+        {
+            id: 1, 
+            name: "Second Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        },
+        {
+            id: 2, 
+            name: "Third Table",
+            canView: true,
+            datasource: {
+                id: 0,
+                name: "Datasource 1",
+                spreadsheetUrl: "url",
+                sheetName: "some sheet name"
+            },
+            roles: []
+        }
+    ]
+
+    useEffect(() => {
+        dispatch(setCurrentModalType(null));
+    }, []);
 
     /* Event handlers. */
-
-    /* If the create app button is clicked. */
-    const handleOpenModal = () => {
-        dispatch(setCurrentModalType(ModalType.CreateAppModal));
+    const handleOpenView = (datasource: Datasource) => {
+        dispatch(loadTableview(datasource));
     }
 
     /* If the profile menu is clicked.  */
@@ -47,31 +193,47 @@ function DatasourceNavBar() {
         navigate("/userapp");
     };
 
+    const handleOpenDrawer = () => {
+        setIsDrawerOpen(true);
+    }
+
+    const handleCloseDrawer = () => {
+        setIsDrawerOpen(false);
+    }
+
+    /** Display the list of datasources accessible to this app */
+    const datasources = 
+        tableviews.map((tableview) => {
+            return (
+                <Button onClick={() => { handleOpenView(tableview.datasource) }} sx={{width: '15vw'}}>
+                    {tableview.name}
+                </Button>
+            )
+        })
+
     return (
         <AppBar sx={styles.navBarWrapper}>
             <Toolbar>
-                <Typography sx={styles.navBarTitle} variant="h6" component="div">Web App</Typography>
+                <IconButton
+                    size="large"
+                    edge="start"
+                    color="inherit"
+                    aria-label="menu"
+                    sx={{ mr: 2 }}
+                    onClick={handleOpenDrawer}
+                >
+                    <MenuIcon />
+                </IconButton>
 
-                {/* Nav Bar */}
-                {location.pathname === "/S2A/home/develop" && (
-                    <IconButton onClick={handleOpenModal} sx={styles.createAppButton}>
-                        <AddIcon/>
-                        Create New App
-                    </IconButton>
-                )}
+                <SwipeableDrawer
+                    open={isDrawerOpen}
+                    onClose={handleCloseDrawer}
+                    onOpen={handleOpenDrawer}
+                >
+                    {datasources}
+                </SwipeableDrawer>
 
-                {/* Search Textfield and Navigation Buttons */}
-                {/* <TextField sx={styles.searchAppTextfield} label="Search app" variant="filled"/> */}
-                {
-                    tableviews.forEach((tableview) => {
-                        return (<Button>
-                            tableview.
-                        </Button>)
-                    })
-                }
-
-                <Button onClick={() => {}} sx={{ ...styles.displayButton, ...styles.displayDevAppsButton }} color="inherit">Apps in Development</Button>
-                <Button onClick={() => {}} sx={{ ...styles.displayButton, ...styles.displayAccAppsButton }} color="inherit">Accessible Apps</Button>
+                <Typography sx={styles.navBarTitle} variant="h6" component="div">{app?.name}</Typography>
                 <IconButton onClick={handleProfileOpen} sx={styles.openProfileButton} color="inherit">
                     <AccountCircle />
                 </IconButton>
