@@ -189,7 +189,8 @@ def create_datasource(request):
             continue
         
         column, response_code = queries.create_datasource_column(
-            datasource_id=datasource_id, column_index=i, name=header
+            datasource_id=datasource_id, column_index=(i + 1), name=header,
+            is_filter=False, is_user_filter=False, is_edit_filter=False
         )
     
 
@@ -263,8 +264,8 @@ def get_datasource_columns(request):
 def edit_datasource_columns(request):
     body = json.loads(request.body)
     columns = body["datasourceColumns"]
-    # TODO create / delete corresponding TableViewViewableColumn and DetailViewEditableColumns 
-    output, response_code = queries.update_datasource_column(columns=columns)
+
+    output, response_code = queries.update_datasource_columns(columns=columns)
 
     res_body = {}
     response = HttpResponse(
@@ -276,11 +277,48 @@ def edit_datasource_columns(request):
 
 def create_table_view(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
+    app_id = body["app"]["id"]
+    table_view_name = body["tableviewName"]
+    datasource_id = body["datasource"]["id"]
+    spreadsheet_url = body["datasource"]["spreadsheetUrl"]
 
-    output, response_code = queries.create_table_view(app_id=app_id)
+    new_table_view, response_code = queries.create_table_view(
+        app_id=app_id, table_view_name=table_view_name, datasource_id=datasource_id
+    )
+    
+    # Create the filter columns
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    sheet_id = sheets.utils.get_gid(spreadsheet_url)
+    columns = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, majorDimension="COLUMNS")
+    
+    new_column_index =  len(columns) + 1
+    filter_column_header =  f"{new_table_view.id} {table_view_name} Filter"
+    sheets_api.write_column(
+        spreadsheet_id, sheet_id, column_data=[filter_column_header], column_index=new_column_index
+    )
+    filter_column, response_code = queries.create_datasource_column(
+        datasource_id=datasource_id, column_index=new_column_index, name=filter_column_header,
+        is_filter=True, is_user_filter=False, is_edit_filter=False
+    )
+    # table_view_filter_column = queries.create_table_view_filter_column(
+    #     table_view_id=new_table_view.id, datasource_column_id=filter_column.id
+    # )
+    
+    
+    new_column_index += 1
+    user_filter_column_header =  f"{new_table_view.id} {table_view_name} User Filter"
+    sheets_api.write_column(
+        spreadsheet_id, sheet_id, column_data=[user_filter_column_header], column_index=new_column_index
+    )
+    user_filter_column, response_code = queries.create_datasource_column(
+        datasource_id=datasource_id, column_index=new_column_index, name=user_filter_column_header,
+        is_filter=False, is_user_filter=True, is_edit_filter=False
+    )
+    # table_view_user_filter_column = queries.create_table_view_filter_column(
+    #     table_view_id=new_table_view.id, datasource_column_id=user_filter_column.id
+    # )
 
-    res_body = {"tableView": output}
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -290,15 +328,11 @@ def create_table_view(request):
 
 def edit_table_view(request):
     body = json.loads(request.body)
-    table_view_id = body["tableViewId"]
-    datasource_id = body["datasourceId"]
-    name = body["name"]
+    table_view = body["tableview"]
 
-    output, response_code = queries.update_table_view(
-        table_view_id=table_view_id, datasource_id=datasource_id, name=name
-    )
+    output, response_code = queries.update_table_view(table_view=table_view)
 
-    res_body = {"tableView": output}
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -310,73 +344,22 @@ def get_app_table_views(request):
     body = json.loads(request.body)
     app_id = body["app"]["id"]
 
-    output, response_code = queries.update_table_view()
+    table_views, response_code = queries.get_table_views_by_app_id(app_id=app_id)
+    
+    table_view_store_objs = []
+    for table_view in table_views:
+        table_view_obj = table_view
+        
+        datasource, response_code = queries.get_datasource_by_table_view_id(table_view["id"])
+        roles, response_code = queries.get_roles_for_table_view(table_view["id"])
+        
+        table_view_obj["datasource"] = datasource
+        table_view_obj["roles"] = roles
+        
+        table_view_store_objs.append(table_view_obj)
+        
 
-    res_body = {"tableView": output}
-    response = HttpResponse(
-        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
-    )
-
-    return response
-
-
-def get_views_by_app_id(request):
-    body = json.loads(request.body)
-    app_id = body["appID"]
-    role = body["role"]
-
-    table_view_data, response_code = queries.get_views_by_app_id(app_id=app_id)
-
-    # For each view associated with the app, get the data in the corresponding spreadsheet,
-    # get the can view, add, and delete bools for the given role, get the list of columns the
-    # role can edit for this table
-    views = []
-    for table_view in table_view_data:
-        table_view_id = table_view["id"]
-
-        datasource, response_code = queries.get_datasource_by_table_view_id()
-        spreadsheet_id = datasource.spreadsheet_id
-        gid = datasource.gid
-
-        # Retrieve the spreadsheet data for all viewable columns in the table_view
-        displayed_column_indexes = [
-            column.column_index
-            for column in queries.get_datasource_columns_by_table_view_id()[0]
-        ]
-        sheet_data = sheets.get_column_data(
-            spreadsheet_id=spreadsheet_id,
-            sheet_id=gid,
-            columns=displayed_column_indexes,
-        )
-
-        (
-            table_view_perms,
-            response_code,
-        ) = queries.get_table_view_perms_for_role_by_table_view_id(
-            table_view_id=table_view_id, role=role
-        )
-
-        # Get the columns that the given role is able to edit on this table
-        # Pick the first detail view that is associated with this table_view_id AND the given role
-        # find the columns that the detail view can edit
-        editable_columns, response_code = [
-            column.column_index
-            for column in queries.get_datasource_columns_by_table_view_id_and_role(
-                table_view_id=table_view_id, role=role
-            )[0]
-        ]
-        views.append(
-            {
-                "data": sheet_data,
-                "id": table_view.id,
-                "role_can_view": table_view_perms.can_view,
-                "role_can_add": table_view_perms.can_add,
-                "role_can_delete": table_view_perms.can_delete,
-                "editable_column_indexes": editable_columns,
-            }
-        )
-
-    res_body = {"views": views}
+    res_body = {"tableviews": table_view_store_objs}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -386,11 +369,214 @@ def get_views_by_app_id(request):
 
 def delete_table_view(request):
     body = json.loads(request.body)
-    table_view_id = body["tableViewId"]
+    table_view_id = body["tableview"]["id"]
 
     output, response_code = queries.delete_table_view(table_view_id=table_view_id)
 
-    res_body = {"tableView": output}
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def get_table_view_columns(request):
+    body = json.loads(request.body)
+    table_view_id = body["tableview"]["id"]
+
+    columns, response_code = queries.get_table_view_viewable_columns(table_view_id=table_view_id)
+
+    res_body = { "tableviewColumns": columns }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def edit_table_view_columns(request):
+    body = json.loads(request.body)
+    table_view_id = body["tableview"]["id"]
+    columns = body["tableviewColumns"]
+    filter_column_entries = body["filterColumn"]            # boolean array
+    user_filter_column_entries = body["userFilterColumn"]   # string array
+
+    output, response_code = queries.update_table_view_viewable_columns(
+        table_view_id=table_view_id, columns=columns
+    )
+    
+    
+
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def get_table_view_roles(request):
+    body = json.loads(request.body)
+    table_view_id = body["tableview"]["id"]
+
+    roles, response_code = queries.get_roles_for_table_view(table_view_id=table_view_id)
+
+    res_body = { "tableviewRoles": roles }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def edit_table_view_roles(request):
+    body = json.loads(request.body)
+    table_view_id = body["tableview"]["id"]
+    roles = body["tableviewRoles"]
+
+    output, response_code = queries.update_table_view_role_perms(
+        table_view_id=table_view_id, roles=roles
+    )
+
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def create_detail_view(request):
+    body = json.loads(request.body)
+    app_id = body["app"]["id"]
+    name = body["detailviewName"]
+    datasource_id = body["datasource"]["id"]
+
+    output, response_code = queries.create_detail_view(
+        app_id=app_id, name=name, datasource_id=datasource_id
+    )
+
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def get_app_detail_views(request):
+    body = json.loads(request.body)
+    app_id = body["app"]["id"]
+
+    detail_views, response_code = queries.get_detail_views_by_app_id(app_id=app_id)
+
+    detail_view_store_objs = []
+    for detail_view in detail_views:
+        detail_view_obj = detail_view
+        
+        datasource, response_code = queries.get_datasource_by_detail_view_id(detail_view["id"])
+        roles, response_code = queries.get_roles_for_detail_view(detail_view["id"])
+        
+        detail_view_obj["datasource"] = datasource
+        detail_view_obj["roles"] = roles
+        
+        detail_view_store_objs.append(detail_view_obj)
+
+    res_body = { "detailviews": detail_view_store_objs }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def edit_detail_view(request):
+    body = json.loads(request.body)
+    detail_view = body["detailview"]
+
+    output, response_code = queries.update_detail_view(detail_view=detail_view)
+
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def delete_detail_view(request):
+    body = json.loads(request.body)
+    detail_view_id = body["detailview"]["id"]
+
+    output, response_code = queries.delete_detail_view(detail_view_id=detail_view_id)
+
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def get_detail_view_columns(request):
+    body = json.loads(request.body)
+    detail_view_id = body["detailview"]["id"]
+
+    columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view_id)
+
+    res_body = {
+        "detailviewColumns": columns,
+        # "editFilterColumn": []
+    }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def edit_detail_view_columns(request):
+    body = json.loads(request.body)
+    detail_view_id = body["detailview"]["id"]
+    columns = body["detailviewColumns"]
+
+    output, response_code = queries.update_detail_view_viewable_columns(
+        detail_view_id=detail_view_id, columns=columns
+    )
+
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def get_detail_view_roles(request):
+    body = json.loads(request.body)
+    detail_view_id = body["detailview"]["id"]
+
+    roles, response_code = queries.get_roles_for_detail_view(detail_view_id=detail_view_id)
+
+    res_body = { "detailviewRoles": roles }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+def edit_detail_view_roles(request):
+    body = json.loads(request.body)
+    detail_view_id = body["detailview"]["id"]
+    roles = body["detailviewRoles"]
+
+    output, response_code = queries.update_detail_view_role_perms(
+        detail_view_id=detail_view_id, roles=roles
+    )
+
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -400,30 +586,75 @@ def delete_table_view(request):
 
 def add_record(request):
     body = json.loads(request.body)
-    table_view_id = body["viewID"]
-    record_data = body["recordToAdd"]["data"]
+    datasource = body["datasource"]
+    record_data = body["record"]
 
-    # Get the datasource that corresponds to this view
-    table_view, response_code = queries.get_table_view_by_id(
-        table_view_id=table_view_id
-    )
-    datasource_id = table_view.datasource
     datasource, response_code = queries.get_datasource_by_id(
-        datasource_id=datasource_id
+        datasource_id=datasource["id"]
     )
 
-    # Insert the record information into the sheet
+    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+    record_data_array = [""] * len(datasource_columns)
+    
+    for column in datasource_columns:
+        col_name = column["name"]
+        col_index = column["column_index"]
+        
+        if col_name in record_data:
+            record_data_array[col_index] = record_data[col_name]
+        
+
     spreadsheet_id = datasource.spreadsheet_id
     gid = datasource.gid
-    sheets.insert_row(
-        spreadsheet_id=spreadsheet_id, sheet_id=gid, row_to_insert=record_data
+    sheets_api.insert_row(
+        spreadsheet_id=spreadsheet_id, sheet_id=gid, row_to_insert=record_data_array
     )
 
     # Get and send the refreshed data in response
-    data = sheets.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    data = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)
     res_body = {"spreadsheet_data": data}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
 
     return response
+
+
+def edit_record(request):
+    body = json.loads(request.body)
+    datasource = body["datasource"]
+    record_data = body["record"]
+    record_index = body["recordID"]
+    
+    spreadsheet_id = datasource.spreadsheet_id
+    gid = datasource.gid
+
+    datasource, response_code = queries.get_datasource_by_id(
+        datasource_id=datasource["id"]
+    )
+
+    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+    record_data_array = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)[record_index]
+    
+    for column in datasource_columns:
+        col_name = column["name"]
+        col_index = column["column_index"]
+        
+        if col_name in record_data:
+            record_data_array[col_index] = record_data[col_name]
+        
+
+    sheets_api.update_row(
+        spreadsheet_id=spreadsheet_id, sheet_id=gid, 
+        updated_row_data=record_data_array, row_index=record_index
+    )
+
+    # Get and send the refreshed data in response
+    data = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    res_body = {"spreadsheet_data": data}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+

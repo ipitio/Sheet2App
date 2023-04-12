@@ -396,6 +396,43 @@ def delete_row(spreadsheet_id, sheet_id, row_index):
     return
 
 
+# Write data to the first open column in the sheet
+def write_column(spreadsheet_id, sheet_id, column_data, column_index):
+    try:
+        service = build('sheets', 'v4', credentials=get_creds())
+        
+        sheet = service.spreadsheets()
+        sheet_name = ""
+        if sheet_id is not None:
+            sheets_info = (
+                sheet.get(spreadsheetId=spreadsheet_id).execute().get("sheets")
+            )
+
+            for sheet_info in sheets_info:
+                if sheet_info.get("properties").get("sheetId") == sheet_id:
+                    sheet_name = sheet_info.get("properties").get("title")
+                    break
+                
+        column_letter = get_column_letter(column_index)
+        update_range = f'{sheet_name}!{column_letter}1:{column_letter}{len(column_data)}'
+        request_body = {
+            'range': update_range,
+            'values': [[value] for value in column_data],
+        }
+        request = sheet.values().update(
+            spreadsheetId=spreadsheet_id,
+            range=update_range,
+            valueInputOption='RAW',
+            body=request_body,
+        )
+        
+        res = request.execute()
+
+        return res
+    except HttpError as err:
+        print(err)
+
+
 def get_metadata(spreadsheet_id):
     try:
         service = build("sheets", "v4", credentials=get_creds())
