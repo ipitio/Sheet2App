@@ -160,3 +160,6 @@ CACHE_MIDDLEWARE_KEY_PREFIX = ''
 
 CONN_MAX_AGE = 60
 CONN_HEALTH_CHECKS = True
+
+#SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"

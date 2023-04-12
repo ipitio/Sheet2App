@@ -4,9 +4,9 @@ import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './
 import { Dictionary } from "@reduxjs/toolkit";
 
 /* Define constants for constructing a URL to reach Django server. */
-const DJANGO_HOST = process.env.DJANGO_HOST;
-const DJANGO_PORT = process.env.DJANGO_PORT;
-const DJANGO_PROTOCOL = process.env.DJANGO_PROTOCOL;
+const DJANGO_HOST = process.env.REACT_APP_DJANGO_HOST;
+const DJANGO_PORT = process.env.REACT_APP_DJANGO_PORT;
+const DJANGO_PROTOCOL = process.env.REACT_APP_DJANGO_PROTOCOL;
 const DJANGO_URL = `${DJANGO_PROTOCOL}://${DJANGO_HOST}:${DJANGO_PORT}`;
 
 /*
@@ -95,6 +95,29 @@ async function getAccessibleApps(): Promise<App[]> {
     }
     catch(err) {
         return Promise.reject(`getAccessibleApps failed with the error: ${err}`);
+    }
+}
+
+/**
+ * Requests an array of all roles for a particular app.
+ * @param {App} app - The application to obtain the roles of.
+ * @return {Promise<Role[]>} - A promise that resolves to the array of roles on success, rejects on failure.
+ */
+async function getAppRoles(app: App): Promise<Role[]> {
+    try {
+        const reqForm = await getRequestForm("GET", {"app": app});
+
+        /* Send request and return promise resolving to array of roles if successful. */
+        const res = await fetch(`${DJANGO_URL}/getAppRoles`, reqForm);
+        if(!res.ok) 
+            return Promise.reject(`getAppRoles request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const roles: Role[] = data.roles;
+        return roles;
+    }
+    catch(err) {
+        return Promise.reject(`getAppRoles failed with the error: ${err}`);
     }
 }
 
@@ -599,7 +622,7 @@ async function getDetailviewColumns(detailview: Detailview): Promise<[Column[], 
  * @param {boolean[] | null} editFilterColumn - THe array of boolean values corresponding to each record indicating if the view should allow this user to edit the record. If null, no filter.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editDetailviewColumns(detailview: Detailview, detailviewColumns: Column[], editFilterColumn: boolean[]): Promise<void> {
+async function editDetailviewColumns(detailview: Detailview, detailviewColumns: Column[], editFilterColumn: boolean[] | null): Promise<void> {
     try {
         const reqForm = await getRequestForm("PUT", {"detailview": detailview, "detailviewColumns": detailviewColumns, "editFilterColumn": editFilterColumn});
         
@@ -783,7 +806,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
     }
 }
 
-export default {getDevelopableApps, getAccessibleApps, createApp, deleteApp, editApp, 
+export default {getDevelopableApps, getAccessibleApps, getAppRoles, createApp, deleteApp, editApp, 
                 getAppDatasources, createDatasource, editDatasource, deleteDatasource,
                 getDatasourceColumns, editDatasourceColumns, 
                 getAppTableviews, createTableview, editTableview, deleteTableview, 

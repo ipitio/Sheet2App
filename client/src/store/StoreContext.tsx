@@ -9,8 +9,11 @@ export interface IS2AState {
     /* An array of developable apps for the current user. Set when navigating onto developable apps screen. */
     devApps: App[],
 
-    /* An array of accessible apps for the current user. Set when anvigating onto accessible apps screen. */
+    /* An array of accessible apps for the current user. Set when navigating onto accessible apps screen. */
     accApps: App[],
+
+    /* An array of roles belonging to the current app. Set when navigating onto edit tableview/detailview roles screen. */
+    roles: Role[],
 
     /* An array of datasources belonging to the current app. Set when navigating onto edit datasources screen. */
     datasources: Datasource[],
@@ -86,6 +89,8 @@ const S2AState: IS2AState = {
     devApps: [],
     accApps: [],
 
+    roles: [],
+
     datasources: [],
     datasourceColumns: [],
 
@@ -140,6 +145,18 @@ const S2AReducer = createSlice({
                 .catch((error: Error) => {
                     console.log(`viewAccApps failed with the error ${error}`);
                 });
+        },
+        viewAppRoles: (state) => {
+            if(state.currentApp) {
+                storeController.getAppRoles(state.currentApp) 
+                .then((roles: Role[]) => {
+                    state.roles = roles;
+                    console.log("Retrieved app roles.")
+                })
+                .catch((error: Error) => {
+                    console.log(`viewAppRoles failed with the error ${error}`);
+                });
+            }
         },
         createApp: (state, action: PayloadAction<string>) => {
             storeController.createApp(action.payload)
@@ -278,9 +295,9 @@ const S2AReducer = createSlice({
                     })
             }
         },  
-        deleteTableview: (state, action: PayloadAction<Tableview>) => {
+        deleteTableview: (state) => {
             if(state.currentTableviewToDelete) {
-                storeController.deleteTableview(action.payload)
+                storeController.deleteTableview(state.currentTableviewToDelete)
                     .then(() => {
                         console.log("Deleted tableview.");
                     })
@@ -377,9 +394,9 @@ const S2AReducer = createSlice({
                     })
             }
         },
-        deleteDetailview: (state, action: PayloadAction<Detailview>) => {
+        deleteDetailview: (state) => {
             if(state.currentDetailviewToDelete) {
-                storeController.deleteDetailview(action.payload)
+                storeController.deleteDetailview(state.currentDetailviewToDelete)
                     .then(() => {
                         console.log("Deleted detailview.");
                     })
@@ -403,7 +420,7 @@ const S2AReducer = createSlice({
                     })
                 }
         },
-        editDetailviewColumns: (state, action: PayloadAction<{ detailviewColumns: Column[], editFilterColumn: boolean[] }>) => {
+        editDetailviewColumns: (state, action: PayloadAction<{ detailviewColumns: Column[], editFilterColumn: boolean[] | null}>) => {
             if(state.currentDetailview) {
                 storeController.editDetailviewColumns(state.currentDetailview, action.payload.detailviewColumns, action.payload.editFilterColumn)
                     .then(() => {
@@ -513,7 +530,7 @@ const S2AReducer = createSlice({
         },
         finishDeletion: (state) => {
             state.currentModalType = null;
-            
+
             state.currentAppToDelete = null;
             state.currentDatasourceToDelete = null;
             state.currentTableviewToDelete = null;
@@ -661,7 +678,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewDevApps, viewAccApps, createApp, editApp, deleteApp,
+export const { viewDevApps, viewAccApps, viewAppRoles, createApp, editApp, deleteApp,
                viewDatasources, createDatasource, editDatasource, deleteDatasource, 
                viewDatasourceColumns, editDatasourceColumns, 
                viewTableviews, createTableview, editTableview, deleteTableview,
