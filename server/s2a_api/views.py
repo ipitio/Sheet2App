@@ -704,10 +704,25 @@ def get_app_table_views_for_role(request):
 
 def load_table_view_column_data(request):
     body = json.loads(request.body)
+    table_view_id = body["tableview"]["id"]
+    spreadsheet_url = body["tableview"]["datasource"]["spreadsheetUrl"]
     
+    viewable_columns, response_code = queries.get_table_view_viewable_columns(table_view_id=table_view_id)
     
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    sheet_id = sheets.utils.get_gid(spreadsheet_url)
     
-    res_body = {}
+    column_indexes = [column["column_index"] for column in viewable_columns]
+    
+    column_data = sheets_api.get_column_data(
+        spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
+        columns=column_indexes
+    )
+    
+    res_body = {
+        "columns": viewable_columns,
+        "columnData": column_data
+    }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )

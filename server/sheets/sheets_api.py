@@ -179,7 +179,8 @@ def get_column_data(spreadsheet_id, sheet_id, columns) -> list:
 
         ranges = []
         for column in columns:
-            ranges.append(sheet_name + "!" + column + ":" + column)
+            column_letter = get_column_letter(column)
+            ranges.append(sheet_name + "!" + column_letter + ":" + column_letter)
 
         # Make the API call to retrieve the specified data from the sheet
         result = (
