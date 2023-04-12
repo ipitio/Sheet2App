@@ -24,8 +24,10 @@ function DatasourceNavBar() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const app = useSelector((state: StoreState) => state.webAppReducer.app);
+    // TODO: have the tableviews list load based on the current web app reducer
     // const tableviews = useSelector((state: StoreState) => state.webAppReducer.tableviews);
 
+    // TODO: remove test data
     const tableviews: View[] = [
         {
             id: 0, 
