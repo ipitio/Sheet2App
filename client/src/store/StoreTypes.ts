@@ -71,6 +71,8 @@ export enum ModalType {
 	DeleteTableviewModal,
 	
     CreateDetailviewModal,
+	EditDetailviewModal,
+	DeleteDetailviewModal,
 
 	/* User App */
     AddRecordModal,

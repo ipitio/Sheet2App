@@ -1,16 +1,16 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewTableviews, deleteTableview, finishDeletion, StoreState } from '../../../../store/StoreContext';
+import { viewDetailviews, deleteDetailview, finishDeletion, StoreState } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal } from '@mui/material';
 
-function DeleteTableviewModal() {
+function DeleteDetailviewModal() {
     const dispatch = useDispatch();
 
     /* Redux hooks into store. */
-    const currentTableviewToDelete = useSelector((state: StoreState) => state.S2AReducer.currentTableviewToDelete);
+    const currentDetailviewToDelete = useSelector((state: StoreState) => state.S2AReducer.currentDetailviewToDelete);
     const currentModalType = useSelector((state: StoreState) => state.S2AReducer.currentModalType);
 
     /* Event handlers. */
@@ -22,17 +22,17 @@ function DeleteTableviewModal() {
 
     /* If the user confirms deletion. */
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if(currentTableviewToDelete) {
-            dispatch(deleteTableview());
-            dispatch(viewTableviews());
+        if(currentDetailviewToDelete) {
+            dispatch(deleteDetailview());
+            dispatch(viewDetailviews());
             handleCloseModal();
         }
     }
-
+    
     return (
-        <Modal open={currentModalType == ModalType.DeleteTableviewModal} onClose={handleCloseModal} sx={styles.modal}>
+        <Modal open={currentModalType == ModalType.DeleteDetailviewModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
-                Delete {currentTableviewToDelete?.name} Tableview?
+                Delete {currentDetailviewToDelete?.name} Detailview?
 
                 {/* Confirm/Cancel Buttons */}
                 <Button onClick={handleDelete} variant="outlined" size="large" sx={styles.modalButton}>Confirm</Button>
@@ -42,4 +42,4 @@ function DeleteTableviewModal() {
     );
 }
 
-export default DeleteTableviewModal;
+export default DeleteDetailviewModal;

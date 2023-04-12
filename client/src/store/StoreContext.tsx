@@ -394,9 +394,9 @@ const S2AReducer = createSlice({
                     })
             }
         },
-        deleteDetailview: (state, action: PayloadAction<Detailview>) => {
+        deleteDetailview: (state) => {
             if(state.currentDetailviewToDelete) {
-                storeController.deleteDetailview(action.payload)
+                storeController.deleteDetailview(state.currentDetailviewToDelete)
                     .then(() => {
                         console.log("Deleted detailview.");
                     })
@@ -420,7 +420,7 @@ const S2AReducer = createSlice({
                     })
                 }
         },
-        editDetailviewColumns: (state, action: PayloadAction<{ detailviewColumns: Column[], editFilterColumn: boolean[] }>) => {
+        editDetailviewColumns: (state, action: PayloadAction<{ detailviewColumns: Column[], editFilterColumn: boolean[] | null}>) => {
             if(state.currentDetailview) {
                 storeController.editDetailviewColumns(state.currentDetailview, action.payload.detailviewColumns, action.payload.editFilterColumn)
                     .then(() => {

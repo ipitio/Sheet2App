@@ -622,7 +622,7 @@ async function getDetailviewColumns(detailview: Detailview): Promise<[Column[], 
  * @param {boolean[] | null} editFilterColumn - THe array of boolean values corresponding to each record indicating if the view should allow this user to edit the record. If null, no filter.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editDetailviewColumns(detailview: Detailview, detailviewColumns: Column[], editFilterColumn: boolean[]): Promise<void> {
+async function editDetailviewColumns(detailview: Detailview, detailviewColumns: Column[], editFilterColumn: boolean[] | null): Promise<void> {
     try {
         const reqForm = await getRequestForm("PUT", {"detailview": detailview, "detailviewColumns": detailviewColumns, "editFilterColumn": editFilterColumn});
         
