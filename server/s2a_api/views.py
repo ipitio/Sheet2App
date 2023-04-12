@@ -162,6 +162,28 @@ def delete_app(request):
     return response
 
 
+def get_app_roles(request):
+    body = json.loads(request.body)
+    app_role_mem_url = body["app"]["roleMemUrl"]
+    
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(app_role_mem_url)
+    sheet_id = sheets.utils.get_gid(app_role_mem_url)
+    
+    roles = sheets_api.get_data(
+        spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, 
+        range="1:1", majorDimension="ROWS"
+    )
+    roles = [{"name": role} for role in roles[1:] if role != '']
+    response_code = HTTPStatus.OK
+    
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
 @csrf_exempt
 def create_datasource(request):
     body = json.loads(request.body)
