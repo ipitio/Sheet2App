@@ -205,8 +205,8 @@ function DatasourceNavBar() {
     const datasources = 
         tableviews.map((tableview) => {
             return (
-                <Button onClick={() => { handleOpenView(tableview.datasource) }} sx={{width: '15vw'}}>
-                    {tableview.name}
+                <Button onClick={() => { handleOpenView(tableview.datasource) }} sx={{width: '13vw', justifyContent:"flex-start", paddingLeft: '10%', textTransform: 'none'}}>
+                    <Typography>{tableview.name}</Typography>
                 </Button>
             )
         })
