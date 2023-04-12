@@ -6,6 +6,23 @@ on:
   pull_request:
     branches:
       - main
+  workflow_call:
+    inputs:
+      OAUTH_CLIENT_ID:
+        description: 'OAuth client ID'
+        required: true
+        type: string
+    secrets:
+      OAUTH_CLIENT_SECRET:
+        description: 'OAuth client secret'
+        required: true
+      CREDS_JSON:
+        description: 'Google credentials JSON'
+        required: true
+      TOKEN_JSON:
+        description: 'Google token JSON'
+        required: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -16,8 +33,8 @@ jobs:
 
     - name: Build and run
       run: |
-        sed -i "s/ENV REACT_APP_OAUTH_CLIENT_ID=.*/ENV REACT_APP_OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID/" client/Dockerfile
-        sed -i "s/ENV OAUTH_CLIENT_ID=.*/ENV OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID/" server/Dockerfile
+        sed -i "s/ENV REACT_APP_OAUTH_CLIENT_ID=.*/ENV REACT_APP_OAUTH_CLIENT_ID=${{ inputs.OAUTH_CLIENT_ID }}/" client/Dockerfile
+        sed -i "s/ENV OAUTH_CLIENT_ID=.*/ENV OAUTH_CLIENT_ID=${{ inputs.OAUTH_CLIENT_ID }}/" server/Dockerfile
         sed -i "s/ENV OAUTH_CLIENT_SECRET=.*/ENV OAUTH_CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }}/" server/Dockerfile
         sed -i "s/ENV CREDS_JSON=.*/ENV CREDS_JSON=${{ secrets.CREDS_JSON }}/" server/Dockerfile
         sed -i "s/ENV TOKEN_JSON=.*/ENV TOKEN_JSON=${{ secrets.TOKEN_JSON }}/" server/Dockerfile
