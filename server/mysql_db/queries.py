@@ -476,6 +476,10 @@ def update_table_view(table_view):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+def update_table_view_filter_column():
+    pass
+
+
 def update_table_view_viewable_columns(table_view_id, columns):
     try:
         for column in columns:

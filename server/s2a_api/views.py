@@ -300,9 +300,9 @@ def create_table_view(request):
         datasource_id=datasource_id, column_index=new_column_index, name=filter_column_header,
         is_filter=True, is_user_filter=False, is_edit_filter=False
     )
-    table_view_filter_column = queries.create_table_view_filter_column(
-        table_view_id=new_table_view.id, datasource_column_id=filter_column.id
-    )
+    # table_view_filter_column = queries.create_table_view_filter_column(
+    #     table_view_id=new_table_view.id, datasource_column_id=filter_column.id
+    # )
     
     
     new_column_index += 1
@@ -314,9 +314,9 @@ def create_table_view(request):
         datasource_id=datasource_id, column_index=new_column_index, name=user_filter_column_header,
         is_filter=False, is_user_filter=True, is_edit_filter=False
     )
-    table_view_user_filter_column = queries.create_table_view_filter_column(
-        table_view_id=new_table_view.id, datasource_column_id=user_filter_column.id
-    )
+    # table_view_user_filter_column = queries.create_table_view_filter_column(
+    #     table_view_id=new_table_view.id, datasource_column_id=user_filter_column.id
+    # )
 
     res_body = {}
     response = HttpResponse(
@@ -399,8 +399,8 @@ def edit_table_view_columns(request):
     body = json.loads(request.body)
     table_view_id = body["tableview"]["id"]
     columns = body["tableviewColumns"]
-    filter_column = body["filterColumn"]            # boolean array
-    user_filter_column = body["userFilterColumn"]   # string array
+    filter_column_entries = body["filterColumn"]            # boolean array
+    user_filter_column_entries = body["userFilterColumn"]   # string array
 
     output, response_code = queries.update_table_view_viewable_columns(
         table_view_id=table_view_id, columns=columns
