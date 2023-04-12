@@ -7,11 +7,10 @@ import { getLoggedOut } from '../../auth/AuthController';
 import { StoreState, setCurrentModalType, loadTableview } from '../../store/StoreContext';
 import { Datasource, ModalType, Tableview, View } from '../../store/StoreTypes';
 
-import styles from '../../styles/S2A/HomeNavBarStyles'
+import styles from '../../styles/userapp/navbars/HomeNavBarStyles'
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, Box, TextField, SwipeableDrawer } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
-import Drawer from '@mui/material/Drawer';
 
 import Cookies from 'js-cookie';
 
@@ -40,136 +39,7 @@ function DatasourceNavBar() {
                 sheetName: "some sheet name"
             },
             roles: []
-        },
-        {
-            id: 1, 
-            name: "Second Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        },
-        {
-            id: 2, 
-            name: "Third Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        },        {
-            id: 0, 
-            name: "First Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        },
-        {
-            id: 1, 
-            name: "Second Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        },
-        {
-            id: 2, 
-            name: "Third Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        },        {
-            id: 0, 
-            name: "First Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        },
-        {
-            id: 1, 
-            name: "Second Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        },
-        {
-            id: 2, 
-            name: "Third Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        },        {
-            id: 0, 
-            name: "First Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        },
-        {
-            id: 1, 
-            name: "Second Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        },
-        {
-            id: 2, 
-            name: "Third Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            },
-            roles: []
-        }
+        }        
     ]
 
     useEffect(() => {
