@@ -561,7 +561,7 @@ const S2AReducer = createSlice({
 
 export interface IWebAppState {
     // An array of Views that have been previously loaded by the user
-    views: View[],
+    tableviews: Tableview[],
 
     currentDatasource: Datasource | null,
 
@@ -578,7 +578,7 @@ export interface IWebAppState {
 }
 
 const webAppState: IWebAppState = {
-    views: [],
+    tableviews: [],
     currentDatasource: null,
     currentView: null,
     currentModalType: null,
