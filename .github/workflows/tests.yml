@@ -44,8 +44,9 @@ jobs:
         ${{ secrets.TOKEN_JSON }}
         EOF
         )@" server/Dockerfile
-        docker compose up -d --build
+        sleep 20
         cat server/Dockerfile
+        docker compose up -d --build
 
     - name: Test backend
       run: |
