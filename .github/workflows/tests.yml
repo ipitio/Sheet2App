@@ -1,4 +1,4 @@
-name: frontend
+name: status
 on:
   push:
     branches:
@@ -19,10 +19,17 @@ jobs:
         sed -i "s/ENV REACT_APP_OAUTH_CLIENT_ID=.*/ENV REACT_APP_OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID/" client/Dockerfile
         sed -i "s/ENV OAUTH_CLIENT_ID=.*/ENV OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID/" server/Dockerfile
         sed -i "s/ENV OAUTH_CLIENT_SECRET=.*/ENV OAUTH_CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }}/" server/Dockerfile
+        sed -i "s/ENV CREDS_JSON=.*/ENV CREDS_JSON=${{ secrets.CREDS_JSON }}/" server/Dockerfile
+        sed -i "s/ENV TOKEN_JSON=.*/ENV TOKEN_JSON=${{ secrets.TOKEN_JSON }}/" server/Dockerfile
         docker compose up -d --build
 
-    - name: Test
+    - name: Test backend
       run: |
-        sleep 20
+        django_container_id=$(docker ps -q --filter "name=django")
+        docker exec $django_container_id pytest -n logical
+
+    - name: Test frontend
+      if: !cancelled()
+      run: |
         frontend_container_id=$(docker ps -q --filter "name=node")
         docker exec $frontend_container_id npm run test -- --watchAll=false
