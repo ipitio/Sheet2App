@@ -13,18 +13,11 @@ import sheets.utils
 
 # Create
 def create_creator(creator_email):
-    """
-    Creates a new entry in the Creator table
-
-    Args:
-        creator_email (string): the email of the new user retreived from Google auth
-    Returns:
-        _type_: _description_
-    """
     try:
+        print("HELLO WORLD 123")
         validate_email(creator_email)
         creator, created = Creator.objects.get_or_create(email=creator_email)
-
+        print("TESTING 123")
         return creator, HTTPStatus.OK
     except ValidationError as e:
         return f"Error: {e}", HTTPStatus.BAD_REQUEST
@@ -50,6 +43,7 @@ def create_app(creator_email, app_name, role_mem_url):
 
         return new_app, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 

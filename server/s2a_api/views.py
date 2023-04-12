@@ -31,10 +31,28 @@ def get_logged_in(request):
     auth_info, response_code = auth.oauth_login_user(
         auth_code=auth_code
     )
+    
+    creator, response_code = queries.create_creator(creator_email=auth_info["email"])
+
     res_body = {
         "email": auth_info["email"],
         "access_token": auth_info["access_token"],
         "refresh_token": auth_info["refresh_token"],
+    }
+    response = HttpResponse(json.dumps(res_body), status=response_code)
+
+    return response
+
+
+@csrf_exempt
+def refresh_access_tokens(request):
+    body = json.loads(request.body)
+
+    response_code = HTTPStatus.OK
+    
+    res_body = {
+        "accessToken": "IMPLEMENT THIS LATER",
+        "refresh_token": "IMPLEMENT THIS LATER",
     }
     response = HttpResponse(json.dumps(res_body), status=response_code)
 
@@ -112,6 +130,7 @@ def get_developable_apps(request):
     return response
 
 
+@csrf_exempt
 def get_usable_apps(request):
     # uses sheets api
     pass
@@ -162,6 +181,7 @@ def delete_app(request):
     return response
 
 
+@csrf_exempt
 def get_app_roles(request):
     body = json.loads(request.body)
     app_role_mem_url = body["app"]["roleMemUrl"]
@@ -269,6 +289,7 @@ def delete_datasource(request):
     return response
 
 
+@csrf_exempt
 def get_datasource_columns(request):
     body = json.loads(request.body)
     datasource_id = body["datasource"]["id"]
@@ -283,6 +304,7 @@ def get_datasource_columns(request):
     return response
 
 
+@csrf_exempt
 def edit_datasource_columns(request):
     body = json.loads(request.body)
     columns = body["datasourceColumns"]
@@ -297,6 +319,7 @@ def edit_datasource_columns(request):
     return response
 
 
+@csrf_exempt
 def create_table_view(request):
     body = json.loads(request.body)
     app_id = body["app"]["id"]
@@ -348,6 +371,7 @@ def create_table_view(request):
     return response
 
 
+@csrf_exempt
 def edit_table_view(request):
     body = json.loads(request.body)
     table_view = body["tableview"]
@@ -362,6 +386,7 @@ def edit_table_view(request):
     return response
 
 
+@csrf_exempt
 def get_app_table_views(request):
     body = json.loads(request.body)
     app_id = body["app"]["id"]
@@ -389,6 +414,7 @@ def get_app_table_views(request):
     return response
 
 
+@csrf_exempt
 def delete_table_view(request):
     body = json.loads(request.body)
     table_view_id = body["tableview"]["id"]
@@ -403,6 +429,7 @@ def delete_table_view(request):
     return response
 
 
+@csrf_exempt
 def get_table_view_columns(request):
     body = json.loads(request.body)
     table_view_id = body["tableview"]["id"]
@@ -417,6 +444,7 @@ def get_table_view_columns(request):
     return response
 
 
+@csrf_exempt
 def edit_table_view_columns(request):
     body = json.loads(request.body)
     table_view_id = body["tableview"]["id"]
@@ -438,6 +466,7 @@ def edit_table_view_columns(request):
     return response
 
 
+@csrf_exempt
 def get_table_view_roles(request):
     body = json.loads(request.body)
     table_view_id = body["tableview"]["id"]
@@ -452,6 +481,7 @@ def get_table_view_roles(request):
     return response
 
 
+@csrf_exempt
 def edit_table_view_roles(request):
     body = json.loads(request.body)
     table_view_id = body["tableview"]["id"]
@@ -469,6 +499,7 @@ def edit_table_view_roles(request):
     return response
 
 
+@csrf_exempt
 def create_detail_view(request):
     body = json.loads(request.body)
     app_id = body["app"]["id"]
@@ -487,6 +518,7 @@ def create_detail_view(request):
     return response
 
 
+@csrf_exempt
 def get_app_detail_views(request):
     body = json.loads(request.body)
     app_id = body["app"]["id"]
@@ -513,6 +545,7 @@ def get_app_detail_views(request):
     return response
 
 
+@csrf_exempt
 def edit_detail_view(request):
     body = json.loads(request.body)
     detail_view = body["detailview"]
@@ -527,6 +560,7 @@ def edit_detail_view(request):
     return response
 
 
+@csrf_exempt
 def delete_detail_view(request):
     body = json.loads(request.body)
     detail_view_id = body["detailview"]["id"]
@@ -541,6 +575,7 @@ def delete_detail_view(request):
     return response
 
 
+@csrf_exempt
 def get_detail_view_columns(request):
     body = json.loads(request.body)
     detail_view_id = body["detailview"]["id"]
@@ -558,6 +593,7 @@ def get_detail_view_columns(request):
     return response
 
 
+@csrf_exempt
 def edit_detail_view_columns(request):
     body = json.loads(request.body)
     detail_view_id = body["detailview"]["id"]
@@ -575,6 +611,7 @@ def edit_detail_view_columns(request):
     return response
 
 
+@csrf_exempt
 def get_detail_view_roles(request):
     body = json.loads(request.body)
     detail_view_id = body["detailview"]["id"]
@@ -589,6 +626,7 @@ def get_detail_view_roles(request):
     return response
 
 
+@csrf_exempt
 def edit_detail_view_roles(request):
     body = json.loads(request.body)
     detail_view_id = body["detailview"]["id"]
@@ -606,6 +644,7 @@ def edit_detail_view_roles(request):
     return response
 
 
+@csrf_exempt
 def add_record(request):
     body = json.loads(request.body)
     datasource = body["datasource"]
@@ -642,6 +681,7 @@ def add_record(request):
     return response
 
 
+@csrf_exempt
 def edit_record(request):
     body = json.loads(request.body)
     datasource = body["datasource"]
@@ -681,6 +721,7 @@ def edit_record(request):
     return response
 
 
+@csrf_exempt
 def get_app_table_views_for_role(request):
     body = json.loads(request.body)
     email = body["email"]
@@ -701,7 +742,7 @@ def get_app_table_views_for_role(request):
     return response
 
 
-
+@csrf_exempt
 def load_table_view_column_data(request):
     body = json.loads(request.body)
     table_view_id = body["tableview"]["id"]
