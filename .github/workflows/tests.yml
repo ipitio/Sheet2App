@@ -40,14 +40,14 @@ jobs:
         sed -i 's@ENV TOKEN_JSON=.*@ENV TOKEN_JSON="${{ secrets.TOKEN_JSON }}"@' server/Dockerfile
         docker compose up -d --build
 
-    - name: Test backend
+    - name: Test frontend
       run: |
         sleep 20
-        django_container_id=$(docker ps -q --filter "name=django")
-        docker exec $django_container_id pytest -n logical
-
-    - name: Test frontend
-      if: success() || failure()
-      run: |
         frontend_container_id=$(docker ps -q --filter "name=node")
         docker exec $frontend_container_id npm run test -- --watchAll=false
+
+    - name: Test backend
+      if: success() || failure()  
+      run: |
+        django_container_id=$(docker ps -q --filter "name=django")
+        docker exec $django_container_id pytest -n logical

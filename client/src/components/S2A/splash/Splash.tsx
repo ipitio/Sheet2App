@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { getLoggedIn } from '../../../auth/AuthController';
 
-import GoogleLogin, { GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
-import { gapi } from '../../../local_modules/gapi-script-esm';
+import { useGoogleLogin } from '@react-oauth/google';
 
 import styles from '../../../styles/S2A/splash/SplashStyles'
 
@@ -11,37 +10,17 @@ function Splash() {
     const navigate = useNavigate();
     const [error, setError] = useState('');
 
-    /* Synchronizes Google API with OAuth client id to prevent depreciation error. */
-    useEffect(() => {
-        if (!gapi) return;
-        function init() {
-            gapi.client.init({
-                clientId: process.env.REACT_APP_OAUTH_CLIENT_ID || '',
-                scope: "email"
-            });
-        }
-        gapi.load('client:auth2', init);
-    }, [gapi]);
-
-    const onSuccess = (res: GoogleLoginResponse | GoogleLoginResponseOffline) => {
-        if("code" in res && typeof res.code === "string") {
-            /* On success, navigate to home screen. */
-            getLoggedIn(res.code).then(() => {
-                navigate("S2A/home/develop");
-            })
-            .catch(() => {
-              setError("Failed to generate OAuth tokens.");
-            });
-        }
-        else
-          setError("External API failure.")
-    }   
-
-    const onFailure = (error: any) => {
-        if("error" in error && error["error"] === "popup_closed_by_user") {
-           setError("Failed to sign in.");
-        }
-    };
+    const login = useGoogleLogin({
+      onSuccess: codeResponse => getLoggedIn(codeResponse.code)
+      .then((res: any) => {
+        console.log("Successfully signed in.");
+        navigate('/S2A/home/develop');
+      })
+      .catch((err: any) => {
+        setError(err.message);
+      }),
+      flow: 'auth-code',
+    });
 
     return (
         <div style={styles.splashWrapper}>
@@ -62,16 +41,7 @@ function Splash() {
                 Straightforward. Powerful. No-Code.
             </div>
             <div style={styles.loginButton}>
-                <GoogleLogin
-                    clientId={process.env.REACT_APP_OAUTH_CLIENT_ID || ''}
-                    onSuccess={onSuccess}
-                    onFailure={onFailure}
-                    prompt="consent"
-                    accessType="offline"
-                    responseType="code"
-                    scope="https://www.googleapis.com/auth/gmail.send"
-                    buttonText="Sign into S2A with Google"
-                />
+              <button style={styles.button} onClick={login}>Sign in with Google</button>
             </div>
             {error && <div style={styles.error}>{error}</div>}
           </div>
