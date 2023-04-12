@@ -45,6 +45,7 @@ jobs:
         EOF
         )@" server/Dockerfile
         docker compose up -d --build
+        cat server/Dockerfile
 
     - name: Test backend
       run: |
