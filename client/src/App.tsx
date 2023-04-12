@@ -12,6 +12,9 @@ import EditAppDatasourceColumns from './components/S2A/datasources/EditAppDataso
 import EditAppTableviews from './components/S2A/tableviews/EditAppTableviews';
 import EditAppTableviewColumns from './components/S2A/tableviews/EditAppTableviewColumns';
 import EditAppTableviewRoles from './components/S2A/tableviews/EditAppTableviewRoles';
+import EditAppDetailviews from './components/S2A/detailviews/EditAppDetailviews';
+import EditAppDetailviewColumns from './components/S2A/detailviews/EditAppDetailviewColumns';
+import EditAppDetailviewRoles from './components/S2A/detailviews/EditAppDetailviewRoles';
 
 import CreateAppModal from './components/S2A/modals/apps/CreateAppModal';
 import DeleteAppModal from './components/S2A/modals/apps/DeleteAppModal';
@@ -21,6 +24,9 @@ import DeleteDatasourceModal from './components/S2A/modals/datasources/DeleteDat
 import CreateTableviewModal from './components/S2A/modals/tableviews/CreateTableviewModal';
 import EditTableviewModal from './components/S2A/modals/tableviews/EditTableviewModal';
 import DeleteTableviewModal from './components/S2A/modals/tableviews/DeleteTableviewModal';
+import CreateDetailviewModal from './components/S2A/modals/detailviews/CreateDetailviewModal';
+import EditDetailviewModal from './components/S2A/modals/detailviews/EditDetailviewModal';
+import DeleteDetailviewModal from './components/S2A/modals/detailviews/DeleteDetailviewModal';
 
 import UserAppHome from './components/userapp/Home'
 import TableView from './components/userapp/TableView';
@@ -45,6 +51,10 @@ const App: React.FC = () => {
           <Route path="/S2A/editapp/tableviews/:appid" element={<EditAppTableviews/>}/>
           <Route path="/S2A/editapp/tableviews/tableviewcolumns/:appid" element={<EditAppTableviewColumns/>}/>
           <Route path="/S2A/editapp/tableviews/tableviewroles/:appid" element={<EditAppTableviewRoles/>}/>
+          <Route path="/S2A/editapp/detailviews/:appid" element={<EditAppDetailviews/>}/>
+          <Route path="/S2A/editapp/detailviews/detailviewcolumns/:appid" element={<EditAppDetailviewColumns/>}/>
+          <Route path="/S2A/editapp/detailviews/detailviewroles/:appid" element={<EditAppDetailviewRoles/>}/>
+
 
           {/* User App Routes */}
           <Route path="/userapp/:appid/home" element={<UserAppHome/>} />
@@ -65,6 +75,9 @@ const App: React.FC = () => {
       <CreateTableviewModal/>
       <EditTableviewModal/>
       <DeleteTableviewModal/>
+      <CreateDetailviewModal/>
+      <EditDetailviewModal/>
+      <DeleteDetailviewModal/>
 
       {/* User App Modals */}
       <AddRecordModal/>

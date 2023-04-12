@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewTableviewColumns, editTableviewColumns, StoreState } from '../../../store/StoreContext';
+import { viewDetailviewColumns, editDetailviewColumns, StoreState } from '../../../store/StoreContext';
 import { Column } from '../../../store/StoreTypes';
 
-import styles from '../../../styles/S2A/tableviews/EditAppTableviewColumnsStyles'
+import styles from '../../../styles/S2A/detailviews/EditAppDetailviewColumnsStyles';
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
 import { Grid, Checkbox, IconButton, TextField, FormControlLabel, InputLabel } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
@@ -12,19 +12,18 @@ import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 
-function EditAppTableviewColumns() {
+function EditAppDetailviewColumns() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(viewTableviewColumns());
+        dispatch(viewDetailviewColumns());
     }, []);
 
-    /* Redux hooks into store. */
+     /* Redux hooks into store. */
     //const tableviewColumns = useSelector((state: StoreState) => state.S2AReducer.tableviewColumns);
-    //const filterColumn = useSelector((state: StoreState) => state.S2AReducer.filterColumn);
-    //const userFilterColumn = useSelector((state: StoreState) => state.S2AReducer.userFilterColumn);
+    //const editFilterColumn = useSelector((state: StoreState) => state.S2AReducer.editFilterColumn);
 
-    const tableviewColumns: Column[] = [
+    const detailviewColumns: Column[] = [
         {
           id: 1,
           name: 'Column 1',
@@ -287,16 +286,14 @@ function EditAppTableviewColumns() {
         },
      ]
 
-    const filterColumn = [true, true, true, false, false, true, false, true, false, true];
-    const userFilterColumn = ["johndoe@gmail.com", "janedoe@yahoo.com", "bobsmith@hotmail.com", "lisa.white@outlook.com", "markjohnson@gmail.com", "sarahbrown@yahoo.com", "davidlee@hotmail.com", "jennifer.nguyen@outlook.com", "michael.gonzalez@gmail.com", "elizabeth.wang@yahoo.com"];
+    const editFilterColumn = [true, true, true, false, false, true, false, true, false, true];
 
     /* React state for conditional rendering. */
     const [display, setDisplay] = useState<string>("Columns");
 
-    /* React state for tableview columns. */
-    const [changedColumns, setColumns] = useState<Column[]>(tableviewColumns);
-    const [changedFilter, setFilter] = useState<boolean[] | null>(filterColumn);
-    const [changedUserFilter, setUserFilter] = useState<string[] | null>(userFilterColumn);
+    /* React state for detailview columns. */
+    const [changedColumns, setColumns] = useState<Column[]>(detailviewColumns);
+    const [changedEditFilter, setEditFilter] = useState<boolean[] | null>(editFilterColumn);
 
     /* Event handlers. */
 
@@ -311,9 +308,9 @@ function EditAppTableviewColumns() {
     }
 
     /* If the save button is clicked. */
-    const handleSaveTableviewColumns = () => {
-        dispatch(editTableviewColumns({"tableviewColumns": changedColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn}));
-        dispatch(viewTableviewColumns());
+    const handleSaveDetailviewColumns = () => {
+        dispatch(editDetailviewColumns({"detailviewColumns": changedColumns, "editFilterColumn": changedEditFilter}));
+        dispatch(viewDetailviewColumns());
     }
 
     /* If the viewable checkbox is checked/unchecked. */
@@ -329,63 +326,52 @@ function EditAppTableviewColumns() {
         }
     }
 
-    /* If the add filter button is clicked. */
-    const handleAddFilter = () => {
-        setFilter([]);
-        handleSaveTableviewColumns();
-    }
+    /* If the editable checkbox is checked/unchecked. */
+    const handleEditableChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const editableCheckbox = event.currentTarget as HTMLInputElement;
+        const colToEditIdx = changedColumns.findIndex(col => col.id === Number(editableCheckbox.id));
+        const newEditable = editableCheckbox.checked;
 
-    /* If the remove filter button is clicked. */
-    const handleRemoveFilter = () => {
-        setFilter(null);
-        handleSaveTableviewColumns();
-    }
-
-    /* If a filter checkbox is checked/unchecked. */
-    const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const filterCheckbox = event.currentTarget as HTMLInputElement;
-        const newFilterValue = filterCheckbox.checked;
-
-        if(changedFilter) {
-            const newFilter = [ ...changedFilter ];
-            newFilter[Number(filterCheckbox.id)] = newFilterValue;
-            setFilter(newFilter);
+        if(colToEditIdx != -1) {
+            const newColumns = [...changedColumns];
+            newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], editable: newEditable};
+            setColumns(newColumns);
         }
     }
 
-    /* If the add user filter button is clicked. */
-    const handleAddUserFilter = () => {
-        setUserFilter([]);
-        handleSaveTableviewColumns();
+    /* If the add edit filter button is clicked. */
+    const handleAddEditFilter = () => {
+        setEditFilter([]);
+        handleSaveDetailviewColumns();
     }
 
-    /* If the remove user filter button is clicked. */
-    const handleRemoveUserFilter = () => {
-        setUserFilter(null);
-        handleSaveTableviewColumns();
+    /* If the remove edit filter button is clicked. */
+    const handleRemoveEditFilter = () => {
+        setEditFilter(null);
+        handleSaveDetailviewColumns();
     }
 
-    /* If a user filter textfield is altered. */
-    const handleUserFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const userFilterTextfield = event.currentTarget as HTMLInputElement;
-        const newUserFilterValue = userFilterTextfield.value;
+    /* If an edit filter checkbox is checked/unchecked. */
+    const handleEditFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const editFilterCheckbox = event.currentTarget as HTMLInputElement;
+        const newEditFilterValue = editFilterCheckbox.checked;
 
-        if(changedUserFilter) {
-            const newUserFilter = [ ...changedUserFilter ];
-            newUserFilter[Number(userFilterTextfield.id)] = newUserFilterValue;
-            setUserFilter(newUserFilter);
+        if(changedEditFilter) {
+            const newEditFilter = [ ...changedEditFilter ];
+            newEditFilter[Number(editFilterCheckbox.id)] = newEditFilterValue;
+            setEditFilter(newEditFilter);
         }
     }
 
     return (
-        <div style={styles.editAppTableviewColumnsWrapper}>
+        <div style={styles.editAppDetailviewColumnsWrapper}>
             {/* Inner Navigation Bar */}
             <EditAppInnerNavBar/>
 
-            {/* Edit App Tableview Columns Display */}
-            <div style={styles.editAppTableviewColumnsDisplay}>
+            {/* Edit App Detailview Columns Display */}
+            <div style={styles.editAppDetailviewColumnsDisplay}>
                 {/* Save Changes Button */}
-                <IconButton onClick={handleSaveTableviewColumns} sx={styles.saveButton} title="Save">
+                <IconButton onClick={handleSaveDetailviewColumns} sx={styles.saveButton} title="Save">
                     {"Save Changes"}
                     <SaveIcon fontSize="large" sx={styles.saveIcon}/>
                 </IconButton>
@@ -411,6 +397,13 @@ function EditAppTableviewColumns() {
                                         label="Viewable"
                                         sx={styles.columnElement}
                                     />
+
+                                    {/* Editable checkbox. */}
+                                    <FormControlLabel
+                                        control={<Checkbox id={col.id.toString()} onChange={handleEditableChange} checked={col.editable ?? false} sx={styles.columnCheckbox}/>}
+                                        label="Editable"
+                                        sx={styles.columnElement}
+                                    />
                                 </div>
                             </Grid>
                         ))}
@@ -420,46 +413,25 @@ function EditAppTableviewColumns() {
                         {/* Filter Column */}
                         <div style={styles.filterContainer}> 
                             {/* Add/Delete Filter Button */}
-                            {changedFilter === null ? (
-                                <IconButton onClick={handleAddFilter} title="Add Filter" sx={styles.filterButton}>
-                                    Add Filter
+                            {changedEditFilter === null ? (
+                                <IconButton onClick={handleAddEditFilter} title="Add Edit Filter" sx={styles.filterButton}>
+                                    Add Edit Filter
                                     <AddIcon fontSize="large" sx={styles.addIcon}/>
                                 </IconButton>
                             ) :
-                                <IconButton onClick={handleRemoveFilter} title="Delete Filter" sx={styles.filterButton}>
-                                    Delete Filter
+                                <IconButton onClick={handleRemoveEditFilter} title="Delete Edit Filter" sx={styles.filterButton}>
+                                    Delete Edit Filter
                                     <RemoveIcon fontSize="large" sx={styles.removeIcon}/>
                                 </IconButton>
                             }       
 
                             {/* Map each value in the filter column to a checkbox. */}
-                            {changedFilter && changedFilter.map((val, idx) => (
+                            {changedEditFilter && changedEditFilter.map((val, idx) => (
                                 <FormControlLabel
-                                    control={<Checkbox id={idx.toString()} onChange={handleFilterChange} checked={val} sx={styles.columnCheckbox}/>}
-                                    label={`Include: Record #${idx + 1}`}
+                                    control={<Checkbox id={idx.toString()} onChange={handleEditFilterChange} checked={val} sx={styles.columnCheckbox}/>}
+                                    label={`Allow Editing: Record #${idx + 1}`}
                                     sx={styles.columnElement}
                                 />
-                            ))}
-                        </div>
-
-                        {/* User Filter Column */}
-                        <div style={styles.filterContainer}> 
-                            {/* Add/Delete User Filter Button */}
-                            {changedUserFilter === null ? (
-                                <IconButton onClick={handleAddUserFilter} title="Add User Filter" sx={styles.filterButton}>
-                                    Add User Filter
-                                    <AddIcon fontSize="large" sx={styles.addIcon}/>
-                                </IconButton>
-                            ) :
-                                <IconButton onClick={handleRemoveUserFilter} title="Delete User Filter" sx={styles.filterButton}>
-                                    Delete User Filter
-                                    <RemoveIcon fontSize="large" sx={styles.removeIcon}/>
-                                </IconButton>
-                            }  
-
-                            {/* Map each value in the user filter column to a textfield. */}
-                            {changedUserFilter && changedUserFilter.map((val, idx) => (
-                                <TextField id={idx.toString()} onChange={handleUserFilterChange} label={`Email for Record #${idx + 1}`} value={val} sx={styles.columnElement}></TextField>
                             ))}
                         </div>
                     </div>
@@ -467,6 +439,9 @@ function EditAppTableviewColumns() {
             </div>
         </div>
     );
+
+
+
 }
 
-export default EditAppTableviewColumns;
+export default EditAppDetailviewColumns;

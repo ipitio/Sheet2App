@@ -87,7 +87,7 @@ function EditAppTableviews() {
 
         if(tableviewOrigin && currApp) {
             dispatch(setCurrentTableview(tableviewOrigin));
-            navigate(`/S2A/editapp/tableviews/tableviewcolumns/${currApp.id}`)
+            navigate(`/S2A/editapp/tableviews/tableviewcolumns/${currApp.id}`);
         }
     }
 
@@ -98,19 +98,19 @@ function EditAppTableviews() {
 
         if(tableviewOrigin && currApp) {
             dispatch(setCurrentTableview(tableviewOrigin));
-            navigate(`/S2A/editapp/tableviews/tableviewroles/${currApp.id}`)
+            navigate(`/S2A/editapp/tableviews/tableviewroles/${currApp.id}`);
         }
     }
 
-    /* If the edit icon next to a datasource is clicked. */
+    /* If the edit icon next to a tableview is clicked. */
     const handleOpenEditModal = (event: React.MouseEvent<HTMLButtonElement>) => {
-      const editButton = event.currentTarget as HTMLButtonElement;
-      const tableviewToEdit = tableviews.find(tv => tv.id === Number(editButton.id));
+        const editButton = event.currentTarget as HTMLButtonElement;
+        const tableviewToEdit = tableviews.find(tv => tv.id === Number(editButton.id));
 
-      if(tableviewToEdit) {
-          dispatch(markTableviewToEdit(tableviewToEdit));
-          dispatch(setCurrentModalType(ModalType.EditTableviewModal));
-      }
+        if(tableviewToEdit) {
+            dispatch(markTableviewToEdit(tableviewToEdit));
+            dispatch(setCurrentModalType(ModalType.EditTableviewModal));
+        }
     }
 
     return (
