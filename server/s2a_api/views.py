@@ -189,7 +189,8 @@ def create_datasource(request):
             continue
         
         column, response_code = queries.create_datasource_column(
-            datasource_id=datasource_id, column_index=i, name=header
+            datasource_id=datasource_id, column_index=(i + 1), name=header,
+            is_filter=False, is_user_filter=False, is_edit_filter=False
         )
     
 
@@ -279,9 +280,42 @@ def create_table_view(request):
     app_id = body["app"]["id"]
     table_view_name = body["tableviewName"]
     datasource_id = body["datasource"]["id"]
+    spreadsheet_url = body["datasource"]["spreadsheetUrl"]
 
-    output, response_code = queries.create_table_view(
+    new_table_view, response_code = queries.create_table_view(
         app_id=app_id, table_view_name=table_view_name, datasource_id=datasource_id
+    )
+    
+    # Create the filter columns
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    sheet_id = sheets.utils.get_gid(spreadsheet_url)
+    columns = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, majorDimension="COLUMNS")
+    
+    new_column_index =  len(columns) + 1
+    filter_column_header =  f"{new_table_view.id} {table_view_name} Filter"
+    sheets_api.write_column(
+        spreadsheet_id, sheet_id, column_data=[filter_column_header], column_index=new_column_index
+    )
+    filter_column, response_code = queries.create_datasource_column(
+        datasource_id=datasource_id, column_index=new_column_index, name=filter_column_header,
+        is_filter=True, is_user_filter=False, is_edit_filter=False
+    )
+    table_view_filter_column = queries.create_table_view_filter_column(
+        table_view_id=new_table_view.id, datasource_column_id=filter_column.id
+    )
+    
+    
+    new_column_index += 1
+    user_filter_column_header =  f"{new_table_view.id} {table_view_name} User Filter"
+    sheets_api.write_column(
+        spreadsheet_id, sheet_id, column_data=[user_filter_column_header], column_index=new_column_index
+    )
+    user_filter_column, response_code = queries.create_datasource_column(
+        datasource_id=datasource_id, column_index=new_column_index, name=user_filter_column_header,
+        is_filter=False, is_user_filter=True, is_edit_filter=False
+    )
+    table_view_user_filter_column = queries.create_table_view_filter_column(
+        table_view_id=new_table_view.id, datasource_column_id=user_filter_column.id
     )
 
     res_body = {}

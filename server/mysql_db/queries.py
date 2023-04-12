@@ -7,6 +7,7 @@ from django.core.validators import validate_email
 from django.db.models import F
 
 import mysql_db.utils
+import sheets.sheets_api as sheets_api
 import sheets.utils
 
 
@@ -65,12 +66,12 @@ def create_datasource(app_id, spreadsheet_url, spreadsheet_id, gid, datasource_n
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_datasource_column(datasource_id, column_index, name):
+def create_datasource_column(datasource_id, column_index, name, is_filter, is_user_filter, is_edit_filter):
     try:
-        exists = DatasourceColumn.objects.filter(
-            datasource=datasource_id, column_index=column_index, name=name
-        ).exists()
-        new_datasource_column = {}
+        exists = DatasourceColumn.objects.exists(
+            datasource=datasource_id, column_index=column_index, name=name,
+            is_filter=is_filter, is_user_filter=is_user_filter, is_edit_filter=is_edit_filter
+        )
         if not exists:
             new_datasource_column = DatasourceColumn.objects.create(
                 datasource_id=datasource_id,
@@ -80,12 +81,29 @@ def create_datasource_column(datasource_id, column_index, name):
                 value_type="",
                 is_link_text=False,
                 is_table_ref=False,
-                is_filter=False,
-                is_user_filter=False,
-                is_edit_filter=False,
+                is_filter=is_filter,
+                is_user_filter=is_user_filter,
+                is_edit_filter=is_edit_filter,
             )
-        print(new_datasource_column)
+        else:
+            new_datasource_column = DatasourceColumn.objects.get(
+                datasource=datasource_id, column_index=column_index, name=name,
+                is_filter=is_filter, is_user_filter=is_user_filter, is_edit_filter=is_edit_filter
+            )
+
         return new_datasource_column, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def create_table_view_filter_column(table_view_id, datasource_column_id):
+    try:
+        new_table_view_filter_column = TableViewFilterColumn.objects.create(
+            table_view_id=table_view_id, datasource_column_id=datasource_column_id
+        )
+
+        return new_table_view_filter_column, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR

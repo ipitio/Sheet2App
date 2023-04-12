@@ -394,11 +394,7 @@ def delete_row(spreadsheet_id, sheet_id, row_index):
 
 
 # Write data to the first open column in the sheet
-def write_column(spreadsheet_id, sheet_id, column_data):
-    columns = get_data(spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, majorDimension="COLUMNS")
-    new_column_index =  len(columns) + 1
-    new_column_letter = get_column_letter(new_column_index)
-    
+def write_column(spreadsheet_id, sheet_id, column_data, column_index):
     try:
         service = build('sheets', 'v4', credentials=get_creds())
         
@@ -414,7 +410,8 @@ def write_column(spreadsheet_id, sheet_id, column_data):
                     sheet_name = sheet_info.get("properties").get("title")
                     break
                 
-        update_range = f'{sheet_name}!{new_column_letter}1:{new_column_letter}{len(column_data)}'
+        column_letter = get_column_letter(column_index)
+        update_range = f'{sheet_name}!{column_letter}1:{column_letter}{len(column_data)}'
         request_body = {
             'range': update_range,
             'values': [[value] for value in column_data],
