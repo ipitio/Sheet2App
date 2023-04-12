@@ -145,7 +145,7 @@ function EditTableviewModal() {
                     <InputLabel>Datasource</InputLabel>
                     <Select label="Datasource" value={changedTableview.datasource.name}>
                         {datasources.map((ds) => (
-                            <MenuItem onClick={handleDatasourceChange} value={ds.name}>{ds.name}</MenuItem>
+                            <MenuItem onClick={handleDatasourceChange} value={ds.name} key={ds.id} data-value={ds.name}>{ds.name}</MenuItem>
                         ))}
                     </Select>
                 </FormControl>

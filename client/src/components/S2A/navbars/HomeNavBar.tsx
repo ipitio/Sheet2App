@@ -51,7 +51,7 @@ function HomeNavBar() {
 
     const handleLogout = () => {
         getLoggedOut();
-        navigate("/S2A");
+        navigate("/");
     };
 
     return (

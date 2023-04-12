@@ -35,9 +35,9 @@ async function getLoggedIn(authCode: string): Promise<void>{
             return Promise.reject("Request failed");
             
         const data = await res.json();
-        Cookies.set("email", data.email, { httpOnly: true });
-        Cookies.set("accessToken", data.access_token, { httpOnly: true });
-        Cookies.set("refreshToken", data.refresh_token, { httpOnly: true });
+        Cookies.set("email", data.email);
+        Cookies.set("accessToken", data.access_token);
+        Cookies.set("refreshToken", data.refresh_token);
         return Promise.resolve();
     }
     catch(err) {
@@ -117,4 +117,4 @@ async function refreshAccess(): Promise <void> {
     }
 }
 
-export {getLoggedIn, getLoggedOut, refreshAccess}
+export {getLoggedIn, getLoggedOut, refreshAccess, checkAccess};
