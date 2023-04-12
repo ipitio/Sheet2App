@@ -1,12 +1,15 @@
 import Cookies from 'js-cookie';
+import { googleLogout } from '@react-oauth/google';
+import jwt_decode from "jwt-decode";
+
 const { TextEncoder, TextDecoder } = require('text-encoding-utf-8');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 const jose = require('jose')
 
-const DJANGO_HOST = process.env.DJANGO_HOST;
-const DJANGO_PORT = process.env.DJANGO_PORT;
-const DJANGO_PROTOCOL = process.env.DJANGO_PROTOCOL;
+const DJANGO_HOST = process.env.REACT_APP_DJANGO_HOST;
+const DJANGO_PORT = process.env.REACT_APP_DJANGO_PORT;
+const DJANGO_PROTOCOL = process.env.REACT_APP_DJANGO_PROTOCOL;
 const DJANGO_URL = `${DJANGO_PROTOCOL}://${DJANGO_HOST}:${DJANGO_PORT}`;
 
 /**
@@ -35,6 +38,7 @@ async function getLoggedIn(authCode: string): Promise<void>{
         Cookies.set("email", data.email, { httpOnly: true });
         Cookies.set("accessToken", data.access_token, { httpOnly: true });
         Cookies.set("refreshToken", data.refresh_token, { httpOnly: true });
+        return Promise.resolve();
     }
     catch(err) {
         return Promise.reject(err);
@@ -48,6 +52,7 @@ function getLoggedOut(): void {
     Cookies.remove("email");
     Cookies.remove("accessToken");
     Cookies.remove("refreshToken");
+    googleLogout();
 }
 
 /**

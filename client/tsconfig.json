@@ -21,7 +21,10 @@
     "jsx": "react-jsx",
     "outDir": "./dist/",
     "sourceMap": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "paths": {
+      "@react-oauth/google": ["./node_modules/@react-oauth/google"]
+    }
   },
   "include": [
     "src",

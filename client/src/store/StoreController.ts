@@ -4,9 +4,9 @@ import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './
 import { Dictionary } from "@reduxjs/toolkit";
 
 /* Define constants for constructing a URL to reach Django server. */
-const DJANGO_HOST = process.env.DJANGO_HOST;
-const DJANGO_PORT = process.env.DJANGO_PORT;
-const DJANGO_PROTOCOL = process.env.DJANGO_PROTOCOL;
+const DJANGO_HOST = process.env.REACT_APP_DJANGO_HOST;
+const DJANGO_PORT = process.env.REACT_APP_DJANGO_PORT;
+const DJANGO_PROTOCOL = process.env.REACT_APP_DJANGO_PROTOCOL;
 const DJANGO_URL = `${DJANGO_PROTOCOL}://${DJANGO_HOST}:${DJANGO_PORT}`;
 
 /*
