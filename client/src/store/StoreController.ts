@@ -685,6 +685,29 @@ async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role
 
 // -> END for S2A.
 // NOTE: Some naming logistics... to prevent duplicate method names, we use "load" for the web apps
+/**
+ * Used to fetch an App object based on the App ID. Allows use of subsequent loadApp call
+ * @param appId The app ID of the application to load
+ * @returns The app object associated with the app Id
+ */
+async function getAppById(appId: number): Promise<App> {
+    try {
+        const reqForm = await getRequestForm("GET", {"appId": appId});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/getAppById`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`getAppById request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const app: App = data.app;
+
+        return app;
+    }
+    catch(err) {
+        return Promise.reject(`getAppById failed with the error: ${err}`);
+    }   
+}
 
 /**
  * Requests an object containing all Tableviews and Detailviews associated with a web app
@@ -816,5 +839,5 @@ export default {getDevelopableApps, getAccessibleApps, getAppRoles, createApp, d
                 getDetailviewColumns,editDetailviewColumns, 
                 getDetailviewRoles, editDetailviewRoles, 
             
-                loadApp, loadTableview, addRecord, editRecord, deleteRecord,
+                getAppById, loadApp, loadTableview, addRecord, editRecord, deleteRecord,
             };
