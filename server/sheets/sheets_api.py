@@ -1,4 +1,5 @@
 from __future__ import print_function
+import json
 
 import os.path
 
@@ -26,7 +27,7 @@ def get_creds():
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
     elif os.getenv("TOKEN_JSON"):
-        creds = get_credentials(os.getenv("TOKEN_JSON"))
+        creds = get_credentials(json.loads(os.getenv("TOKEN_JSON", "")))
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
