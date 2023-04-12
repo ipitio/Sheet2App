@@ -35,6 +35,7 @@ import DetailView from './components/userapp/DetailView';
 import AddRecordModal from './components/userapp/modals/AddRecordModal';
 import EditRecordModal from './components/userapp/modals/EditRecordModal';
 import DeleteRecordModal from './components/userapp/modals/DeleteRecordModal';
+import EditAppRoleSheet from './components/S2A/rolesheet/EditAppRoleSheet';
 
 
 const App: React.FC = () => {
@@ -54,6 +55,7 @@ const App: React.FC = () => {
           <Route path="/S2A/editapp/detailviews/:appid" element={<EditAppDetailviews/>}/>
           <Route path="/S2A/editapp/detailviews/detailviewcolumns/:appid" element={<EditAppDetailviewColumns/>}/>
           <Route path="/S2A/editapp/detailviews/detailviewroles/:appid" element={<EditAppDetailviewRoles/>}/>
+          <Route path="/S2A/editapp/rolesheet/:appid" element={<EditAppRoleSheet/>}/>
 
 
           {/* User App Routes */}
