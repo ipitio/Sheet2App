@@ -36,14 +36,8 @@ jobs:
         sed -i "s/ENV REACT_APP_OAUTH_CLIENT_ID=.*/ENV REACT_APP_OAUTH_CLIENT_ID=${{ inputs.OAUTH_CLIENT_ID }}/" client/Dockerfile
         sed -i "s/ENV OAUTH_CLIENT_ID=.*/ENV OAUTH_CLIENT_ID=${{ inputs.OAUTH_CLIENT_ID }}/" server/Dockerfile
         sed -i "s/ENV OAUTH_CLIENT_SECRET=.*/ENV OAUTH_CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }}/" server/Dockerfile
-        sed -i 's@ENV CREDS_JSON=.*@ENV CREDS_JSON="$(cat <<EOF
-        ${{ secrets.CREDS_JSON }}
-        EOF
-        )"@' server/Dockerfile
-        sed -i 's@ENV TOKEN_JSON=.*@ENV TOKEN_JSON="$(cat <<EOF
-        ${{ secrets.TOKEN_JSON }}
-        EOF
-        )"@' server/Dockerfile
+        sed -i 's@ENV CREDS_JSON=.*@ENV CREDS_JSON=${{ secrets.CREDS_JSON }}@' server/Dockerfile
+        sed -i 's@ENV TOKEN_JSON=.*@ENV TOKEN_JSON=${{ secrets.TOKEN_JSON }}@' server/Dockerfile
         docker compose up -d --build
 
     - name: Test backend
