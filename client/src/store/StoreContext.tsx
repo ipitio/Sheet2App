@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController from './StoreController'
+import storeController, { viewAccApps } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -128,16 +128,6 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        viewAccApps: (state) => {
-            storeController.getAccessibleApps()
-                .then((accApps: App[]) => {
-                    state.accApps = accApps;
-                    console.log("Retrieved accessible apps.");
-                })
-                .catch((error: Error) => {
-                    console.log(`viewAccApps failed with the error ${error}`);
-                });
-        },
         viewAppRoles: (state) => {
             if(state.currentApp) {
                 storeController.getAppRoles(state.currentApp) 
@@ -570,10 +560,18 @@ export const S2AReducer = createSlice({
         builder.addCase(viewDevApps.fulfilled, (state, action) => {
             state.devApps = action.payload;
             console.log("Retrieved developable apps.");
-        })
+        });
         builder.addCase(viewDevApps.rejected, (state, action) => {
             console.log(`viewDevApps failed with the error ${action.error?.message}`);
-        })
+        });
+
+        builder.addCase(viewAccApps.fulfilled, (state, action) => {
+            state.accApps = action.payload;
+            console.log("Retrieved accessible apps.");
+        });
+        builder.addCase(viewAccApps.rejected, (state, action) => {
+            console.log(`viewAccApps failed with the error ${action.error?.message}`);
+        });
     }
   }
 )
@@ -692,7 +690,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewAccApps, viewAppRoles, createApp, editApp, deleteApp,
+export const { viewAppRoles, createApp, editApp, deleteApp,
                viewDatasources, createDatasource, editDatasource, deleteDatasource, 
                viewDatasourceColumns, editDatasourceColumns, 
                viewTableviews, createTableview, editTableview, deleteTableview,

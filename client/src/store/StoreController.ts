@@ -80,7 +80,7 @@ export const viewDevApps = createAsyncThunk('S2A/viewDevApps', async() => {
  * Requests an array of all apps that the user has permission to access.
  * @return {Promise<App[]>} - A promise that resolves to the array of apps on success, rejects on failure.
  */
-async function getAccessibleApps(): Promise<App[]> {
+export const viewAccApps = createAsyncThunk('S2A/getAccessibleApps', async() => {
     try {
         const reqForm = await getRequestForm("POST", {});
 
@@ -96,7 +96,7 @@ async function getAccessibleApps(): Promise<App[]> {
     catch(err) {
         return Promise.reject(`getAccessibleApps failed with the error: ${err}`);
     }
-}
+});
 
 /**
  * Requests an array of all roles for a particular app.
@@ -829,7 +829,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
     }
 }
 
-export default {getAccessibleApps, getAppRoles, createApp, deleteApp, editApp, 
+export default {getAppRoles, createApp, deleteApp, editApp, 
                 getAppDatasources, createDatasource, editDatasource, deleteDatasource,
                 getDatasourceColumns, editDatasourceColumns, 
                 getAppTableviews, createTableview, editTableview, deleteTableview, 
