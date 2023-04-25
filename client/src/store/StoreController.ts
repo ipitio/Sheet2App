@@ -129,8 +129,10 @@ export const viewAppRoles = createAsyncThunk('S2A/viewAppRoles', async () => {
  * @param {string} appName - The name of the application.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function createApp(appName: string): Promise<void> {
+export const createApp = createAsyncThunk('S2A/createApp', async (desiredAppName: string) => {
     try {
+        const appName = { desiredAppName }
+
         const reqForm = await getRequestForm("POST", {"appName": appName});
 
         /* Send request and return promise resolving if creation successful. */
@@ -143,7 +145,7 @@ async function createApp(appName: string): Promise<void> {
     catch(err) {
         return Promise.reject(`createApp failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to delete an application. 
