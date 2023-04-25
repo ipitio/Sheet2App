@@ -2,6 +2,7 @@ import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
 import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './StoreTypes'
 import { Dictionary, createAsyncThunk } from "@reduxjs/toolkit";
+import store from "./StoreContext";
 
 /* Define constants for constructing a URL to reach Django server. */
 const DJANGO_HOST = process.env.REACT_APP_DJANGO_HOST;
@@ -80,7 +81,7 @@ export const viewDevApps = createAsyncThunk('S2A/viewDevApps', async() => {
  * Requests an array of all apps that the user has permission to access.
  * @return {Promise<App[]>} - A promise that resolves to the array of apps on success, rejects on failure.
  */
-async function getAccessibleApps(): Promise<App[]> {
+export const viewAccApps = createAsyncThunk('S2A/viewAccApps', async() => {
     try {
         const reqForm = await getRequestForm("POST", {});
 
@@ -96,15 +97,17 @@ async function getAccessibleApps(): Promise<App[]> {
     catch(err) {
         return Promise.reject(`getAccessibleApps failed with the error: ${err}`);
     }
-}
+});
 
 /**
  * Requests an array of all roles for a particular app.
  * @param {App} app - The application to obtain the roles of.
  * @return {Promise<Role[]>} - A promise that resolves to the array of roles on success, rejects on failure.
  */
-async function getAppRoles(app: App): Promise<Role[]> {
+export const viewAppRoles = createAsyncThunk('S2A/viewAppRoles', async () => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
+
         const reqForm = await getRequestForm("GET", {"app": app});
 
         /* Send request and return promise resolving to array of roles if successful. */
@@ -119,15 +122,17 @@ async function getAppRoles(app: App): Promise<Role[]> {
     catch(err) {
         return Promise.reject(`getAppRoles failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to create a new app where the user is the creator.
  * @param {string} appName - The name of the application.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function createApp(appName: string): Promise<void> {
+export const createApp = createAsyncThunk('S2A/createApp', async (desiredAppName: string) => {
     try {
+        const appName = { desiredAppName }
+
         const reqForm = await getRequestForm("POST", {"appName": appName});
 
         /* Send request and return promise resolving if creation successful. */
@@ -140,36 +145,17 @@ async function createApp(appName: string): Promise<void> {
     catch(err) {
         return Promise.reject(`createApp failed with the error: ${err}`);
     }
-}
-
-/**
- * Requests to delete an application. 
- * @param {App} app - The application to delete.
- * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
- */
-async function deleteApp(app: App): Promise<void> {
-    try {
-        const reqForm = await getRequestForm("DELETE", {"app": app});
-
-        /* Send request and return promise resolving if deletion successful. */
-        const res = await fetch(`${DJANGO_URL}/deleteApp`, reqForm);
-        if(!res.ok)
-            return Promise.reject(`deleteApp request failed with status: ${res.status}`);
-        
-        return Promise.resolve();
-    }
-    catch(err) {
-        return Promise.reject(`deleteApp failed with the error: ${err}`);
-    }
-}
+})
 
 /**
  * Requests to edit an application. 
  * @param {App} app - The application to edit, with the updated information.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editApp(app: App): Promise <void> {  
+export const editApp = createAsyncThunk('S2A/editApp', async (appToEdit: App) => {  
     try {
+        const app = { appToEdit } 
+
         const reqForm = await getRequestForm("PUT", {"app": app});
 
         /* Send request and return promise resolving if edit successful. */
@@ -182,7 +168,31 @@ async function editApp(app: App): Promise <void> {
     catch(err) {
         return Promise.reject(`editApp failed with the error: ${err}`);
     }
-}
+});
+
+
+/**
+ * Requests to delete an application. 
+ * @param {App} app - The application to delete.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+export const deleteApp = createAsyncThunk('S2A/deleteApp', async () => {
+    try {
+        const app = store.getState().S2AReducer.currentAppToDelete;
+
+        const reqForm = await getRequestForm("DELETE", {"app": app});
+
+        /* Send request and return promise resolving if deletion successful. */
+        const res = await fetch(`${DJANGO_URL}/deleteApp`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`deleteApp request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`deleteApp failed with the error: ${err}`);
+    }
+})
 
 /**
  * Requests an array of all datasources for a particular app.
@@ -829,7 +839,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
     }
 }
 
-export default {getAccessibleApps, getAppRoles, createApp, deleteApp, editApp, 
+export default {createApp, deleteApp, editApp, 
                 getAppDatasources, createDatasource, editDatasource, deleteDatasource,
                 getDatasourceColumns, editDatasourceColumns, 
                 getAppTableviews, createTableview, editTableview, deleteTableview, 

@@ -1,12 +1,12 @@
 import { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { createApp, finishCreation, StoreState } from '../../../../store/StoreContext';
+import store, { finishCreation, StoreState } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal, TextField } from '@mui/material';
-import { viewDevApps } from '../../../../store/StoreController';
+import { createApp, viewDevApps } from '../../../../store/StoreController';
 
 function CreateAppModal() {
     const dispatch = useDispatch<typeof store.dispatch>();

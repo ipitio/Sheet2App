@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController from './StoreController'
+import storeController, { createApp, deleteApp, editApp, viewAccApps, viewAppRoles } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -128,58 +128,6 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        viewAccApps: (state) => {
-            storeController.getAccessibleApps()
-                .then((accApps: App[]) => {
-                    state.accApps = accApps;
-                    console.log("Retrieved accessible apps.");
-                })
-                .catch((error: Error) => {
-                    console.log(`viewAccApps failed with the error ${error}`);
-                });
-        },
-        viewAppRoles: (state) => {
-            if(state.currentApp) {
-                storeController.getAppRoles(state.currentApp) 
-                .then((roles: Role[]) => {
-                    state.roles = roles;
-                    console.log("Retrieved app roles.")
-                })
-                .catch((error: Error) => {
-                    console.log(`viewAppRoles failed with the error ${error}`);
-                });
-            }
-        },
-        createApp: (state, action: PayloadAction<string>) => {
-            storeController.createApp(action.payload)
-                .then(() => {
-                    console.log("Created app.");
-                })
-                .catch((error: Error) => {
-                    console.log(`createApp failed with the error ${error}`);
-                })
-        },
-        editApp: (state, action: PayloadAction<App>) => {
-            storeController.editApp(action.payload) 
-                .then(() => {
-                    console.log("Edited app.")
-                })
-                .catch((error: Error) => {
-                    console.log(`editApp failed with the error ${error}`);
-                })
-        },
-        deleteApp: (state) => {
-            if(state.currentAppToDelete) {
-                storeController.deleteApp(state.currentAppToDelete)
-                    .then(() => {
-                        console.log("Deleted app.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`deleteApp failed with the error ${error}`);
-                    })
-            }
-        },
-
         /* Datasource related reducers. */
         viewDatasources: (state) => {
             if(state.currentApp) {
@@ -570,10 +518,47 @@ export const S2AReducer = createSlice({
         builder.addCase(viewDevApps.fulfilled, (state, action) => {
             state.devApps = action.payload;
             console.log("Retrieved developable apps.");
-        })
+        });
         builder.addCase(viewDevApps.rejected, (state, action) => {
             console.log(`viewDevApps failed with the error ${action.error?.message}`);
-        })
+        });
+
+        builder.addCase(viewAccApps.fulfilled, (state, action) => {
+            state.accApps = action.payload;
+            console.log("Retrieved accessible apps.");
+        });
+        builder.addCase(viewAccApps.rejected, (state, action) => {
+            console.log(`viewAccApps failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(viewAppRoles.fulfilled, (state, action) => {
+            state.roles = action.payload;
+            console.log("Retrieved app roles.")
+        });
+        builder.addCase(viewAppRoles.rejected, (state, action) => {
+            console.log(`viewAppRoles failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(createApp.fulfilled, (state, action) => {
+            console.log("Created app.");
+        });
+        builder.addCase(createApp.rejected, (state, action) => {
+            console.log(`createApp failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(editApp.fulfilled, (state, action) => {
+            console.log("Edited app.")
+        });
+        builder.addCase(editApp.rejected, (state, action) => {
+            console.log(`editApp failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(deleteApp.fulfilled, (state, action) => {
+                console.log("Deleted app.");
+        });
+        builder.addCase(deleteApp.rejected, (state, action) => {
+            console.log(`deleteApp failed with the error ${action.error?.message}`);
+        });
     }
   }
 )
@@ -692,7 +677,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewAccApps, viewAppRoles, createApp, editApp, deleteApp,
+export const { 
                viewDatasources, createDatasource, editDatasource, deleteDatasource, 
                viewDatasourceColumns, editDatasourceColumns, 
                viewTableviews, createTableview, editTableview, deleteTableview,

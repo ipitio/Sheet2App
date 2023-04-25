@@ -2,18 +2,19 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { editApp, setCurrentModalType, resetAll, StoreState } from '../../../store/StoreContext';
+import store, { setCurrentModalType, resetAll, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes'
 
 import styles from '../../../styles/S2A/navbars/EditAppNavBarStyles';
 import { AppBar, Toolbar, Typography, Button, IconButton, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { editApp } from '../../../store/StoreController';
 
 
 function EditAppNavBar() {
     const location = useLocation();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
     
     useEffect(() => {
         dispatch(setCurrentModalType(null));
