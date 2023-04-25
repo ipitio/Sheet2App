@@ -2,7 +2,7 @@ import { KeyboardEventHandler, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDatasources, setCurrentModalType, markDatasourceToEdit, markDatasourceToDelete, StoreState, setCurrentDatasource } from '../../../store/StoreContext';
+import store, { setCurrentModalType, markDatasourceToEdit, markDatasourceToDelete, StoreState, setCurrentDatasource } from '../../../store/StoreContext';
 import { Column, Datasource, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/datasources/EditAppDatasourcesStyles";
@@ -11,10 +11,11 @@ import { Button, Grid, IconButton, TextField, Modal, FormControlLabel, Checkbox 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
+import { viewDatasources } from '../../../store/StoreController';
 
 function EditAppDatasources() {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     useEffect(() => {
         dispatch(viewDatasources());

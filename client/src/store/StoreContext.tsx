@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, deleteApp, editApp, viewAccApps, viewAppRoles } from './StoreController'
+import storeController, { createApp, deleteApp, editApp, viewAccApps, viewAppRoles, viewDatasources } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -128,19 +128,6 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        /* Datasource related reducers. */
-        viewDatasources: (state) => {
-            if(state.currentApp) {
-                storeController.getAppDatasources(state.currentApp) 
-                    .then((datasources: Datasource[]) => {
-                        state.datasources = datasources;
-                        console.log("Retrieved datasources.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewDatasources failed with the error ${error}`);
-                    })
-            }
-        },
         createDatasource: (state, action: PayloadAction<{ datasourceName: string, spreadsheetUrl: string, sheetName: string }>) => {
             if(state.currentApp) {
                 storeController.createDatasource(state.currentApp, action.payload.datasourceName, action.payload.spreadsheetUrl, action.payload.sheetName)
@@ -559,6 +546,14 @@ export const S2AReducer = createSlice({
         builder.addCase(deleteApp.rejected, (state, action) => {
             console.log(`deleteApp failed with the error ${action.error?.message}`);
         });
+
+        builder.addCase(viewDatasources.fulfilled, (state, action) => {
+            state.datasources = action.payload;
+            console.log("Retrieved datasources.");
+        });
+        builder.addCase(viewDatasources.rejected, (state, action) => {
+            console.log(`viewDatasources failed with the error ${action.error?.message}`);
+        });
     }
   }
 )
@@ -678,7 +673,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { 
-               viewDatasources, createDatasource, editDatasource, deleteDatasource, 
+               createDatasource, editDatasource, deleteDatasource, 
                viewDatasourceColumns, editDatasourceColumns, 
                viewTableviews, createTableview, editTableview, deleteTableview,
                viewTableviewColumns, editTableviewColumns, 
