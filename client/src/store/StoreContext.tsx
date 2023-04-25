@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { viewAccApps } from './StoreController'
+import storeController, { viewAccApps, viewAppRoles } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -128,18 +128,6 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        viewAppRoles: (state) => {
-            if(state.currentApp) {
-                storeController.getAppRoles(state.currentApp) 
-                .then((roles: Role[]) => {
-                    state.roles = roles;
-                    console.log("Retrieved app roles.")
-                })
-                .catch((error: Error) => {
-                    console.log(`viewAppRoles failed with the error ${error}`);
-                });
-            }
-        },
         createApp: (state, action: PayloadAction<string>) => {
             storeController.createApp(action.payload)
                 .then(() => {
@@ -572,6 +560,14 @@ export const S2AReducer = createSlice({
         builder.addCase(viewAccApps.rejected, (state, action) => {
             console.log(`viewAccApps failed with the error ${action.error?.message}`);
         });
+
+        builder.addCase(viewAppRoles.fulfilled, (state, action) => {
+            state.roles = action.payload;
+            console.log("Retrieved app roles.")
+        });
+        builder.addCase(viewAppRoles.rejected, (state, action) => {
+            console.log(`viewAppRoles failed with the error ${action.error?.message}`);
+        })
     }
   }
 )
@@ -690,7 +686,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewAppRoles, createApp, editApp, deleteApp,
+export const { createApp, editApp, deleteApp,
                viewDatasources, createDatasource, editDatasource, deleteDatasource, 
                viewDatasourceColumns, editDatasourceColumns, 
                viewTableviews, createTableview, editTableview, deleteTableview,

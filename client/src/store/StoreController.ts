@@ -2,6 +2,7 @@ import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
 import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './StoreTypes'
 import { Dictionary, createAsyncThunk } from "@reduxjs/toolkit";
+import store from "./StoreContext";
 
 /* Define constants for constructing a URL to reach Django server. */
 const DJANGO_HOST = process.env.REACT_APP_DJANGO_HOST;
@@ -80,7 +81,7 @@ export const viewDevApps = createAsyncThunk('S2A/viewDevApps', async() => {
  * Requests an array of all apps that the user has permission to access.
  * @return {Promise<App[]>} - A promise that resolves to the array of apps on success, rejects on failure.
  */
-export const viewAccApps = createAsyncThunk('S2A/getAccessibleApps', async() => {
+export const viewAccApps = createAsyncThunk('S2A/viewAccApps', async() => {
     try {
         const reqForm = await getRequestForm("POST", {});
 
@@ -103,8 +104,10 @@ export const viewAccApps = createAsyncThunk('S2A/getAccessibleApps', async() => 
  * @param {App} app - The application to obtain the roles of.
  * @return {Promise<Role[]>} - A promise that resolves to the array of roles on success, rejects on failure.
  */
-async function getAppRoles(app: App): Promise<Role[]> {
+export const viewAppRoles = createAsyncThunk('S2A/viewAppRoles', async () => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
+
         const reqForm = await getRequestForm("GET", {"app": app});
 
         /* Send request and return promise resolving to array of roles if successful. */
@@ -119,7 +122,7 @@ async function getAppRoles(app: App): Promise<Role[]> {
     catch(err) {
         return Promise.reject(`getAppRoles failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to create a new app where the user is the creator.
@@ -829,7 +832,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
     }
 }
 
-export default {getAppRoles, createApp, deleteApp, editApp, 
+export default {createApp, deleteApp, editApp, 
                 getAppDatasources, createDatasource, editDatasource, deleteDatasource,
                 getDatasourceColumns, editDatasourceColumns, 
                 getAppTableviews, createTableview, editTableview, deleteTableview, 
