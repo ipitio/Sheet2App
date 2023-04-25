@@ -5,6 +5,9 @@ import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType
 
 import storeController from './StoreController'
 
+// Import async thunks for API calls
+import { viewDevApps } from './StoreController'
+
 export interface IS2AState {
     /* An array of developable apps for the current user. Set when navigating onto developable apps screen. */
     devApps: App[],
@@ -121,21 +124,10 @@ const S2AState: IS2AState = {
     currentDetailviewToDelete: null,
 }
 
-const S2AReducer = createSlice({
-    name: 'S2AReducer',
+export const S2AReducer = createSlice({
+    name: 'S2A',
     initialState: S2AState,
     reducers: {
-        /* App related reducers. */
-        viewDevApps: (state) => {
-            storeController.getDevelopableApps()
-                .then((devApps: App[]) => {
-                    state.devApps = devApps;
-                    console.log("Retrieved developable apps.");
-                })
-                .catch((error: Error) => {
-                    console.log(`viewDevApps failed with the error ${error}`);
-                });
-        },
         viewAccApps: (state) => {
             storeController.getAccessibleApps()
                 .then((accApps: App[]) => {
@@ -573,12 +565,24 @@ const S2AReducer = createSlice({
 
             console.log("Complete reset of store state.")
         },
+    }, 
+    extraReducers(builder) {
+        builder.addCase(viewDevApps.fulfilled, (state, action) => {
+            state.devApps = action.payload;
+            console.log("Retrieved developable apps.");
+        })
+        builder.addCase(viewDevApps.rejected, (state, action) => {
+            console.log(`viewDevApps failed with the error ${action.error?.message}`);
+        })
     }
-})
+  }
+)
 
 export interface IWebAppState {
+    app: App | null,
+
     // An array of Views that have been previously loaded by the user
-    views: View[],
+    tableviews: Tableview[],
 
     currentDatasource: Datasource | null,
 
@@ -595,7 +599,8 @@ export interface IWebAppState {
 }
 
 const webAppState: IWebAppState = {
-    views: [],
+    app: null,
+    tableviews: [],
     currentDatasource: null,
     currentView: null,
     currentModalType: null,
@@ -603,7 +608,7 @@ const webAppState: IWebAppState = {
 }
 
 const webAppReducer = createSlice({
-    name: 'webAppReducer',
+    name: 'webApp',
     initialState: webAppState,
     reducers: {
         // Loads a view and sets it as the current (visible) view
@@ -617,6 +622,15 @@ const webAppReducer = createSlice({
         },
         setCurrentView: (state, action: {payload: View}) => {
             state.currentView = action.payload;
+        },
+        loadTableview: (state, action: {payload: Datasource}) => {
+            storeController.loadTableview(action.payload)
+            .then(() => {
+
+            })
+            .catch((error: Error) => {
+                console.log(error);
+            })
         },
         // Called by the AddRecordModal when changes are submitted
         addRecord: (state, action: {payload: Record, type: string}) => {
@@ -678,7 +692,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewDevApps, viewAccApps, viewAppRoles, createApp, editApp, deleteApp,
+export const { viewAccApps, viewAppRoles, createApp, editApp, deleteApp,
                viewDatasources, createDatasource, editDatasource, deleteDatasource, 
                viewDatasourceColumns, editDatasourceColumns, 
                viewTableviews, createTableview, editTableview, deleteTableview,
@@ -693,7 +707,9 @@ export const { viewDevApps, viewAccApps, viewAppRoles, createApp, editApp, delet
                finishCreation, finishEdit, finishDeletion, resetAll
             } = S2AReducer.actions
 
-export const { setCurrentView, addRecord, editRecord, deleteRecord, showAddRecordModal, showEditRecordModal, showDeleteRecordModal, hideWebAppModal } = webAppReducer.actions;
+export const { setCurrentView, addRecord, editRecord, deleteRecord,
+    showAddRecordModal, showEditRecordModal, showDeleteRecordModal,
+    hideWebAppModal, loadTableview } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
 export interface StoreState {

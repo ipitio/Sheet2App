@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { setCurrentModalType, resetAll, StoreState } from '../../../store/StoreContext';
+import { editApp, setCurrentModalType, resetAll, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes'
 
 import styles from '../../../styles/S2A/navbars/EditAppNavBarStyles';
@@ -43,6 +43,14 @@ function EditAppNavBar() {
             dispatch(setCurrentModalType(ModalType.CreateDetailviewModal));
     }
 
+    /* Event handler for changing app name. */
+    const handleChangeAppName = (event: React.FocusEvent<HTMLInputElement>) => {
+        if(currApp && event.target.value) {
+            const newApp = { ...currApp, name: event.target.value};
+            dispatch(editApp(newApp));
+        }
+    };
+
     /* Event handlers for navigation bar buttons. */
     const displayDatasources = () => {
         currApp ? navigate(`/S2A/editapp/datasources/${currApp.id}`) : navigate("/")
@@ -57,7 +65,7 @@ function EditAppNavBar() {
     }
     
     const displayRoles = () => {
-        currApp ? navigate(`/S2A/editapp/roles/${currApp.id}`) : navigate("/")
+        currApp ? navigate(`/S2A/editapp/rolesheet/${currApp.id}`) : navigate("/")
     }
 
     const handleReturn = () => {
@@ -79,14 +87,16 @@ function EditAppNavBar() {
                 )}
 
                 {/* Edit App Name Textfield */}
-                <TextField sx={styles.editAppTextfield} variant="outlined" label="App Name"/>
+                <TextField onBlur={handleChangeAppName} sx={styles.editAppTextfield} variant="outlined" label="App Name"/>
 
                 {/* Navigation Buttons */}
-                <Button onClick={displayDatasources} sx={{ ...styles.displayButton, ...styles.displayDatasourcesButton }} color="inherit">App Data Sources</Button>
-                <Button onClick={displayTableviews} sx={{ ...styles.displayButton, ...styles.displayTableviewsButton }} color="inherit">App Tableviews</Button>
-                <Button onClick={displayDetailviews}sx={{ ...styles.displayButton, ...styles.displayDetailviewsButton }}  color="inherit">App Detailviews</Button>
-                <Button onClick={displayRoles} sx={{ ...styles.displayButton, ...styles.displayRolesButton }} color="inherit">App Role Management</Button>
-                <Button onClick={handleReturn} sx={{ ...styles.displayButton, ...styles.displayReturnButton }}  color="inherit">Return To Home</Button>
+                <div style={styles.buttonContainer}>
+                    <Button onClick={displayDatasources} sx={{ ...styles.displayButton, ...styles.displayDatasourcesButton }} color="inherit">App Data Sources</Button>
+                    <Button onClick={displayTableviews} sx={{ ...styles.displayButton, ...styles.displayTableviewsButton }} color="inherit">App Tableviews</Button>
+                    <Button onClick={displayDetailviews}sx={{ ...styles.displayButton, ...styles.displayDetailviewsButton }}  color="inherit">App Detailviews</Button>
+                    <Button onClick={displayRoles} sx={{ ...styles.displayButton, ...styles.displayRolesButton }} color="inherit">App Role Spreadsheet</Button>
+                    <Button onClick={handleReturn} sx={{ ...styles.displayButton, ...styles.displayReturnButton }}  color="inherit">Return To Home</Button>
+                </div>
             </Toolbar>
         </AppBar>
     );

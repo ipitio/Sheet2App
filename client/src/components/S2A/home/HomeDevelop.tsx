@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDevApps, setCurrentApp, setCurrentModalType, markAppToDelete, StoreState } from '../../../store/StoreContext';
+import store, { setCurrentApp, setCurrentModalType, markAppToDelete, StoreState } from '../../../store/StoreContext';
 import { App, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/home/HomeStyles'
@@ -10,10 +10,11 @@ import HomeNavBar from '../navbars/HomeNavBar';
 import { Grid, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import { viewDevApps } from '../../../store/StoreController';
 
 function HomeDevelop() {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     useEffect(() => {
         dispatch(viewDevApps());

@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
 import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './StoreTypes'
-import { Dictionary } from "@reduxjs/toolkit";
+import { Dictionary, createAsyncThunk } from "@reduxjs/toolkit";
 
 /* Define constants for constructing a URL to reach Django server. */
 const DJANGO_HOST = process.env.REACT_APP_DJANGO_HOST;
@@ -57,7 +57,7 @@ async function getRequestForm(method: string, data: {[key: string]: any}): Promi
  * Requests an array of all apps that the user has permission to develop. 
  * @return {Promise<App[]>} - A promise that resolves to the array of apps on success, rejects on failure.
  */
-async function getDevelopableApps(): Promise<App[]> {
+export const viewDevApps = createAsyncThunk('S2A/viewDevApps', async() => {
     try {
         /* Build request form. */
         const reqForm = await getRequestForm("POST", {});
@@ -74,7 +74,7 @@ async function getDevelopableApps(): Promise<App[]> {
     catch(err) {
         return Promise.reject(`getDevelopableApps failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests an array of all apps that the user has permission to access.
@@ -685,6 +685,29 @@ async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role
 
 // -> END for S2A.
 // NOTE: Some naming logistics... to prevent duplicate method names, we use "load" for the web apps
+/**
+ * Used to fetch an App object based on the App ID. Allows use of subsequent loadApp call
+ * @param appId The app ID of the application to load
+ * @returns The app object associated with the app Id
+ */
+async function getAppById(appId: number): Promise<App> {
+    try {
+        const reqForm = await getRequestForm("GET", {"appId": appId});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/getAppById`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`getAppById request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const app: App = data.app;
+
+        return app;
+    }
+    catch(err) {
+        return Promise.reject(`getAppById failed with the error: ${err}`);
+    }   
+}
 
 /**
  * Requests an object containing all Tableviews and Detailviews associated with a web app
@@ -755,7 +778,7 @@ async function addRecord(datasource: Datasource, record: Record): Promise<{colum
         };
     }
     catch(err) {
-        return Promise.reject(`loadTableView failed with the error: ${err}`);
+        return Promise.reject(`addRecord failed with the error: ${err}`);
     }
 }
 
@@ -782,7 +805,7 @@ async function editRecord(datasource: Datasource, recordID: number, record: Reco
         };
     }
     catch(err) {
-        return Promise.reject(`loadTableView failed with the error: ${err}`);
+        return Promise.reject(`editRecord failed with the error: ${err}`);
     }
 }
 
@@ -802,11 +825,11 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
         const data = await res.json();
     }
     catch(err) {
-        return Promise.reject(`loadTableView failed with the error: ${err}`);
+        return Promise.reject(`deleteRecord failed with the error: ${err}`);
     }
 }
 
-export default {getDevelopableApps, getAccessibleApps, getAppRoles, createApp, deleteApp, editApp, 
+export default {getAccessibleApps, getAppRoles, createApp, deleteApp, editApp, 
                 getAppDatasources, createDatasource, editDatasource, deleteDatasource,
                 getDatasourceColumns, editDatasourceColumns, 
                 getAppTableviews, createTableview, editTableview, deleteTableview, 
@@ -816,5 +839,5 @@ export default {getDevelopableApps, getAccessibleApps, getAppRoles, createApp, d
                 getDetailviewColumns,editDetailviewColumns, 
                 getDetailviewRoles, editDetailviewRoles, 
             
-                loadApp, loadTableview, addRecord, editRecord, deleteRecord,
+                getAppById, loadApp, loadTableview, addRecord, editRecord, deleteRecord,
             };

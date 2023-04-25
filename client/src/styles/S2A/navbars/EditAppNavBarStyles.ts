@@ -24,6 +24,10 @@ const EditAppNavBarStyles: StyleContainer = {
     minWidth: '400px',
     background: 'linear-gradient(to bottom, #5a8cad, #6CA6CD)',
   },
+  buttonContainer: {
+    position: 'absolute',
+    right: 20,
+  },
   displayButton: {
     textTransform: 'capitalize',
     fontWeight: 'bold',
