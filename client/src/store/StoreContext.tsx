@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, editApp, viewAccApps, viewAppRoles } from './StoreController'
+import storeController, { createApp, deleteApp, editApp, viewAccApps, viewAppRoles } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -128,18 +128,6 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        deleteApp: (state) => {
-            if(state.currentAppToDelete) {
-                storeController.deleteApp(state.currentAppToDelete)
-                    .then(() => {
-                        console.log("Deleted app.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`deleteApp failed with the error ${error}`);
-                    })
-            }
-        },
-
         /* Datasource related reducers. */
         viewDatasources: (state) => {
             if(state.currentApp) {
@@ -564,6 +552,13 @@ export const S2AReducer = createSlice({
         builder.addCase(editApp.rejected, (state, action) => {
             console.log(`editApp failed with the error ${action.error?.message}`);
         });
+
+        builder.addCase(deleteApp.fulfilled, (state, action) => {
+                console.log("Deleted app.");
+        });
+        builder.addCase(deleteApp.rejected, (state, action) => {
+            console.log(`deleteApp failed with the error ${action.error?.message}`);
+        });
     }
   }
 )
@@ -682,7 +677,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { deleteApp,
+export const { 
                viewDatasources, createDatasource, editDatasource, deleteDatasource, 
                viewDatasourceColumns, editDatasourceColumns, 
                viewTableviews, createTableview, editTableview, deleteTableview,

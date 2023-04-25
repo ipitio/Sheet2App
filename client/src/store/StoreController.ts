@@ -176,8 +176,10 @@ export const editApp = createAsyncThunk('S2A/editApp', async (appToEdit: App) =>
  * @param {App} app - The application to delete.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function deleteApp(app: App): Promise<void> {
+export const deleteApp = createAsyncThunk('S2A/deleteApp', async () => {
     try {
+        const app = store.getState().S2AReducer.currentAppToDelete;
+
         const reqForm = await getRequestForm("DELETE", {"app": app});
 
         /* Send request and return promise resolving if deletion successful. */
@@ -190,7 +192,7 @@ async function deleteApp(app: App): Promise<void> {
     catch(err) {
         return Promise.reject(`deleteApp failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests an array of all datasources for a particular app.
