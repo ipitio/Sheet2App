@@ -12,7 +12,7 @@ class Creator(models.Model):
 class Application(models.Model):
     creator = models.ForeignKey(Creator, on_delete=models.CASCADE)
     name = models.TextField()
-    role_mem_url = models.TextField()
+    role_mem_url = models.TextField(null=True)
     is_published = models.BooleanField()
 
 
@@ -38,6 +38,7 @@ class DatasourceColumn(models.Model):
     
 
 class TableView(models.Model):
+    app = models.ForeignKey(Application, on_delete=models.CASCADE)
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
     can_view = models.BooleanField()
@@ -46,9 +47,9 @@ class TableView(models.Model):
     
     
 class DetailView(models.Model):
+    app = models.ForeignKey(Application, on_delete=models.CASCADE)
     datasource = models.ForeignKey(Datasource, on_delete=models.CASCADE)
     name = models.TextField()
-    record_index = models.IntegerField()
     can_view = models.BooleanField()
     can_edit = models.BooleanField()
 
@@ -68,6 +69,16 @@ class TableViewViewableColumn(models.Model):
     datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
 
 
+class DetailViewViewableColumn(models.Model):
+    detail_view = models.ForeignKey(DetailView, on_delete=models.CASCADE)
+    datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
+
+
 class DetailViewEditableColumn(models.Model):
     detail_view = models.ForeignKey(DetailView, on_delete=models.CASCADE)
+    datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
+    
+    
+class TableViewFilterColumn(models.Model):
+    table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
     datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)

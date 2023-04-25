@@ -2,6 +2,7 @@ from __future__ import print_function
 import json
 
 import os.path
+from http import HTTPStatus
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -55,14 +56,20 @@ def get_credentials(tokens):
     Returns:
         Credentials: the Credentials object to be used for Google sheets operations
     """
-    creds = Credentials.from_authorized_user_info(tokens)
-    if not creds.valid:
-        creds.refresh(Request())
+    
+    auth_info = {
+        "access_token": tokens["access_token"],
+        "refresh_token": tokens["refresh_token"],
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "client_id": os.getenv("OAUTH_CLIENT_ID"),
+        "client_secret": os.getenv('OAUTH_CLIENT_SECRET')
+    }
+    creds = Credentials.from_authorized_user_info(auth_info)
 
     return creds
 
 
-def refresh_tokens(tokens):
+def refresh_tokens(refresh_token):
     """
     Refreshes oauth tokens
 
@@ -72,16 +79,30 @@ def refresh_tokens(tokens):
     Returns:
         dict or json: a dict or json object containing the refreshed token values
     """
-    creds = Credentials.from_authorized_user_info(tokens)
-    creds.refresh(Request())
+    try:
+        auth_info = {
+            "refresh_token": refresh_token,
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "client_id": os.getenv("OAUTH_CLIENT_ID"),
+            "client_secret": os.getenv('OAUTH_CLIENT_SECRET')
+        }
+        creds = Credentials.from_authorized_user_info(auth_info)
+        creds.refresh(Request())
+        refreshed_tokens = {
+            "access_token": creds.token,
+            "refresh_token": creds.refresh_token
+        }
 
-    return creds.to_json()
+        return refreshed_tokens, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return {}, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Create a spreadsheet and return the new spreadsheet ID.
-def create_spreadsheet(title):
+def create_spreadsheet(tokens, title):
     try:
-        service = build("sheets", "v4", credentials=get_creds())
+        service = build("sheets", "v4", credentials=get_credentials(tokens))
 
         # Pass in the desired title of the spreadsheet into the call body.
         spreadsheet = {"properties": {"title": title}}
@@ -99,9 +120,9 @@ def create_spreadsheet(title):
 
 # Retrieve data from a spreadsheet. If a range is specified, retrieve all data from within that range.
 # If no range is specified, returns the entire first sheet. Reads the data row by row as a default.
-def get_data(spreadsheet_id, sheet_id=None, range=None, majorDimension="ROWS") -> list:
+def get_data(tokens, spreadsheet_id, sheet_id=None, range=None, majorDimension="ROWS") -> list:
     try:
-        service = build("sheets", "v4", credentials=get_creds())
+        service = build("sheets", "v4", credentials=get_credentials(tokens))
 
         # Call the Sheets API
         sheet = service.spreadsheets()
@@ -157,9 +178,9 @@ def get_data(spreadsheet_id, sheet_id=None, range=None, majorDimension="ROWS") -
 # Retrieve column data for certain specified columns Expects columns to be a
 # array of column indices to retrieve the data for. Returns a 2 dimensional
 # list containing the column data, where list[0] is the first column, etc...
-def get_column_data(spreadsheet_id, sheet_id, columns) -> list:
+def get_column_data(tokens, spreadsheet_id, sheet_id, columns) -> list:
     try:
-        service = build("sheets", "v4", credentials=get_creds())
+        service = build("sheets", "v4", credentials=get_credentials(tokens))
 
         # Call the Sheets API
         sheet = service.spreadsheets()
@@ -179,7 +200,8 @@ def get_column_data(spreadsheet_id, sheet_id, columns) -> list:
 
         ranges = []
         for column in columns:
-            ranges.append(sheet_name + "!" + column + ":" + column)
+            column_letter = get_column_letter(column)
+            ranges.append(sheet_name + "!" + column_letter + ":" + column_letter)
 
         # Make the API call to retrieve the specified data from the sheet
         result = (
@@ -187,6 +209,7 @@ def get_column_data(spreadsheet_id, sheet_id, columns) -> list:
             .batchGet(
                 spreadsheetId=spreadsheet_id,
                 ranges=ranges,
+                majorDimension="COLUMNS",
             )
             .execute()
         )
@@ -195,7 +218,7 @@ def get_column_data(spreadsheet_id, sheet_id, columns) -> list:
         # entry in the list represents a column of data
         column_data = []
         for values in result.get("valueRanges"):
-            column_data.append(values.get("values"))
+            column_data.extend(values.get("values"))
 
         return column_data
     except HttpError as err:
@@ -205,9 +228,9 @@ def get_column_data(spreadsheet_id, sheet_id, columns) -> list:
 
 # Update a specific cell in the spreadsheet. This function only works for one
 # cell in the spreadsheet, and does not support updating multiple cells at once.
-def update_cell(spreadsheet_id, sheet_id, value_to_update, row_index, column_index):
+def update_cell(tokens, spreadsheet_id, sheet_id, value_to_update, row_index, column_index):
     try:
-        service = build("sheets", "v4", credentials=get_creds())
+        service = build("sheets", "v4", credentials=get_credentials(tokens))
 
         # Retrieve the type of value of value_to_update as a string parsable by the
         # Google Sheets API.
@@ -255,9 +278,9 @@ def update_cell(spreadsheet_id, sheet_id, value_to_update, row_index, column_ind
 
 # For batch updating an entire record / row. Must pass the entire new row as an array
 # to this API call.
-def update_row(spreadsheet_id, sheet_id, updated_row_data, row_index):
+def update_row(tokens, spreadsheet_id, sheet_id, updated_row_data, row_index):
     try:
-        service = build("sheets", "v4", credentials=get_creds())
+        service = build("sheets", "v4", credentials=get_credentials(tokens))
 
         # Create the request body for the API call
         request_body = {
@@ -303,12 +326,12 @@ def update_row(spreadsheet_id, sheet_id, updated_row_data, row_index):
 # Insert a new record / row in the spreadsheet. The data in row_to_insert must be passed as a list, where every element in the list
 # corresponds to the elements in the row.
 # TODO: Allow insertion of row into any row, not just end of spreadsheet
-def insert_row(spreadsheet_id, sheet_id, row_to_insert, row_index=-1):
+def insert_row(tokens, spreadsheet_id, sheet_id, row_to_insert, row_index=-1):
     # If no row_index is specified, then the row is inserted at the end of the spreadsheet
     if row_index == -1:
-        row_index = get_num_rows(spreadsheet_id, sheet_id)
+        row_index = get_num_rows(tokens, spreadsheet_id, sheet_id)
     try:
-        service = build("sheets", "v4", credentials=get_creds())
+        service = build("sheets", "v4", credentials=get_credentials(tokens))
 
         # Create the request body for the API call
         request_body = {
@@ -328,7 +351,7 @@ def insert_row(spreadsheet_id, sheet_id, row_to_insert, row_index=-1):
                     "updateCells": {
                         "start": {
                             "sheetId": sheet_id,
-                            "rowIndex": get_num_rows(spreadsheet_id, sheet_id),
+                            "rowIndex": get_num_rows(tokens, spreadsheet_id, sheet_id),
                             "columnIndex": 0,
                         },
                         "rows": [
@@ -363,9 +386,9 @@ def insert_row(spreadsheet_id, sheet_id, row_to_insert, row_index=-1):
 
 
 # Delete a record (or row) from the spreadsheet
-def delete_row(spreadsheet_id, sheet_id, row_index):
+def delete_row(tokens, spreadsheet_id, sheet_id, row_index):
     try:
-        service = build("sheets", "v4", credentials=get_creds())
+        service = build("sheets", "v4", credentials=get_credentials(tokens))
 
         # Generate the request body
         request_body = {
@@ -401,9 +424,46 @@ def delete_row(spreadsheet_id, sheet_id, row_index):
     return
 
 
-def get_metadata(spreadsheet_id):
+# Write data to the first open column in the sheet
+def write_column(tokens, spreadsheet_id, sheet_id, column_data, column_index):
     try:
-        service = build("sheets", "v4", credentials=get_creds())
+        service = build('sheets', 'v4', credentials=get_credentials(tokens))
+        
+        sheet = service.spreadsheets()
+        sheet_name = ""
+        if sheet_id is not None:
+            sheets_info = (
+                sheet.get(spreadsheetId=spreadsheet_id).execute().get("sheets")
+            )
+
+            for sheet_info in sheets_info:
+                if sheet_info.get("properties").get("sheetId") == sheet_id:
+                    sheet_name = sheet_info.get("properties").get("title")
+                    break
+                
+        column_letter = get_column_letter(column_index)
+        update_range = f'{sheet_name}!{column_letter}1:{column_letter}{len(column_data)}'
+        request_body = {
+            'range': update_range,
+            'values': [[value] for value in column_data],
+        }
+        request = sheet.values().update(
+            spreadsheetId=spreadsheet_id,
+            range=update_range,
+            valueInputOption='RAW',
+            body=request_body,
+        )
+        
+        res = request.execute()
+
+        return res
+    except HttpError as err:
+        print(err)
+
+
+def get_metadata(tokens, spreadsheet_id):
+    try:
+        service = build("sheets", "v4", credentials=get_credentials(tokens))
 
         sheet_metadata = (
             service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
@@ -435,9 +495,9 @@ def generate_row_data(row_data):
     return row
 
 
-def get_num_rows(spreadsheet_id, sheet_id) -> int:
+def get_num_rows(tokens, spreadsheet_id, sheet_id) -> int:
     try:
-        service = build("sheets", "v4", credentials=get_creds())
+        service = build("sheets", "v4", credentials=get_credentials(tokens))
 
         # Get the metadata of the spreadsheet
         sheet_metadata = (
@@ -454,3 +514,17 @@ def get_num_rows(spreadsheet_id, sheet_id) -> int:
     except HttpError as err:
         print(err)
         return 0
+    
+    
+def get_end_user_roles(tokens, role_mem_url, email):
+    spreadsheet_id = get_spreadsheet_id(role_mem_url)
+    sheet_id = get_gid(role_mem_url)
+    
+    role_data = get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, majorDimension="COLUMNS")
+    
+    roles = []
+    for role_col in role_data[1:]:
+        if email in role_col[1:]:
+            roles.append(role_col[0])
+            
+    return roles

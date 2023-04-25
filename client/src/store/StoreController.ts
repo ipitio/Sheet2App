@@ -25,9 +25,9 @@ async function getRequestForm(method: string, data: {[key: string]: any}): Promi
         await refreshAccess();
 
         /* Fetch information from cookies. */
-        const [email, accessToken] = [Cookies.get("email"), Cookies.get("accessToken")];
-        if(!email || !accessToken)
-            return Promise.reject("Missing email or access token.")
+        const [email, accessToken, refreshToken] = [Cookies.get("email"), Cookies.get("accessToken"), Cookies.get("refreshToken")];
+        if(!email || !accessToken || !refreshToken)
+            return Promise.reject("Missing email or access token or refresh token.")
 
         /* Build the request body. */
         const bodyData = {...data, email};
@@ -38,7 +38,7 @@ async function getRequestForm(method: string, data: {[key: string]: any}): Promi
             mode: "cors",
             headers: { 
                 "Content-Type": "application/json",
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessToken} ${refreshToken}`
             },
             body: JSON.stringify(bodyData)
         }

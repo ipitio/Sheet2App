@@ -30,10 +30,9 @@ def oauth_login_user(auth_code):
             }
         }
         SCOPES = [
-            'https://www.googleapis.com/auth/userinfo.profile',
-            'openid',
-            'https://www.googleapis.com/auth/userinfo.email',
-            'https://www.googleapis.com/auth/gmail.send'
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "openid"
         ]
 
         flow = Flow.from_client_config(
@@ -52,9 +51,15 @@ def oauth_login_user(auth_code):
         access_token = credentials.token
         refresh_token = credentials.refresh_token
         
-        return email, access_token, refresh_token, HTTPStatus.OK
+        auth_info = {
+            "email": email, 
+            "access_token": access_token, 
+            "refresh_token": refresh_token
+        }
+        
+        return auth_info, HTTPStatus.OK
     
     except Exception as e:
         print(f"Error: {e}")
-        return f"Error: {e} ", 0, 0, HTTPStatus.INTERNAL_SERVER_ERROR
+        return f"Error: {e} ", HTTPStatus.INTERNAL_SERVER_ERROR
         
