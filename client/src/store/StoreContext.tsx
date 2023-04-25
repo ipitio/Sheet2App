@@ -129,6 +129,67 @@ export const S2AReducer = createSlice({
     initialState: S2AState,
     reducers: {
         /* Datasource column related reducers. */
+        editDatasource: (state, action: PayloadAction<Datasource>) => {
+            if(state.currentDatasourceToEdit) {
+                storeController.editDatasource(action.payload)
+                    .then(() => {
+                        console.log("Edited datasource.");
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editDatasource failed with the error ${error}`);
+                    })
+            }
+        },
+        deleteDatasource: (state) => {
+            if(state.currentDatasourceToDelete) {
+                storeController.deleteDatasource(state.currentDatasourceToDelete)
+                    .then(() => {
+                        console.log("Deleted datasource.");
+                    })
+                    .catch((error: Error) => {
+                        console.log(`deleteDatasource failed with the error ${error}`);
+                    })
+            }
+        },
+
+        /* Datasource column related reducers. */
+        viewDatasourceColumns: (state) => {
+            if(state.currentDatasource) {
+                storeController.getDatasourceColumns(state.currentDatasource) 
+                    .then((datasourceColumns: Column[]) => {
+                        state.datasourceColumns = datasourceColumns;
+                        console.log("Retrieved datasource columns.");
+                    })
+                    .catch((error: Error) => {
+                        console.log(`viewDatasourceColumns failed with the error ${error}`);
+                    })
+            }
+        },
+        editDatasourceColumns: (state, action: PayloadAction<Column[]>) => {
+            if(state.currentDatasource) {
+                storeController.editDatasourceColumns(state.currentDatasource, action.payload) 
+                    .then(() => {
+                        console.log("Edited datasource columns.");
+                    })
+                    .catch((error: Error) => {
+                        console.log(`editDatasourceColumns failed with the error ${error}`);
+                    })
+            }
+        },
+
+        /* Tableview related reducers. */
+        viewTableviews: (state) => {
+            if(state.currentApp) {
+                storeController.getAppTableviews(state.currentApp)       
+                    .then((tableviews: Tableview[]) => {
+                        state.tableviews = tableviews;
+                        console.log("Retrieved tableviews.")
+                    })
+                    .catch((error: Error) => {
+                        console.log(`viewTableviews failed with the error ${error}`);
+                    })
+            }
+        },
         /* Tableview related reducers. */
         createTableview: (state, action: PayloadAction<{ tableviewName: string, datasource: Datasource }>) => {
             if(state.currentApp) {
@@ -647,18 +708,19 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { 
-               createTableview, editTableview, deleteTableview,
-               viewTableviewColumns, editTableviewColumns, 
-               viewTableviewRoles, editTableviewRoles,
-               viewDetailviews, createDetailview, editDetailview, deleteDetailview,
-               viewDetailviewColumns, editDetailviewColumns, 
-               viewDetailviewRoles, editDetailviewRoles, 
-               setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
-               markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
-               markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
-               finishCreation, finishEdit, finishDeletion, resetAll
-            } = S2AReducer.actions
+export const { editDatasource, deleteDatasource, 
+    viewDatasourceColumns, editDatasourceColumns, 
+    viewTableviews, createTableview, editTableview, deleteTableview,
+    viewTableviewColumns, editTableviewColumns, 
+    viewTableviewRoles, editTableviewRoles,
+    viewDetailviews, createDetailview, editDetailview, deleteDetailview,
+    viewDetailviewColumns, editDetailviewColumns, 
+    viewDetailviewRoles, editDetailviewRoles, 
+    setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
+    markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
+    markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
+    finishCreation, finishEdit, finishDeletion, resetAll
+ } = S2AReducer.actions
 
 export const { setCurrentView, addRecord, editRecord, deleteRecord,
     showAddRecordModal, showEditRecordModal, showDeleteRecordModal,
