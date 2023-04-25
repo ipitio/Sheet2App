@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, viewAccApps, viewAppRoles } from './StoreController'
+import storeController, { createApp, editApp, viewAccApps, viewAppRoles } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -128,15 +128,6 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        editApp: (state, action: PayloadAction<App>) => {
-            storeController.editApp(action.payload) 
-                .then(() => {
-                    console.log("Edited app.")
-                })
-                .catch((error: Error) => {
-                    console.log(`editApp failed with the error ${error}`);
-                })
-        },
         deleteApp: (state) => {
             if(state.currentAppToDelete) {
                 storeController.deleteApp(state.currentAppToDelete)
@@ -566,6 +557,13 @@ export const S2AReducer = createSlice({
         builder.addCase(createApp.rejected, (state, action) => {
             console.log(`createApp failed with the error ${action.error?.message}`);
         });
+
+        builder.addCase(editApp.fulfilled, (state, action) => {
+            console.log("Edited app.")
+        });
+        builder.addCase(editApp.rejected, (state, action) => {
+            console.log(`editApp failed with the error ${action.error?.message}`);
+        });
     }
   }
 )
@@ -684,7 +682,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { editApp, deleteApp,
+export const { deleteApp,
                viewDatasources, createDatasource, editDatasource, deleteDatasource, 
                viewDatasourceColumns, editDatasourceColumns, 
                viewTableviews, createTableview, editTableview, deleteTableview,

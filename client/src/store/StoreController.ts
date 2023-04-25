@@ -148,6 +148,30 @@ export const createApp = createAsyncThunk('S2A/createApp', async (desiredAppName
 })
 
 /**
+ * Requests to edit an application. 
+ * @param {App} app - The application to edit, with the updated information.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+export const editApp = createAsyncThunk('S2A/editApp', async (appToEdit: App) => {  
+    try {
+        const app = { appToEdit } 
+
+        const reqForm = await getRequestForm("PUT", {"app": app});
+
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch(`${DJANGO_URL}/editApp`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`editApp request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`editApp failed with the error: ${err}`);
+    }
+});
+
+
+/**
  * Requests to delete an application. 
  * @param {App} app - The application to delete.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
@@ -165,27 +189,6 @@ async function deleteApp(app: App): Promise<void> {
     }
     catch(err) {
         return Promise.reject(`deleteApp failed with the error: ${err}`);
-    }
-}
-
-/**
- * Requests to edit an application. 
- * @param {App} app - The application to edit, with the updated information.
- * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
- */
-async function editApp(app: App): Promise <void> {  
-    try {
-        const reqForm = await getRequestForm("PUT", {"app": app});
-
-        /* Send request and return promise resolving if edit successful. */
-        const res = await fetch(`${DJANGO_URL}/editApp`, reqForm);
-        if(!res.ok)
-            return Promise.reject(`editApp request failed with status: ${res.status}`);
-        
-        return Promise.resolve();
-    }
-    catch(err) {
-        return Promise.reject(`editApp failed with the error: ${err}`);
     }
 }
 
