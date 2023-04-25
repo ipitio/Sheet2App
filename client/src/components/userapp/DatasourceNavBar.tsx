@@ -37,7 +37,8 @@ function DatasourceNavBar() {
                 name: "Datasource 1",
                 spreadsheetUrl: "url",
                 sheetName: "some sheet name"
-            }
+            },
+            roles: []
         }        
     ]
 
