@@ -227,8 +227,10 @@ export const viewDatasources = createAsyncThunk('S2A/viewDatasources', async () 
  * @param {string} sheetName - The name of the sheet within the spreadsheet the datasource will be associated with.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure. 
  */
-async function createDatasource(app: App, datasourceName: string, spreadsheetUrl: string, sheetName: string): Promise<void> {
+export const createDatasource = createAsyncThunk('S2A/createDatasource', async ({datasourceName, spreadsheetUrl, sheetName}: {datasourceName: string, spreadsheetUrl: string, sheetName: string}) => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
+
         const reqForm = await getRequestForm("POST", {"app": app, "datasourceName": datasourceName, "spreadsheetUrl": spreadsheetUrl, "sheetName": sheetName});
 
         /* Send request and return promise resolving if creation successful. */
@@ -241,7 +243,7 @@ async function createDatasource(app: App, datasourceName: string, spreadsheetUrl
     catch(err) {
         return Promise.reject(`createDatasource failed with the error: ${err}`);
     }
-}
+});
 
 /**
  * Requests to edit a datasource.
@@ -841,7 +843,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
     }
 }
 
-export default {createApp, deleteApp, editApp, 
+export default {
                 createDatasource, editDatasource, deleteDatasource,
                 getDatasourceColumns, editDatasourceColumns, 
                 getAppTableviews, createTableview, editTableview, deleteTableview, 
