@@ -62,7 +62,7 @@ def refresh_access_tokens(request):
     body = json.loads(request.body)
     refresh_token = body["refreshToken"]
 
-    refreshed_tokens, response_code = sheets_api.refresh_tokens(refresh_token)
+    refreshed_tokens, response_code = auth.refresh_tokens(refresh_token)
     
     res_body = {
         "accessToken": refreshed_tokens["access_token"],
@@ -128,10 +128,11 @@ def get_developable_apps(request):
         spreadsheet_id = sheets.utils.get_spreadsheet_id(role_mem_url)
         gid = sheets.utils.get_gid(role_mem_url)
         
-        developers_col = ["A"]
+        developers_col = [1]
         developers_list = sheets_api.get_column_data(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, columns=developers_col
-        )[0]
+        )
+        print(developers_list)
 
         if creator_email in developers_list[1:]:
             developable_apps.append(app)

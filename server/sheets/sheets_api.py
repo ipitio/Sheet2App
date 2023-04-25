@@ -12,6 +12,7 @@ from googleapiclient.errors import HttpError
 
 from openpyxl.utils.cell import get_column_letter
 from sheets.utils import *
+from sheets.auth import get_credentials
 
 # Allow the API to have complete control over the spreadsheet with this scope
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -44,59 +45,6 @@ def get_creds():
             token.write(creds.to_json())
 
     return creds
-
-
-def get_credentials(tokens):
-    """
-    Returns a credentials objects to access Google sheets operations
-
-    Args:
-        tokens (dict or json): the dict or json object containing access_token, refresh_token,
-            client_id, client_secret
-    Returns:
-        Credentials: the Credentials object to be used for Google sheets operations
-    """
-    
-    auth_info = {
-        "access_token": tokens["access_token"],
-        "refresh_token": tokens["refresh_token"],
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "client_id": os.getenv("OAUTH_CLIENT_ID"),
-        "client_secret": os.getenv('OAUTH_CLIENT_SECRET')
-    }
-    creds = Credentials.from_authorized_user_info(auth_info)
-
-    return creds
-
-
-def refresh_tokens(refresh_token):
-    """
-    Refreshes oauth tokens
-
-    Args:
-        tokens (dict or json): the dict or json object containing access_token, refresh_token,
-            client_id, client_secret
-    Returns:
-        dict or json: a dict or json object containing the refreshed token values
-    """
-    try:
-        auth_info = {
-            "refresh_token": refresh_token,
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "client_id": os.getenv("OAUTH_CLIENT_ID"),
-            "client_secret": os.getenv('OAUTH_CLIENT_SECRET')
-        }
-        creds = Credentials.from_authorized_user_info(auth_info)
-        creds.refresh(Request())
-        refreshed_tokens = {
-            "access_token": creds.token,
-            "refresh_token": creds.refresh_token
-        }
-
-        return refreshed_tokens, HTTPStatus.OK
-    except Exception as e:
-        print(e)
-        return {}, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Create a spreadsheet and return the new spreadsheet ID.
