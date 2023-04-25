@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, deleteApp, editApp, viewAccApps, viewAppRoles, viewDatasources } from './StoreController'
+import storeController, { createApp, createDatasource, deleteApp, editApp, viewAccApps, viewAppRoles, viewDatasources } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -128,78 +128,8 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        createDatasource: (state, action: PayloadAction<{ datasourceName: string, spreadsheetUrl: string, sheetName: string }>) => {
-            if(state.currentApp) {
-                storeController.createDatasource(state.currentApp, action.payload.datasourceName, action.payload.spreadsheetUrl, action.payload.sheetName)
-                    .then(() => {
-                        console.log("Created datasource.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`createDatasource failed with the error ${error}`);
-                    })
-            }
-        },
-        editDatasource: (state, action: PayloadAction<Datasource>) => {
-            if(state.currentDatasourceToEdit) {
-                storeController.editDatasource(action.payload)
-                    .then(() => {
-                        console.log("Edited datasource.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editDatasource failed with the error ${error}`);
-                    })
-            }
-        },
-        deleteDatasource: (state) => {
-            if(state.currentDatasourceToDelete) {
-                storeController.deleteDatasource(state.currentDatasourceToDelete)
-                    .then(() => {
-                        console.log("Deleted datasource.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`deleteDatasource failed with the error ${error}`);
-                    })
-            }
-        },
-
         /* Datasource column related reducers. */
-        viewDatasourceColumns: (state) => {
-            if(state.currentDatasource) {
-                storeController.getDatasourceColumns(state.currentDatasource) 
-                    .then((datasourceColumns: Column[]) => {
-                        state.datasourceColumns = datasourceColumns;
-                        console.log("Retrieved datasource columns.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewDatasourceColumns failed with the error ${error}`);
-                    })
-            }
-        },
-        editDatasourceColumns: (state, action: PayloadAction<Column[]>) => {
-            if(state.currentDatasource) {
-                storeController.editDatasourceColumns(state.currentDatasource, action.payload) 
-                    .then(() => {
-                        console.log("Edited datasource columns.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editDatasourceColumns failed with the error ${error}`);
-                    })
-            }
-        },
-
         /* Tableview related reducers. */
-        viewTableviews: (state) => {
-            if(state.currentApp) {
-                storeController.getAppTableviews(state.currentApp)       
-                    .then((tableviews: Tableview[]) => {
-                        state.tableviews = tableviews;
-                        console.log("Retrieved tableviews.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewTableviews failed with the error ${error}`);
-                    })
-            }
-        },
         createTableview: (state, action: PayloadAction<{ tableviewName: string, datasource: Datasource }>) => {
             if(state.currentApp) {
                 storeController.createTableview(state.currentApp, action.payload.tableviewName, action.payload.datasource)
@@ -554,6 +484,51 @@ export const S2AReducer = createSlice({
         builder.addCase(viewDatasources.rejected, (state, action) => {
             console.log(`viewDatasources failed with the error ${action.error?.message}`);
         });
+
+        // TODO: refactor everything below this for the other files
+        builder.addCase(createDatasource.fulfilled, (state, action) => {
+            console.log("Created Datasource");
+        });
+        builder.addCase(createDatasource.rejected, (state, action) => {
+            console.log(`createDatasource failed with the error ${action.error?.message}`);
+        });
+
+        // builder.addCase(editDatasource.fulfilled, (state, action) => {
+        //     console.log("Edited datasource.");
+        // });
+        // builder.addCase(editDatasource.rejected, (state, action) => {
+        //     console.log(`editDatasource failed with the error ${action.error?.message}`);
+        // });
+
+        // builder.addCase(deleteDatasource.fulfilled, (state, action) => {
+        //     console.log("Deleted datasource.");
+        // });
+        // builder.addCase(deleteDatasource.rejected, (state, action) => {
+        //     console.log(`deleteDatasource failed with the error ${action.error?.message}`);
+        // });
+
+        // builder.addCase(viewDatasourceColumns.fulfilled, (state, action) => {
+        //     state.datasourceColumns = action.payload;
+        //     console.log("Retrieved datasource columns.");
+        // });
+        // builder.addCase(viewDatasourceColumns.rejected, (state, action) => {
+        //     console.log(`viewDatasourceColumns failed with the error ${action.error?.message}`);
+        // });
+
+        // builder.addCase(editDatasourceColumns.fulfilled, (state, action) => {
+        //     console.log("Edited datasource columns.");
+        // });
+        // builder.addCase(editDatasourceColumns.rejected, (state, action) => {
+        //     console.log(`editDatasourceColumns failed with the error ${action.error?.message}`);
+        // });
+
+        // builder.addCase(viewTableviews.fulfilled, (state, action) => {
+        //     state.tableviews = action.payload;
+        //     console.log("Retrieved tableviews.")        
+        // });
+        // builder.addCase(viewTableviews.rejected, (state, action) => {
+        //     console.log(`viewTableviews failed with the error ${action.error?.message}`);
+        // });
     }
   }
 )
@@ -673,9 +648,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { 
-               createDatasource, editDatasource, deleteDatasource, 
-               viewDatasourceColumns, editDatasourceColumns, 
-               viewTableviews, createTableview, editTableview, deleteTableview,
+               createTableview, editTableview, deleteTableview,
                viewTableviewColumns, editTableviewColumns, 
                viewTableviewRoles, editTableviewRoles,
                viewDetailviews, createDetailview, editDetailview, deleteDetailview,
