@@ -1,15 +1,16 @@
 import { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDatasources, createDatasource, finishCreation, StoreState} from '../../../../store/StoreContext';
+import store, { createDatasource, finishCreation, StoreState} from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal, TextField } from '@mui/material';
+import { viewDatasources } from '../../../../store/StoreController';
 
 
 function CreateDatasourceModal() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     /* Redux hooks into store. */
     const currentModalType = useSelector((state: StoreState) => state.S2AReducer.currentModalType);

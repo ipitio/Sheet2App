@@ -1,14 +1,15 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDatasources, deleteDatasource, finishDeletion, StoreState } from '../../../../store/StoreContext';
+import store, { deleteDatasource, finishDeletion, StoreState } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal } from '@mui/material';
+import { viewDatasources } from '../../../../store/StoreController';
 
 
 function DeleteDatasourceModal() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     /* Redux hooks into store. */
     const currentDatasourceToDelete = useSelector((state: StoreState) => state.S2AReducer.currentDatasourceToDelete);

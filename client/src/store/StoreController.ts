@@ -199,8 +199,10 @@ export const deleteApp = createAsyncThunk('S2A/deleteApp', async () => {
  * @param {App} app - The application to get the datasources of.
  * @return {Promise<void>} - A promise that resolves to the array of datasources on success, rejects on failure.
  */
-async function getAppDatasources(app: App): Promise<Datasource[]> {
+export const viewDatasources = createAsyncThunk('S2A/viewDatasources', async () => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
+
         const reqForm = await getRequestForm("POST", {"app": app});
 
         /* Send request and return promise resolving to array of datasources if successful. */
@@ -215,7 +217,7 @@ async function getAppDatasources(app: App): Promise<Datasource[]> {
     catch(err) {
         return Promise.reject(`getAppDatasources failed with the error: ${err}`);
     }
-}
+});
 
 /**
  * Requests to create a datasource for a particular app.
@@ -840,7 +842,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
 }
 
 export default {createApp, deleteApp, editApp, 
-                getAppDatasources, createDatasource, editDatasource, deleteDatasource,
+                createDatasource, editDatasource, deleteDatasource,
                 getDatasourceColumns, editDatasourceColumns, 
                 getAppTableviews, createTableview, editTableview, deleteTableview, 
                 getTableviewColumns, editTableviewColumns, 
