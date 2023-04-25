@@ -23,6 +23,16 @@ class ExtendedEncoder(DjangoJSONEncoder):
         return super().default(o)
 
 
+def parse_tokens(request):
+    headers = request.headers
+    auth_header = headers["Authorization"].split(" ")
+    tokens = {
+        "access_token": auth_header[1],
+        "refresh_token": auth_header[2]
+    }
+    return tokens
+
+
 @csrf_exempt
 def get_logged_in(request):
     body = json.loads(request.body)
@@ -31,6 +41,9 @@ def get_logged_in(request):
     auth_info, response_code = auth.oauth_login_user(
         auth_code=auth_code
     )
+    
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
     
     creator, response_code = queries.create_creator(creator_email=auth_info["email"])
 
@@ -47,12 +60,13 @@ def get_logged_in(request):
 @csrf_exempt
 def refresh_access_tokens(request):
     body = json.loads(request.body)
+    refresh_token = body["refreshToken"]
 
-    response_code = HTTPStatus.OK
+    refreshed_tokens, response_code = sheets_api.refresh_tokens(refresh_token)
     
     res_body = {
-        "accessToken": "IMPLEMENT THIS LATER",
-        "refresh_token": "IMPLEMENT THIS LATER",
+        "accessToken": refreshed_tokens["access_token"],
+        "refreshToken": refreshed_tokens["refresh_token"],
     }
     response = HttpResponse(json.dumps(res_body), status=response_code)
 
@@ -96,6 +110,7 @@ def create_app(request):
 @csrf_exempt
 def get_developable_apps(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     creator_email = body["email"]
     
     apps, response_code = queries.get_all_unpublished_apps_with_creator_email()
@@ -115,7 +130,7 @@ def get_developable_apps(request):
         
         developers_col = ["A"]
         developers_list = sheets_api.get_column_data(
-            spreadsheet_id=spreadsheet_id, sheet_id=gid, columns=developers_col
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, columns=developers_col
         )[0]
 
         if creator_email in developers_list[1:]:
@@ -184,14 +199,15 @@ def delete_app(request):
 @csrf_exempt
 def get_app_roles(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     app_role_mem_url = body["app"]["roleMemUrl"]
     
     spreadsheet_id = sheets.utils.get_spreadsheet_id(app_role_mem_url)
     sheet_id = sheets.utils.get_gid(app_role_mem_url)
     
     roles = sheets_api.get_data(
-        spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, 
-        range="1:1", majorDimension="ROWS"
+        tokens=tokens, spreadsheet_id=spreadsheet_id, 
+        sheet_id=sheet_id, range="1:1", majorDimension="ROWS"
     )
     roles = [{"name": role} for role in roles[1:] if role != '']
     response_code = HTTPStatus.OK
@@ -207,6 +223,7 @@ def get_app_roles(request):
 @csrf_exempt
 def create_datasource(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     app_id = body["app"]["id"]
     spreadsheet_url = body["spreadsheetUrl"]
     sheetName = body["sheetName"]
@@ -222,7 +239,8 @@ def create_datasource(request):
 
     # Create all datasource columns from the datasource
     spreadsheet_headers = sheets_api.get_data(
-        spreadsheet_id=spreadsheet_id, sheet_id=gid, range="1:1", majorDimension="ROWS"
+        tokens=tokens, spreadsheet_id=spreadsheet_id, 
+        sheet_id=gid, range="1:1", majorDimension="ROWS"
     )[0]
 
     datasource_id = new_datasource.id
@@ -322,6 +340,7 @@ def edit_datasource_columns(request):
 @csrf_exempt
 def create_table_view(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     app_id = body["app"]["id"]
     table_view_name = body["tableviewName"]
     datasource_id = body["datasource"]["id"]
@@ -334,12 +353,16 @@ def create_table_view(request):
     # Create the filter columns
     spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
     sheet_id = sheets.utils.get_gid(spreadsheet_url)
-    columns = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, majorDimension="COLUMNS")
+    columns = sheets_api.get_data(
+        tokens=tokens, spreadsheet_id=spreadsheet_id, 
+        sheet_id=sheet_id, majorDimension="COLUMNS"
+    )
     
     new_column_index =  len(columns) + 1
     filter_column_header =  f"{new_table_view.id} {table_view_name} Filter"
     sheets_api.write_column(
-        spreadsheet_id, sheet_id, column_data=[filter_column_header], column_index=new_column_index
+        tokens, spreadsheet_id, sheet_id, 
+        column_data=[filter_column_header], column_index=new_column_index
     )
     filter_column, response_code = queries.create_datasource_column(
         datasource_id=datasource_id, column_index=new_column_index, name=filter_column_header,
@@ -353,7 +376,8 @@ def create_table_view(request):
     new_column_index += 1
     user_filter_column_header =  f"{new_table_view.id} {table_view_name} User Filter"
     sheets_api.write_column(
-        spreadsheet_id, sheet_id, column_data=[user_filter_column_header], column_index=new_column_index
+        tokens, spreadsheet_id, sheet_id, 
+        column_data=[user_filter_column_header], column_index=new_column_index
     )
     user_filter_column, response_code = queries.create_datasource_column(
         datasource_id=datasource_id, column_index=new_column_index, name=user_filter_column_header,
@@ -647,6 +671,7 @@ def edit_detail_view_roles(request):
 @csrf_exempt
 def add_record(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     datasource = body["datasource"]
     record_data = body["record"]
 
@@ -668,11 +693,12 @@ def add_record(request):
     spreadsheet_id = datasource.spreadsheet_id
     gid = datasource.gid
     sheets_api.insert_row(
-        spreadsheet_id=spreadsheet_id, sheet_id=gid, row_to_insert=record_data_array
+        tokens=tokens, spreadsheet_id=spreadsheet_id, 
+        sheet_id=gid, row_to_insert=record_data_array
     )
 
     # Get and send the refreshed data in response
-    data = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    data = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)
     res_body = {"spreadsheet_data": data}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -684,6 +710,7 @@ def add_record(request):
 @csrf_exempt
 def edit_record(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     datasource = body["datasource"]
     record_data = body["record"]
     record_index = body["recordID"]
@@ -696,7 +723,7 @@ def edit_record(request):
     )
 
     datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
-    record_data_array = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)[record_index]
+    record_data_array = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)[record_index]
     
     for column in datasource_columns:
         col_name = column["name"]
@@ -707,12 +734,12 @@ def edit_record(request):
         
 
     sheets_api.update_row(
-        spreadsheet_id=spreadsheet_id, sheet_id=gid, 
+        tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, 
         updated_row_data=record_data_array, row_index=record_index
     )
 
     # Get and send the refreshed data in response
-    data = sheets_api.get_data(spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    data = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)
     res_body = {"spreadsheet_data": data}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -724,11 +751,12 @@ def edit_record(request):
 @csrf_exempt
 def get_app_table_views_for_role(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     email = body["email"]
     app_id = body["app"]["id"]
     role_mem_url = body["app"]["roleMemUrl"]
     
-    roles = sheets_api.get_end_user_roles(role_mem_url=role_mem_url, email=email)
+    roles = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email)
     
     table_views, response_code = queries.get_table_views_for_roles(
         app_id=app_id, roles=roles
