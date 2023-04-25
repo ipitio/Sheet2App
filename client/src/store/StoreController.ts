@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
 import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './StoreTypes'
-import { Dictionary } from "@reduxjs/toolkit";
+import { Dictionary, createAsyncThunk } from "@reduxjs/toolkit";
 
 /* Define constants for constructing a URL to reach Django server. */
 const DJANGO_HOST = process.env.REACT_APP_DJANGO_HOST;
@@ -57,7 +57,7 @@ async function getRequestForm(method: string, data: {[key: string]: any}): Promi
  * Requests an array of all apps that the user has permission to develop. 
  * @return {Promise<App[]>} - A promise that resolves to the array of apps on success, rejects on failure.
  */
-async function getDevelopableApps(): Promise<App[]> {
+export const viewDevApps = createAsyncThunk('S2A/viewDevApps', async() => {
     try {
         /* Build request form. */
         const reqForm = await getRequestForm("POST", {});
@@ -74,7 +74,7 @@ async function getDevelopableApps(): Promise<App[]> {
     catch(err) {
         return Promise.reject(`getDevelopableApps failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests an array of all apps that the user has permission to access.
@@ -829,7 +829,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
     }
 }
 
-export default {getDevelopableApps, getAccessibleApps, getAppRoles, createApp, deleteApp, editApp, 
+export default {getAccessibleApps, getAppRoles, createApp, deleteApp, editApp, 
                 getAppDatasources, createDatasource, editDatasource, deleteDatasource,
                 getDatasourceColumns, editDatasourceColumns, 
                 getAppTableviews, createTableview, editTableview, deleteTableview, 

@@ -5,6 +5,9 @@ import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType
 
 import storeController from './StoreController'
 
+// Import async thunks for API calls
+import { viewDevApps } from './StoreController'
+
 export interface IS2AState {
     /* An array of developable apps for the current user. Set when navigating onto developable apps screen. */
     devApps: App[],
@@ -121,21 +124,10 @@ const S2AState: IS2AState = {
     currentDetailviewToDelete: null,
 }
 
-const S2AReducer = createSlice({
-    name: 'S2AReducer',
+export const S2AReducer = createSlice({
+    name: 'S2A',
     initialState: S2AState,
     reducers: {
-        /* App related reducers. */
-        viewDevApps: (state) => {
-            storeController.getDevelopableApps()
-                .then((devApps: App[]) => {
-                    state.devApps = devApps;
-                    console.log("Retrieved developable apps.");
-                })
-                .catch((error: Error) => {
-                    console.log(`viewDevApps failed with the error ${error}`);
-                });
-        },
         viewAccApps: (state) => {
             storeController.getAccessibleApps()
                 .then((accApps: App[]) => {
@@ -573,8 +565,18 @@ const S2AReducer = createSlice({
 
             console.log("Complete reset of store state.")
         },
+    }, 
+    extraReducers(builder) {
+        builder.addCase(viewDevApps.fulfilled, (state, action) => {
+            state.devApps = action.payload;
+            console.log("Retrieved developable apps.");
+        })
+        builder.addCase(viewDevApps.rejected, (state, action) => {
+            console.log(`viewDevApps failed with the error ${action.error?.message}`);
+        })
     }
-})
+  }
+)
 
 export interface IWebAppState {
     app: App | null,
@@ -606,7 +608,7 @@ const webAppState: IWebAppState = {
 }
 
 const webAppReducer = createSlice({
-    name: 'webAppReducer',
+    name: 'webApp',
     initialState: webAppState,
     reducers: {
         // Loads a view and sets it as the current (visible) view
@@ -690,7 +692,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { viewDevApps, viewAccApps, viewAppRoles, createApp, editApp, deleteApp,
+export const { viewAccApps, viewAppRoles, createApp, editApp, deleteApp,
                viewDatasources, createDatasource, editDatasource, deleteDatasource, 
                viewDatasourceColumns, editDatasourceColumns, 
                viewTableviews, createTableview, editTableview, deleteTableview,

@@ -1,14 +1,15 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDevApps, deleteApp, finishDeletion, StoreState } from '../../../../store/StoreContext';
+import store, { deleteApp, finishDeletion, StoreState } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal } from '@mui/material';
+import { viewDevApps } from '../../../../store/StoreController';
 
 
 function DeleteAppModal() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     /* Redux hooks into store. */
     const currentAppToDelete = useSelector((state: StoreState) => state.S2AReducer.currentAppToDelete);
