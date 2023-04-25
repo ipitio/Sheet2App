@@ -23,8 +23,8 @@ function EditAppDatasources() {
 
     /* Redux hooks into store. */
     const currApp = useSelector((state: StoreState) => state.S2AReducer.currentApp);
-    //const datasources = useSelector((state: StoreState) => state.S2AReducer.datasources);
-    const datasources: Datasource[] = [
+    const datasources = useSelector((state: StoreState) => state.S2AReducer.datasources);
+    /*const datasources: Datasource[] = [
         {
           id: 1,
           name: 'Sales Data',
@@ -85,7 +85,7 @@ function EditAppDatasources() {
           spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/10mNoPqR1234Stu567/edit#gid=0',
           sheetName: 'Vendors',
         },
-      ];
+      ];*/
     
     /* Event handlers. */
     

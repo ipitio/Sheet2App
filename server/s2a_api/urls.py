@@ -18,7 +18,7 @@ urlpatterns = [
     path('getAppRoles', views.get_app_roles),
     
     path('createDatasource', views.create_datasource),
-    path('getAppDataSources', views.get_app_datasources),
+    path('getAppDatasources', views.get_app_datasources),
     path('editDatasource', views.edit_datasource),
     path('deleteDatasource', views.delete_datasource),
     

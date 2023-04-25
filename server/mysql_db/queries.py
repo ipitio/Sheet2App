@@ -14,10 +14,9 @@ import sheets.utils
 # Create
 def create_creator(creator_email):
     try:
-        print("HELLO WORLD 123")
         validate_email(creator_email)
         creator, created = Creator.objects.get_or_create(email=creator_email)
-        print("TESTING 123")
+
         return creator, HTTPStatus.OK
     except ValidationError as e:
         return f"Error: {e}", HTTPStatus.BAD_REQUEST
@@ -62,10 +61,10 @@ def create_datasource(app_id, spreadsheet_url, spreadsheet_id, gid, datasource_n
 
 def create_datasource_column(datasource_id, column_index, name, is_filter, is_user_filter, is_edit_filter):
     try:
-        exists = DatasourceColumn.objects.exists(
-            datasource=datasource_id, column_index=column_index, name=name,
+        exists = DatasourceColumn.objects.filter(
+            datasource_id=datasource_id, column_index=column_index, name=name,
             is_filter=is_filter, is_user_filter=is_user_filter, is_edit_filter=is_edit_filter
-        )
+        ).exists()
         if not exists:
             new_datasource_column = DatasourceColumn.objects.create(
                 datasource_id=datasource_id,
