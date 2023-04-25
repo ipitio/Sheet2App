@@ -131,8 +131,7 @@ def get_developable_apps(request):
         developers_col = [1]
         developers_list = sheets_api.get_column_data(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, columns=developers_col
-        )
-        print(developers_list)
+        )[0]
 
         if creator_email in developers_list[1:]:
             developable_apps.append(app)
