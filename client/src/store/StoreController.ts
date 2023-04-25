@@ -129,10 +129,8 @@ export const viewAppRoles = createAsyncThunk('S2A/viewAppRoles', async () => {
  * @param {string} appName - The name of the application.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-export const createApp = createAsyncThunk('S2A/createApp', async (desiredAppName: string) => {
+export const createApp = createAsyncThunk('S2A/createApp', async (appName: string) => {
     try {
-        const appName = { desiredAppName }
-
         const reqForm = await getRequestForm("POST", {"appName": appName});
 
         /* Send request and return promise resolving if creation successful. */
@@ -152,10 +150,8 @@ export const createApp = createAsyncThunk('S2A/createApp', async (desiredAppName
  * @param {App} app - The application to edit, with the updated information.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-export const editApp = createAsyncThunk('S2A/editApp', async (appToEdit: App) => {  
+export const editApp = createAsyncThunk('S2A/editApp', async (app: App) => {  
     try {
-        const app = { appToEdit } 
-
         const reqForm = await getRequestForm("PUT", {"app": app});
 
         /* Send request and return promise resolving if edit successful. */
