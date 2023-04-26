@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewTableviews, setCurrentTableview, setCurrentModalType, markTableviewToEdit, markTableviewToDelete, StoreState} from '../../../store/StoreContext';
+import store, { setCurrentTableview, setCurrentModalType, markTableviewToEdit, markTableviewToDelete, StoreState} from '../../../store/StoreContext';
 import { Datasource, Tableview, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/tableviews/EditAppTableviewsStyles";
@@ -12,11 +12,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import PeopleIcon from '@mui/icons-material/People';
 import EditIcon from '@mui/icons-material/Edit';
+import { viewTableviews } from '../../../store/StoreController';
 
 
 function EditAppTableviews() {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     useEffect(() => {
         dispatch(viewTableviews());

@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDatasourceColumns, editDatasourceColumns, StoreState } from '../../../store/StoreContext';
+import store, { StoreState } from '../../../store/StoreContext';
 import { Column, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/datasources/EditAppDatasourceColumnsStyles';
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
 import { Grid, Checkbox, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
+import { editDatasourceColumns, viewDatasourceColumns } from '../../../store/StoreController';
 
 function EditAppDatasourceColumns() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
     
     useEffect(() => {
         dispatch(viewDatasourceColumns());

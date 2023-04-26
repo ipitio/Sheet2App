@@ -246,7 +246,7 @@ export const createDatasource = createAsyncThunk('S2A/createDatasource', async (
  * @param {Datasource} datasource - The datasource to edit, with the updated information.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editDatasource(datasource: Datasource): Promise<void> {
+export const editDatasource = createAsyncThunk('S2A/editDatasource', async(datasource: Datasource) => {
     try {
         const reqForm = await getRequestForm("PUT", {"datasource": datasource});
         
@@ -260,15 +260,17 @@ async function editDatasource(datasource: Datasource): Promise<void> {
     catch(err) {
         return Promise.reject(`editDatasource failed with the error: ${err}`);
     }
-}
+});
 
 /**
  * Requests to delete a datasource.
  * @param {Datasource} datasource - The datasource to delete.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function deleteDatasource(datasource: Datasource): Promise<void> {
+export const deleteDatasource = createAsyncThunk('S2A/deleteDatasource', async() => {
     try {
+        const datasource = store.getState().S2AReducer.currentDatasourceToDelete;
+
         const reqForm = await getRequestForm("DELETE", {"datasource": datasource});
         
         /* Send request and return promise resolving if deletion successful. */
@@ -281,15 +283,18 @@ async function deleteDatasource(datasource: Datasource): Promise<void> {
     catch(err) {
         return Promise.reject(`deleteDatasource failed with the error: ${err}`);
     }
-}
+})
+
 
 /**
  * Requests an array of all datasource columns for a particular datasource. 
  * @param {Datasource} datasource - The datasource to obtain the columns of. 
  * @return {Promise<Column[]>} - A promise that resolves to the array of datasource columns on success, rejects on failure.
  */
-async function getDatasourceColumns(datasource: Datasource): Promise<Column[]> {
+export const viewDatasourceColumns = createAsyncThunk('S2A/viewDatasourceColumns', async() => {
     try {
+        const datasource = store.getState().S2AReducer.currentDatasource;
+
         const reqForm = await getRequestForm("POST", {"datasource": datasource});
         
         /* Send request and return promise resolving to an array of datasource columns if successful. */
@@ -304,7 +309,7 @@ async function getDatasourceColumns(datasource: Datasource): Promise<Column[]> {
     catch(err) {
         return Promise.reject(`getDatasourceColumns failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to edit datasource columns.
@@ -312,9 +317,11 @@ async function getDatasourceColumns(datasource: Datasource): Promise<Column[]> {
  * @param {Column[]} datasourceColumns - The datasource columns to edit, with the updated information.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editDatasourceColumns(datasource: Datasource, datasourceColumns: Column[]): Promise<void> {
+export const editDatasourceColumns = createAsyncThunk('S2A/editDatasourceColumns', async(changedColumns: Column[]) => {
     try {
-        const reqForm = await getRequestForm("PUT", {"datasource": datasource, "datasourceColumns": datasourceColumns});
+        const datasource = store.getState().S2AReducer.currentDatasource;
+
+        const reqForm = await getRequestForm("PUT", {"datasource": datasource, "datasourceColumns": changedColumns});
         
         /* Send request and return promise resolving if edit successful. */
         const res = await fetch(`${DJANGO_URL}/editDatasourceColumns`, reqForm);
@@ -326,15 +333,17 @@ async function editDatasourceColumns(datasource: Datasource, datasourceColumns: 
     catch(err) {
         return Promise.reject(`editDatasourceColumns failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests an array of all tableviews for a particular app.
  * @param {App} app - The application to get the tableviews of.
  * @return {Promise<Tableview[]>} - A promise that resolves to the array of tableviews on success, rejects on failure.
  */
-async function getAppTableviews(app: App): Promise<Tableview[]> {
+export const viewTableviews = createAsyncThunk('S2A/viewTableviews', async() => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
+
         const reqForm = await getRequestForm("POST", {"app": app});
         
         /* Send request and return promise resolving to the array of tableviews if successful. */
@@ -349,7 +358,7 @@ async function getAppTableviews(app: App): Promise<Tableview[]> {
     catch(err) {
         return Promise.reject(`getAppTableviews failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to create a tableview for a particular app with a particular datasource.
@@ -840,9 +849,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
 }
 
 export default {
-                createDatasource, editDatasource, deleteDatasource,
-                getDatasourceColumns, editDatasourceColumns, 
-                getAppTableviews, createTableview, editTableview, deleteTableview, 
+                createTableview, editTableview, deleteTableview, 
                 getTableviewColumns, editTableviewColumns, 
                 getTableviewRoles, editTableviewRoles,  
                 getAppDetailviews, createDetailview, editDetailview, deleteDetailview, 
