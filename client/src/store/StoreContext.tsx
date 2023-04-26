@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, createDatasource, deleteApp, deleteDatasource, editApp, editDatasource, editDatasourceColumns, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewTableviews } from './StoreController'
+import storeController, { createApp, createDatasource, createTableview, deleteApp, deleteDatasource, deleteTableview, editApp, editDatasource, editDatasourceColumns, editTableview, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -130,40 +130,6 @@ export const S2AReducer = createSlice({
     reducers: {
         /* Datasource column related reducers. */
         /* Tableview related reducers. */
-        createTableview: (state, action: PayloadAction<{ tableviewName: string, datasource: Datasource }>) => {
-            if(state.currentApp) {
-                storeController.createTableview(state.currentApp, action.payload.tableviewName, action.payload.datasource)
-                    .then(() => {
-                        console.log("Created tableview.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`createTableview failed with the error ${error}`);
-                    })
-            }
-        },
-        editTableview: (state, action: PayloadAction<Tableview>) => {
-            if(state.currentTableviewToEdit) {
-                storeController.editTableview(action.payload) 
-                    .then(() => {
-                        console.log("Edited tableview.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editTableview failed with the error ${error}`);
-                    })
-            }
-        },  
-        deleteTableview: (state) => {
-            if(state.currentTableviewToDelete) {
-                storeController.deleteTableview(state.currentTableviewToDelete)
-                    .then(() => {
-                        console.log("Deleted tableview.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`deleteTableview failed with the error ${error}`);
-                    })
-            }
-        },
-
         /* Tableview column related reducers. */
         viewTableviewColumns: (state) => {
             if(state.currentTableview) {
@@ -477,6 +443,7 @@ export const S2AReducer = createSlice({
             console.log(`deleteApp failed with the error ${action.error?.message}`);
         });
 
+        /** Modify datasources */
         builder.addCase(viewDatasources.fulfilled, (state, action) => {
             state.datasources = action.payload;
             console.log("Retrieved datasources.");
@@ -485,7 +452,6 @@ export const S2AReducer = createSlice({
             console.log(`viewDatasources failed with the error ${action.error?.message}`);
         });
 
-        // TODO: refactor everything below this for the other files
         builder.addCase(createDatasource.fulfilled, (state, action) => {
             console.log("Created Datasource");
         });
@@ -528,6 +494,28 @@ export const S2AReducer = createSlice({
         });
         builder.addCase(viewTableviews.rejected, (state, action) => {
             console.log(`viewTableviews failed with the error ${action.error?.message}`);
+        });
+
+        /** Modify views */
+        builder.addCase(createTableview.fulfilled, (state, action) => {
+            console.log("Created tableview.");
+        });
+        builder.addCase(createTableview.rejected, (state, action) => {
+            console.log(`createTableview failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(editTableview.fulfilled, (state, action) => {
+            console.log("Edited tableview.");
+        });   
+        builder.addCase(editTableview.rejected, (state, action) => {
+            console.log(`editTableview failed with the error  ${action.error?.message}`);
+        });
+
+        builder.addCase(deleteTableview.fulfilled, (state, action) => {
+            console.log("Deleted tableview.");
+        });   
+        builder.addCase(deleteTableview.rejected, (state, action) => {
+            console.log(`deleteTableview failed with the error ${action.error?.message}`);
         });
     }
   }
@@ -647,7 +635,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { createTableview, editTableview, deleteTableview,
+export const { 
     viewTableviewColumns, editTableviewColumns, 
     viewTableviewRoles, editTableviewRoles,
     viewDetailviews, createDetailview, editDetailview, deleteDetailview,

@@ -1,11 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { deleteTableview, finishDeletion, StoreState } from '../../../../store/StoreContext';
+import store, { finishDeletion, StoreState } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal } from '@mui/material';
-import { viewTableviews } from '../../../../store/StoreController';
+import { deleteTableview, viewTableviews } from '../../../../store/StoreController';
 
 function DeleteTableviewModal() {
     const dispatch = useDispatch<typeof store.dispatch>();

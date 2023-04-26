@@ -367,8 +367,10 @@ export const viewTableviews = createAsyncThunk('S2A/viewTableviews', async() => 
  * @param {Datasource} datasource - The datasource the tableview will be created with.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function createTableview(app: App, tableviewName: string, datasource: Datasource): Promise<void> {
+export const createTableview = createAsyncThunk('S2A/createTableview', async({tableviewName, datasource}: {tableviewName: string, datasource: Datasource}) => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
+
         const reqForm = await getRequestForm("POST", {"app": app, "tableviewName": tableviewName, "datasource": datasource});
 
         /* Send request and return promise resolving if creation successful. */
@@ -381,14 +383,14 @@ async function createTableview(app: App, tableviewName: string, datasource: Data
     catch(err) {
         return Promise.reject(`createTableview failed with the error: ${err}`);
     }
-}
+});
 
 /**
  * Requests to edit a tableview.
  * @param {Tableview} tableview - The tableview to edit, with the updated information.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editTableview(tableview: Tableview): Promise<void> {
+export const editTableview = createAsyncThunk('S2A/editTableview', async(tableview: Tableview) => {
     try {
         const reqForm = await getRequestForm("PUT", {"tableview": tableview});
 
@@ -402,15 +404,17 @@ async function editTableview(tableview: Tableview): Promise<void> {
     catch(err) {
         return Promise.reject(`editTableview failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to delete a tableview.
  * @param {Tableview} tableview - The tableview to delete.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function deleteTableview(tableview: Tableview): Promise<void> {
+export const deleteTableview = createAsyncThunk('S2A/deleteTableview', async() => {
     try {
+        const tableview = store.getState().S2AReducer.currentTableviewToDelete;
+
         const reqForm = await getRequestForm("DELETE", {"tableview": tableview});
 
         /* Send request and return promise resolving if deletion successful. */
@@ -423,7 +427,7 @@ async function deleteTableview(tableview: Tableview): Promise<void> {
     catch(err) {
         return Promise.reject(`deleteTableview failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests an array of all tableview columns for a particular tableview.
