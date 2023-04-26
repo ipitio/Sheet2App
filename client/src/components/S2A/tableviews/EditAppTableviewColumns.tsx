@@ -21,11 +21,11 @@ function EditAppTableviewColumns() {
     }, []);
 
     /* Redux hooks into store. */
-    //const tableviewColumns = useSelector((state: StoreState) => state.S2AReducer.tableviewColumns);
-    //const filterColumn = useSelector((state: StoreState) => state.S2AReducer.filterColumn);
-    //const userFilterColumn = useSelector((state: StoreState) => state.S2AReducer.userFilterColumn);
+    const tableviewColumns = useSelector((state: StoreState) => state.S2AReducer.tableviewColumns);
+    const filterColumn = useSelector((state: StoreState) => state.S2AReducer.filterColumn);
+    const userFilterColumn = useSelector((state: StoreState) => state.S2AReducer.userFilterColumn);
 
-    const tableviewColumns: Column[] = [
+    /*const tableviewColumns: Column[] = [
         {
           id: 1,
           name: 'Column 1',
@@ -286,10 +286,10 @@ function EditAppTableviewColumns() {
           viewable: false,
           editable: true
         },
-     ]
+     ]*/
 
-    const filterColumn = [true, true, true, false, false, true, false, true, false, true];
-    const userFilterColumn = ["johndoe@gmail.com", "janedoe@yahoo.com", "bobsmith@hotmail.com", "lisa.white@outlook.com", "markjohnson@gmail.com", "sarahbrown@yahoo.com", "davidlee@hotmail.com", "jennifer.nguyen@outlook.com", "michael.gonzalez@gmail.com", "elizabeth.wang@yahoo.com"];
+    // const filterColumn = [true, true, true, false, false, true, false, true, false, true];
+    // const userFilterColumn = ["johndoe@gmail.com", "janedoe@yahoo.com", "bobsmith@hotmail.com", "lisa.white@outlook.com", "markjohnson@gmail.com", "sarahbrown@yahoo.com", "davidlee@hotmail.com", "jennifer.nguyen@outlook.com", "michael.gonzalez@gmail.com", "elizabeth.wang@yahoo.com"];
 
     /* React state for conditional rendering. */
     const [display, setDisplay] = useState<string>("Columns");

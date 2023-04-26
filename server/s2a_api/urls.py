@@ -22,6 +22,7 @@ urlpatterns = [
     path('editDatasource', views.edit_datasource),
     path('deleteDatasource', views.delete_datasource),
     
+    path('getDatasourceColumns', views.get_datasource_columns),
     path('editDatasourceColumns', views.edit_datasource_columns),
     
     path('createTableview', views.create_table_view),

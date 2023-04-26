@@ -516,7 +516,7 @@ def delete_table_view(request):
 
 
 @csrf_exempt
-def get_table_view_columns(request):
+def get_table_view_viewable_columns(request):
     body = json.loads(request.body)
     table_view_id = body["tableview"]["id"]
 
@@ -525,6 +525,43 @@ def get_table_view_columns(request):
         return HttpResponse({}, status=response_code)
 
     res_body = { "tableviewColumns": columns }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+@csrf_exempt
+def get_table_view_columns(request):
+    body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    table_view_id = body["tableview"]["id"]
+    spreadsheet_url = body["tableview"]["datasource"]["spreadsheetUrl"]
+    
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    gid = sheets.utils.get_gid(spreadsheet_url)
+
+    columns, response_code = queries.get_table_view_columns(table_view_id=table_view_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    filter_column_index = columns["filter_column"].column_index
+    user_filter_column_index = columns["user_filter_column"].column_index
+    column_indexes = [filter_column_index, user_filter_column_index]
+    
+    column_data, response_code = sheets_api.get_column_data(
+        tokens=tokens, spreadsheet_id=spreadsheet_id, 
+        sheet_id=gid, columns=column_indexes
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+
+    res_body = { 
+        "tableviewColumns": columns["table_columns"],
+        "filterColumn": column_data[0][1:],
+        "userFilterColumn": column_data[1][1:]
+    }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )

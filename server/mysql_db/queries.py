@@ -312,7 +312,9 @@ def get_datasource_by_detail_view_id(detail_view_id):
 
 def get_datasource_columns_by_datasource_id(datasource_id):
     try:
-        datasource_columns = DatasourceColumn.objects.filter(datasource_id=datasource_id).values()
+        datasource_columns = DatasourceColumn.objects.filter(
+            datasource_id=datasource_id, is_filter=False, is_user_filter=False, is_edit_filter=False
+        ).values()
         datasource_columns = mysql_db.utils.annotate_datasource_columns(datasource_columns)
         datasource_columns = list(datasource_columns)
         
@@ -360,6 +362,42 @@ def get_roles_for_table_view(table_view_id):
         roles = [{ "name": perm["role"] } for perm in table_view_perms]
         
         return roles, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_table_view_columns(table_view_id):
+    try:
+        table_view = TableView.objects.get(id=table_view_id)
+        table_columns = DatasourceColumn.objects.filter(
+            datasource_id=table_view.datasource_id, 
+            is_filter=False, is_user_filter=False, is_edit_filter=False
+        )
+        table_columns = table_columns.values()
+        table_columns = mysql_db.utils.annotate_datasource_columns(table_columns)
+        table_columns = list(table_columns)
+
+        filter_column_name = f"{table_view.id} {table_view.name} Filter"
+        user_filter_column_name = f"{table_view.id} {table_view.name} User Filter"
+
+        filter_column = DatasourceColumn.objects.get(
+            datasource_id=table_view.datasource_id, name=filter_column_name,
+            is_filter=True, is_user_filter=False, is_edit_filter=False
+        )
+        
+        user_filter_column = DatasourceColumn.objects.get(
+            datasource_id=table_view.datasource_id, name=user_filter_column_name,
+            is_filter=False, is_user_filter=True, is_edit_filter=False
+        )
+        
+        columns = {
+            "table_columns": table_columns,
+            "filter_column": filter_column,
+            "user_filter_column": user_filter_column
+        }
+
+        return columns, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR

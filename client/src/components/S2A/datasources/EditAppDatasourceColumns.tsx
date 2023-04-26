@@ -18,8 +18,8 @@ function EditAppDatasourceColumns() {
     }, []);
 
     /* Redux hooks into store. */
-    //const datasourceColumns = useSelector((state: StoreState) => state.S2AReducer.datasourceColumns);
-    const datasourceColumns: Column[] = [
+    const datasourceColumns = useSelector((state: StoreState) => state.S2AReducer.datasourceColumns);
+    /*const datasourceColumns: Column[] = [
         {
           id: 1,
           name: 'Column 1',
@@ -280,7 +280,7 @@ function EditAppDatasourceColumns() {
           viewable: false,
           editable: true
         },
-     ]
+     ]*/
 
     /* React state for datasource columns. */
     const [changedColumns, setColumns] = useState<Column[]>(datasourceColumns);
