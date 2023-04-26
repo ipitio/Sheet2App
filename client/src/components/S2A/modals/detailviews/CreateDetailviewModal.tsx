@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { viewDetailviews, createDetailview, finishCreation, StoreState} from '../../../../store/StoreContext';
+import store, {finishCreation, StoreState} from '../../../../store/StoreContext';
 import { Datasource, ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Checkbox, Modal, TextField, FormControlLabel, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { viewDatasources } from '../../../../store/StoreController';
+import { createDetailview, viewDatasources, viewDetailviews } from '../../../../store/StoreController';
 
 function CreateDetailviewModal() {
     const dispatch = useDispatch<typeof store.dispatch>();

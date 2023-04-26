@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, createDatasource, deleteApp, editApp, viewAccApps, viewAppRoles, viewDatasources } from './StoreController'
+import storeController, { createApp, createDatasource, createTableview, deleteApp, deleteDatasource, deleteTableview, editApp, editDatasource, editDatasourceColumns, editTableview, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -128,253 +128,7 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        /* Datasource column related reducers. */
-        editDatasource: (state, action: PayloadAction<Datasource>) => {
-            if(state.currentDatasourceToEdit) {
-                storeController.editDatasource(action.payload)
-                    .then(() => {
-                        console.log("Edited datasource.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editDatasource failed with the error ${error}`);
-                    })
-            }
-        },
-        deleteDatasource: (state) => {
-            if(state.currentDatasourceToDelete) {
-                storeController.deleteDatasource(state.currentDatasourceToDelete)
-                    .then(() => {
-                        console.log("Deleted datasource.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`deleteDatasource failed with the error ${error}`);
-                    })
-            }
-        },
-
-        /* Datasource column related reducers. */
-        viewDatasourceColumns: (state) => {
-            if(state.currentDatasource) {
-                storeController.getDatasourceColumns(state.currentDatasource) 
-                    .then((datasourceColumns: Column[]) => {
-                        state.datasourceColumns = datasourceColumns;
-                        console.log("Retrieved datasource columns.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewDatasourceColumns failed with the error ${error}`);
-                    })
-            }
-        },
-        editDatasourceColumns: (state, action: PayloadAction<Column[]>) => {
-            if(state.currentDatasource) {
-                storeController.editDatasourceColumns(state.currentDatasource, action.payload) 
-                    .then(() => {
-                        console.log("Edited datasource columns.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editDatasourceColumns failed with the error ${error}`);
-                    })
-            }
-        },
-
-        /* Tableview related reducers. */
-        viewTableviews: (state) => {
-            if(state.currentApp) {
-                storeController.getAppTableviews(state.currentApp)       
-                    .then((tableviews: Tableview[]) => {
-                        state.tableviews = tableviews;
-                        console.log("Retrieved tableviews.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewTableviews failed with the error ${error}`);
-                    })
-            }
-        },
-        /* Tableview related reducers. */
-        createTableview: (state, action: PayloadAction<{ tableviewName: string, datasource: Datasource }>) => {
-            if(state.currentApp) {
-                storeController.createTableview(state.currentApp, action.payload.tableviewName, action.payload.datasource)
-                    .then(() => {
-                        console.log("Created tableview.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`createTableview failed with the error ${error}`);
-                    })
-            }
-        },
-        editTableview: (state, action: PayloadAction<Tableview>) => {
-            if(state.currentTableviewToEdit) {
-                storeController.editTableview(action.payload) 
-                    .then(() => {
-                        console.log("Edited tableview.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editTableview failed with the error ${error}`);
-                    })
-            }
-        },  
-        deleteTableview: (state) => {
-            if(state.currentTableviewToDelete) {
-                storeController.deleteTableview(state.currentTableviewToDelete)
-                    .then(() => {
-                        console.log("Deleted tableview.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`deleteTableview failed with the error ${error}`);
-                    })
-            }
-        },
-
-        /* Tableview column related reducers. */
-        viewTableviewColumns: (state) => {
-            if(state.currentTableview) {
-                storeController.getTableviewColumns(state.currentTableview) 
-                    .then(([tableviewColumns, filterColumn, userFilterColumn]) => {
-                        state.tableviewColumns = tableviewColumns;
-                        state.filterColumn = filterColumn;
-                        state.userFilterColumn = userFilterColumn;
-                        console.log("Retrieved tableview columns.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewTableviewColumns failed with the error ${error}`);
-                    })
-                }
-        },
-        editTableviewColumns: (state, action: PayloadAction<{ tableviewColumns: Column[], filterColumn: boolean[] | null, userFilterColumn: string[] | null}>) => {
-            if(state.currentTableview) {
-                storeController.editTableviewColumns(state.currentTableview, action.payload.tableviewColumns, action.payload.filterColumn, action.payload.userFilterColumn)
-                    .then(() => {
-                        console.log("Edited tableview columns.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editTableviewColumns failed with the error ${error}`);
-                    })
-            }
-        },
-
-        /* Tableview role related reducers. */
-        viewTableviewRoles: (state) => {
-            if(state.currentTableview) {
-                storeController.getTableviewRoles(state.currentTableview)
-                    .then((tableviewRoles: Role[]) => {
-                        state.tableviewRoles = tableviewRoles;
-                        console.log("Retrieved tableview roles.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewTableviewRoles failed with the error ${error}`);
-                    })
-            }
-        },
-        editTableviewRoles: (state, action: PayloadAction<Role[]>) => {
-            if(state.currentTableview) {
-                storeController.editTableviewRoles(state.currentTableview, action.payload) 
-                    .then(() => {
-                        console.log("Edited tableview roles.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editTableviewRoles failed with the error ${error}`);
-                    })
-            }
-        },
-
-        /* Detailview related reducers. */
-        viewDetailviews: (state) => {
-            if(state.currentApp) {
-                storeController.getAppDetailviews(state.currentApp)       
-                    .then((detailviews: Detailview[]) => {
-                        state.detailviews = detailviews;
-                        console.log("Retrieved detailviews.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewDetailviews failed with the error ${error}`);
-                    })
-            }
-        },
-        createDetailview: (state, action: PayloadAction<{ detailviewName: string, datasource: Datasource }>) => {
-            if(state.currentApp) {
-                storeController.createDetailview(state.currentApp, action.payload.detailviewName, action.payload.datasource)
-                    .then(() => {
-                        console.log("Created detailview.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`createDetailview failed with the error ${error}`);
-                    })
-            }
-        },
-        editDetailview: (state, action: PayloadAction<Detailview>) => {
-            if(state.currentDetailviewToEdit) {
-                storeController.editDetailview(action.payload) 
-                    .then(() => {
-                        console.log("Edited detailview.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editDetailview failed with the error ${error}`);
-                    })
-            }
-        },
-        deleteDetailview: (state) => {
-            if(state.currentDetailviewToDelete) {
-                storeController.deleteDetailview(state.currentDetailviewToDelete)
-                    .then(() => {
-                        console.log("Deleted detailview.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`deleteDetailview failed with the error ${error}`);
-                    })
-            }
-        },
-
-        /* Detailview column related reducers. */
-        viewDetailviewColumns: (state) => {
-            if(state.currentDetailview) {
-                storeController.getDetailviewColumns(state.currentDetailview) 
-                    .then(([detailviewColumns, editFilterColumn]) => {
-                        state.detailviewColumns = detailviewColumns;
-                        state.editFilterColumn = editFilterColumn;
-                        console.log("Retrieved detailview columns.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewDetailviewColumns failed with the error ${error}`);
-                    })
-                }
-        },
-        editDetailviewColumns: (state, action: PayloadAction<{ detailviewColumns: Column[], editFilterColumn: boolean[] | null}>) => {
-            if(state.currentDetailview) {
-                storeController.editDetailviewColumns(state.currentDetailview, action.payload.detailviewColumns, action.payload.editFilterColumn)
-                    .then(() => {
-                        console.log("Edited detailview columns.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editDetailviewColumns failed with the error ${error}`);
-                    })
-            }
-        },
-
         /* Detailview role related reducers. */
-        viewDetailviewRoles: (state) => {
-            if(state.currentDetailview) {
-                storeController.getDetailviewRoles(state.currentDetailview)
-                    .then((detailviewRoles: Role[]) => {
-                        state.detailviewRoles = detailviewRoles;
-                        console.log("Retrieved detailview roles.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewDetailviewRoles failed with the error ${error}`);
-                    })
-            }
-        },
-        editDetailviewRoles: (state, action: PayloadAction<Role[]>) => {
-            if(state.currentDetailview) {
-                storeController.editDetailviewRoles(state.currentDetailview, action.payload) 
-                    .then(() => {
-                        console.log("Edited detailview roles.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editDetailviewRoles failed with the error ${error}`);
-                    })
-            }
-        },
-        
         /* Set current resource reducers. */
         setCurrentApp: (state, action: PayloadAction<App>) => {
             state.currentApp = action.payload;
@@ -532,12 +286,13 @@ export const S2AReducer = createSlice({
         });
 
         builder.addCase(deleteApp.fulfilled, (state, action) => {
-                console.log("Deleted app.");
+            console.log("Deleted app.");
         });
         builder.addCase(deleteApp.rejected, (state, action) => {
             console.log(`deleteApp failed with the error ${action.error?.message}`);
         });
 
+        /** Modify datasources */
         builder.addCase(viewDatasources.fulfilled, (state, action) => {
             state.datasources = action.payload;
             console.log("Retrieved datasources.");
@@ -546,7 +301,6 @@ export const S2AReducer = createSlice({
             console.log(`viewDatasources failed with the error ${action.error?.message}`);
         });
 
-        // TODO: refactor everything below this for the other files
         builder.addCase(createDatasource.fulfilled, (state, action) => {
             console.log("Created Datasource");
         });
@@ -554,42 +308,111 @@ export const S2AReducer = createSlice({
             console.log(`createDatasource failed with the error ${action.error?.message}`);
         });
 
-        // builder.addCase(editDatasource.fulfilled, (state, action) => {
-        //     console.log("Edited datasource.");
-        // });
-        // builder.addCase(editDatasource.rejected, (state, action) => {
-        //     console.log(`editDatasource failed with the error ${action.error?.message}`);
-        // });
+        builder.addCase(editDatasource.fulfilled, (state, action) => {
+            console.log("Edited datasource.");
+        });
+        builder.addCase(editDatasource.rejected, (state, action) => {
+            console.log(`editDatasource failed with the error ${action.error?.message}`);
+        });
 
-        // builder.addCase(deleteDatasource.fulfilled, (state, action) => {
-        //     console.log("Deleted datasource.");
-        // });
-        // builder.addCase(deleteDatasource.rejected, (state, action) => {
-        //     console.log(`deleteDatasource failed with the error ${action.error?.message}`);
-        // });
+        builder.addCase(deleteDatasource.fulfilled, (state, action) => {
+            console.log("Deleted datasource.");
+        });
+        builder.addCase(deleteDatasource.rejected, (state, action) => {
+            console.log(`deleteDatasource failed with the error ${action.error?.message}`);
+        });
 
-        // builder.addCase(viewDatasourceColumns.fulfilled, (state, action) => {
-        //     state.datasourceColumns = action.payload;
-        //     console.log("Retrieved datasource columns.");
-        // });
-        // builder.addCase(viewDatasourceColumns.rejected, (state, action) => {
-        //     console.log(`viewDatasourceColumns failed with the error ${action.error?.message}`);
-        // });
+        builder.addCase(viewDatasourceColumns.fulfilled, (state, action) => {
+            state.datasourceColumns = action.payload;
+            console.log("Retrieved datasource columns.");
+        });
+        builder.addCase(viewDatasourceColumns.rejected, (state, action) => {
+            console.log(`viewDatasourceColumns failed with the error ${action.error?.message}`);
+        });
 
-        // builder.addCase(editDatasourceColumns.fulfilled, (state, action) => {
-        //     console.log("Edited datasource columns.");
-        // });
-        // builder.addCase(editDatasourceColumns.rejected, (state, action) => {
-        //     console.log(`editDatasourceColumns failed with the error ${action.error?.message}`);
-        // });
+        builder.addCase(editDatasourceColumns.fulfilled, (state, action) => {
+            console.log("Edited datasource columns.");
+        });
+        builder.addCase(editDatasourceColumns.rejected, (state, action) => {
+            console.log(`editDatasourceColumns failed with the error ${action.error?.message}`);
+        });
 
-        // builder.addCase(viewTableviews.fulfilled, (state, action) => {
-        //     state.tableviews = action.payload;
-        //     console.log("Retrieved tableviews.")        
-        // });
-        // builder.addCase(viewTableviews.rejected, (state, action) => {
-        //     console.log(`viewTableviews failed with the error ${action.error?.message}`);
-        // });
+        builder.addCase(viewTableviews.fulfilled, (state, action) => {
+            state.tableviews = action.payload;
+            console.log("Retrieved tableviews.")        
+        });
+        builder.addCase(viewTableviews.rejected, (state, action) => {
+            console.log(`viewTableviews failed with the error ${action.error?.message}`);
+        });
+
+        /** Modify views */
+        builder.addCase(createTableview.fulfilled, (state, action) => {
+            console.log("Created tableview.");
+        });
+        builder.addCase(createTableview.rejected, (state, action) => {
+            console.log(`createTableview failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(editTableview.fulfilled, (state, action) => {
+            console.log("Edited tableview.");
+        });   
+        builder.addCase(editTableview.rejected, (state, action) => {
+            console.log(`editTableview failed with the error  ${action.error?.message}`);
+        });
+
+        builder.addCase(deleteTableview.fulfilled, (state, action) => {
+            console.log("Deleted tableview.");
+        });   
+        builder.addCase(deleteTableview.rejected, (state, action) => {
+            console.log(`deleteTableview failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(viewTableviewColumns.fulfilled, (state, action) => {
+            const {tableviewColumns, filterColumn, userFilterColumn} = action.payload;
+
+            state.tableviewColumns = tableviewColumns;
+            state.filterColumn = filterColumn;
+            state.userFilterColumn = userFilterColumn;
+            console.log("Retrieved tableview columns.")
+        });
+        builder.addCase(viewTableviewColumns.rejected, (state, action) => {
+            console.log(`viewTableviewColumns failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(viewTableviewRoles.fulfilled, (state, action) => {
+            state.tableviewRoles = action.payload;
+            console.log("Retrieved tableview roles.")
+        });
+        builder.addCase(viewTableviewRoles.rejected, (state, action) => {
+            console.log(`viewTableviewRoles failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(viewDetailviews.fulfilled, (state, action) => {
+            state.detailviews = action.payload;
+            console.log("Retrieved detailviews.")
+        });
+        builder.addCase(viewDetailviews.rejected, (state, action) => {
+            console.log(`viewDetailviews failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(viewDetailviewColumns.fulfilled, (state, action) => {
+            const {detailviewColumns, editFilterColumn} = action.payload;
+
+            state.detailviewColumns = detailviewColumns;
+            state.editFilterColumn = editFilterColumn;
+            console.log("Retrieved detailview columns.")
+        });
+        builder.addCase(viewDetailviewColumns.rejected, (state, action) => {
+            console.log(`viewDetailviewColumns failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(viewDetailviewRoles.fulfilled, (state, action) => {
+            state.detailviewRoles = action.payload;
+            console.log("Retrieved detailview roles.");
+        });
+        builder.addCase(viewDetailviewRoles.rejected, (state, action) => {
+            console.log(`viewDetailviewRoles failed with the error ${action.error?.message}`);
+        });
     }
   }
 )
@@ -708,14 +531,7 @@ const webAppReducer = createSlice({
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
-export const { editDatasource, deleteDatasource, 
-    viewDatasourceColumns, editDatasourceColumns, 
-    viewTableviews, createTableview, editTableview, deleteTableview,
-    viewTableviewColumns, editTableviewColumns, 
-    viewTableviewRoles, editTableviewRoles,
-    viewDetailviews, createDetailview, editDetailview, deleteDetailview,
-    viewDetailviewColumns, editDetailviewColumns, 
-    viewDetailviewRoles, editDetailviewRoles, 
+export const { 
     setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
     markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
     markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { editDatasource, finishEdit, StoreState } from '../../../../store/StoreContext';
+import store, { finishEdit, StoreState } from '../../../../store/StoreContext';
 import { Datasource, ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal, TextField } from '@mui/material';
-import { viewDatasources } from '../../../../store/StoreController';
+import { editDatasource, viewDatasources } from '../../../../store/StoreController';
 
 
 function EditDatasourceModal() {
