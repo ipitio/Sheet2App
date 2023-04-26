@@ -56,8 +56,10 @@ function EditDatasourceModal() {
     /* If the user confirms edit. */
     const handleEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
         if(currentDatasourceToEdit) {
-            dispatch(editDatasource(changedDatasource));
-            dispatch(viewDatasources());
+            dispatch(editDatasource(changedDatasource))
+            .then(() => {
+                dispatch(viewDatasources());
+            });
             handleCloseModal();
         }
     }

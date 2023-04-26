@@ -26,7 +26,10 @@ function DeleteDatasourceModal() {
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
         if(currentDatasourceToDelete) {
             dispatch(deleteDatasource());
-            dispatch(viewDatasources());
+            dispatch(viewDatasources())
+            .then(() => {
+                dispatch(viewDatasources());
+            });
             handleCloseModal();
         }
     }
