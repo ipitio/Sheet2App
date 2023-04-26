@@ -287,8 +287,8 @@ def get_datasource_by_table_view_id(table_view_id):
         table = TableView.objects.get(id=table_view_id)
         datasource = Datasource.objects.filter(id=table.datasource_id).values(
             "id", "name", "spreadsheet_url", "gid"
-        )[0]
-        datasource = mysql_db.utils.annotate_datasources(datasource)
+        )
+        datasource = mysql_db.utils.annotate_datasources(datasource)[0]
 
         return datasource, HTTPStatus.OK
     except Exception as e:

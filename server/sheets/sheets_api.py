@@ -79,7 +79,7 @@ def get_data(tokens, spreadsheet_id, sheet_id=None, range=None, majorDimension="
         # If no sheet_id is specified, then it is assumed that the first sheet is being requested.
         # If it is specified, then we need to find the name of the sheet with the specified sheet_id
         sheet_name = ""
-        if sheet_id is not None:
+        if sheet_id != None:
             sheets_info = (
                 sheet.get(spreadsheetId=spreadsheet_id).execute().get("sheets")
             )
