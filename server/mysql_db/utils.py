@@ -1,5 +1,6 @@
 import inflection
 from django.db.models import F
+from django.db.models import Case, When, BooleanField
 
 def to_camel_case(data):
     camelcased_data = {}
@@ -49,6 +50,28 @@ def annotate_table_views(table_views):
         canDelete=F("can_delete")
     )
     return table_views
+
+
+def annotate_table_view_viewable_columns(columns, table_view_id):
+    columns = columns.annotate(
+        initialValue=F("initial_value"),
+        isLabel=F("is_link_text"),
+        isRef=F("is_table_ref"),
+        type=F("value_type"), 
+        isFilter=F("is_filter"),
+        isUserFilter=F("is_user_filter"),
+        isEditFilter=F("is_edit_filter"),
+        viewable=Case(
+            When(
+                tableviewviewablecolumn__table_view_id=table_view_id,
+                tableviewviewablecolumn__datasource_column_id=F("id"),
+                then=True
+            ),
+            default=False,
+            output_field=BooleanField(),
+        )
+    )
+    return columns
 
 
 def annotate_detail_views(detail_views):

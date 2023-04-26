@@ -158,14 +158,6 @@ def create_detail_view(app_id, name, datasource_id):
 
 # Publish
 def publish_app(app_id):
-    """
-    Publishes an app
-
-    Args:
-        app_id (int): the id of the app
-    Returns:
-        _type_: _description_
-    """
     try:
         app = Application.objects.get(id=app_id)
         app.is_published = True
@@ -177,14 +169,6 @@ def publish_app(app_id):
 
 
 def unpublish_app(app_id):
-    """
-    Unpublishes an app
-
-    Args:
-        app_id (int): the id of the app
-    Returns:
-        _type_: _description_
-    """
     try:
         app = Application.objects.get(id=app_id)
         app.is_published = False
@@ -197,14 +181,6 @@ def unpublish_app(app_id):
 
 # Get
 def get_creator(creator_email):
-    """
-    Gets a creator
-
-    Args:
-        creator_email (string): the email of the creator
-    Returns:
-        _type_: _description_
-    """
     try:
         creator = Creator.objects.filter(email=creator_email).values()[0]
         return creator, HTTPStatus.OK
@@ -213,14 +189,6 @@ def get_creator(creator_email):
 
 
 def get_app_by_id(app_id):
-    """
-    Gets an app
-
-    Args:
-        app_id (int): the id of the app
-    Returns:
-        _type_: _description_
-    """
     try:
         app = Application.objects.get(id=app_id)
         return app, HTTPStatus.OK
@@ -253,14 +221,6 @@ def get_all_unpublished_apps_with_creator_email():
 
 
 def get_datasource_by_id(datasource_id):
-    """
-    Gets a datasource
-
-    Args:
-        datasource_id (int): the id of the datasource
-    Returns:
-        _type_: _description_
-    """
     try:
         datasource = Datasource.objects.get(id=datasource_id)
         return datasource, HTTPStatus.OK
@@ -375,7 +335,7 @@ def get_table_view_columns(table_view_id):
             is_filter=False, is_user_filter=False, is_edit_filter=False
         )
         table_columns = table_columns.values()
-        table_columns = mysql_db.utils.annotate_datasource_columns(table_columns)
+        table_columns = mysql_db.utils.annotate_table_view_viewable_columns(table_columns, table_view.id)
         table_columns = list(table_columns)
 
         filter_column_name = f"{table_view.id} {table_view.name} Filter"
@@ -537,9 +497,9 @@ def update_table_view_viewable_columns(table_view_id, columns):
             column_id = column["id"]
             viewable = column["viewable"]
             
-            exists_in_viewable_cols = TableViewViewableColumn.objects.exists(
+            exists_in_viewable_cols = TableViewViewableColumn.objects.filter(
                 table_view_id=table_view_id, datasource_column_id=column_id
-            )
+            ).exists()
             
             if viewable and not exists_in_viewable_cols:
                 viewable_column = TableViewViewableColumn.objects.create(
