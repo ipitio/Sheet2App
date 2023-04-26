@@ -39,8 +39,10 @@ function CreateDatasourceModal() {
         const sheetName = input ? input.value : "";
 
         if(datasourceName && spreadsheetUrl && sheetName ) {
-            dispatch(createDatasource({"datasourceName": datasourceName, "spreadsheetUrl": spreadsheetUrl, "sheetName": sheetName}));
-            dispatch(viewDatasources());
+            dispatch(createDatasource({"datasourceName": datasourceName, "spreadsheetUrl": spreadsheetUrl, "sheetName": sheetName}))
+            .then(() => {
+                dispatch(viewDatasources());
+            });
             handleCloseModal();
         }
     }
