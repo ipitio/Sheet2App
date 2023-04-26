@@ -24,8 +24,10 @@ function DeleteDetailviewModal() {
     /* If the user confirms deletion. */
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
         if(currentDetailviewToDelete) {
-            dispatch(deleteDetailview());
-            dispatch(viewDetailviews());
+            dispatch(deleteDetailview())            
+            .then(() => {
+                dispatch(viewDetailviews());
+            });
             handleCloseModal();
         }
     }
