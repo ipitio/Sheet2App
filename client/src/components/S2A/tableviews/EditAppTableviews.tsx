@@ -24,7 +24,7 @@ function EditAppTableviews() {
 
     /* Redux hooks into store. */
     const currApp = useSelector((state: StoreState) => state.S2AReducer.currentApp);
-    //const tableviews = useSelector((state: StoreState) => state.S2AReducer.tableviews);
+    const tableviews = useSelector((state: StoreState) => state.S2AReducer.tableviews);
     
     const datasource1: Datasource = {
         id: 1,
@@ -40,7 +40,7 @@ function EditAppTableviews() {
         sheetName: "Sheet2"
     };
 
-    const tableviews: Tableview[] = [
+    /*const tableviews: Tableview[] = [
         {
             id: 1,
             name: "Sales Table",
@@ -65,7 +65,7 @@ function EditAppTableviews() {
             canDelete: false,
             datasource: datasource1
         }
-    ];
+    ];*/
 
     /* Event handlers. */
 

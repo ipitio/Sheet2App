@@ -23,9 +23,9 @@ function EditAppDetailviews() {
 
     /* Redux hooks into store. */
     const currApp = useSelector((state: StoreState) => state.S2AReducer.currentApp);
-    //const detailviews = useSelector((state: StoreState) => state.S2AReducer.detailviews);
+    const detailviews = useSelector((state: StoreState) => state.S2AReducer.detailviews);
 
-    const datasources: Datasource[] = [
+    /*const datasources: Datasource[] = [
         {
             id: 1,
             name: "Employee Data",
@@ -44,9 +44,9 @@ function EditAppDetailviews() {
             spreadsheetUrl: "https://docs.google.com/spreadsheets/d/789ghi/edit",
             sheetName: "Customer Details",
         },
-    ];
+    ];*/
     
-    const detailviews: Detailview[] = [
+    /*const detailviews: Detailview[] = [
         {
             id: 1,
             name: "Employees",
@@ -68,7 +68,7 @@ function EditAppDetailviews() {
             canEdit: true,
             datasource: datasources[2],
         },
-    ];
+    ];*/
 
      /* Event handlers. */
 
