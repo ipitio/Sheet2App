@@ -466,7 +466,7 @@ def update_datasource_columns(columns):
 def update_table_view(table_view):
     try:
         updated_table_view = TableView.objects.get(id=table_view["id"])
-        updated_table_view.datasource_id = table_view["datasource_id"]
+        updated_table_view.datasource_id = table_view["datasource"]["id"]
         updated_table_view.name = table_view["name"]
         updated_table_view.can_view = table_view["canView"]
         updated_table_view.can_add = table_view["canAdd"]
