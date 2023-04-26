@@ -70,8 +70,10 @@ function CreateTableviewModal() {
         const datasource = datasources.find(ds => ds.name === datasourceName);
 
         if(tableviewName && datasource) {
-            dispatch(createTableview({"tableviewName": tableviewName, "datasource": datasource }));
-            dispatch(viewTableviews());
+            dispatch(createTableview({"tableviewName": tableviewName, "datasource": datasource }))
+            .then(() => {
+                dispatch(viewTableviews());
+            });
         }
     }
 

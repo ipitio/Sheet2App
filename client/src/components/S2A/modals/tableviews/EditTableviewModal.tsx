@@ -128,8 +128,10 @@ function EditTableviewModal() {
     /* If the user confirms creation, create the tableview. */
     const handleEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
         if(currentTableviewToEdit) {
-            dispatch(editTableview(changedTableview));
-            dispatch(viewTableviews());
+            dispatch(editTableview(changedTableview))
+            .then(() => {
+                dispatch(viewTableviews());
+            });
             handleCloseModal();
         }
     }
