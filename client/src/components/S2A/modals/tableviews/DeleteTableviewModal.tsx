@@ -24,8 +24,10 @@ function DeleteTableviewModal() {
     /* If the user confirms deletion. */
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
         if(currentTableviewToDelete) {
-            dispatch(deleteTableview());
-            dispatch(viewTableviews());
+            dispatch(deleteTableview())
+            .then(() => {
+                dispatch(viewTableviews());
+            });
             handleCloseModal();
         }
     }
