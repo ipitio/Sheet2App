@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, createDatasource, createTableview, deleteApp, deleteDatasource, deleteTableview, editApp, editDatasource, editDatasourceColumns, editTableview, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import storeController, { createApp, createDatasource, createTableview, deleteApp, deleteDatasource, deleteTableview, editApp, editDatasource, editDatasourceColumns, editTableview, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -128,57 +128,7 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        /* Detailview column related reducers. */
-        viewDetailviewColumns: (state) => {
-            if(state.currentDetailview) {
-                storeController.getDetailviewColumns(state.currentDetailview) 
-                    .then(([detailviewColumns, editFilterColumn]) => {
-                        state.detailviewColumns = detailviewColumns;
-                        state.editFilterColumn = editFilterColumn;
-                        console.log("Retrieved detailview columns.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewDetailviewColumns failed with the error ${error}`);
-                    })
-                }
-        },
-        editDetailviewColumns: (state, action: PayloadAction<{ detailviewColumns: Column[], editFilterColumn: boolean[] | null}>) => {
-            if(state.currentDetailview) {
-                storeController.editDetailviewColumns(state.currentDetailview, action.payload.detailviewColumns, action.payload.editFilterColumn)
-                    .then(() => {
-                        console.log("Edited detailview columns.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editDetailviewColumns failed with the error ${error}`);
-                    })
-            }
-        },
-
         /* Detailview role related reducers. */
-        viewDetailviewRoles: (state) => {
-            if(state.currentDetailview) {
-                storeController.getDetailviewRoles(state.currentDetailview)
-                    .then((detailviewRoles: Role[]) => {
-                        state.detailviewRoles = detailviewRoles;
-                        console.log("Retrieved detailview roles.")
-                    })
-                    .catch((error: Error) => {
-                        console.log(`viewDetailviewRoles failed with the error ${error}`);
-                    })
-            }
-        },
-        editDetailviewRoles: (state, action: PayloadAction<Role[]>) => {
-            if(state.currentDetailview) {
-                storeController.editDetailviewRoles(state.currentDetailview, action.payload) 
-                    .then(() => {
-                        console.log("Edited detailview roles.");
-                    })
-                    .catch((error: Error) => {
-                        console.log(`editDetailviewRoles failed with the error ${error}`);
-                    })
-            }
-        },
-        
         /* Set current resource reducers. */
         setCurrentApp: (state, action: PayloadAction<App>) => {
             state.currentApp = action.payload;
@@ -444,6 +394,25 @@ export const S2AReducer = createSlice({
         builder.addCase(viewDetailviews.rejected, (state, action) => {
             console.log(`viewDetailviews failed with the error ${action.error?.message}`);
         });
+
+        builder.addCase(viewDetailviewColumns.fulfilled, (state, action) => {
+            const {detailviewColumns, editFilterColumn} = action.payload;
+
+            state.detailviewColumns = detailviewColumns;
+            state.editFilterColumn = editFilterColumn;
+            console.log("Retrieved detailview columns.")
+        });
+        builder.addCase(viewDetailviewColumns.rejected, (state, action) => {
+            console.log(`viewDetailviewColumns failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(viewDetailviewRoles.fulfilled, (state, action) => {
+            state.detailviewRoles = action.payload;
+            console.log("Retrieved detailview roles.");
+        });
+        builder.addCase(viewDetailviewRoles.rejected, (state, action) => {
+            console.log(`viewDetailviewRoles failed with the error ${action.error?.message}`);
+        });
     }
   }
 )
@@ -563,8 +532,6 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { 
-    viewDetailviewColumns, editDetailviewColumns, 
-    viewDetailviewRoles, editDetailviewRoles, 
     setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
     markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
     markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 

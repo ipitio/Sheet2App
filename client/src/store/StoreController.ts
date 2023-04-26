@@ -634,8 +634,10 @@ export const deleteDetailview = createAsyncThunk('S2A/deleteDetailview', async()
  * @param {Detailview} detailview - The detailview to obtain the columns of.
  * @return {Promise<Column[]> | null} - A promise that resolves to the array of detailview columns and filter column on success, rejects on failure.
  */
-async function getDetailviewColumns(detailview: Detailview): Promise<[Column[], boolean[] | null]> {
+export const viewDetailviewColumns = createAsyncThunk('S2A/viewDetailviewColumns', async() => {
     try {
+        const detailview = store.getState().S2AReducer.currentDetailview;
+
         const reqForm = await getRequestForm("POST", {"detailview": detailview});
         
         /* Send request and return promise resolving to an array of detailview columns if successful. */
@@ -647,12 +649,12 @@ async function getDetailviewColumns(detailview: Detailview): Promise<[Column[], 
         const detailviewColumns: Column[]  = data.detailviewColumns;
         const editFilterColumn: boolean[] | null = data.editFilterColumn;
         
-        return [detailviewColumns, editFilterColumn];
+        return {detailviewColumns, editFilterColumn};
     }
     catch(err) {
         return Promise.reject(`getDetailviewColumns failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to edit detailview columns.
@@ -661,8 +663,10 @@ async function getDetailviewColumns(detailview: Detailview): Promise<[Column[], 
  * @param {boolean[] | null} editFilterColumn - THe array of boolean values corresponding to each record indicating if the view should allow this user to edit the record. If null, no filter.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editDetailviewColumns(detailview: Detailview, detailviewColumns: Column[], editFilterColumn: boolean[] | null): Promise<void> {
+export const editDetailviewColumns = createAsyncThunk('S2A/editDetailviewColumns', async({detailviewColumns, editFilterColumn}: {detailviewColumns: Column[], editFilterColumn: boolean[] | null}) => {
     try {
+        const detailview = store.getState().S2AReducer.currentDetailview;
+
         const reqForm = await getRequestForm("PUT", {"detailview": detailview, "detailviewColumns": detailviewColumns, "editFilterColumn": editFilterColumn});
         
         /* Send request and return promise resolving if edit successful. */
@@ -675,15 +679,17 @@ async function editDetailviewColumns(detailview: Detailview, detailviewColumns: 
     catch(err) {
         return Promise.reject(`editDetailviewColumns failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests an array of all detailview roles for a particular detailview
  * @param {Detailview} detailview - The detailview to obtain the roles of.
  * @return {Promise<Role[]>} - A promise that resolves to the array of detailview roles on success, rejects on failure.
  */
-async function getDetailviewRoles(detailview: Detailview): Promise<Role[]> {
+export const viewDetailviewRoles = createAsyncThunk('S2A/viewDetailviewRoles', async() => {
     try {
+        const detailview = store.getState().S2AReducer.detailviewRoles;
+
         const reqForm = await getRequestForm("POST", {"detailview": detailview});
         
         /* Send request and return promise resolving to an array of detailview roles if successful. */
@@ -698,7 +704,7 @@ async function getDetailviewRoles(detailview: Detailview): Promise<Role[]> {
     catch(err) {
         return Promise.reject(`getDetailviewRoles failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to edit detailview roles.
@@ -706,8 +712,10 @@ async function getDetailviewRoles(detailview: Detailview): Promise<Role[]> {
  * @param {Role[]} detailviewRoles - The array of roles that should be given permission for the detailview.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role[]): Promise<void> {
+export const editDetailviewRoles = createAsyncThunk('S2A/editDetailviewRoles', async(detailviewRoles: Role[]) => {
     try {
+        const detailview = store.getState().S2AReducer.currentDetailview;
+
         const reqForm = await getRequestForm("PUT", {"detailview": detailview, "detailviewRoles": detailviewRoles});
         
         /* Send request and return promise resolving if edit successful. */
@@ -720,7 +728,7 @@ async function editDetailviewRoles(detailview: Detailview, detailviewRoles: Role
     catch(err) {
         return Promise.reject(`editTableviewRoles failed with the error: ${err}`);
     }
-}
+})
 
 // -> END for S2A.
 // NOTE: Some naming logistics... to prevent duplicate method names, we use "load" for the web apps
@@ -869,9 +877,5 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
 }
 
 export default {
-                createDetailview, editDetailview, deleteDetailview, 
-                getDetailviewColumns,editDetailviewColumns, 
-                getDetailviewRoles, editDetailviewRoles, 
-            
                 getAppById, loadApp, loadTableview, addRecord, editRecord, deleteRecord,
             };

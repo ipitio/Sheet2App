@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { viewDetailviewRoles, editDetailviewRoles, StoreState } from '../../../store/StoreContext';
+import store, { StoreState } from '../../../store/StoreContext';
 import { Role, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/detailviews/EditAppDetailviewRolesStyles';
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
 import { Grid, Checkbox, IconButton, FormControlLabel } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
-import { viewAppRoles } from '../../../store/StoreController';
+import { editDetailviewRoles, viewAppRoles, viewDetailviewRoles } from '../../../store/StoreController';
 
 function EditAppDetailviewRoles() {
     const dispatch = useDispatch<typeof store.dispatch>();
