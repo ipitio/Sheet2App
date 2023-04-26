@@ -310,8 +310,10 @@ function EditAppDetailviewColumns() {
 
     /* If the save button is clicked. */
     const handleSaveDetailviewColumns = () => {
-        dispatch(editDetailviewColumns({"detailviewColumns": changedColumns, "editFilterColumn": changedEditFilter}));
-        dispatch(viewDetailviewColumns());
+        dispatch(editDetailviewColumns({"detailviewColumns": changedColumns, "editFilterColumn": changedEditFilter}))
+        .then(() => {
+          dispatch(viewDetailviewColumns());
+        });
     }
 
     /* If the viewable checkbox is checked/unchecked. */

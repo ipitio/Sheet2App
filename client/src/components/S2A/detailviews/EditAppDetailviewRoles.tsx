@@ -46,9 +46,13 @@ function EditAppDetailviewRoles() {
 
     /* If the save button is clicked. */
     const handleSaveDetailviewRoles = () => {
-        dispatch(editDetailviewRoles(changedDetailviewRoles));
-        dispatch(viewAppRoles());
-        dispatch(viewDetailviewRoles());
+        dispatch(editDetailviewRoles(changedDetailviewRoles))
+        .then(() => {
+            dispatch(viewAppRoles());
+        })
+        .then(() => {
+            dispatch(viewDetailviewRoles());
+        })
     }
 
     /* If the detailview role change checkbox is checked/unchecked. */
