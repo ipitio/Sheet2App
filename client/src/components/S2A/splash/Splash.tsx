@@ -20,6 +20,7 @@ function Splash() {
       .catch((err: any) => {
         setError(err.message);
       }),
+      scope: 'openid https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
       flow: 'auth-code',
     });
     
@@ -53,6 +54,7 @@ function Splash() {
                   onError={() => setError("Failed to sign in.")}
                   useOneTap
                   auto_select
+                  
                 />
               </div>
               {error && <div style={styles.error}>{error}</div>}

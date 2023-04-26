@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewTableviews, setCurrentTableview, setCurrentModalType, markTableviewToEdit, markTableviewToDelete, StoreState} from '../../../store/StoreContext';
+import store, { setCurrentTableview, setCurrentModalType, markTableviewToEdit, markTableviewToDelete, StoreState} from '../../../store/StoreContext';
 import { Datasource, Tableview, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/tableviews/EditAppTableviewsStyles";
@@ -12,11 +12,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import PeopleIcon from '@mui/icons-material/People';
 import EditIcon from '@mui/icons-material/Edit';
+import { viewTableviews } from '../../../store/StoreController';
 
 
 function EditAppTableviews() {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     useEffect(() => {
         dispatch(viewTableviews());
@@ -24,7 +25,7 @@ function EditAppTableviews() {
 
     /* Redux hooks into store. */
     const currApp = useSelector((state: StoreState) => state.S2AReducer.currentApp);
-    //const tableviews = useSelector((state: StoreState) => state.S2AReducer.tableviews);
+    const tableviews = useSelector((state: StoreState) => state.S2AReducer.tableviews);
     
     const datasource1: Datasource = {
         id: 1,
@@ -40,7 +41,7 @@ function EditAppTableviews() {
         sheetName: "Sheet2"
     };
 
-    const tableviews: Tableview[] = [
+    /*const tableviews: Tableview[] = [
         {
             id: 1,
             name: "Sales Table",
@@ -65,7 +66,7 @@ function EditAppTableviews() {
             canDelete: false,
             datasource: datasource1
         }
-    ];
+    ];*/
 
     /* Event handlers. */
 

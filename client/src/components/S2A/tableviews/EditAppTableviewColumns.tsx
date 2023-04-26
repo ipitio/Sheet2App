@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewTableviewColumns, editTableviewColumns, StoreState } from '../../../store/StoreContext';
+import store, { StoreState } from '../../../store/StoreContext';
 import { Column } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/tableviews/EditAppTableviewColumnsStyles'
@@ -11,20 +11,21 @@ import SaveIcon from '@mui/icons-material/Save';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { editTableviewColumns, viewTableviewColumns } from '../../../store/StoreController';
 
 function EditAppTableviewColumns() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     useEffect(() => {
         dispatch(viewTableviewColumns());
     }, []);
 
     /* Redux hooks into store. */
-    //const tableviewColumns = useSelector((state: StoreState) => state.S2AReducer.tableviewColumns);
-    //const filterColumn = useSelector((state: StoreState) => state.S2AReducer.filterColumn);
-    //const userFilterColumn = useSelector((state: StoreState) => state.S2AReducer.userFilterColumn);
+    const tableviewColumns = useSelector((state: StoreState) => state.S2AReducer.tableviewColumns);
+    const filterColumn = useSelector((state: StoreState) => state.S2AReducer.filterColumn);
+    const userFilterColumn = useSelector((state: StoreState) => state.S2AReducer.userFilterColumn);
 
-    const tableviewColumns: Column[] = [
+    /*const tableviewColumns: Column[] = [
         {
           id: 1,
           name: 'Column 1',
@@ -285,10 +286,10 @@ function EditAppTableviewColumns() {
           viewable: false,
           editable: true
         },
-     ]
+     ]*/
 
-    const filterColumn = [true, true, true, false, false, true, false, true, false, true];
-    const userFilterColumn = ["johndoe@gmail.com", "janedoe@yahoo.com", "bobsmith@hotmail.com", "lisa.white@outlook.com", "markjohnson@gmail.com", "sarahbrown@yahoo.com", "davidlee@hotmail.com", "jennifer.nguyen@outlook.com", "michael.gonzalez@gmail.com", "elizabeth.wang@yahoo.com"];
+    // const filterColumn = [true, true, true, false, false, true, false, true, false, true];
+    // const userFilterColumn = ["johndoe@gmail.com", "janedoe@yahoo.com", "bobsmith@hotmail.com", "lisa.white@outlook.com", "markjohnson@gmail.com", "sarahbrown@yahoo.com", "davidlee@hotmail.com", "jennifer.nguyen@outlook.com", "michael.gonzalez@gmail.com", "elizabeth.wang@yahoo.com"];
 
     /* React state for conditional rendering. */
     const [display, setDisplay] = useState<string>("Columns");

@@ -2,16 +2,17 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewAccApps, StoreState } from '../../../store/StoreContext';
+import store, { StoreState } from '../../../store/StoreContext';
 
 import styles from "../../../styles/S2A/home/HomeStyles"
 import HomeNavBar from '../navbars/HomeNavBar';
 import { Grid, IconButton } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { viewAccApps } from '../../../store/StoreController';
 
 function HomeAccess() {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     useEffect(() => {
         dispatch(viewAccApps());

@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDatasources, editDatasource, finishEdit, StoreState } from '../../../../store/StoreContext';
+import store, { finishEdit, StoreState } from '../../../../store/StoreContext';
 import { Datasource, ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal, TextField } from '@mui/material';
+import { editDatasource, viewDatasources } from '../../../../store/StoreController';
 
 
 function EditDatasourceModal() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     /* Redux hooks into store. */
     const currentDatasourceToEdit = useSelector((state: StoreState) => state.S2AReducer.currentDatasourceToEdit);

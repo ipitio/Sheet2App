@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewAppRoles, viewTableviewRoles, editTableviewRoles, StoreState } from '../../../store/StoreContext';
+import store, { StoreState } from '../../../store/StoreContext';
 import { Role, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/tableviews/EditAppTableviewRolesStyles'
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
 import { Grid, Checkbox, IconButton, FormControlLabel } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
+import { viewAppRoles, viewTableviewRoles, editTableviewRoles } from '../../../store/StoreController';
 
 function EditAppTableviewRoles() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     useEffect(() => {
         dispatch(viewAppRoles());
@@ -18,9 +19,9 @@ function EditAppTableviewRoles() {
     }, []);
 
     /* Redux hooks into store. */
-    //const roles = useSelector((state: StoreState) => state.S2AReducer.roles);
-    //const tableviewRoles = useSelector((state: StoreState) => state.S2AReducer.tableviewRoles);
-    const roles: Role[] = [
+    const roles = useSelector((state: StoreState) => state.S2AReducer.roles);
+    const tableviewRoles = useSelector((state: StoreState) => state.S2AReducer.tableviewRoles);
+    /*const roles: Role[] = [
         { name: 'Admin' },
         { name: 'User' },
         { name: 'Guest' },
@@ -29,14 +30,14 @@ function EditAppTableviewRoles() {
         { name: 'Developer' },
         { name: 'Designer' },
         { name: 'Support' },
-    ];
+    ];*/
 
-    const tableviewRoles : Role[] = [
+    /*const tableviewRoles : Role[] = [
         { name: 'User' },
         { name: 'Guest' },
         { name: 'Manager' },
         { name: 'Editor' },
-    ];
+    ];*/
 
     /* React state for tableview roles. */
     const [changedTableviewRoles, setRoles] = useState<Role[]>(tableviewRoles);

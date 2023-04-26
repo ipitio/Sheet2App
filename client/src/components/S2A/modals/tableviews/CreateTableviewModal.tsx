@@ -1,22 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDatasources, viewTableviews, createTableview, finishCreation, StoreState} from '../../../../store/StoreContext';
+import store, { finishCreation, StoreState} from '../../../../store/StoreContext';
 import { Datasource, ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Checkbox, Modal, TextField, FormControlLabel, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { createTableview, viewDatasources, viewTableviews } from '../../../../store/StoreController';
 
 function CreateTableviewModal() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
     
     useEffect(() => {
         dispatch(viewDatasources());
     }, []);
 
     /* Redux hooks into store. */
-    //const datasources = useSelector((state: StoreState) => state.S2AReducer.datasources);
-    const datasources: Datasource[] = [
+    const datasources = useSelector((state: StoreState) => state.S2AReducer.datasources);
+    /*const datasources: Datasource[] = [
         {
           id: 1,
           name: 'Sales Data',
@@ -47,7 +48,7 @@ function CreateTableviewModal() {
           spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/5gJkL234MnoPq5678/edit#gid=0',
           sheetName: 'Employees',
         }
-    ];
+    ];*/
 
     const currentModalType = useSelector((state: StoreState) => state.S2AReducer.currentModalType);
 

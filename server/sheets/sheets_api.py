@@ -12,6 +12,7 @@ from googleapiclient.errors import HttpError
 
 from openpyxl.utils.cell import get_column_letter
 from sheets.utils import *
+from sheets.auth import get_credentials
 
 # Allow the API to have complete control over the spreadsheet with this scope
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -46,59 +47,6 @@ def get_creds():
     return creds
 
 
-def get_credentials(tokens):
-    """
-    Returns a credentials objects to access Google sheets operations
-
-    Args:
-        tokens (dict or json): the dict or json object containing access_token, refresh_token,
-            client_id, client_secret
-    Returns:
-        Credentials: the Credentials object to be used for Google sheets operations
-    """
-    
-    auth_info = {
-        "access_token": tokens["access_token"],
-        "refresh_token": tokens["refresh_token"],
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "client_id": os.getenv("OAUTH_CLIENT_ID"),
-        "client_secret": os.getenv('OAUTH_CLIENT_SECRET')
-    }
-    creds = Credentials.from_authorized_user_info(auth_info)
-
-    return creds
-
-
-def refresh_tokens(refresh_token):
-    """
-    Refreshes oauth tokens
-
-    Args:
-        tokens (dict or json): the dict or json object containing access_token, refresh_token,
-            client_id, client_secret
-    Returns:
-        dict or json: a dict or json object containing the refreshed token values
-    """
-    try:
-        auth_info = {
-            "refresh_token": refresh_token,
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "client_id": os.getenv("OAUTH_CLIENT_ID"),
-            "client_secret": os.getenv('OAUTH_CLIENT_SECRET')
-        }
-        creds = Credentials.from_authorized_user_info(auth_info)
-        creds.refresh(Request())
-        refreshed_tokens = {
-            "access_token": creds.token,
-            "refresh_token": creds.refresh_token
-        }
-
-        return refreshed_tokens, HTTPStatus.OK
-    except Exception as e:
-        print(e)
-        return {}, HTTPStatus.INTERNAL_SERVER_ERROR
-
-
 # Create a spreadsheet and return the new spreadsheet ID.
 def create_spreadsheet(tokens, title):
     try:
@@ -113,9 +61,10 @@ def create_spreadsheet(tokens, title):
         )
 
         # Return the newly created spreadsheets' ID number
-        return spreadsheet.get("spreadsheetId")
+        return spreadsheet.get("spreadsheetId"), HTTPStatus.OK
     except HttpError as err:
         print(err)
+        return err, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Retrieve data from a spreadsheet. If a range is specified, retrieve all data from within that range.
@@ -130,7 +79,7 @@ def get_data(tokens, spreadsheet_id, sheet_id=None, range=None, majorDimension="
         # If no sheet_id is specified, then it is assumed that the first sheet is being requested.
         # If it is specified, then we need to find the name of the sheet with the specified sheet_id
         sheet_name = ""
-        if sheet_id is not None:
+        if sheet_id != None:
             sheets_info = (
                 sheet.get(spreadsheetId=spreadsheet_id).execute().get("sheets")
             )
@@ -169,10 +118,10 @@ def get_data(tokens, spreadsheet_id, sheet_id=None, range=None, majorDimension="
         )
 
         # Return the data stored in the spreadsheet as a 2 dimensional list.
-        return result.get("values", [])
+        return result.get("values", []), HTTPStatus.OK
     except HttpError as err:
         print(err)
-        return []
+        return [], HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Retrieve column data for certain specified columns Expects columns to be a
@@ -220,10 +169,10 @@ def get_column_data(tokens, spreadsheet_id, sheet_id, columns) -> list:
         for values in result.get("valueRanges"):
             column_data.extend(values.get("values"))
 
-        return column_data
+        return column_data, HTTPStatus.OK
     except HttpError as err:
         print(err)
-        return []
+        return [], HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Update a specific cell in the spreadsheet. This function only works for one
@@ -270,10 +219,11 @@ def update_cell(tokens, spreadsheet_id, sheet_id, value_to_update, row_index, co
             .execute()
         )
 
-        return res
+        return res, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
+        return err, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # For batch updating an entire record / row. Must pass the entire new row as an array
@@ -317,10 +267,11 @@ def update_row(tokens, spreadsheet_id, sheet_id, updated_row_data, row_index):
             .execute()
         )
 
-        return res
+        return res, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
+        return err, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Insert a new record / row in the spreadsheet. The data in row_to_insert must be passed as a list, where every element in the list
@@ -379,10 +330,11 @@ def insert_row(tokens, spreadsheet_id, sheet_id, row_to_insert, row_index=-1):
             .execute()
         )
 
-        return res
+        return res, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
+        return err, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Delete a record (or row) from the spreadsheet
@@ -416,10 +368,11 @@ def delete_row(tokens, spreadsheet_id, sheet_id, row_index):
             .execute()
         )
 
-        return res
+        return res, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
+        return err, HTTPStatus.INTERNAL_SERVER_ERROR
 
     return
 
@@ -456,9 +409,10 @@ def write_column(tokens, spreadsheet_id, sheet_id, column_data, column_index):
         
         res = request.execute()
 
-        return res
+        return res, HTTPStatus.OK
     except HttpError as err:
         print(err)
+        return err, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_metadata(tokens, spreadsheet_id):
@@ -470,9 +424,10 @@ def get_metadata(tokens, spreadsheet_id):
         )
         sheets = sheet_metadata.get("sheets", "")
 
-        return sheets
+        return sheets, HTTPStatus.OK
     except HttpError as err:
         print(err)
+        return err, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_spreadsheet_value_type(value):
@@ -510,21 +465,23 @@ def get_num_rows(tokens, spreadsheet_id, sheet_id) -> int:
             if sheet["properties"]["sheetId"] == sheet_id:
                 num_rows = sheet["properties"]["gridProperties"]["rowCount"]
                 return num_rows
-        return 0
+        return 0, HTTPStatus.OK
     except HttpError as err:
         print(err)
-        return 0
+        return 0, HTTPStatus.INTERNAL_SERVER_ERROR
     
     
 def get_end_user_roles(tokens, role_mem_url, email):
     spreadsheet_id = get_spreadsheet_id(role_mem_url)
     sheet_id = get_gid(role_mem_url)
     
-    role_data = get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, majorDimension="COLUMNS")
+    role_data, response_code = get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, majorDimension="COLUMNS")
+    if response_code != HTTPStatus.OK:
+        return [], response_code
     
     roles = []
     for role_col in role_data[1:]:
         if email in role_col[1:]:
             roles.append(role_col[0])
             
-    return roles
+    return roles, HTTPStatus.OK

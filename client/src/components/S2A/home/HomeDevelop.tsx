@@ -21,8 +21,8 @@ function HomeDevelop() {
     }, []);
 
     /* Redux hooks into store. */
-    //const devApps = useSelector((state: StoreState) => state.S2AReducer.devApps);
-    const devApps: App[] = [
+    const devApps = useSelector((state: StoreState) => state.S2AReducer.devApps);
+    /*const devApps: App[] = [
         {
           id: 1,
           name: "My First App",
@@ -93,7 +93,7 @@ function HomeDevelop() {
           roleMemUrl: "https://example.com/role/membership",
           isPublished: false
         }
-      ];
+      ]; */
       
 
     /* Event handlers. */

@@ -1,11 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { deleteApp, finishDeletion, StoreState } from '../../../../store/StoreContext';
+import store, { finishDeletion, StoreState } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal } from '@mui/material';
-import { viewDevApps } from '../../../../store/StoreController';
+import { deleteApp, viewDevApps } from '../../../../store/StoreController';
 
 
 function DeleteAppModal() {

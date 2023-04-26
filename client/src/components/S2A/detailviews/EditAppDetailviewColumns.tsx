@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDetailviewColumns, editDetailviewColumns, StoreState } from '../../../store/StoreContext';
+import store, { StoreState } from '../../../store/StoreContext';
 import { Column } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/detailviews/EditAppDetailviewColumnsStyles';
@@ -11,9 +11,10 @@ import SaveIcon from '@mui/icons-material/Save';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { editDetailviewColumns, viewDetailviewColumns } from '../../../store/StoreController';
 
 function EditAppDetailviewColumns() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     useEffect(() => {
         dispatch(viewDetailviewColumns());

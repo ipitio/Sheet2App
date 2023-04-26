@@ -41,5 +41,5 @@ def get_spreadsheet_id(url):
 
 def get_gid(url):
     # ex: https://docs.google.com/spreadsheets/d/1mxIVSQbNFoYjqtO2A5i-WBIrXtc7URaJdTBT5zpTO1A/edit#gid=0
-    return url.split("gid=")[1]
+    return int(url.split("gid=")[1])
     

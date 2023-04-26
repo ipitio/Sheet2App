@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDatasources, viewDetailviews, editDetailview, finishEdit, StoreState} from '../../../../store/StoreContext';
+import store, { finishEdit, StoreState} from '../../../../store/StoreContext';
 import { Datasource, Detailview, ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Checkbox, Modal, TextField, FormControlLabel, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { editDetailview, viewDatasources, viewDetailviews } from '../../../../store/StoreController';
 
 function EditDetailviewModal() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
     
     useEffect(() => {
         dispatch(viewDatasources());

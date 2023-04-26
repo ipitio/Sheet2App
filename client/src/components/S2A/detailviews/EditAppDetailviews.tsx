@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDetailviews, setCurrentDetailview, setCurrentModalType, markDetailviewToEdit, markDetailviewToDelete, StoreState} from '../../../store/StoreContext';
+import store, { setCurrentDetailview, setCurrentModalType, markDetailviewToEdit, markDetailviewToDelete, StoreState} from '../../../store/StoreContext';
 import { Datasource, Detailview, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/detailviews/EditAppDetailviewsStyles";
@@ -12,10 +12,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import PeopleIcon from '@mui/icons-material/People';
 import EditIcon from '@mui/icons-material/Edit';
+import { viewDetailviews } from '../../../store/StoreController';
 
 function EditAppDetailviews() {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     useEffect(() => {
         dispatch(viewDetailviews());
@@ -23,9 +24,9 @@ function EditAppDetailviews() {
 
     /* Redux hooks into store. */
     const currApp = useSelector((state: StoreState) => state.S2AReducer.currentApp);
-    //const detailviews = useSelector((state: StoreState) => state.S2AReducer.detailviews);
+    const detailviews = useSelector((state: StoreState) => state.S2AReducer.detailviews);
 
-    const datasources: Datasource[] = [
+    /*const datasources: Datasource[] = [
         {
             id: 1,
             name: "Employee Data",
@@ -44,9 +45,9 @@ function EditAppDetailviews() {
             spreadsheetUrl: "https://docs.google.com/spreadsheets/d/789ghi/edit",
             sheetName: "Customer Details",
         },
-    ];
+    ];*/
     
-    const detailviews: Detailview[] = [
+    /*const detailviews: Detailview[] = [
         {
             id: 1,
             name: "Employees",
@@ -68,7 +69,7 @@ function EditAppDetailviews() {
             canEdit: true,
             datasource: datasources[2],
         },
-    ];
+    ];*/
 
      /* Event handlers. */
 

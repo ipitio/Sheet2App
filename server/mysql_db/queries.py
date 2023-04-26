@@ -14,10 +14,9 @@ import sheets.utils
 # Create
 def create_creator(creator_email):
     try:
-        print("HELLO WORLD 123")
         validate_email(creator_email)
         creator, created = Creator.objects.get_or_create(email=creator_email)
-        print("TESTING 123")
+
         return creator, HTTPStatus.OK
     except ValidationError as e:
         return f"Error: {e}", HTTPStatus.BAD_REQUEST
@@ -62,10 +61,10 @@ def create_datasource(app_id, spreadsheet_url, spreadsheet_id, gid, datasource_n
 
 def create_datasource_column(datasource_id, column_index, name, is_filter, is_user_filter, is_edit_filter):
     try:
-        exists = DatasourceColumn.objects.exists(
-            datasource=datasource_id, column_index=column_index, name=name,
+        exists = DatasourceColumn.objects.filter(
+            datasource_id=datasource_id, column_index=column_index, name=name,
             is_filter=is_filter, is_user_filter=is_user_filter, is_edit_filter=is_edit_filter
-        )
+        ).exists()
         if not exists:
             new_datasource_column = DatasourceColumn.objects.create(
                 datasource_id=datasource_id,
@@ -159,14 +158,6 @@ def create_detail_view(app_id, name, datasource_id):
 
 # Publish
 def publish_app(app_id):
-    """
-    Publishes an app
-
-    Args:
-        app_id (int): the id of the app
-    Returns:
-        _type_: _description_
-    """
     try:
         app = Application.objects.get(id=app_id)
         app.is_published = True
@@ -178,14 +169,6 @@ def publish_app(app_id):
 
 
 def unpublish_app(app_id):
-    """
-    Unpublishes an app
-
-    Args:
-        app_id (int): the id of the app
-    Returns:
-        _type_: _description_
-    """
     try:
         app = Application.objects.get(id=app_id)
         app.is_published = False
@@ -198,14 +181,6 @@ def unpublish_app(app_id):
 
 # Get
 def get_creator(creator_email):
-    """
-    Gets a creator
-
-    Args:
-        creator_email (string): the email of the creator
-    Returns:
-        _type_: _description_
-    """
     try:
         creator = Creator.objects.filter(email=creator_email).values()[0]
         return creator, HTTPStatus.OK
@@ -214,14 +189,6 @@ def get_creator(creator_email):
 
 
 def get_app_by_id(app_id):
-    """
-    Gets an app
-
-    Args:
-        app_id (int): the id of the app
-    Returns:
-        _type_: _description_
-    """
     try:
         app = Application.objects.get(id=app_id)
         return app, HTTPStatus.OK
@@ -254,14 +221,6 @@ def get_all_unpublished_apps_with_creator_email():
 
 
 def get_datasource_by_id(datasource_id):
-    """
-    Gets a datasource
-
-    Args:
-        datasource_id (int): the id of the datasource
-    Returns:
-        _type_: _description_
-    """
     try:
         datasource = Datasource.objects.get(id=datasource_id)
         return datasource, HTTPStatus.OK
@@ -288,8 +247,8 @@ def get_datasource_by_table_view_id(table_view_id):
         table = TableView.objects.get(id=table_view_id)
         datasource = Datasource.objects.filter(id=table.datasource_id).values(
             "id", "name", "spreadsheet_url", "gid"
-        )[0]
-        datasource = mysql_db.utils.annotate_datasources(datasource)
+        )
+        datasource = mysql_db.utils.annotate_datasources(datasource)[0]
 
         return datasource, HTTPStatus.OK
     except Exception as e:
@@ -313,7 +272,9 @@ def get_datasource_by_detail_view_id(detail_view_id):
 
 def get_datasource_columns_by_datasource_id(datasource_id):
     try:
-        datasource_columns = DatasourceColumn.objects.filter(datasource_id=datasource_id).values()
+        datasource_columns = DatasourceColumn.objects.filter(
+            datasource_id=datasource_id, is_filter=False, is_user_filter=False, is_edit_filter=False
+        ).values()
         datasource_columns = mysql_db.utils.annotate_datasource_columns(datasource_columns)
         datasource_columns = list(datasource_columns)
         
@@ -361,6 +322,42 @@ def get_roles_for_table_view(table_view_id):
         roles = [{ "name": perm["role"] } for perm in table_view_perms]
         
         return roles, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def get_table_view_columns(table_view_id):
+    try:
+        table_view = TableView.objects.get(id=table_view_id)
+        table_columns = DatasourceColumn.objects.filter(
+            datasource_id=table_view.datasource_id, 
+            is_filter=False, is_user_filter=False, is_edit_filter=False
+        )
+        table_columns = table_columns.values()
+        table_columns = mysql_db.utils.annotate_table_view_viewable_columns(table_columns, table_view.id)
+        table_columns = list(table_columns)
+
+        filter_column_name = f"{table_view.id} {table_view.name} Filter"
+        user_filter_column_name = f"{table_view.id} {table_view.name} User Filter"
+
+        filter_column = DatasourceColumn.objects.get(
+            datasource_id=table_view.datasource_id, name=filter_column_name,
+            is_filter=True, is_user_filter=False, is_edit_filter=False
+        )
+        
+        user_filter_column = DatasourceColumn.objects.get(
+            datasource_id=table_view.datasource_id, name=user_filter_column_name,
+            is_filter=False, is_user_filter=True, is_edit_filter=False
+        )
+        
+        columns = {
+            "table_columns": table_columns,
+            "filter_column": filter_column,
+            "user_filter_column": user_filter_column
+        }
+
+        return columns, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
@@ -418,25 +415,16 @@ def get_detail_view_viewable_columns(detail_view_id):
 
 # Update
 def update_app(app):
-    """
-    Updates an app
-
-    Args:
-        app_id (int): the id of the app
-        app_name (string): the name of the app
-        role_mem_url (string): the role member url of the app
-    Returns:
-        tuple: output of the query, 200 if query was successful, 500 if not
-    """
     try:
         app_id = app["id"]
         updated_app = Application.objects.get(id=app_id)
         updated_app.name = app["name"]
         updated_app.role_mem_url = app["roleMemUrl"]
-        app.save()
+        updated_app.save()
 
         return app, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -450,6 +438,7 @@ def update_datasource(datasource):
 
         return datasource, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -477,7 +466,7 @@ def update_datasource_columns(columns):
 def update_table_view(table_view):
     try:
         updated_table_view = TableView.objects.get(id=table_view["id"])
-        updated_table_view.datasource_id = table_view["datasource_id"]
+        updated_table_view.datasource_id = table_view["datasource"]["id"]
         updated_table_view.name = table_view["name"]
         updated_table_view.can_view = table_view["canView"]
         updated_table_view.can_add = table_view["canAdd"]
@@ -500,9 +489,9 @@ def update_table_view_viewable_columns(table_view_id, columns):
             column_id = column["id"]
             viewable = column["viewable"]
             
-            exists_in_viewable_cols = TableViewViewableColumn.objects.exists(
+            exists_in_viewable_cols = TableViewViewableColumn.objects.filter(
                 table_view_id=table_view_id, datasource_column_id=column_id
-            )
+            ).exists()
             
             if viewable and not exists_in_viewable_cols:
                 viewable_column = TableViewViewableColumn.objects.create(
