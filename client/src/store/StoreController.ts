@@ -434,8 +434,11 @@ export const deleteTableview = createAsyncThunk('S2A/deleteTableview', async() =
  * @param {Tableview} tableview - The tableview to obtain the columns of.
  * @return {[Promise<Column[]>, boolean[] | null, string[] | null]} - A promise that resolves to the array of tableview columns and filter columns on success, rejects on failure.
  */
-async function getTableviewColumns(tableview: Tableview): Promise<[Column[], boolean[] | null, string[] | null]> {
+
+export const viewTableviewColumns = createAsyncThunk('S2A/viewTableviewColumns', async () => {
     try {
+        const tableview = store.getState().S2AReducer.currentTableview;
+
         const reqForm = await getRequestForm("POST", {"tableview": tableview});
         
         /* Send request and return promise resolving to an array of tableview columns if successful. */
@@ -448,13 +451,12 @@ async function getTableviewColumns(tableview: Tableview): Promise<[Column[], boo
         const filterColumn: boolean[] | null = data.filterColumn;
         const userFilterColumn: string[] | null = data.userFilterColumn;
         
-        return [tableviewColumns, filterColumn, userFilterColumn];
+        return {tableviewColumns, filterColumn, userFilterColumn};
     }
     catch(err) {
         return Promise.reject(`getTableviewColumns failed with the error: ${err}`);
     }
-}
-
+})
 
 /**
  * Requests to edit tableview columns.
@@ -464,8 +466,10 @@ async function getTableviewColumns(tableview: Tableview): Promise<[Column[], boo
  * @param {string[] | null} userFilterColumn- The array of string values corresponding to each record indicating if the view should show this user the record. If null, no filter.
  * @return {Promise <void>} - A promise that resolves on success, rejects on failure.
  */
-async function editTableviewColumns(tableview: Tableview, tableviewColumns: Column[], filterColumn: boolean[] | null, userFilterColumn: string[] | null): Promise<void> {
+export const editTableviewColumns = createAsyncThunk('S2A/editTableviewColumns', async ({tableviewColumns, filterColumn, userFilterColumn}: {tableviewColumns: Column[], filterColumn: boolean[] | null, userFilterColumn: string[] | null}) => {
     try {
+        const tableview = store.getState().S2AReducer.currentTableview;
+
         const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewColumns": tableviewColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn});
         
         /* Send request and return promise resolving if edit successful. */
@@ -478,15 +482,17 @@ async function editTableviewColumns(tableview: Tableview, tableviewColumns: Colu
     catch(err) {
         return Promise.reject(`editTableviewColumns failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests an array of all tableview roles for a particular tableview.
  * @param {Tableview} tableview - The tableview to obtain the roles of.
  * @return {Promise<Role[]>} - A promise that resolves to the array of tableview roles on success, rejects on failure.
  */
-async function getTableviewRoles(tableview: Tableview): Promise<Role[]> {
+export const viewTableviewRoles = createAsyncThunk('S2A/viewTableviewRoles', async() => {
     try {
+        const tableview = store.getState().S2AReducer.currentTableview;
+
         const reqForm = await getRequestForm("POST", {"tableview": tableview});
         
         /* Send request and return promise resolving to an array of tableview roles if successful. */
@@ -501,7 +507,7 @@ async function getTableviewRoles(tableview: Tableview): Promise<Role[]> {
     catch(err) {
         return Promise.reject(`getTableviewRoles failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to edit tableview roles.
@@ -509,8 +515,10 @@ async function getTableviewRoles(tableview: Tableview): Promise<Role[]> {
  * @param {Role[]} tableviewRoles - The array of roles that should be given permission for the tableview.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editTableviewRoles(tableview: Tableview, tableviewRoles: Role[]): Promise<void> {
+export const editTableviewRoles = createAsyncThunk('S2A/editTableviewRoles', async (tableviewRoles: Role[]) => {
     try {
+        const tableview = store.getState().S2AReducer.currentTableview;
+
         const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewRoles": tableviewRoles});
         
         /* Send request and return promise resolving if edit successful. */
@@ -523,15 +531,17 @@ async function editTableviewRoles(tableview: Tableview, tableviewRoles: Role[]):
     catch(err) {
         return Promise.reject(`editTableviewRoles failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests an array of all detailviews for a particular app.
  * @param {App} app - The application to get the detailviews of.
  * @return {Promise<Detailview[]>} - A promise that resolves to the array of detailviews on success, rejects on failure.
  */
-async function getAppDetailviews(app: App): Promise<Detailview[]> {
+export const viewDetailviews = createAsyncThunk('S2A/viewDetailviews', async () => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
+
         const reqForm = await getRequestForm("POST", {"app": app});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
@@ -546,7 +556,8 @@ async function getAppDetailviews(app: App): Promise<Detailview[]> {
     catch(err) {
         return Promise.reject(`getAppDetailviews failed with the error: ${err}`);
     }
-}
+})
+
 
 /**
  * Requests to create a detailview for a particular app with a particular datasource.
@@ -853,10 +864,7 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
 }
 
 export default {
-                createTableview, editTableview, deleteTableview, 
-                getTableviewColumns, editTableviewColumns, 
-                getTableviewRoles, editTableviewRoles,  
-                getAppDetailviews, createDetailview, editDetailview, deleteDetailview, 
+                createDetailview, editDetailview, deleteDetailview, 
                 getDetailviewColumns,editDetailviewColumns, 
                 getDetailviewRoles, editDetailviewRoles, 
             

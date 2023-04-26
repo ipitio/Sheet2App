@@ -1,13 +1,14 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import { viewDetailviews, deleteDetailview, finishDeletion, StoreState } from '../../../../store/StoreContext';
+import store, { deleteDetailview, finishDeletion, StoreState } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal } from '@mui/material';
+import { viewDetailviews } from '../../../../store/StoreController';
 
 function DeleteDetailviewModal() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     /* Redux hooks into store. */
     const currentDetailviewToDelete = useSelector((state: StoreState) => state.S2AReducer.currentDetailviewToDelete);
