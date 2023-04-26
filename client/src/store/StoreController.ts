@@ -566,8 +566,10 @@ export const viewDetailviews = createAsyncThunk('S2A/viewDetailviews', async () 
  * @param {Datasource} datasource - The datasource the detailview will be created with.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function createDetailview(app: App, detailviewName: string, datasource: Datasource): Promise<void> {
+export const createDetailview = createAsyncThunk("S2A/createDetailView", async({detailviewName, datasource}: {detailviewName: string, datasource: Datasource}) => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
+
         const reqForm = await getRequestForm("POST", {"app": app, "detailviewName": detailviewName, "datasource": datasource});
 
         /* Send request and return promise resolving if creation successful. */
@@ -580,14 +582,14 @@ async function createDetailview(app: App, detailviewName: string, datasource: Da
     catch(err) {
         return Promise.reject(`createDetailview failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to edit a detailview.
  * @param {Detailview} detailview - The detailview to edit, with the updated information.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function editDetailview(detailview: Detailview): Promise<void> {
+export const editDetailview = createAsyncThunk('S2A/editDetailview', async(detailview: Detailview) => {
     try {
         const reqForm = await getRequestForm("PUT", {"detailview": detailview});
 
@@ -601,15 +603,18 @@ async function editDetailview(detailview: Detailview): Promise<void> {
     catch(err) {
         return Promise.reject(`editDetailview failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests to delete a detailview.
  * @param {Detailview} detailview- The detailview to delete.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
-async function deleteDetailview(detailview: Detailview): Promise<void> {
+
+export const deleteDetailview = createAsyncThunk('S2A/deleteDetailview', async() => {
     try {
+        const detailview = store.getState().S2AReducer.currentDetailviewToDelete;
+
         const reqForm = await getRequestForm("DELETE", {"detailview": detailview});
 
         /* Send request and return promise resolving if deletion successful. */
@@ -622,7 +627,7 @@ async function deleteDetailview(detailview: Detailview): Promise<void> {
     catch(err) {
         return Promise.reject(`deleteDetailview failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Requests an array of all detailview columns for a particular detailview.
