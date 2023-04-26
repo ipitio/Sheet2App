@@ -118,8 +118,10 @@ function EditDetailviewModal() {
     /* If the user confirms creation, create the detailview. */
     const handleEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
         if(currentDetailviewToEdit) {
-            dispatch(editDetailview(changedDetailview));
-            dispatch(viewDetailviews());
+            dispatch(editDetailview(changedDetailview))
+            .then(() => {
+                dispatch(viewDetailviews());
+            });
             handleCloseModal();
         }
     }

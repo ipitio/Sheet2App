@@ -70,8 +70,10 @@ function CreateDetailviewModal() {
         const datasource = datasources.find(ds => ds.name === datasourceName);
 
         if(detailviewName && datasource) {
-            dispatch(createDetailview({"detailviewName": detailviewName, "datasource": datasource }));
-            dispatch(viewDetailviews());
+            dispatch(createDetailview({"detailviewName": detailviewName, "datasource": datasource }))
+            .then(() => {
+                dispatch(viewDetailviews());
+            });
         }
     }
 
