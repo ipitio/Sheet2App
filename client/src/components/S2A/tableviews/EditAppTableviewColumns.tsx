@@ -313,8 +313,10 @@ function EditAppTableviewColumns() {
 
     /* If the save button is clicked. */
     const handleSaveTableviewColumns = () => {
-        dispatch(editTableviewColumns({"tableviewColumns": changedColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn}));
-        dispatch(viewTableviewColumns());
+        dispatch(editTableviewColumns({"tableviewColumns": changedColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn}))
+        .then(() => {
+            dispatch(viewTableviewColumns());
+        })
     }
 
     /* If the viewable checkbox is checked/unchecked. */
