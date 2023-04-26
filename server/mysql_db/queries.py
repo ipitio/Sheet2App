@@ -415,25 +415,16 @@ def get_detail_view_viewable_columns(detail_view_id):
 
 # Update
 def update_app(app):
-    """
-    Updates an app
-
-    Args:
-        app_id (int): the id of the app
-        app_name (string): the name of the app
-        role_mem_url (string): the role member url of the app
-    Returns:
-        tuple: output of the query, 200 if query was successful, 500 if not
-    """
     try:
         app_id = app["id"]
         updated_app = Application.objects.get(id=app_id)
         updated_app.name = app["name"]
         updated_app.role_mem_url = app["roleMemUrl"]
-        app.save()
+        updated_app.save()
 
         return app, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -447,6 +438,7 @@ def update_datasource(datasource):
 
         return datasource, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 

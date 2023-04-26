@@ -228,11 +228,10 @@ def get_app_roles(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
+
+    roles = [{"name": role} for role in roles[0][1:] if role != '']
     
-    roles = [{"name": role} for role in roles[1:] if role != '']
-    response_code = HTTPStatus.OK
-    
-    res_body = {}
+    res_body = { "roles": roles }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )

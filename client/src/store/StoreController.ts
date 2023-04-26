@@ -108,7 +108,7 @@ export const viewAppRoles = createAsyncThunk('S2A/viewAppRoles', async () => {
     try {
         const app = store.getState().S2AReducer.currentApp;
 
-        const reqForm = await getRequestForm("GET", {"app": app});
+        const reqForm = await getRequestForm("POST", {"app": app});
 
         /* Send request and return promise resolving to array of roles if successful. */
         const res = await fetch(`${DJANGO_URL}/getAppRoles`, reqForm);
