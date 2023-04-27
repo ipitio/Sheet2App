@@ -9,11 +9,9 @@ until nc -z -v -w30 $DB_HOST $DB_PORT; do
 done
 echo "MySQL is up."
 
-unapplied_migrations=$(python3 manage.py showmigrations --list | grep -v '\[X\]')
-if [ -n "$unapplied_migrations" ]; then
-    python3 manage.py makemigrations --no-input --merge
-    python3 manage.py migrate
-fi
+python3 manage.py makemigrations --noinput --merge
+python3 manage.py makemigrations --noinput
+python3 manage.py migrate
 
 python3 manage.py collectstatic --no-input
 python3 manage.py shell < createsuperuser.py

@@ -77,9 +77,11 @@ This runs the backend's tests. Add:
 
 ##### Database
 
-You can start a MySQL shell with:
+You can start a MySQL shell by executing:
 
-    docker exec -it mysql mysql -u root -p default-password
+    docker exec -it mysql mysql -u root -p Sheet2App
+
+And entering the password `default-password`.
 
 ##### Cache
 

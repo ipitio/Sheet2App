@@ -3,7 +3,6 @@ import s2a_api.views as views
 
 urlpatterns = [
     path('getLoggedIn', views.get_logged_in),
-    path('getLoggedIn', views.get_logged_in),
     path('refreshAccess', views.refresh_access_tokens),
     path('createCreator', views.create_creator),
     

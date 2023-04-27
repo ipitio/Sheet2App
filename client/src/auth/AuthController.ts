@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie';
 import { googleLogout } from '@react-oauth/google';
 import jwt_decode from "jwt-decode";
+import { createMemoryHistory } from 'history';
 
 const { TextEncoder, TextDecoder } = require('text-encoding-utf-8');
 global.TextEncoder = TextEncoder;
@@ -117,4 +118,13 @@ async function refreshAccess(): Promise <void> {
     }
 }
 
-export {getLoggedIn, getLoggedOut, refreshAccess, checkAccess};
+// Mock successful login
+const mockLogin = () => {
+    Cookies.set("email", "test@test.com");
+    Cookies.set("accessToken", "testAccessToken");
+    Cookies.set("refreshToken", "testRefreshToken");
+    const history = createMemoryHistory();
+    history.push('/S2A/home/develop');
+}
+
+export {getLoggedIn, getLoggedOut, refreshAccess, checkAccess, mockLogin};
