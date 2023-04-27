@@ -23,8 +23,7 @@ def connect_to_database():
 def init_database():
     """
     This function makes a connection to the MySQL account and initializes a database
-    named "Sheet2App". This function should only be called if the "Sheet2App" database
-    does not exist.
+    named "Sheet2App". If the database already exists, this function does nothing.
     """
 
     db = mysql.connector.connect(
@@ -33,7 +32,7 @@ def init_database():
         passwd=os.getenv("MYSQL_PASSWORD"),
     )
     cursor = db.cursor()
-    cursor.execute("CREATE DATABASE Sheet2App")
+    cursor.execute("CREATE DATABASE IF NOT EXISTS Sheet2App")
 
 
 def create_tables():
@@ -44,6 +43,8 @@ def create_tables():
 
     For the tables created refer to this document: https://docs.google.com/document/d/1uv-nUrxzD6n6sLsOc9ToreRj1P3yMjQMvRhTR3lhDhg/edit?usp=sharing
     """
+    
+    init_database()
     db = connect_to_database()
     cursor = db.cursor()
 

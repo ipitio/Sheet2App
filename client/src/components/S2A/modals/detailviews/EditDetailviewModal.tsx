@@ -138,7 +138,7 @@ function EditDetailviewModal() {
                     <InputLabel>Datasource</InputLabel>
                     <Select label="Datasource" value={changedDetailview.datasource.name}>
                         {datasources.map((ds) => (
-                            <MenuItem onClick={handleDatasourceChange} value={ds.name}>{ds.name}</MenuItem>
+                            <MenuItem onClick={handleDatasourceChange} value={ds.name} key={ds.id}>{ds.name}</MenuItem>
                         ))}
                     </Select>
                 </FormControl>

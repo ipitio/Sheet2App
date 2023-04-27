@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 import json
@@ -35,27 +35,30 @@ def parse_tokens(request):
 
 @csrf_exempt
 def get_logged_in(request):
-    body = json.loads(request.body)
-    auth_code = body["authCode"]
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            auth_code = body["authCode"]
 
-    auth_info, response_code = auth.oauth_login_user(
-        auth_code=auth_code
-    )
-    if response_code != HTTPStatus.OK:
-        return HttpResponse({}, status=response_code)
-    
-    creator, response_code = queries.create_creator(creator_email=auth_info["email"])
-    if response_code != HTTPStatus.OK:
-        return HttpResponse({}, status=response_code)
+            auth_info, response_code = auth.oauth_login_user(auth_code)
+            if response_code != HTTPStatus.OK:
+                return JsonResponse({'status': 'error', 'message': 'Authentication failed'}, status=response_code)
+            creator, response_code = queries.create_creator(auth_info["email"])
+            if response_code != HTTPStatus.OK:
+                return JsonResponse({'status': 'error', 'message': 'Creator creation failed'}, status=response_code)
 
-    res_body = {
-        "email": auth_info["email"],
-        "access_token": auth_info["access_token"],
-        "refresh_token": auth_info["refresh_token"],
-    }
-    response = HttpResponse(json.dumps(res_body), status=response_code)
+            res_body = {
+                "email": auth_info["email"],
+                "access_token": auth_info["access_token"],
+                "refresh_token": auth_info["refresh_token"],
+            }
+            return JsonResponse(res_body, status=response_code)
 
-    return response
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
+
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 
 @csrf_exempt
@@ -159,7 +162,7 @@ def get_developable_apps(request):
 @csrf_exempt
 def get_usable_apps(request):
     # uses sheets api
-    pass
+    return HttpResponse({}, status=HTTPStatus.OK)
 
 
 @csrf_exempt
@@ -290,12 +293,15 @@ def create_datasource(request):
 @csrf_exempt
 def get_app_datasources(request):
     body = json.loads(request.body)
-    app_id = body["app"]["id"]
+    if body.get("app") is not None:
+        app_id = body["app"]["id"]
+        datasources, response_code = queries.get_datasources_by_app_id(app_id=app_id)
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+    else:
+        datasources = []
+        response_code = HTTPStatus.OK
 
-    datasources, response_code = queries.get_datasources_by_app_id(app_id=app_id)
-    if response_code != HTTPStatus.OK:
-        return HttpResponse({}, status=response_code)
-    
     res_body = {"datasources": datasources}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code

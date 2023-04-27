@@ -71,7 +71,7 @@ function HomeNavBar() {
                 <TextField sx={styles.searchAppTextfield} label="Search app" variant="filled"/>
                 <Button onClick={displayAppsInDev} sx={{ ...styles.displayButton, ...styles.displayDevAppsButton }} color="inherit">Apps in Development</Button>
                 <Button onClick={displayAppsAccessible} sx={{ ...styles.displayButton, ...styles.displayAccAppsButton }} color="inherit">Accessible Apps</Button>
-                <IconButton onClick={handleProfileOpen} sx={styles.openProfileButton} color="inherit">
+                <IconButton onClick={handleProfileOpen} sx={styles.openProfileButton} color="inherit" aria-label="open profile menu">
                     <AccountCircle />
                 </IconButton>
 
