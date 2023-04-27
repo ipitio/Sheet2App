@@ -25,7 +25,8 @@ pytestmark = pytest.mark.django_db
 class SheetsAPITestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.spreadsheet_id = create_spreadsheet("Test Spreadsheet")
+        cls.tokens = "" # get_creds() # commented this to let tests finish
+        cls.spreadsheet_id = create_spreadsheet(cls.tokens, "Test Spreadsheet")
         cls.sheet_id = 0
         cls.range = "A2:C2"
         cls.columns = [0, 2]
@@ -35,7 +36,7 @@ class SheetsAPITestCase(TestCase):
         cls.updated_row_data = ["1", "2", "3"]
 
     def test_get_data_when_sheet_id_is_none(self):
-        self.assertListEqual(get_data(self.spreadsheet_id), [["Some", "Test", "Data"]])
+        self.assertListEqual(get_data(self.tokens, self.spreadsheet_id), [["Some", "Test", "Data"]])
 
     def test_get_data_when_sheet_range_is_none(self):
         self.assertListEqual(
@@ -45,18 +46,19 @@ class SheetsAPITestCase(TestCase):
 
     def test_get_data(self):
         self.assertListEqual(
-            get_data(self.spreadsheet_id, self.sheet_id, self.range),
+            get_data(self.tokens, self.spreadsheet_id, self.sheet_id, self.range),
             [["Second", "Row", "Data"]],
         )
 
     def test_get_column_data(self):
         self.assertListEqual(
-            get_column_data(self.spreadsheet_id, self.sheet_id, self.range),
+            get_column_data(self.tokens, self.spreadsheet_id, self.sheet_id, self.range),
             [["Some", "Second"], ["Data", "Data"]],
         )
 
     def test_update_cell(self):
         update_cell(
+            self.tokens,
             self.spreadsheet_id,
             self.sheet_id,
             self.value_to_update,
@@ -64,29 +66,29 @@ class SheetsAPITestCase(TestCase):
             self.column_index,
         )
         self.assertListEqual(
-            get_data(self.spreadsheet_id, self.sheet_id, "3:3"),
+            get_data(self.tokens, self.tokens, self.spreadsheet_id, self.sheet_id, "3:3"),
             [["Updated cell value"]],
         )
 
     def test_update_row(self):
-        update_row(self.spreadsheet_id, self.sheet_id, self.updated_row_data, 3)
+        update_row(self.tokens, self.spreadsheet_id, self.sheet_id, self.updated_row_data, 3)
         self.assertListEqual(
-            get_data(self.spreadsheet_id, self.sheet_id, "4:4"), [["1", "2", "3"]]
+            get_data(self.tokens, self.spreadsheet_id, self.sheet_id, "4:4"), [["1", "2", "3"]]
         )
 
     # Insert a row containing Inserted Row Data into the last row of the spreadsheet
     def test_insert_row(self):
-        insert_row(self.spreadsheet_id, self.sheet_id, ["Inserted", "Row", "Data"])
+        insert_row(self.tokens, self.spreadsheet_id, self.sheet_id, ["Inserted", "Row", "Data"])
         self.assertListEqual(
-            get_data(self.spreadsheet_id, self.sheet_id, "5:5"),
+            get_data(self.tokens, self.spreadsheet_id, self.sheet_id, "5:5"),
             [["Inserted", "Row", "Data"]],
         )
 
     # After the previous test has run, delete the row at index 5. This should mean the row
     # at index 5 is now empty.
     def test_delete_row(self):
-        delete_row(self.spreadsheet_id, self.sheet_id, 5)
-        self.assertListEqual(get_data(self.spreadsheet_id, self.sheet_id, "5:5"), [[]])
+        delete_row(self.tokens, self.spreadsheet_id, self.sheet_id, 5)
+        self.assertListEqual(get_data(self.tokens, self.spreadsheet_id, self.sheet_id, "5:5"), [[]])
 
 
 # Model tests
@@ -97,7 +99,7 @@ class GlobalDevelopersModelTest(TestCase):
 
     def test_fields(self):
         global_dev = GlobalDevelopers.objects.get(email="test@email.com")
-        self.assertEquals(global_dev.email, "test@email.com")
+        self.assertEqual(global_dev.email, "test@email.com")
 
 
 class CreatorModelTest(TestCase):
@@ -107,7 +109,7 @@ class CreatorModelTest(TestCase):
 
     def test_fields(self):
         creator = Creator.objects.get(email="creator@email.com")
-        self.assertEquals(creator.email, "creator@email.com")
+        self.assertEqual(creator.email, "creator@email.com")
 
 
 class ApplicationModelTest(TestCase):
@@ -124,10 +126,10 @@ class ApplicationModelTest(TestCase):
     def test_fields(self):
         creator = Creator.objects.get(email="creator@app.com")
         app = Application.objects.filter(creator=creator).first()
-        self.assertEquals(app.creator.email, "creator@app.com")
-        self.assertEquals(app.name, "Test App")
-        self.assertEquals(app.role_mem_url, "https://www.google.com")
-        self.assertEquals(app.is_published, False)
+        self.assertEqual(app.creator.email, "creator@app.com")
+        self.assertEqual(app.name, "Test App")
+        self.assertEqual(app.role_mem_url, "https://www.google.com")
+        self.assertEqual(app.is_published, False)
 
 
 class DatasourceModelTest(TestCase):
@@ -140,16 +142,16 @@ class DatasourceModelTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-        Datasource.objects.create(app=app, spreadsheet_id="1", gid=1, name="Test Data")
+        Datasource.objects.create(app=app, spreadsheet_url="com", spreadsheet_id="1", gid=1, name="Test Data")
 
     def test_fields(self):
         creator = Creator.objects.get(email="data@app.com")
         app = Application.objects.filter(creator=creator).first()
         data = Datasource.objects.filter(app=app).first()
-        self.assertEquals(data.app.creator.email, "data@app.com")
-        self.assertEquals(data.spreadsheet_id, "1")
-        self.assertEquals(data.gid, 1)
-        self.assertEquals(data.name, "Test Data")
+        self.assertEqual(data.app.creator.email, "data@app.com")
+        self.assertEqual(data.spreadsheet_id, "1")
+        self.assertEqual(data.gid, 1)
+        self.assertEqual(data.name, "Test Data")
 
 
 class DatasourceColumnModelTest(TestCase):
@@ -162,9 +164,7 @@ class DatasourceColumnModelTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-        data = Datasource.objects.create(
-            app=app, spreadsheet_id="1", gid=1, name="Test Data"
-        )
+        data = Datasource.objects.create(app=app, spreadsheet_url="com", spreadsheet_id="1", gid=1, name="Test Data")
         DatasourceColumn.objects.create(
             datasource=data,
             column_index=1,
@@ -183,16 +183,16 @@ class DatasourceColumnModelTest(TestCase):
         app = Application.objects.filter(creator=creator).first()
         data = Datasource.objects.filter(app=app).first()
         col = DatasourceColumn.objects.filter(datasource=data).first()
-        self.assertEquals(col.datasource.app.creator.email, "col@data.com")
-        self.assertEquals(col.column_index, 1)
-        self.assertEquals(col.name, "Test Column")
-        self.assertEquals(col.initial_value, "Test Value")
-        self.assertEquals(col.value_type, "text")
-        self.assertEquals(col.is_link_text, False)
-        self.assertEquals(col.is_table_ref, False)
-        self.assertEquals(col.is_filter, False)
-        self.assertEquals(col.is_user_filter, False)
-        self.assertEquals(col.is_edit_filter, False)
+        self.assertEqual(col.datasource.app.creator.email, "col@data.com")
+        self.assertEqual(col.column_index, 1)
+        self.assertEqual(col.name, "Test Column")
+        self.assertEqual(col.initial_value, "Test Value")
+        self.assertEqual(col.value_type, "text")
+        self.assertEqual(col.is_link_text, False)
+        self.assertEqual(col.is_table_ref, False)
+        self.assertEqual(col.is_filter, False)
+        self.assertEqual(col.is_user_filter, False)
+        self.assertEqual(col.is_edit_filter, False)
 
 
 class TableViewModelTest(TestCase):
@@ -205,19 +205,27 @@ class TableViewModelTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-        data = Datasource.objects.create(
-            app=app, spreadsheet_id="1", gid=1, name="Test Data"
+        data = Datasource.objects.create(app=app, spreadsheet_url="com", spreadsheet_id="1", gid=1, name="Test Data")
+        TableView.objects.create(
+            app=app,
+            datasource=data,
+            name="Test Table",
+            can_view=True,
+            can_add=False,
+            can_delete=False
         )
-        TableView.objects.create(app=app, datasource=data, name="Test Table")
 
     def test_fields(self):
         creator = Creator.objects.get(email="table@view.com")
         app = Application.objects.filter(creator=creator).first()
         data = Datasource.objects.filter(app=app).first()
         table = TableView.objects.filter(datasource=data).first()
-        self.assertEquals(table.app.creator.email, "table@view.com")
-        self.assertEquals(table.name, "Test Table")
-        self.assertEquals(table.datasource.app.creator.email, "table@view.com")
+        self.assertEqual(table.app.creator.email, "table@view.com")
+        self.assertEqual(table.name, "Test Table")
+        self.assertEqual(table.datasource.app.creator.email, "table@view.com")
+        self.assertEqual(table.can_view, True)
+        self.assertEqual(table.can_delete, False)
+        self.assertEqual(table.can_add, False)
 
 
 class DetailViewModelTest(TestCase):
@@ -230,21 +238,22 @@ class DetailViewModelTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-        data = Datasource.objects.create(
-            app=app, spreadsheet_id="1", gid=1, name="Test Data"
+        data = Datasource.objects.create(app=app, spreadsheet_url="com", spreadsheet_id="1", gid=1, name="Test Data")
+        DetailView.objects.create(
+            app=app,
+            datasource=data,
+            name="Test Detail",
+            can_view=True,
+            can_edit=False
         )
-        table = TableView.objects.create(app=app, datasource=data, name="Test Table")
-        DetailView.objects.create(table_view=table, name="Test Detail", record_index=2)
 
     def test_fields(self):
         creator = Creator.objects.get(email="detail@view.com")
         app = Application.objects.filter(creator=creator).first()
         data = Datasource.objects.filter(app=app).first()
-        table = TableView.objects.filter(datasource=data).first()
-        detail = DetailView.objects.filter(table_view=table).first()
-        self.assertEquals(detail.table_view.app.creator.email, "detail@view.com")
-        self.assertEquals(detail.name, "Test Detail")
-        self.assertEquals(detail.record_index, 2)
+        detail = DetailView.objects.filter(datasource=data).first()
+        self.assertEqual(detail.app.creator.email, "detail@view.com")
+        self.assertEqual(detail.name, "Test Detail")
 
 
 class TableViewPermModelTest(TestCase):
@@ -257,16 +266,18 @@ class TableViewPermModelTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-        data = Datasource.objects.create(
-            app=app, spreadsheet_id="1", gid=1, name="Test Data"
+        data = Datasource.objects.create(app=app, spreadsheet_url="com", spreadsheet_id="1", gid=1, name="Test Data")
+        table = TableView.objects.create(
+            app=app,
+            datasource=data,
+            name="Test Table",
+            can_view=True,
+            can_add=False,
+            can_delete=False
         )
-        table = TableView.objects.create(app=app, name="Test Table", datasource=data)
         TableViewPerm.objects.create(
             table_view=table,
             role="Test Role",
-            can_view=True,
-            can_delete=False,
-            can_add=False,
         )
 
     def test_fields(self):
@@ -275,11 +286,8 @@ class TableViewPermModelTest(TestCase):
         data = Datasource.objects.filter(app=app).first()
         table = TableView.objects.filter(datasource=data).first()
         perm = TableViewPerm.objects.filter(table_view=table).first()
-        self.assertEquals(perm.table_view.app.creator.email, "perm@table.com")
-        self.assertEquals(perm.role, "Test Role")
-        self.assertEquals(perm.can_view, True)
-        self.assertEquals(perm.can_delete, False)
-        self.assertEquals(perm.can_add, False)
+        self.assertEqual(perm.table_view.app.creator.email, "perm@table.com")
+        self.assertEqual(perm.role, "Test Role")
 
 
 class DetailViewPermModelTest(TestCase):
@@ -292,12 +300,13 @@ class DetailViewPermModelTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-        data = Datasource.objects.create(
-            app=app, spreadsheet_id="1", gid=1, name="Test Data"
-        )
-        table = TableView.objects.create(app=app, name="Test Table", datasource=data)
+        data = Datasource.objects.create(app=app, spreadsheet_url="com", spreadsheet_id="1", gid=1, name="Test Data")
         detail = DetailView.objects.create(
-            table_view=table, name="Test Detail", record_index=2
+            app=app,
+            datasource=data,
+            name="Test Detail",
+            can_view=True,
+            can_edit=False
         )
         DetailViewPerm.objects.create(detail_view=detail, role="Test Role")
 
@@ -305,13 +314,12 @@ class DetailViewPermModelTest(TestCase):
         creator = Creator.objects.get(email="perm@detail.com")
         app = Application.objects.filter(creator=creator).first()
         data = Datasource.objects.filter(app=app).first()
-        table = TableView.objects.filter(datasource=data).first()
-        detail = DetailView.objects.filter(table_view=table).first()
+        detail = DetailView.objects.filter(datasource=data).first()
         perm = DetailViewPerm.objects.filter(detail_view=detail).first()
-        self.assertEquals(
-            perm.detail_view.table_view.app.creator.email, "perm@detail.com"
+        self.assertEqual(
+            perm.detail_view.app.creator.email, "perm@detail.com"
         )
-        self.assertEquals(perm.role, "Test Role")
+        self.assertEqual(perm.role, "Test Role")
 
 
 class TableViewColumnModelTest(TestCase):
@@ -324,9 +332,7 @@ class TableViewColumnModelTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-        data = Datasource.objects.create(
-            app=app, spreadsheet_id="1", gid=1, name="Test Data"
-        )
+        data = Datasource.objects.create(app=app, spreadsheet_url="com", spreadsheet_id="1", gid=1, name="Test Data")
         col = DatasourceColumn.objects.create(
             datasource=data,
             column_index=1,
@@ -339,7 +345,14 @@ class TableViewColumnModelTest(TestCase):
             is_user_filter=False,
             is_edit_filter=False,
         )
-        table = TableView.objects.create(app=app, name="Test Table", datasource=data)
+        table = TableView.objects.create(
+            app=app,
+            datasource=data,
+            name="Test Table",
+            can_view=True,
+            can_add=False,
+            can_delete=False
+        )
         TableViewViewableColumn.objects.create(table_view=table, datasource_column=col)
 
     def test_fields(self):
@@ -349,7 +362,7 @@ class TableViewColumnModelTest(TestCase):
         col = DatasourceColumn.objects.filter(datasource=data).first()
         table = TableView.objects.filter(datasource=data).first()
         view_col = TableViewViewableColumn.objects.filter(table_view=table).first()
-        self.assertEquals(view_col.table_view.app.creator.email, "col@table.com")
+        self.assertEqual(view_col.table_view.app.creator.email, "col@table.com")
 
 
 class DetailViewColumnModelTest(TestCase):
@@ -362,9 +375,7 @@ class DetailViewColumnModelTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-        data = Datasource.objects.create(
-            app=app, spreadsheet_id="1", gid=1, name="Test Data"
-        )
+        data = Datasource.objects.create(app=app, spreadsheet_url="com", spreadsheet_id="1", gid=1, name="Test Data")
         col = DatasourceColumn.objects.create(
             datasource=data,
             column_index=1,
@@ -377,9 +388,12 @@ class DetailViewColumnModelTest(TestCase):
             is_user_filter=False,
             is_edit_filter=False,
         )
-        table = TableView.objects.create(app=app, name="Test Table", datasource=data)
         detail = DetailView.objects.create(
-            table_view=table, name="Test Detail", record_index=2
+            app=app,
+            datasource=data,
+            name="Test Detail",
+            can_view=True,
+            can_edit=False
         )
         DetailViewEditableColumn.objects.create(
             detail_view=detail, datasource_column=col
@@ -389,13 +403,12 @@ class DetailViewColumnModelTest(TestCase):
         creator = Creator.objects.get(email="col@detail.com")
         app = Application.objects.filter(creator=creator).first()
         data = Datasource.objects.filter(app=app).first()
-        col = DatasourceColumn.objects.filter(datasource=data).first()
-        table = TableView.objects.filter(datasource=data).first()
-        detail = DetailView.objects.filter(table_view=table).first()
+        detail = DetailView.objects.filter(datasource=data).first()
         detcol = DetailViewEditableColumn.objects.filter(detail_view=detail).first()
-        self.assertEquals(
-            detcol.detail_view.table_view.app.creator.email, "col@detail.com"
+        self.assertEqual(
+            detcol.detail_view.app.creator.email, "col@detail.com"
         )
+        self.assertEqual(detcol.datasource_column.name, "Test Column")
 
 
 # View Tests
@@ -410,8 +423,8 @@ class CreateCreatorTest(TestCase):
             ),
             content_type="application/json",
         )
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(Creator.objects.count(), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Creator.objects.count(), 1)
 
     def test_create_creator_invalid(self):
         response = self.client.post(
@@ -423,8 +436,8 @@ class CreateCreatorTest(TestCase):
             ),
             content_type="application/json",
         )
-        self.assertEquals(response.status_code, 400)
-        self.assertEquals(Creator.objects.count(), 0)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Creator.objects.count(), 0)
 
 
 class CreateAppTest(TestCase):
@@ -443,8 +456,8 @@ class CreateAppTest(TestCase):
             ),
             content_type="application/json",
         )
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(Application.objects.count(), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Application.objects.count(), 1)
 
 
 class CreateDatasourceTest(TestCase):
@@ -465,7 +478,7 @@ class CreateDatasourceTest(TestCase):
             "/createDatasource",
             json.dumps(
                 {
-                    "appID": app.id,
+                    "appID": app,
                     "spreadsheetID": "1",
                     "gid": 1,
                     "datasourceName": "Test Data",
@@ -473,8 +486,8 @@ class CreateDatasourceTest(TestCase):
             ),
             content_type="application/json",
         )
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(Datasource.objects.count(), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Datasource.objects.count(), 1)
 
 
 class CreateTableViewTest(TestCase):
@@ -487,7 +500,7 @@ class CreateTableViewTest(TestCase):
             role_mem_url="https://www.google.com",
             is_published=False,
         )
-        Datasource.objects.create(app=app, spreadsheet_id="1", gid=1, name="Test Data")
+        Datasource.objects.create(app=app, spreadsheet_url="com", spreadsheet_id="1", gid=1, name="Test Data")
 
     def test_create_table_view(self):
         creator = Creator.objects.get(email="table@view.com")
@@ -496,13 +509,13 @@ class CreateTableViewTest(TestCase):
             "/createTableView",
             json.dumps(
                 {
-                    "appID": app.id,
+                    "appID": app,
                 }
             ),
             content_type="application/json",
         )
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(TableView.objects.count(), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(TableView.objects.count(), 1)
 
 
 """ class GetDevelopableAppsTest(TestCase):
@@ -533,5 +546,5 @@ class CreateTableViewTest(TestCase):
             ),
             content_type="application/json",
         )
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(len(response.json()), 2) """
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2) """
