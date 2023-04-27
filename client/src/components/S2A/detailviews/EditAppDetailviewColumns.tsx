@@ -21,10 +21,10 @@ function EditAppDetailviewColumns() {
     }, []);
 
      /* Redux hooks into store. */
-    //const tableviewColumns = useSelector((state: StoreState) => state.S2AReducer.tableviewColumns);
-    //const editFilterColumn = useSelector((state: StoreState) => state.S2AReducer.editFilterColumn);
+    const detailviewColumns = useSelector((state: StoreState) => state.S2AReducer.detailviewColumns);
+    const editFilterColumn = useSelector((state: StoreState) => state.S2AReducer.editFilterColumn);
 
-    const detailviewColumns: Column[] = [
+    /*const detailviewColumns: Column[] = [
         {
           id: 1,
           name: 'Column 1',
@@ -285,9 +285,9 @@ function EditAppDetailviewColumns() {
           viewable: false,
           editable: true
         },
-     ]
+     ]*/
 
-    const editFilterColumn = [true, true, true, false, false, true, false, true, false, true];
+    // const editFilterColumn = [true, true, true, false, false, true, false, true, false, true];
 
     /* React state for conditional rendering. */
     const [display, setDisplay] = useState<string>("Columns");

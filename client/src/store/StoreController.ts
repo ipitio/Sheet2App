@@ -688,8 +688,8 @@ export const editDetailviewColumns = createAsyncThunk('S2A/editDetailviewColumns
  */
 export const viewDetailviewRoles = createAsyncThunk('S2A/viewDetailviewRoles', async() => {
     try {
-        const detailview = store.getState().S2AReducer.detailviewRoles;
-
+        const detailview = store.getState().S2AReducer.currentDetailview;
+        console.log(detailview);
         const reqForm = await getRequestForm("POST", {"detailview": detailview});
         
         /* Send request and return promise resolving to an array of detailview roles if successful. */

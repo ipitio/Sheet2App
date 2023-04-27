@@ -596,7 +596,7 @@ def update_detail_view_role_perms(detail_view_id, roles):
         # Create new role perms
         for role in roles:
             role_name = role["name"]
-            new_role_perm = TableViewPerm.objects.create(
+            new_role_perm = DetailViewPerm.objects.create(
                 detail_view_id=detail_view_id, role=role_name
             )
             
