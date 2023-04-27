@@ -289,8 +289,10 @@ function EditAppDatasourceColumns() {
 
     /* If the save button is clicked. */
     const handleSaveDatasourceColumns = (event: React.MouseEvent<HTMLButtonElement>) => {
-        dispatch(editDatasourceColumns(changedColumns));
-        dispatch(viewDatasourceColumns());
+        dispatch(editDatasourceColumns(changedColumns))
+        .then(() => {
+          dispatch(viewDatasourceColumns());
+        });
     }
 
     /* If the initial value textfield is altered. */

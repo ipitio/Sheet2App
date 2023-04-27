@@ -46,9 +46,13 @@ function EditAppTableviewRoles() {
 
      /* If the save button is clicked. */
     const handleSaveTableviewRoles = () => {
-        dispatch(editTableviewRoles(changedTableviewRoles));
-        dispatch(viewAppRoles());
-        dispatch(viewTableviewRoles());
+        dispatch(editTableviewRoles(changedTableviewRoles))
+        .then(() => {
+            dispatch(viewAppRoles());
+        })
+        .then(() => {
+            dispatch(viewTableviewRoles());
+        });
     }
 
     /* If the tableview role change checkbox is checked/unchecked. */
