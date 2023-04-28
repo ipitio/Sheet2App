@@ -1,3 +1,5 @@
+import re
+
 # Function to convert the data type of the value as a Sheets-compatible
 # data type.
 def get_spreadsheet_value_type(value):
@@ -43,3 +45,7 @@ def get_gid(url):
     # ex: https://docs.google.com/spreadsheets/d/1mxIVSQbNFoYjqtO2A5i-WBIrXtc7URaJdTBT5zpTO1A/edit#gid=0
     return int(url.split("gid=")[1])
     
+    
+def is_valid_url(url):
+    url_regex = r'^https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9-_]+)\/edit#gid=([0-9]+)'
+    return re.match(url_regex, url)

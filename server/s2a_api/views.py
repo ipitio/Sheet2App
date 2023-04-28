@@ -126,7 +126,7 @@ def get_developable_apps(request):
     apps, response_code = queries.get_all_unpublished_apps_with_creator_email()
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-    
+
     developable_apps = []
     for app in apps:
         if app["creatorEmail"] == creator_email:
@@ -161,8 +161,38 @@ def get_developable_apps(request):
 
 @csrf_exempt
 def get_usable_apps(request):
-    # uses sheets api
-    return HttpResponse({}, status=HTTPStatus.OK)
+    body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    creator_email = body["email"]
+    
+    apps, response_code = queries.get_all_published_apps_with_creator_email()
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    accessible_apps = []
+    for app in apps:
+        role_mem_url = app["role_mem_url"]
+        
+        spreadsheet_id = sheets.utils.get_spreadsheet_id(role_mem_url)
+        gid = sheets.utils.get_gid(role_mem_url)
+        
+        roles_columns, response_code = sheets_api.get_data(
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, majorDimension="COLUMNS"
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+
+        for role_col in roles_columns:
+            if creator_email in role_col[1:]:
+                accessible_apps.append(app)
+    
+    
+    res_body = {"apps": accessible_apps }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
 
 
 @csrf_exempt
@@ -250,6 +280,10 @@ def create_datasource(request):
     spreadsheet_url = body["spreadsheetUrl"]
     sheetName = body["sheetName"]
     datasource_name = body["datasourceName"]
+    
+    if not sheets.utils.is_valid_url(spreadsheet_url):
+        print("Invalid Google Sheets URL")
+        return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
     
     spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
     gid = sheets.utils.get_gid(spreadsheet_url)

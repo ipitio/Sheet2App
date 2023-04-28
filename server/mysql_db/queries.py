@@ -218,6 +218,19 @@ def get_all_unpublished_apps_with_creator_email():
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def get_all_published_apps_with_creator_email():
+    try:
+        apps = Application.objects.filter(is_published=True).values(
+            'id', 'name', 'creator_id__email', "role_mem_url", "is_published"
+        )
+        apps = mysql_db.utils.annotate_apps(apps)
+        
+        return apps, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_datasource_by_id(datasource_id):
