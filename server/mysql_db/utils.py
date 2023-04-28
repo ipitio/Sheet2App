@@ -79,3 +79,4 @@ def annotate_detail_views(detail_views):
         canView=F("can_view"),
         canEdit=F("can_edit")
     )
+    return detail_views

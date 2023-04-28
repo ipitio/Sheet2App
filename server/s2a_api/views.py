@@ -265,12 +265,12 @@ def create_datasource(request):
     spreadsheet_headers, response_code = sheets_api.get_data(
         tokens=tokens, spreadsheet_id=spreadsheet_id, 
         sheet_id=gid, range="1:1", majorDimension="ROWS"
-    )[0]
+    )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
     datasource_id = new_datasource.id
-    for i, header in enumerate(spreadsheet_headers):
+    for i, header in enumerate(spreadsheet_headers[0]):
         if header == '':
             continue
         
