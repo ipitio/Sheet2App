@@ -12,6 +12,7 @@ import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { editDetailviewColumns, viewDetailviewColumns } from '../../../store/StoreController';
+import CircularProgress from '@mui/material/CircularProgress';
 
 function EditAppDetailviewColumns() {
     const dispatch = useDispatch<typeof store.dispatch>();
@@ -130,7 +131,10 @@ function EditAppDetailviewColumns() {
                 </IconButton>
                 
                 {/* Display Columns or Filters */}
-                {display === "Columns" ? (
+                {isLoading ? (<CircularProgress/>)
+                 :
+
+                display === "Columns" ? (
                     <Grid sx={styles.grid} container spacing={2}>
                         {/* Map each datasource column to a grid item. */}
                         {changedColumns.map((col) => (
@@ -183,7 +187,7 @@ function EditAppDetailviewColumns() {
                             ))}
                         </div>
                     </div>
-                }
+              }
             </div>
         </div>
     );
