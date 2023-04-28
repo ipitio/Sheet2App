@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, createDatasource, createTableview, deleteApp, deleteDatasource, deleteTableview, editApp, editDatasource, editDatasourceColumns, editTableview, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import storeController, { createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editTableview, editTableviewColumns, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -86,6 +86,9 @@ export interface IS2AState {
 
     /* The detailview marked for deletion on confirmation. */
     currentDetailviewToDelete: Detailview | null,
+
+    showSuccessAlert: boolean,
+    showErrorAlert: boolean
 }
 
 const S2AState: IS2AState = {
@@ -122,13 +125,21 @@ const S2AState: IS2AState = {
     currentDatasourceToDelete: null,
     currentTableviewToDelete: null,
     currentDetailviewToDelete: null,
+
+    showSuccessAlert: false,
+    showErrorAlert: false
 }
 
 export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        /* Detailview role related reducers. */
+        hideSuccessAlert: (state) => {
+            state.showSuccessAlert = false;
+        },
+        hideErrorAlert: (state) => {
+            state.showErrorAlert = false;
+        },
         /* Set current resource reducers. */
         setCurrentApp: (state, action: PayloadAction<App>) => {
             state.currentApp = action.payload;
@@ -279,9 +290,11 @@ export const S2AReducer = createSlice({
         });
 
         builder.addCase(editApp.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Edited app.")
         });
         builder.addCase(editApp.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`editApp failed with the error ${action.error?.message}`);
         });
 
@@ -302,23 +315,29 @@ export const S2AReducer = createSlice({
         });
 
         builder.addCase(createDatasource.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Created Datasource");
         });
         builder.addCase(createDatasource.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`createDatasource failed with the error ${action.error?.message}`);
         });
 
         builder.addCase(editDatasource.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Edited datasource.");
         });
         builder.addCase(editDatasource.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`editDatasource failed with the error ${action.error?.message}`);
         });
 
         builder.addCase(deleteDatasource.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Deleted datasource.");
         });
         builder.addCase(deleteDatasource.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`deleteDatasource failed with the error ${action.error?.message}`);
         });
 
@@ -331,9 +350,11 @@ export const S2AReducer = createSlice({
         });
 
         builder.addCase(editDatasourceColumns.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Edited datasource columns.");
         });
         builder.addCase(editDatasourceColumns.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`editDatasourceColumns failed with the error ${action.error?.message}`);
         });
 
@@ -347,24 +368,51 @@ export const S2AReducer = createSlice({
 
         /** Modify views */
         builder.addCase(createTableview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Created tableview.");
         });
         builder.addCase(createTableview.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`createTableview failed with the error ${action.error?.message}`);
         });
 
         builder.addCase(editTableview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Edited tableview.");
         });   
         builder.addCase(editTableview.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`editTableview failed with the error  ${action.error?.message}`);
         });
 
         builder.addCase(deleteTableview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Deleted tableview.");
         });   
         builder.addCase(deleteTableview.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`deleteTableview failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(createDetailview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(createDetailview.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(editDetailview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });   
+        builder.addCase(editDetailview.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(deleteDetailview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });   
+        builder.addCase(deleteDetailview.rejected, (state, action) => {
+            state.showErrorAlert = true;
         });
 
         builder.addCase(viewTableviewColumns.fulfilled, (state, action) => {
@@ -412,6 +460,20 @@ export const S2AReducer = createSlice({
         });
         builder.addCase(viewDetailviewRoles.rejected, (state, action) => {
             console.log(`viewDetailviewRoles failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(editDetailviewColumns.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(editDetailviewColumns.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(editTableviewColumns.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(editTableviewColumns.rejected, (state, action) => {
+            state.showErrorAlert = true;
         });
     }
   }
@@ -532,6 +594,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { 
+    hideSuccessAlert, hideErrorAlert,
     setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
     markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
     markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
