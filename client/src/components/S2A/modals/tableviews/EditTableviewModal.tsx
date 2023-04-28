@@ -17,39 +17,6 @@ function EditTableviewModal() {
 
     /* Redux hooks into store. */
     const datasources = useSelector((state: StoreState) => state.S2AReducer.datasources);
-    /*const datasources: Datasource[] = [
-        {
-          id: 1,
-          name: 'Sales Data',
-          spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/1aBcD123EfgHijKlmNop4567/edit#gid=0',
-          sheetName: 'Sales',
-        },
-        {
-          id: 2,
-          name: 'Marketing Data',
-          spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/2dEfG456HijKlmNop7890/edit#gid=0',
-          sheetName: 'Marketing',
-        },
-        {
-          id: 3,
-          name: 'Inventory Data',
-          spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/3eGhI890JklMnOq1234/edit#gid=0',
-          sheetName: 'Inventory',
-        },
-        {
-          id: 4,
-          name: 'Customer Data',
-          spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/4fHiJ567KlmNop8901/edit#gid=0',
-          sheetName: 'Customers',
-        },
-        {
-          id: 5,
-          name: 'Employee Data',
-          spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/5gJkL234MnoPq5678/edit#gid=0',
-          sheetName: 'Employees',
-        }
-    ];*/
-
     const currentTableviewToEdit = useSelector((state: StoreState) => state.S2AReducer.currentTableviewToEdit);
     const currentModalType = useSelector((state: StoreState) => state.S2AReducer.currentModalType);
 
