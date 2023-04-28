@@ -67,7 +67,7 @@ function EditAppDatasources() {
             {/* Edit App Datasources Display */}
             <div style={styles.editAppDatasourcesDisplay}>
                 <Typography sx={{fontSize: '32px', fontWeight: 'bold'}}>
-                  {`Edit Datasources for ${currApp?.name}`}
+                  {`${currApp?.name} Datasources`}
                 </Typography>
 
                 <Grid sx={styles.grid} container spacing={2}>  

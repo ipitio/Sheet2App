@@ -7,7 +7,7 @@ import { Datasource, Detailview, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/detailviews/EditAppDetailviewsStyles";
 import EditAppNavBar from "../navbars/EditAppNavBar";
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Box, Grid, IconButton, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import PeopleIcon from '@mui/icons-material/People';
@@ -125,8 +125,8 @@ function EditAppDetailviews() {
 
             {/* Edit App Detailviews Display */}
             <div style={styles.editAppDetailviewsDisplay}>
-            <Typography sx={{fontSize: '32px'}}>
-                {`Edit Detail Views for ${currentApp?.name}`}
+            <Typography sx={{fontSize: '32px', fontWeight: 'bold'}}>
+                {`${currentApp?.name} Detail Views`}
             </Typography>
                 <Grid sx={styles.grid} container spacing={2}>  
 

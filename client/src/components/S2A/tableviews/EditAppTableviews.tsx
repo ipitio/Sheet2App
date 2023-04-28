@@ -80,7 +80,7 @@ function EditAppTableviews() {
             {/* Edit App Tableviews Display */}
             <div style={styles.editAppTableviewsDisplay}>
                 <Typography sx={{fontSize: '32px', fontWeight: 'bold'}}>
-                    {`Edit Table Views for ${currApp?.name}`}
+                    {`${currApp?.name} Table Views`}
                 </Typography>
                 <Grid sx={styles.grid} container spacing={2}>  
 
