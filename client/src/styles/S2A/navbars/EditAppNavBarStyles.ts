@@ -22,7 +22,8 @@ const EditAppNavBarStyles: StyleContainer = {
   editAppTextfield: {
     marginLeft: '100px',
     minWidth: '400px',
-    background: 'linear-gradient(to bottom, #5a8cad, #6CA6CD)',
+    background: 'white',
+    borderRadius: '12px'
   },
   buttonContainer: {
     position: 'absolute',

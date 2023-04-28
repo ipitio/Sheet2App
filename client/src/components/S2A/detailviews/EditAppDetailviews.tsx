@@ -133,7 +133,7 @@ function EditAppDetailviews() {
                 {/* Map each app detailview to a grid item. */}
                 {detailviews.map((dv) => (
                     <Grid item xs={1.5} key={dv.id}>
-                        <div style={styles.gridItemContainer}>
+                        <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#9BE8FF"}}}>
                             {dv.name}
 
                             {/* Delete, edit columns, edit roles, edit buttons for detailviews. */}
@@ -149,7 +149,7 @@ function EditAppDetailviews() {
                             <IconButton id={dv.id.toString()} onClick={handleOpenEditModal} sx={styles.editDetailviewButton} title="Edit Detailview">
                                 <EditIcon fontSize="small"/>
                             </IconButton>                         
-                        </div>
+                        </Box>
                     </Grid>
                 ))}
                 </Grid>

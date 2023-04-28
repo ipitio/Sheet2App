@@ -7,7 +7,7 @@ import { Column, Datasource, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/datasources/EditAppDatasourcesStyles";
 import EditAppNavBar from "../navbars/EditAppNavBar";
-import { Typography, Button, Grid, IconButton, TextField, Modal, FormControlLabel, Checkbox } from '@mui/material';
+import { Box, Typography, Button, Grid, IconButton, TextField, Modal, FormControlLabel, Checkbox } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
@@ -75,7 +75,7 @@ function EditAppDatasources() {
                 {/* Map each app datasource to a grid item. */}
                 {datasources.map((ds) => (
                     <Grid item xs={1.5} key={ds.id}>
-                        <div style={styles.gridItemContainer}>
+                    <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#9BE8FF"}}}>
                             {ds.name}
 
                             {/* Edit, delete, and edit columns buttons for datasources. */}
@@ -88,7 +88,7 @@ function EditAppDatasources() {
                             <IconButton id={ds.id.toString()} onClick={handleOpenEditModal} sx={styles.editDatasourceButton} title="Edit Datasource">
                                 <EditIcon fontSize="small"/>
                             </IconButton>                         
-                        </div>
+                        </Box>
                     </Grid>
                 ))}
                 </Grid>

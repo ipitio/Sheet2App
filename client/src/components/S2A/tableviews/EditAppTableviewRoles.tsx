@@ -6,7 +6,7 @@ import { Role, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/tableviews/EditAppTableviewRolesStyles'
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
-import { Typography, Grid, Checkbox, IconButton, FormControlLabel } from '@mui/material';
+import { Typography, Grid, Checkbox, IconButton, FormControlLabel, Box } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import { viewAppRoles, viewTableviewRoles, editTableviewRoles } from '../../../store/StoreController';
 
@@ -82,7 +82,7 @@ function EditAppTableviewRoles() {
                     {/* Map each role to a grid item. */}
                     {roles.map((role) => (
                         <Grid item xs={1.5} key={role.name}>
-                            <div style={styles.gridItemContainer}>
+                            <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#9BE8FF"}}}>
                                 {/* Name */}
                                 <div style={styles.columnElement}>{role.name}</div>
 
@@ -92,7 +92,7 @@ function EditAppTableviewRoles() {
                                     label="Allow Access"
                                     sx={styles.columnElement}
                                 />
-                            </div>
+                            </Box>
                         </Grid>
                     ))}
                 </Grid>
