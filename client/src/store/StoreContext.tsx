@@ -241,6 +241,12 @@ export const S2AReducer = createSlice({
             state.devApps = [],
             state.accApps = [],
 
+            state.searchedDevApps = [],
+            state.searchedAccApps = [],
+
+            state.showSuccessAlert = false,
+            state.showErrorAlert = false,
+
             state.datasources = [],
             state.datasourceColumns = [],
 
