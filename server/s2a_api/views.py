@@ -126,7 +126,7 @@ def get_developable_apps(request):
     apps, response_code = queries.get_all_unpublished_apps_with_creator_email()
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-    
+
     developable_apps = []
     for app in apps:
         if app["creatorEmail"] == creator_email:
@@ -280,6 +280,10 @@ def create_datasource(request):
     spreadsheet_url = body["spreadsheetUrl"]
     sheetName = body["sheetName"]
     datasource_name = body["datasourceName"]
+    
+    if not sheets.utils.is_valid_url(spreadsheet_url):
+        print("Invalid Google Sheets URL")
+        return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
     
     spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
     gid = sheets.utils.get_gid(spreadsheet_url)
