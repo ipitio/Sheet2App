@@ -295,6 +295,7 @@ function EditAppDetailviewColumns() {
     /* React state for detailview columns. */
     const [changedColumns, setColumns] = useState<Column[]>(detailviewColumns);
     const [changedEditFilter, setEditFilter] = useState<boolean[] | null>(editFilterColumn);
+    const [shouldUseStore, setShouldUseStore] = useState(true);
 
     /* Event handlers. */
 
@@ -318,12 +319,14 @@ function EditAppDetailviewColumns() {
 
     /* If the viewable checkbox is checked/unchecked. */
     const handleViewableChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setShouldUseStore(false);
+
         const viewableCheckbox = event.currentTarget as HTMLInputElement;
         const colToEditIdx = changedColumns.findIndex(col => col.id === Number(viewableCheckbox.id));
         const newViewable = viewableCheckbox.checked;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...changedColumns];
+            const newColumns = [...(shouldUseStore ? detailviewColumns : changedColumns)];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], viewable: newViewable};
             setColumns(newColumns);
         }
@@ -331,14 +334,24 @@ function EditAppDetailviewColumns() {
 
     /* If the editable checkbox is checked/unchecked. */
     const handleEditableChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setShouldUseStore(false);
+
         const editableCheckbox = event.currentTarget as HTMLInputElement;
         const colToEditIdx = changedColumns.findIndex(col => col.id === Number(editableCheckbox.id));
         const newEditable = editableCheckbox.checked;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...changedColumns];
+          let newColumns;
+          if (detailviewColumns) {
+            newColumns = [...(shouldUseStore ? detailviewColumns : changedColumns)];
+          } else {
+            newColumns = [...changedColumns];
+          }
+
+          if (newColumns) {
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], editable: newEditable};
             setColumns(newColumns);
+          }
         }
     }
 
@@ -356,13 +369,23 @@ function EditAppDetailviewColumns() {
 
     /* If an edit filter checkbox is checked/unchecked. */
     const handleEditFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setShouldUseStore(false);
+
         const editFilterCheckbox = event.currentTarget as HTMLInputElement;
         const newEditFilterValue = editFilterCheckbox.checked;
 
         if(changedEditFilter) {
-            const newEditFilter = [ ...changedEditFilter ];
+          let newEditFilter;
+          if (editFilterColumn) {
+            newEditFilter = [ ...(shouldUseStore ? editFilterColumn : changedEditFilter) ];
+          } else {
+            newEditFilter = [ ...changedEditFilter ];
+          }
+
+          if (newEditFilter) {
             newEditFilter[Number(editFilterCheckbox.id)] = newEditFilterValue;
             setEditFilter(newEditFilter);
+          }
         }
     }
 
