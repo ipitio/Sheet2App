@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editTableview, editTableviewColumns, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import storeController, { createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -473,6 +473,20 @@ export const S2AReducer = createSlice({
             state.showSuccessAlert = true;
         });
         builder.addCase(editTableviewColumns.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(editDetailviewRoles.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(editDetailviewRoles.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(editTableviewRoles.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(editTableviewRoles.rejected, (state, action) => {
             state.showErrorAlert = true;
         });
     }

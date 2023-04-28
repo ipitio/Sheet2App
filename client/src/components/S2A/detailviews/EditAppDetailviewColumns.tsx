@@ -6,7 +6,7 @@ import { Column } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/detailviews/EditAppDetailviewColumnsStyles';
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
-import { Grid, Checkbox, IconButton, TextField, FormControlLabel, InputLabel } from '@mui/material';
+import { Grid, Checkbox, IconButton, TextField, FormControlLabel, InputLabel, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import AddIcon from '@mui/icons-material/Add';
@@ -19,6 +19,7 @@ function EditAppDetailviewColumns() {
      /* Redux hooks into store. */
     const detailviewColumns = useSelector((state: StoreState) => state.S2AReducer.detailviewColumns);
     const editFilterColumn = useSelector((state: StoreState) => state.S2AReducer.editFilterColumn);
+    const currentDetailview = useSelector((state: StoreState) => state.S2AReducer.currentDetailview);
 
     /* React state for conditional rendering. */
     const [display, setDisplay] = useState<string>("Columns");
@@ -117,6 +118,9 @@ function EditAppDetailviewColumns() {
 
             {/* Edit App Detailview Columns Display */}
             <div style={styles.editAppDetailviewColumnsDisplay}>
+            <Typography sx={{fontSize: '32px'}}>
+                {`Edit Columns for ${currentDetailview?.name}`}
+            </Typography>
                 {/* Save Changes Button */}
                 <IconButton onClick={handleSaveDetailviewColumns} sx={styles.saveButton} title="Save">
                     {"Save Changes"}
