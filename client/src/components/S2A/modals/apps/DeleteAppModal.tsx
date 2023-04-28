@@ -25,8 +25,10 @@ function DeleteAppModal() {
     /* If the user confirms deletion. */
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
         if(currentAppToDelete) {
-            dispatch(deleteApp());
-            dispatch(viewDevApps());
+            dispatch(deleteApp())
+            .then(() => {
+                dispatch(viewDevApps());
+            })
             handleCloseModal();
         }
     }

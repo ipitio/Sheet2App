@@ -261,8 +261,8 @@ def get_datasource_by_detail_view_id(detail_view_id):
         detail_view = DetailView.objects.get(id=detail_view_id)
         datasource = Datasource.objects.filter(id=detail_view.datasource_id).values(
             "id", "name", "spreadsheet_url", "gid"
-        )[0]
-        datasource = mysql_db.utils.annotate_datasources(datasource)
+        )
+        datasource = mysql_db.utils.annotate_datasources(datasource)[0]
 
         return datasource, HTTPStatus.OK
     except Exception as e:
@@ -532,7 +532,7 @@ def update_table_view_role_perms(table_view_id, roles):
 def update_detail_view(detail_view):
     try:
         update_detail_view = DetailView.objects.get(id=detail_view["id"])
-        update_detail_view.datasource_id = detail_view["datasource_id"]
+        update_detail_view.datasource_id = detail_view["datasource"]["id"]
         update_detail_view.name = detail_view["name"]
         update_detail_view.can_view = detail_view["canView"]
         update_detail_view.can_edit = detail_view["canEdit"]
@@ -596,7 +596,7 @@ def update_detail_view_role_perms(detail_view_id, roles):
         # Create new role perms
         for role in roles:
             role_name = role["name"]
-            new_role_perm = TableViewPerm.objects.create(
+            new_role_perm = DetailViewPerm.objects.create(
                 detail_view_id=detail_view_id, role=role_name
             )
             

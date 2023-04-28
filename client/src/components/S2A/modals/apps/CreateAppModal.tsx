@@ -30,8 +30,10 @@ function CreateAppModal() {
         const appName = input ? input.value : "";
 
         if(appName) {
-            dispatch(createApp(appName));
-            dispatch(viewDevApps());
+            dispatch(createApp(appName))
+            .then(() => {
+                dispatch(viewDevApps());
+            })
             handleCloseModal();
         }
     }

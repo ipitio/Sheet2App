@@ -16,8 +16,8 @@ function EditDetailviewModal() {
     }, []);
 
     /* Redux hooks into store. */
-    //const datasources = useSelector((state: StoreState) => state.S2AReducer.datasources);
-    const datasources: Datasource[] = [
+    const datasources = useSelector((state: StoreState) => state.S2AReducer.datasources);
+    /*const datasources: Datasource[] = [
         {
           id: 1,
           name: 'Sales Data',
@@ -48,7 +48,7 @@ function EditDetailviewModal() {
           spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/5gJkL234MnoPq5678/edit#gid=0',
           sheetName: 'Employees',
         }
-    ];
+    ];*/
 
     const currentDetailviewToEdit = useSelector((state: StoreState) => state.S2AReducer.currentDetailviewToEdit);
     const currentModalType = useSelector((state: StoreState) => state.S2AReducer.currentModalType);

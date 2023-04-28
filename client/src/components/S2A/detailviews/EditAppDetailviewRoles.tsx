@@ -19,9 +19,9 @@ function EditAppDetailviewRoles() {
     }, []);
 
     /* Redux hooks into store. */
-    //const roles = useSelector((state: StoreState) => state.S2AReducer.roles);
-    //const detailviewRoles = useSelector((state: StoreState) => state.S2AReducer.detailviewRoles);
-    const roles: Role[] = [
+    const roles = useSelector((state: StoreState) => state.S2AReducer.roles);
+    const detailviewRoles = useSelector((state: StoreState) => state.S2AReducer.detailviewRoles);
+    /*const roles: Role[] = [
         { name: 'Admin' },
         { name: 'User' },
         { name: 'Guest' },
@@ -30,14 +30,14 @@ function EditAppDetailviewRoles() {
         { name: 'Developer' },
         { name: 'Designer' },
         { name: 'Support' },
-    ];
+    ];*/
 
-    const detailviewRoles : Role[] = [
+    /*const detailviewRoles : Role[] = [
         { name: 'User' },
         { name: 'Guest' },
         { name: 'Manager' },
         { name: 'Editor' },
-    ];
+    ];*/
 
     /* React state for tableview roles. */
     const [changedDetailviewRoles, setRoles] = useState<Role[]>(detailviewRoles);
