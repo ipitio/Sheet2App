@@ -41,33 +41,6 @@ function EditAppTableviews() {
         sheetName: "Sheet2"
     };
 
-    /*const tableviews: Tableview[] = [
-        {
-            id: 1,
-            name: "Sales Table",
-            canView: true,
-            canAdd: true,
-            canDelete: true,
-            datasource: datasource1
-        },
-        {
-            id: 2,
-            name: "Customer Table",
-            canView: true,
-            canAdd: false,
-            canDelete: false,
-            datasource: datasource2
-        },
-        {
-            id: 3,
-            name: "Inventory Table",
-            canView: false,
-            canAdd: false,
-            canDelete: false,
-            datasource: datasource1
-        }
-    ];*/
-
     /* Event handlers. */
 
     /* If the delete icon next to a tableview is clicked. */
