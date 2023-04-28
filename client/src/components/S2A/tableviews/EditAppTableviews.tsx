@@ -7,7 +7,7 @@ import { Datasource, Tableview, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/tableviews/EditAppTableviewsStyles";
 import EditAppNavBar from "../navbars/EditAppNavBar";
-import { Grid, IconButton } from '@mui/material';
+import { Grid, IconButton, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import PeopleIcon from '@mui/icons-material/People';
@@ -26,21 +26,6 @@ function EditAppTableviews() {
     /* Redux hooks into store. */
     const currApp = useSelector((state: StoreState) => state.S2AReducer.currentApp);
     const tableviews = useSelector((state: StoreState) => state.S2AReducer.tableviews);
-    
-    const datasource1: Datasource = {
-        id: 1,
-        name: "Sales Data",
-        spreadsheetUrl: "https://example.com/spreadsheet1",
-        sheetName: "Sheet1"
-    };
-    
-    const datasource2: Datasource = {
-        id: 2,
-        name: "Customer Data",
-        spreadsheetUrl: "https://example.com/spreadsheet2",
-        sheetName: "Sheet2"
-    };
-
     /* Event handlers. */
 
     /* If the delete icon next to a tableview is clicked. */
@@ -94,6 +79,9 @@ function EditAppTableviews() {
 
             {/* Edit App Tableviews Display */}
             <div style={styles.editAppTableviewsDisplay}>
+                <Typography sx={{fontSize: '32px', fontWeight: 'bold'}}>
+                    {`Edit Table Views for ${currApp?.name}`}
+                </Typography>
                 <Grid sx={styles.grid} container spacing={2}>  
 
                 {/* Map each app tableview to a grid item. */}
