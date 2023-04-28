@@ -18,11 +18,13 @@ function EditAppDatasourceColumns() {
     }, []);
 
     /* Redux hooks into store. */
-    const datasourceColumns = useSelector((state: StoreState) => state.S2AReducer.datasourceColumns);
+    const storeDatasourceColumns = useSelector((state: StoreState) => state.S2AReducer.datasourceColumns);
+    
+    const [datasourceColumns, setDatasourceColumns] = useState(JSON.parse(JSON.stringify(storeDatasourceColumns)) as Column[]);
 
     /* If the save button is clicked. */
     const handleSaveDatasourceColumns = (event: React.MouseEvent<HTMLButtonElement>) => {
-        dispatch(editDatasourceColumns(datasourceColumns))
+        dispatch(editDatasourceColumns(storeDatasourceColumns))
         .then(() => {
           dispatch(viewDatasourceColumns());
         });
@@ -37,6 +39,8 @@ function EditAppDatasourceColumns() {
         if(colToEditIdx != -1) {
             const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], initialValue: newInitialValue};
+        
+            setDatasourceColumns(newColumns);    
         }
     };
 
@@ -49,6 +53,8 @@ function EditAppDatasourceColumns() {
         if(colToEditIdx != -1) {
             const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isLabel: newLabel};
+        
+            setDatasourceColumns(newColumns);    
         }
     }
 
@@ -61,6 +67,8 @@ function EditAppDatasourceColumns() {
         if(colToEditIdx != -1) {
             const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isRef: newRef};
+          
+            setDatasourceColumns(newColumns);    
         }
     }
 
@@ -73,6 +81,8 @@ function EditAppDatasourceColumns() {
         if(colToEditIdx !== -1) {
             const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], type: newType};
+
+            setDatasourceColumns(newColumns);    
         }
     }
 
