@@ -6,7 +6,7 @@ import { Column } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/tableviews/EditAppTableviewColumnsStyles'
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
-import { Grid, Checkbox, IconButton, TextField, FormControlLabel, Typography } from '@mui/material';
+import { Grid, Checkbox, IconButton, TextField, FormControlLabel, Typography, CircularProgress } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import AddIcon from '@mui/icons-material/Add';
@@ -153,7 +153,8 @@ function EditAppTableviewColumns() {
                 </IconButton>
                 
                 {/* Display Columns or Filters */}
-                {display === "Columns" ? (
+                {isLoading ? <CircularProgress/> : 
+                display === "Columns" ? (
                     <Grid sx={styles.grid} container spacing={2}>
                         {/* Map each datasource column to a grid item. */}
                         {changedColumns.map((col) => (
