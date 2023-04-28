@@ -14,17 +14,17 @@ function EditAppDatasourceColumns() {
     const dispatch = useDispatch<typeof store.dispatch>();
     
     useEffect(() => {
-      dispatch(viewDatasourceColumns());
+        dispatch(viewDatasourceColumns());
     }, []);
 
     /* Redux hooks into store. */
     const storeDatasourceColumns = useSelector((state: StoreState) => state.S2AReducer.datasourceColumns);
-    
     const [datasourceColumns, setDatasourceColumns] = useState(JSON.parse(JSON.stringify(storeDatasourceColumns)) as Column[]);
+    const [shouldUseStore, setShouldUseStore] = useState(true);
 
     /* If the save button is clicked. */
     const handleSaveDatasourceColumns = (event: React.MouseEvent<HTMLButtonElement>) => {
-        dispatch(editDatasourceColumns(storeDatasourceColumns))
+        dispatch(editDatasourceColumns(datasourceColumns))
         .then(() => {
           dispatch(viewDatasourceColumns());
         });
@@ -32,12 +32,14 @@ function EditAppDatasourceColumns() {
 
     /* If the initial value textfield is altered. */
     const handleInitialValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setShouldUseStore(false);
+
         const initialValueTextfield = event.currentTarget as HTMLInputElement;
-        const colToEditIdx = datasourceColumns.findIndex(col => col.id === Number(initialValueTextfield.id));
+        const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(initialValueTextfield.id));
         const newInitialValue = initialValueTextfield.value;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...datasourceColumns];
+            const newColumns = [...(shouldUseStore ? storeDatasourceColumns : datasourceColumns)];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], initialValue: newInitialValue};
         
             setDatasourceColumns(newColumns);    
@@ -46,12 +48,14 @@ function EditAppDatasourceColumns() {
 
     /* If the label checkbox is checked/unchecked. */
     const handleLabelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setShouldUseStore(false);
+
         const labelCheckbox = event.currentTarget as HTMLInputElement;
-        const colToEditIdx = datasourceColumns.findIndex(col => col.id === Number(labelCheckbox.id));
+        const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(labelCheckbox.id));
         const newLabel = labelCheckbox.checked;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...datasourceColumns];
+            const newColumns = [...(shouldUseStore ? storeDatasourceColumns : datasourceColumns)];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isLabel: newLabel};
         
             setDatasourceColumns(newColumns);    
@@ -60,12 +64,14 @@ function EditAppDatasourceColumns() {
 
     /* If the reference checkbox is checked/unchecked. */
     const handleRefChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setShouldUseStore(false);
+
         const refCheckbox = event.currentTarget as HTMLInputElement;
-        const colToEditIdx = datasourceColumns.findIndex(col => col.id === Number(refCheckbox.id));
+        const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(refCheckbox.id));
         const newRef = refCheckbox.checked;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...datasourceColumns];
+            const newColumns = [...(shouldUseStore ? storeDatasourceColumns : datasourceColumns)];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isRef: newRef};
           
             setDatasourceColumns(newColumns);    
@@ -74,12 +80,14 @@ function EditAppDatasourceColumns() {
 
     /* If a type is selected from the drop-down menu. */
     const handleTypeChange = (event: React.MouseEvent<HTMLElement>) => {
+        setShouldUseStore(false);
+
         const typeSelect = event.currentTarget as HTMLSelectElement;
-        const colToEditIdx = datasourceColumns.findIndex(col => col.id === Number(typeSelect.id));
+        const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(typeSelect.id));
         const newType = typeSelect.getAttribute("data-value") ?? "Number";
 
         if(colToEditIdx !== -1) {
-            const newColumns = [...datasourceColumns];
+            const newColumns = [...(shouldUseStore ? storeDatasourceColumns : datasourceColumns)];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], type: newType};
 
             setDatasourceColumns(newColumns);    
@@ -101,7 +109,7 @@ function EditAppDatasourceColumns() {
 
                 <Grid sx={styles.grid} container spacing={2}>  
                     {/* Map each datasource column to a grid item. */}
-                    {datasourceColumns.map((col) => (
+                    {(shouldUseStore ? storeDatasourceColumns : datasourceColumns).map((col) => (
                         <Grid item xs={1.5} key={col.id}>
                             <div style={styles.gridItemContainer}>
                                 {/* Name*/}
