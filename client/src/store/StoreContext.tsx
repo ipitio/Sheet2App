@@ -15,6 +15,9 @@ export interface IS2AState {
     /* An array of accessible apps for the current user. Set when navigating onto accessible apps screen. */
     accApps: App[],
 
+    searchedDevApps: App[],
+    searchedAccApps: App[],
+
     /* An array of roles belonging to the current app. Set when navigating onto edit tableview/detailview roles screen. */
     roles: Role[],
 
@@ -95,6 +98,9 @@ const S2AState: IS2AState = {
     devApps: [],
     accApps: [],
 
+    searchedDevApps: [],
+    searchedAccApps: [],
+
     roles: [],
 
     datasources: [],
@@ -139,6 +145,16 @@ export const S2AReducer = createSlice({
         },
         hideErrorAlert: (state) => {
             state.showErrorAlert = false;
+        },
+        searchDevApps: (state, action: PayloadAction<string>) => {
+            state.searchedDevApps = state.devApps.filter(app => app.name.includes(action.payload));
+        },
+        searchAccApps: (state, action: PayloadAction<string>) => {
+            state.searchedAccApps = state.accApps.filter(app => app.name.includes(action.payload));
+        },
+        clearSearch: (state) => {
+            state.searchedAccApps = [];
+            state.searchedDevApps = [];
         },
         /* Set current resource reducers. */
         setCurrentApp: (state, action: PayloadAction<App>) => {
@@ -608,7 +624,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { 
-    hideSuccessAlert, hideErrorAlert,
+    hideSuccessAlert, hideErrorAlert, searchDevApps, searchAccApps, clearSearch,
     setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
     markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
     markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
