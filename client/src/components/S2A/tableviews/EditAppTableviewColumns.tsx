@@ -6,7 +6,7 @@ import { Column } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/tableviews/EditAppTableviewColumnsStyles'
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
-import { Grid, Checkbox, IconButton, TextField, FormControlLabel, InputLabel } from '@mui/material';
+import { Grid, Checkbox, IconButton, TextField, FormControlLabel, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import AddIcon from '@mui/icons-material/Add';
@@ -24,6 +24,8 @@ function EditAppTableviewColumns() {
     const tableviewColumns = useSelector((state: StoreState) => state.S2AReducer.tableviewColumns);
     const filterColumn = useSelector((state: StoreState) => state.S2AReducer.filterColumn);
     const userFilterColumn = useSelector((state: StoreState) => state.S2AReducer.userFilterColumn);
+
+    const currentTableview = useSelector((state: StoreState) => state.S2AReducer.currentTableview);
 
     /* React state for conditional rendering. */
     const [display, setDisplay] = useState<string>("Columns");
@@ -134,6 +136,10 @@ function EditAppTableviewColumns() {
 
             {/* Edit App Tableview Columns Display */}
             <div style={styles.editAppTableviewColumnsDisplay}>
+                <Typography sx={{fontSize: '32px', fontWeight: 'bold'}}>
+                    {`Edit Columns for ${currentTableview?.name}`}
+                </Typography>
+
                 {/* Save Changes Button */}
                 <IconButton onClick={handleSaveTableviewColumns} sx={styles.saveButton} title="Save">
                     {"Save Changes"}
@@ -143,6 +149,7 @@ function EditAppTableviewColumns() {
                 {/* Swap Display Button */}
                 <IconButton onClick={handleSwapDisplay} title="Swap">
                     <SwapHorizIcon fontSize="large"/>
+                    {`Edit ${display}`}
                 </IconButton>
                 
                 {/* Display Columns or Filters */}

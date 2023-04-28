@@ -6,7 +6,7 @@ import { Column, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/datasources/EditAppDatasourceColumnsStyles';
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
-import { Grid, Checkbox, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { Typography, Grid, Checkbox, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import { editDatasourceColumns, viewDatasourceColumns } from '../../../store/StoreController';
 
@@ -19,6 +19,7 @@ function EditAppDatasourceColumns() {
 
     /* Redux hooks into store. */
     const storeDatasourceColumns = useSelector((state: StoreState) => state.S2AReducer.datasourceColumns);
+    const datasource = useSelector((state: StoreState) =>  state.S2AReducer.currentDatasource);
     const [datasourceColumns, setDatasourceColumns] = useState(JSON.parse(JSON.stringify(storeDatasourceColumns)) as Column[]);
     const [shouldUseStore, setShouldUseStore] = useState(true);
 
@@ -101,6 +102,9 @@ function EditAppDatasourceColumns() {
 
             {/* Edit App Datasource Columns Display */}
             <div style={styles.editAppDatasourceColumnsDisplay}>
+                <Typography sx={{fontSize: '32px', fontWeight: 'bold'}}>
+                    {`Edit Columns for ${datasource?.name}`}
+                </Typography>
                 {/* Save Changes Button */}
                 <IconButton onClick={handleSaveDatasourceColumns} sx={styles.saveButton} title="Save">
                     {"Save Changes"}
