@@ -81,6 +81,8 @@ function EditAppDatasourceColumns() {
         if(colToEditIdx !== -1) {
             const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], type: newType};
+
+            setDatasourceColumns(newColumns);    
         }
     }
 
