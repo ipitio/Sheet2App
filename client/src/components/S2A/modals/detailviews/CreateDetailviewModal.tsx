@@ -73,8 +73,9 @@ function CreateDetailviewModal() {
             dispatch(createDetailview({"detailviewName": detailviewName, "datasource": datasource }))
             .then(() => {
                 dispatch(viewDetailviews());
-            });
-        }
+            })
+            handleCloseModal();
+        } 
     }
 
     return (
