@@ -16,6 +16,15 @@ const EditAppRoleSheetStyles: StyleContainer = {
     overflow: 'auto',
     paddingTop: '100px',
   },
+  saveButton: {
+    fontSize: '1.5rem',
+    color: 'white',
+    borderRadius: 2,
+    borderColor: '#53809e',
+    borderWidth: '0.5px',
+    borderStyle: 'solid',
+    background: 'linear-gradient(to bottom, #5a8cad, #6CA6CD)',
+  },
   textfieldLabel: {
     marginTop: '150px',
   },
