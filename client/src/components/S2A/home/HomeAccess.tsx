@@ -20,6 +20,7 @@ function HomeAccess() {
 
     /* Redux hooks into store. */   
     const accApps = useSelector((state: StoreState) => state.S2AReducer.accApps);
+    const searchedAccApps = useSelector((state: StoreState) => state.S2AReducer.searchedAccApps);
       
     /* Event handlers. */   
 
@@ -39,7 +40,7 @@ function HomeAccess() {
                 <Grid sx={styles.grid} container spacing={2}>  
 
                 {/* Map each app in development to a grid item. */}
-                {accApps.map((app) => (
+                {(searchedAccApps.length > 0 ? searchedAccApps : accApps).map((app) => (
                     <Grid item xs={2} key={app.id}>
                         <div style={styles.gridItemContainer}>
                             {app.name}

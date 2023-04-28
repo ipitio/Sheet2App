@@ -6,7 +6,7 @@ import { Role, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/tableviews/EditAppTableviewRolesStyles'
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
-import { Grid, Checkbox, IconButton, FormControlLabel } from '@mui/material';
+import { Typography, Grid, Checkbox, IconButton, FormControlLabel } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import { viewAppRoles, viewTableviewRoles, editTableviewRoles } from '../../../store/StoreController';
 
@@ -21,23 +21,8 @@ function EditAppTableviewRoles() {
     /* Redux hooks into store. */
     const roles = useSelector((state: StoreState) => state.S2AReducer.roles);
     const tableviewRoles = useSelector((state: StoreState) => state.S2AReducer.tableviewRoles);
-    /*const roles: Role[] = [
-        { name: 'Admin' },
-        { name: 'User' },
-        { name: 'Guest' },
-        { name: 'Manager' },
-        { name: 'Editor' },
-        { name: 'Developer' },
-        { name: 'Designer' },
-        { name: 'Support' },
-    ];*/
 
-    /*const tableviewRoles : Role[] = [
-        { name: 'User' },
-        { name: 'Guest' },
-        { name: 'Manager' },
-        { name: 'Editor' },
-    ];*/
+    const currentTableview = useSelector((state: StoreState) => state.S2AReducer.currentTableview);
 
     /* React state for tableview roles. */
     const [changedTableviewRoles, setRoles] = useState<Role[]>(tableviewRoles);
@@ -83,6 +68,10 @@ function EditAppTableviewRoles() {
 
             {/* Edit App Tableview Roles Display */}
             <div style={styles.editAppTableviewRolesDisplay}>
+                <Typography sx={{fontSize: '32px', fontWeight: 'bold'}}>
+                    {`Edit Roles for ${currentTableview?.name}`}
+                </Typography>
+
                 {/* Save Changes Button */}
                 <IconButton onClick={handleSaveTableviewRoles} sx={styles.saveButton} title="Save">
                     {"Save Changes"}

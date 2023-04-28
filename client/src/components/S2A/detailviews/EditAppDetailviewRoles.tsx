@@ -6,38 +6,31 @@ import { Role, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/detailviews/EditAppDetailviewRolesStyles';
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
-import { Grid, Checkbox, IconButton, FormControlLabel } from '@mui/material';
+import { Grid, Checkbox, IconButton, FormControlLabel, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import { editDetailviewRoles, viewAppRoles, viewDetailviewRoles } from '../../../store/StoreController';
+import CircularProgress from '@mui/material/CircularProgress';
 
 function EditAppDetailviewRoles() {
     const dispatch = useDispatch<typeof store.dispatch>();
 
+    const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
-        dispatch(viewAppRoles());
-        dispatch(viewDetailviewRoles());
-    }, []);
+        if (!isLoading) return;
+
+        dispatch(viewAppRoles())
+        .then(() => {
+            dispatch(viewDetailviewRoles());
+        })
+        .then(() => {
+          setIsLoading(false);
+        })
+    });
 
     /* Redux hooks into store. */
     const roles = useSelector((state: StoreState) => state.S2AReducer.roles);
     const detailviewRoles = useSelector((state: StoreState) => state.S2AReducer.detailviewRoles);
-    /*const roles: Role[] = [
-        { name: 'Admin' },
-        { name: 'User' },
-        { name: 'Guest' },
-        { name: 'Manager' },
-        { name: 'Editor' },
-        { name: 'Developer' },
-        { name: 'Designer' },
-        { name: 'Support' },
-    ];*/
-
-    /*const detailviewRoles : Role[] = [
-        { name: 'User' },
-        { name: 'Guest' },
-        { name: 'Manager' },
-        { name: 'Editor' },
-    ];*/
+    const currentDetailview = useSelector((state: StoreState) => state.S2AReducer.currentDetailview);
 
     /* React state for tableview roles. */
     const [changedDetailviewRoles, setRoles] = useState<Role[]>(detailviewRoles);
@@ -83,6 +76,9 @@ function EditAppDetailviewRoles() {
 
             {/* Edit App Detailview Roles Display */}
             <div style={styles.editAppDetailviewRolesDisplay}>
+            <Typography sx={{fontSize: '32px'}}>
+                {`Edit Role Access for ${currentDetailview?.name}`}
+            </Typography>
                 {/* Save Changes Button */}
                 <IconButton onClick={handleSaveDetailviewRoles} sx={styles.saveButton} title="Save">
                     {"Save Changes"}
@@ -91,21 +87,22 @@ function EditAppDetailviewRoles() {
 
                 <Grid sx={styles.grid} container spacing={2}>
                     {/* Map each role to a grid item. */}
-                    {roles.map((role) => (
-                        <Grid item xs={1.5} key={role.name}>
-                            <div style={styles.gridItemContainer}>
-                                {/* Name */}
-                                <div style={styles.columnElement}>{role.name}</div>
+                    {isLoading ? <CircularProgress /> :
+                        roles.map((role) => (
+                            <Grid item xs={1.5} key={role.name}>
+                                <div style={styles.gridItemContainer}>
+                                    {/* Name */}
+                                    <div style={styles.columnElement}>{role.name}</div>
 
-                                {/* Access checkbox. */}
-                                <FormControlLabel
-                                    control={<Checkbox id={role.name} onChange={handleDetailviewRoleChange} checked={changedDetailviewRoles.some(detailviewRole => detailviewRole.name === role.name)} sx={styles.columnCheckbox}/>}
-                                    label="Allow Access"
-                                    sx={styles.columnElement}
-                                />
-                            </div>
-                        </Grid>
-                    ))}
+                                    {/* Access checkbox. */}
+                                    <FormControlLabel
+                                        control={<Checkbox id={role.name} onChange={handleDetailviewRoleChange} checked={changedDetailviewRoles.some(detailviewRole => detailviewRole.name === role.name)} sx={styles.columnCheckbox} />}
+                                        label="Allow Access"
+                                        sx={styles.columnElement}
+                                    />
+                                </div>
+                            </Grid>
+                        ))}
                 </Grid>
             </div>
         </div>

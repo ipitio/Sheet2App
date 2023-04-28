@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch} from 'react-redux';
+import { useDispatch, useSelector} from 'react-redux';
 
 import { getLoggedOut } from '../../../auth/AuthController';
 
-import { setCurrentModalType } from '../../../store/StoreContext';
+import store, { hideErrorAlert, hideSuccessAlert, setCurrentModalType, StoreState, searchDevApps, clearSearch } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/navbars/HomeNavBarStyles'
@@ -17,8 +17,12 @@ import Cookies from 'js-cookie';
 function HomeNavBar() {
     const location = useLocation();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // const devApps = useSelector((state: StoreState) => state.S2AReducer.devApps);
 
     useEffect(() => {
         dispatch(setCurrentModalType(null));
@@ -33,11 +37,17 @@ function HomeNavBar() {
 
     /* If the navigational buttons are clicked. */
     const displayAppsInDev = () => {
-        navigate("/S2A/home/develop")
+        navigate("/S2A/home/develop");
+
+        dispatch(hideSuccessAlert());
+        dispatch(hideErrorAlert());
     }
 
     const displayAppsAccessible = () => {
-        navigate("/S2A/home/access")
+        navigate("/S2A/home/access");
+
+        dispatch(hideSuccessAlert());
+        dispatch(hideErrorAlert());
     }
 
     /* If the profile menu is clicked.  */
@@ -54,6 +64,22 @@ function HomeNavBar() {
         navigate("/");
     };
 
+    const handleKeyDown = (event: any) => {
+        if (event.key && event.key == 'Enter') {
+            handleSearchApp();
+        } else {
+            dispatch(clearSearch());
+        }
+    }
+
+    const handleSearchInput = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setSearchQuery(event.target.value);
+    }
+
+    const handleSearchApp = () => {
+        dispatch(searchDevApps(searchQuery));
+    }
+
     return (
         <AppBar sx={styles.navBarWrapper}>
             <Toolbar>
@@ -64,11 +90,11 @@ function HomeNavBar() {
                     <IconButton onClick={handleOpenModal} sx={styles.createAppButton}>
                         <AddIcon/>
                         Create New App
-                    </IconButton>
+                    </IconButton>   
                 )}
 
                 {/* Search Textfield and Navigation Buttons */}
-                <TextField sx={styles.searchAppTextfield} label="Search app" variant="filled"/>
+                <TextField sx={styles.searchAppTextfield} label="Search App" variant="filled" onKeyDown={handleKeyDown} onChange={handleSearchInput} onSubmit={handleSearchApp}/>
                 <Button onClick={displayAppsInDev} sx={{ ...styles.displayButton, ...styles.displayDevAppsButton }} color="inherit">Apps in Development</Button>
                 <Button onClick={displayAppsAccessible} sx={{ ...styles.displayButton, ...styles.displayAccAppsButton }} color="inherit">Accessible Apps</Button>
                 <IconButton onClick={handleProfileOpen} sx={styles.openProfileButton} color="inherit" aria-label="open profile menu">

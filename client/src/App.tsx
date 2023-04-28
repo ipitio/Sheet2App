@@ -37,6 +37,9 @@ import EditRecordModal from './components/userapp/modals/EditRecordModal';
 import DeleteRecordModal from './components/userapp/modals/DeleteRecordModal';
 import EditAppRoleSheet from './components/S2A/rolesheet/EditAppRoleSheet';
 
+import Alert from '@mui/material/Alert';
+import SuccessAlert from './alerts/SuccessAlert';
+import ErrorAlert from './alerts/ErrorAlert';
 
 const App: React.FC = () => {
   return (
@@ -80,6 +83,10 @@ const App: React.FC = () => {
       <CreateDetailviewModal/>
       <EditDetailviewModal/>
       <DeleteDetailviewModal/>
+
+      {/* Success and Error alerts */}
+      <SuccessAlert/>
+      <ErrorAlert/>
 
       {/* User App Modals */}
       <AddRecordModal/>
