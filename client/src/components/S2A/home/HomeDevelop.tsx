@@ -10,7 +10,8 @@ import HomeNavBar from '../navbars/HomeNavBar';
 import { Grid, IconButton, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { viewDevApps } from '../../../store/StoreController';
+import PublishIcon from '@mui/icons-material/Publish';
+import { publishApp, viewDevApps } from '../../../store/StoreController';
 
 function HomeDevelop() {
     const navigate = useNavigate();
@@ -23,6 +24,7 @@ function HomeDevelop() {
     /* Redux hooks into store. */
     const devApps = useSelector((state: StoreState) => state.S2AReducer.devApps);
     const searchedDevApps = useSelector((state: StoreState) => state.S2AReducer.searchedDevApps);
+
     /* Event handlers. */
 
     /* If the delete icon next to an app is clicked. */
@@ -47,6 +49,18 @@ function HomeDevelop() {
         }
     }
 
+    /* If the publish icon next to an app is clicked. */
+    const handlePublish = (event: React.MouseEvent<HTMLButtonElement>) => {
+        const publishButton = event.currentTarget as HTMLButtonElement;
+        const appToPublish = devApps.find(app => app.id == Number(publishButton.id));
+
+        if(appToPublish) {
+            const newApp = {...appToPublish, isPublished: true};
+            dispatch(publishApp(newApp));
+            dispatch(viewDevApps());
+        }
+    }
+
     return (                                                                
         <div style={styles.homeWrapper}>
             {/* Home Navigation Bar */}
@@ -62,12 +76,15 @@ function HomeDevelop() {
                     <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                             {app.name}
 
-                            {/* Edit and delete buttons for apps. */}
-                            <IconButton id={app.id.toString()} onClick={handleOpenDeleteModal} sx={styles.deleteAppButton}>
+                            {/* Edit, publish, and delete buttons for apps. */}
+                            <IconButton id={app.id.toString()} onClick={handleOpenDeleteModal} sx={styles.deleteAppButton} title="Delete">
                                 <DeleteIcon fontSize="medium"/>
                             </IconButton>
-                            <IconButton id={app.id.toString()} onClick={handleEdit} sx={styles.editAppButton}>
+                            <IconButton id={app.id.toString()} onClick={handleEdit} sx={styles.editAppButton} title="Edit">
                                 <EditIcon fontSize="medium"/>
+                            </IconButton>
+                            <IconButton id={app.id.toString()} onClick={handlePublish} sx={styles.publishAppButton} title="Publish">
+                                <PublishIcon fontSize="medium"/>
                             </IconButton>
                         </Box>
                     </Grid>

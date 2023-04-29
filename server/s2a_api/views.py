@@ -118,6 +118,23 @@ def create_app(request):
 
 
 @csrf_exempt
+def get_app_by_id(request):
+    body = json.loads(request.body)
+    app_id = body["appId"]
+
+    app, response_code = queries.get_app_by_id(app_id=app_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    res_body = { "app": app }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+@csrf_exempt
 def get_developable_apps(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
@@ -160,7 +177,7 @@ def get_developable_apps(request):
 
 
 @csrf_exempt
-def get_usable_apps(request):
+def get_accessible_apps(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
     creator_email = body["email"]
@@ -215,7 +232,11 @@ def edit_app(request):
 @csrf_exempt
 def publish_app(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
+    app_id = body["app"]["id"]
+    role_mem_url = body["app"]["roleMemUrl"]
+    
+    if role_mem_url == None:
+        return HttpResponse({}, status=HTTPStatus.BAD_REQUEST)
 
     output, response_code = queries.publish_app(app_id=app_id)
     if response_code != HTTPStatus.OK:
@@ -763,13 +784,13 @@ def get_detail_view_columns(request):
     body = json.loads(request.body)
     detail_view_id = body["detailview"]["id"]
 
-    columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view_id)
+    columns, response_code = queries.get_detail_view_columns(detail_view_id=detail_view_id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
     res_body = {
-        "detailviewColumns": columns,
-        # "editFilterColumn": []
+        "detailviewColumns": columns["detail_columns"],
+        "editFilterColumn": columns["edit_filter_column"]
     }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -855,11 +876,13 @@ def add_record(request):
     record_data_array = [""] * len(datasource_columns)
     
     for column in datasource_columns:
-        col_name = column["name"]
         col_index = column["column_index"]
+        col_initial_value = column["initial_value"]
         
-        if col_name in record_data:
-            record_data_array[col_index] = record_data[col_name]
+        if col_index in record_data:
+            record_data_array[col_index] = record_data[col_index]
+        else:
+            record_data_array[col_index] = col_initial_value
         
 
     spreadsheet_id = datasource.spreadsheet_id
@@ -870,13 +893,8 @@ def add_record(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-
-    # Get and send the refreshed data in response
-    data, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)
-    if response_code != HTTPStatus.OK:
-        return HttpResponse({}, status=response_code)
     
-    res_body = {"spreadsheet_data": data}
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -955,6 +973,13 @@ def get_app_table_views_for_role(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
+    for table_view in table_views:
+        datasource, response_code = queries.get_datasource_by_table_view_id(table_view_id=table_view.id)
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        table_view["datasource"] = datasource
+    
     res_body = {"tableviews": table_views}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -964,11 +989,17 @@ def get_app_table_views_for_role(request):
 
 
 @csrf_exempt
-def load_table_view_column_data(request):
+def load_table_view(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    email = body["email"]
+    role_mem_url = body["app"]["roleMemUrl"]
     table_view_id = body["tableview"]["id"]
-    spreadsheet_url = body["tableview"]["datasource"]["spreadsheetUrl"]
+    datasource = body["tableview"]["datasource"]
+    datasource_id = datasource["id"]
+    spreadsheet_url = datasource["spreadsheetUrl"]
     
+    # Load the table view data 
     viewable_columns, response_code = queries.get_table_view_viewable_columns(table_view_id=table_view_id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -979,15 +1010,71 @@ def load_table_view_column_data(request):
     column_indexes = [column["column_index"] for column in viewable_columns]
     
     column_data, response_code = sheets_api.get_column_data(
-        spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
-        columns=column_indexes
+        tokens=tokens, spreadsheet_id=spreadsheet_id, 
+        sheet_id=sheet_id, columns=column_indexes
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
+    # Retrieve a detailview the role has access to based on the datasource the given table view uses
+    roles, response_code = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    detail_view, response_code = queries.get_detail_view_for_role(
+        datasource_id=datasource_id, roles=roles
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    if detail_view != None:
+        datasource, response_code = queries.get_datasource_by_detail_view_id(detail_view_id=detail_view.id)
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        detail_view["datasource"] = datasource
+    
     res_body = {
         "columns": viewable_columns,
-        "columnData": column_data
+        "columnData": column_data,
+        "detailview": detail_view
+    }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+@csrf_exempt
+def load_detail_view(request):
+    body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    detail_view = body["detailview"]
+    record_index = body["recordIndex"]
+    spreadsheet_url = detail_view["datasource"]["spreadsheetUrl"]
+    
+    viewable_columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view.id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    sheet_id = sheets.utils.get_gid(spreadsheet_url)
+    
+    column_indexes = [column["column_index"] for column in viewable_columns]
+    
+    column_data, response_code = sheets_api.get_column_data(
+        tokens=tokens, spreadsheet_id=spreadsheet_id, 
+        sheet_id=sheet_id, columns=column_indexes
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    rowData = [column[record_index - 1] for column in column_data]
+    
+    res_body = {
+        "columns": viewable_columns,
+        "rowData": rowData
     }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
