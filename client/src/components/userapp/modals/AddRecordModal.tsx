@@ -8,16 +8,11 @@ function AddRecordModal() {
     const dispatch = useDispatch();
 
     const currentModalType = useSelector((state: StoreState) => state.webAppReducer.currentModalType);
-    const currentView = useSelector((state: StoreState) => state.webAppReducer.currentView);
+    const currentTableview = useSelector((state: StoreState) => state.webAppReducer.currentTableview);
 
     return (
-        <Box
-            id='add-record-modal'
-        >
-            <Dialog
-                open={currentModalType === ModalType.AddRecordModal}
-                onClose={() => dispatch(hideWebAppModal())}
-            >
+        <Box id='add-record-modal'>
+            <Dialog open={currentModalType === ModalType.AddRecordModal} onClose={() => dispatch(hideWebAppModal())}>
                 <DialogTitle>
                     Add Record
                 </DialogTitle>

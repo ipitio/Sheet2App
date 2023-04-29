@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { StoreState } from '../../../store/StoreContext';
+import store, { StoreState, openApp } from '../../../store/StoreContext';
 
 import styles from "../../../styles/S2A/home/HomeStyles"
 import HomeNavBar from '../navbars/HomeNavBar';
-import { Grid, IconButton, Box, CircularProgress } from '@mui/material';
+import { Grid, IconButton, Box, CircularProgress, Button } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { viewAccApps } from '../../../store/StoreController';
+import { App } from '../../../store/StoreTypes';
 
 function HomeAccess() {
     const navigate = useNavigate();
@@ -31,9 +32,9 @@ function HomeAccess() {
     /* Event handlers. */   
 
     /* If the access icon next to an app is clicked. */
-    const handleAccess = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const accessButton = event.currentTarget as HTMLButtonElement;
-        navigate(`/userapp/${accessButton.id}/home`)
+    const handleAccess = (app: App) => {
+        dispatch(openApp(app));
+        navigate(`/userapp/${app.id}/home`);
     }
 
     return (
@@ -53,9 +54,9 @@ function HomeAccess() {
                                     {app.name}
 
                                     {/* Access button for apps. */}
-                                    <IconButton id={app.id.toString()} onClick={handleAccess} sx={styles.accessAppButton}>
-                                        <ChevronRightIcon />
-                                    </IconButton>
+                                    <Button id={app.id.toString()} onClick={() => {handleAccess(app)}} sx={{...styles.accessAppButton, textTransform:'none'}} endIcon={<ChevronRightIcon />}>
+                                        Launch
+                                    </Button>
                                 </Box>
                             </Grid>
                         ))}

@@ -709,7 +709,7 @@ export const editDetailviewColumns = createAsyncThunk('S2A/editDetailviewColumns
 export const viewDetailviewRoles = createAsyncThunk('S2A/viewDetailviewRoles', async() => {
     try {
         const detailview = store.getState().S2AReducer.currentDetailview;
-        console.log(detailview);
+
         const reqForm = await getRequestForm("POST", {"detailview": detailview});
         
         /* Send request and return promise resolving to an array of detailview roles if successful. */
@@ -780,8 +780,10 @@ export async function getAppById(appId: number): Promise<App> {
  * Requests an object containing all Tableviews and Detailviews associated with a web app
  * @param {App} app - The application to get the detailviews of.
  */
-async function loadApp(app: App): Promise<Tableview[]> {
+export const loadApp = createAsyncThunk('webApp/loadApp', async () => {
     try {
+        const app = store.getState().webAppReducer.app;
+
         const reqForm = await getRequestForm("POST", {"app": app});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
@@ -795,17 +797,20 @@ async function loadApp(app: App): Promise<Tableview[]> {
         return tableviews;
     }
     catch(err) {
-        return Promise.reject(`getAppDetailviews failed with the error: ${err}`);
+        return Promise.reject(`loadApp failed with the error: ${err}`);
     }   
-}
+})
 
 /**
  * Load a specific tableview in the web app
  * @returns a single detail view that the user has access to
  */
-async function loadTableview(datasource: Datasource): Promise<Detailview> {
+export const loadTableview = createAsyncThunk('webApp/loadTableview', async() => {
     try {
-        const reqForm = await getRequestForm("POST", {"datasource": datasource});
+        const app = store.getState().webAppReducer.app;
+        const tableview = store.getState().webAppReducer.currentTableview;
+
+        const reqForm = await getRequestForm("POST", {"app": app, "tableview": tableview});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/loadTableview`, reqForm);
@@ -813,14 +818,16 @@ async function loadTableview(datasource: Datasource): Promise<Detailview> {
             return Promise.reject(`loadTableview request failed with status: ${res.status}`);
         
         const data = await res.json();
-        const view = data.detailview;
+        const columns = data.columns;
+        const columnData = data.columnData;
+        const detailview = data.detailview;
 
-        return view;
+        return {columns, columnData, detailview};
     }
     catch(err) {
         return Promise.reject(`loadTableView failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Adds a record to the specified datasource
@@ -897,5 +904,5 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
 }
 
 export default {
-                loadApp, loadTableview, addRecord, editRecord, deleteRecord,
+                addRecord, editRecord, deleteRecord,
             };
