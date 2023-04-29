@@ -976,6 +976,13 @@ def get_app_table_views_for_role(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
+    for table_view in table_views:
+        datasource, response_code = queries.get_datasource_by_table_view_id(table_view_id=table_view.id)
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        table_view["datasource"] = datasource
+    
     res_body = {"tableviews": table_views}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code

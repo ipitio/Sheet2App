@@ -300,8 +300,7 @@ def get_table_views_by_app_id(app_id):
     
 def get_table_views_for_roles(app_id, roles):
     try:
-        table_views_for_role = []
-        
+        table_views_for_role = set()
         for role in roles:
             table_views = TableView.objects.filter(app_id=app_id).values()
             table_views = mysql_db.utils.annotate_table_views(table_views)
@@ -309,8 +308,9 @@ def get_table_views_for_roles(app_id, roles):
             
             for table_view in table_views:
                 if TableViewPerm.objects.exists(table_view_id=table_view["id"], role=role):
-                    table_views_for_role.append(table_view)
+                    table_views_for_role.add(table_view)
         
+        table_views_for_role = list(table_views_for_role)
         
         return table_views_for_role, HTTPStatus.OK
     except Exception as e:
