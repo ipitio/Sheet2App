@@ -1,23 +1,27 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteRecord, hideWebAppModal, StoreState } from '../../../store/StoreContext';
+import store, { hideWebAppModal, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
+import { deleteRecord, loadTableview } from '../../../store/StoreController';
 
 function DeleteRecordModal() {
-    // Retrieve the dispatcher for the store
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
 
     const currentModalType = useSelector((state: StoreState) => state.webAppReducer.currentModalType);
     const currentRecord = useSelector((state: StoreState) => state.webAppReducer.currentRecord);
+
+    const handleDeleteRecord = () => {
+        dispatch(deleteRecord())
+        .then(() => {
+            dispatch(loadTableview());
+        })
+    }
 
     return (
         <Box
             id='delete-record-modal'
         >
-            <Dialog
-                open={currentModalType === ModalType.DeleteRecordModal}
-                onClose={() => dispatch(hideWebAppModal())}
-            >
+            <Dialog open={currentModalType === ModalType.DeleteRecordModal} onClose={() => dispatch(hideWebAppModal())}>
                 <DialogTitle>
                     Delete Record
                 </DialogTitle>
@@ -46,15 +50,10 @@ function DeleteRecordModal() {
                         </Box>
                     </DialogContentText>
                     <DialogActions>
-                        <Button
-                            onClick={() => dispatch(deleteRecord())}
-                        >
-                            {/** TODO: SEND AN API REQUEST TO DELETE RECORD WHEN CONFIRM CLICKED */}
+                        <Button onClick={handleDeleteRecord}>
                             Confirm
                         </Button>
-                        <Button
-                            onClick={() => dispatch(hideWebAppModal())}
-                        >
+                        <Button onClick={() => dispatch(hideWebAppModal())}>
                             Cancel
                         </Button>
                     </DialogActions>

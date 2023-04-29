@@ -23,8 +23,6 @@ function Tableview() {
 
         dispatch(loadTableview())
             .then(() => {
-                setIsLoading(false);
-
                 /** Convert columns into records */
                 const newRecords = [];
                 for (let i = 1; i < (columnData && columnData[0] ? columnData[0].length : 1); i++) {
@@ -37,6 +35,7 @@ function Tableview() {
                 }
         
                 setRecords(newRecords);
+                setIsLoading(false);
             })
     })
 
