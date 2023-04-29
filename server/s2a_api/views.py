@@ -202,6 +202,7 @@ def get_accessible_apps(request):
         for role_col in roles_columns:
             if creator_email in role_col[1:]:
                 accessible_apps.append(app)
+                break
     
     
     res_body = {"apps": accessible_apps }
