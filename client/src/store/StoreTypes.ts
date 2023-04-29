@@ -61,6 +61,7 @@ export enum ModalType {
 	/* S2A */
     CreateAppModal,
     DeleteAppModal,
+	PublishAppModal,
 
     CreateDatasourceModal,
 	EditDatasourceModal,

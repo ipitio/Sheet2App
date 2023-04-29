@@ -40,6 +40,7 @@ import EditAppRoleSheet from './components/S2A/rolesheet/EditAppRoleSheet';
 import Alert from '@mui/material/Alert';
 import SuccessAlert from './alerts/SuccessAlert';
 import ErrorAlert from './alerts/ErrorAlert';
+import PublishAppModal from './components/S2A/modals/apps/PublishAppModal';
 
 const App: React.FC = () => {
   return (
@@ -74,6 +75,7 @@ const App: React.FC = () => {
       {/* S2A Modals */}
       <CreateAppModal/>
       <DeleteAppModal/>
+      <PublishAppModal/>
       <CreateDatasourceModal/>
       <EditDatasourceModal/>
       <DeleteDatasourceModal/>

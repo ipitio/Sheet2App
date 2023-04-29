@@ -28,6 +28,12 @@ const HomeStyles: StyleContainer = {
     alignItems: 'center',
     justifyContent: 'center',
     display: 'flex',
+    flexDirection:'column'
+  },
+  buttonContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly'
   },
   deleteAppButton: {
     position: 'absolute',
