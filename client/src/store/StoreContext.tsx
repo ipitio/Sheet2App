@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import storeController, { createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, loadApp, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -548,32 +548,66 @@ export interface IWebAppState {
     tableviews: Tableview[],
 
     currentDatasource: Datasource | null,
-
-    // The current view denotes the view that changes (add, edit, delete record) will apply to, since the user can only be on
-    // one view at a time.
-    currentView: View | null,
+    currentTableview: Tableview | null,
+    currentDetailview: Detailview | null,
     
     // The current modal type that is open on the screen (Add record modal, edit record modal, delete record modal)
     currentModalType: ModalType | null,
 
+    currentRecordIndex: number | null,
+
+    columns: Column[],
+    columnData: any[][],
+    rowData: any[],
+
     // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
     // or clicks on the Delete Record button.
-    currentRecord: Record | null
+    currentRecord: Record | null,
+
+    showSuccessAlert: boolean,
+    showErrorAlert: boolean
 }
 
 const webAppState: IWebAppState = {
     app: null,
     tableviews: [],
     currentDatasource: null,
-    currentView: null,
+    currentTableview: null,
+    currentDetailview: null,
     currentModalType: null,
-    currentRecord: null
+    currentRecord: null,
+
+    currentRecordIndex: null,
+
+    columns: [],
+    columnData: [],
+    rowData: [],
+
+    showSuccessAlert: false,
+    showErrorAlert: false,
 }
 
 const webAppReducer = createSlice({
     name: 'webApp',
     initialState: webAppState,
     reducers: {
+        openApp: (state, action: PayloadAction<App>) => {
+            state.app = action.payload;
+        },
+        returnToS2A: (state) => {
+            state.app = null;
+        },
+
+        webAppSetCurrentTableview: (state, action: PayloadAction<Tableview>) => {
+            state.currentTableview = action.payload;
+        },
+        setCurrentRecordIndex: (state, action: PayloadAction<number>) => {
+            state.currentRecordIndex = action.payload;
+        },
+        
+        // loadTableview: (state, action: PayloadAction<Tableview>) => {
+        //     state.currentTableview = action.payload;
+        // },
         // Loads a view and sets it as the current (visible) view
         loadView: (state, action: {payload: View, type: string}) => {
             // TODO
@@ -582,18 +616,6 @@ const webAppReducer = createSlice({
 
             // On successful response, update the current view to the responded data
             // state.currentView = res.data
-        },
-        setCurrentView: (state, action: {payload: View}) => {
-            state.currentView = action.payload;
-        },
-        loadTableview: (state, action: {payload: Datasource}) => {
-            storeController.loadTableview(action.payload)
-            .then(() => {
-
-            })
-            .catch((error: Error) => {
-                console.log(error);
-            })
         },
         // Called by the AddRecordModal when changes are submitted
         addRecord: (state, action: {payload: Record, type: string}) => {
@@ -642,15 +664,51 @@ const webAppReducer = createSlice({
             state.currentRecord = action.payload;
         },
         // Displays the DeleteRecord Modal
-        showDeleteRecordModal: (state, action: {payload: Record}) => {
+        showDeleteRecordModal: (state) => {
             state.currentModalType = ModalType.DeleteRecordModal;
-
-            state.currentRecord = action.payload;
         },
         // Hides the current Modal
         hideWebAppModal: state => {
             state.currentModalType = null
+        },
+
+        hideWebAppSuccessAlert: state => {
+            state.showSuccessAlert = false;
+        },
+        hideWebAppErrorAlert: state => {
+            state.showErrorAlert = false;
+        },
+
+        goToUserAppHome: state => {
+            state.currentDatasource = null;
+            state.currentTableview = null;
+            state.currentDetailview = null;
+            state.currentModalType = null;
+            state.currentRecord = null;
+        
+            state.showSuccessAlert = false;
+            state.showErrorAlert = false;
         }
+    }, 
+    extraReducers(builder) {
+        builder.addCase(loadApp.fulfilled, (state, action) => {
+            state.tableviews = action.payload;
+        });
+        builder.addCase(loadApp.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(loadTableview.fulfilled, (state, action) => {
+            const {columns, columnData, detailview} = action.payload;
+
+            state.columns = columns;
+            state.columnData = columnData;
+
+            // state.currentDetailview = detailview;
+        });
+        builder.addCase(loadTableview.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
     }
 })
 
@@ -663,9 +721,9 @@ export const {
     finishCreation, finishEdit, finishDeletion, finishPublish, resetAll
  } = S2AReducer.actions
 
-export const { setCurrentView, addRecord, editRecord, deleteRecord,
-    showAddRecordModal, showEditRecordModal, showDeleteRecordModal,
-    hideWebAppModal, loadTableview } = webAppReducer.actions;
+export const { openApp, returnToS2A, addRecord, editRecord, deleteRecord, setCurrentRecordIndex,
+    showAddRecordModal, showEditRecordModal, showDeleteRecordModal, webAppSetCurrentTableview,
+    hideWebAppModal, hideWebAppErrorAlert, hideWebAppSuccessAlert, goToUserAppHome } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
 export interface StoreState {

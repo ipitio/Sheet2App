@@ -29,15 +29,14 @@ import EditDetailviewModal from './components/S2A/modals/detailviews/EditDetailv
 import DeleteDetailviewModal from './components/S2A/modals/detailviews/DeleteDetailviewModal';
 
 import UserAppHome from './components/userapp/Home'
-import TableView from './components/userapp/TableView';
-import DetailView from './components/userapp/DetailView';
+import Tableview from './components/userapp/Tableview';
+import Detailview from './components/userapp/Detailview';
 
 import AddRecordModal from './components/userapp/modals/AddRecordModal';
 import EditRecordModal from './components/userapp/modals/EditRecordModal';
 import DeleteRecordModal from './components/userapp/modals/DeleteRecordModal';
 import EditAppRoleSheet from './components/S2A/rolesheet/EditAppRoleSheet';
 
-import Alert from '@mui/material/Alert';
 import SuccessAlert from './alerts/SuccessAlert';
 import ErrorAlert from './alerts/ErrorAlert';
 import PublishAppModal from './components/S2A/modals/apps/PublishAppModal';
@@ -64,11 +63,12 @@ const App: React.FC = () => {
 
           {/* User App Routes */}
           <Route path="/userapp/:appid/home" element={<UserAppHome/>} />
-          <Route path="/userapp/:appid/tableview/:tableviewid" element={<TableView/>}/>
+          <Route path="/userapp/:appid/tableview/:tableviewid" element={<Tableview/>}/>
+          <Route path="/userapp/:appid/detailview/:detailviewid" element={<Detailview/>}/>
 
           {/* TESTING. TODO: REMOVE */}
-          <Route path="/test/table" element={<TableView/>}/>
-          <Route path="/test/detail" element={<DetailView/>}/>
+          <Route path="/test/table" element={<Tableview/>}/>
+          <Route path="/test/detail" element={<Detailview/>}/>
         </Routes>
       </Router>
       

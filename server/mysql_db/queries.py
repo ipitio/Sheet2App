@@ -306,13 +306,13 @@ def get_table_views_for_roles(app_id, roles):
         table_views = mysql_db.utils.annotate_table_views(table_views)
         table_views = list(table_views)
         
-        table_views_for_role = set()
+        # Verify that the change from Set() to list is correct and won't introduce bugs
+        table_views_for_role = []
         for role in roles:    
             for table_view in table_views:
-                if TableViewPerm.objects.exists(table_view_id=table_view["id"], role=role):
-                    table_views_for_role.add(table_view)
-        
-        table_views_for_role = list(table_views_for_role)
+                if TableViewPerm.objects.filter(table_view_id=table_view["id"], role=role).exists():
+                    table_views_for_role.append(table_view)
+        # table_views_for_role = list(table_views_for_role)
         
         return table_views_for_role, HTTPStatus.OK
     except Exception as e:
@@ -372,7 +372,7 @@ def get_table_view_viewable_columns(table_view_id):
     try:
         columns = DatasourceColumn.objects.filter(tableviewviewablecolumn__table_view_id=table_view_id)
         columns = columns.values()
-        columns = mysql_db.utils.annotate_table_view_viewable_columns(columns)
+        columns = mysql_db.utils.annotate_table_view_viewable_columns(columns, table_view_id)
         columns = list(columns)
 
         return columns, HTTPStatus.OK
@@ -401,7 +401,7 @@ def get_detail_view_for_role(datasource_id, roles):
         
         for role in roles:
             for detail_view in detail_views:
-                if DetailViewPerm.objects.exists(detail_view_id=detail_view["id"], role=role):
+                if DetailViewPerm.objects.filter(detail_view_id=detail_view["id"], role=role).exists():
                     return detail_view, HTTPStatus.OK
         
         return None, HTTPStatus.OK

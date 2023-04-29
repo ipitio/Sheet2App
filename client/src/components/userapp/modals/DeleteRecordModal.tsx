@@ -36,15 +36,13 @@ function DeleteRecordModal() {
                                 justifyContent: 'space-evenly'
                             }}
                         >
-                            {
-                                currentRecord?.data.map((element) => {
-                                    return (
-                                        <Typography key={element}>
-                                            {element}
-                                        </Typography>
-                                    )
-                                })
-                            }
+                            {currentRecord?.data.map((element) => {
+                                return (
+                                    <Typography key={element}>
+                                        {element}
+                                    </Typography>
+                                )
+                            })}
                         </Box>
                     </DialogContentText>
                     <DialogActions>
