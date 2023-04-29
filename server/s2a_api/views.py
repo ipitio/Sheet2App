@@ -202,6 +202,7 @@ def get_accessible_apps(request):
         for role_col in roles_columns:
             if creator_email in role_col[1:]:
                 accessible_apps.append(app)
+                break
     
     
     res_body = {"apps": accessible_apps }
@@ -239,6 +240,23 @@ def publish_app(request):
         return HttpResponse({}, status=HTTPStatus.BAD_REQUEST)
 
     output, response_code = queries.publish_app(app_id=app_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+@csrf_exempt
+def unpublish_app(request):
+    body = json.loads(request.body)
+    app_id = body["app"]["id"]
+
+    output, response_code = queries.unpublish_app(app_id=app_id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
