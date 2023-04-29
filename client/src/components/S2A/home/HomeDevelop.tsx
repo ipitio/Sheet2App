@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { setCurrentApp, setCurrentModalType, markAppToDelete, StoreState, markAppToPublish } from '../../../store/StoreContext';
+import store, { setCurrentApp, markAppToPublish, markAppToDelete, setCurrentModalType, StoreState } from '../../../store/StoreContext';
 import { App, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/home/HomeStyles'
@@ -57,18 +57,18 @@ function HomeDevelop() {
                 {/* Map each app in development to a grid item. */}
                 {(searchedDevApps.length > 0 ? searchedDevApps : devApps).map((app) => (
                     <Grid item xs={3} key={app.id}>
-                    <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
+                        <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                             {app.name}
-
+                            
+                            {/* Edit, publish, and delete buttons for apps. */}
                             <Box sx={styles.buttonContainer}>
-                                {/* Edit, publish, and delete buttons for apps. */}
-                                <Button id={app.id.toString()} onClick={() => { handleOpenDeleteModal(app) }} title="Delete" startIcon={<DeleteIcon fontSize="medium" />}>
-                                    Delete
+                                <Button onClick={() => { handleOpenDeleteModal(app) }} title="Delete" startIcon={<DeleteIcon fontSize="medium" />}>
+                                    Delete 
                                 </Button>
-                                <Button id={app.id.toString()} onClick={() => { handleEdit(app) }} title="Edit" startIcon={<EditIcon fontSize="medium" />}>
+                                <Button onClick={() => { handleEdit(app) }} title="Edit" startIcon={<EditIcon fontSize="medium" />}>
                                     Edit
                                 </Button>
-                                <Button id={app.id.toString()} onClick={() => { handlePublish(app) }} title="Publish" startIcon={<PublishIcon fontSize="medium" />} disabled={!app.roleMemUrl}>
+                                <Button onClick={() => { handlePublish(app) }} title="Publish" startIcon={<PublishIcon fontSize="medium" />} disabled={!app.roleMemUrl}>
                                     Publish
                                 </Button>
                             </Box>

@@ -62,6 +62,7 @@ export enum ModalType {
     CreateAppModal,
     DeleteAppModal,
 	PublishAppModal,
+	UnpublishAppModal,
 
     CreateDatasourceModal,
 	EditDatasourceModal,

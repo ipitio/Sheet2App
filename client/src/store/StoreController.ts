@@ -168,7 +168,7 @@ export const editApp = createAsyncThunk('S2A/editApp', async (app: App) => {
 
 /**
  * Requests to publish an application. 
- * @param {App} app - The application to publish, with the updated information.
+ * @param {App} app - The application to publish.
  * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
  */
 export const publishApp = createAsyncThunk('S2A/publishApp', async (app: App) => {  
@@ -184,6 +184,27 @@ export const publishApp = createAsyncThunk('S2A/publishApp', async (app: App) =>
     }
     catch(err) {
         return Promise.reject(`publishApp failed with the error: ${err}`);
+    }
+});
+
+/**
+ * Requests to unpublish an application. 
+ * @param {App} app - The application to unpublish.
+ * @return {Promise<void>} - A promise that resolves on success, rejects on failure.
+ */
+export const unpublishApp = createAsyncThunk('S2A/unpublishApp', async (app: App) => {  
+    try {
+        const reqForm = await getRequestForm("PUT", {"app": app});
+
+        /* Send request and return promise resolving if edit successful. */
+        const res = await fetch(`${DJANGO_URL}/unpublishApp`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`unpublishApp request failed with status: ${res.status}`);
+        
+        return Promise.resolve();
+    }
+    catch(err) {
+        return Promise.reject(`unpublishApp failed with the error: ${err}`);
     }
 });
 

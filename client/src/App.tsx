@@ -18,6 +18,8 @@ import EditAppDetailviewRoles from './components/S2A/detailviews/EditAppDetailvi
 
 import CreateAppModal from './components/S2A/modals/apps/CreateAppModal';
 import DeleteAppModal from './components/S2A/modals/apps/DeleteAppModal';
+import PublishAppModal from './components/S2A/modals/apps/PublishAppModal';
+import UnpublishAppModal from './components/S2A/modals/apps/UnpublishAppModal';
 import CreateDatasourceModal from './components/S2A/modals/datasources/CreateDatasourceModal';
 import EditDatasourceModal from './components/S2A/modals/datasources/EditDatasourceModal';
 import DeleteDatasourceModal from './components/S2A/modals/datasources/DeleteDatasourceModal';
@@ -39,7 +41,6 @@ import EditAppRoleSheet from './components/S2A/rolesheet/EditAppRoleSheet';
 
 import SuccessAlert from './alerts/SuccessAlert';
 import ErrorAlert from './alerts/ErrorAlert';
-import PublishAppModal from './components/S2A/modals/apps/PublishAppModal';
 
 const App: React.FC = () => {
   return (
@@ -76,6 +77,7 @@ const App: React.FC = () => {
       <CreateAppModal/>
       <DeleteAppModal/>
       <PublishAppModal/>
+      <UnpublishAppModal/>
       <CreateDatasourceModal/>
       <EditDatasourceModal/>
       <DeleteDatasourceModal/>

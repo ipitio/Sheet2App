@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { StoreState, openApp } from '../../../store/StoreContext';
+import store, { StoreState, openApp, markAppToUnpublish, setCurrentModalType } from '../../../store/StoreContext';
+import { App, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/home/HomeStyles"
 import HomeNavBar from '../navbars/HomeNavBar';
-import { Grid, IconButton, Box, CircularProgress, Button } from '@mui/material';
+import { Button, Grid, Box, CircularProgress } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import FileDownloadOffIcon from '@mui/icons-material/FileDownloadOff';
 import { viewAccApps } from '../../../store/StoreController';
-import { App } from '../../../store/StoreTypes';
 
 function HomeAccess() {
     const navigate = useNavigate();
@@ -37,6 +38,12 @@ function HomeAccess() {
         navigate(`/userapp/${app.id}/home`);
     }
 
+    /* If the unpublish icon next to an app is clicked. */
+    const handleUnpublish = (app: App) => {
+        dispatch(markAppToUnpublish(app))
+        dispatch(setCurrentModalType(ModalType.UnpublishAppModal));
+    }
+
     return (
         <div style={styles.homeWrapper}>
             {/* Home Navigation Bar */}
@@ -53,10 +60,15 @@ function HomeAccess() {
                                 <Box sx={{ ...styles.gridItemContainer, '&:hover': { 'background': "#EEEEEE" } }}>
                                     {app.name}
 
-                                    {/* Access button for apps. */}
-                                    <Button id={app.id.toString()} onClick={() => {handleAccess(app)}} sx={{...styles.accessAppButton, textTransform:'none'}} endIcon={<ChevronRightIcon />}>
-                                        Launch
-                                    </Button>
+                                    {/* Access, unpublish button for apps. */}
+                                    <Box sx={styles.buttonContainer}>
+                                        <Button onClick={() => { handleAccess(app) }} title="Access" startIcon={<ChevronRightIcon fontSize="medium" />}>
+                                            Launch
+                                        </Button>
+                                        <Button onClick={() => { handleUnpublish(app) }} title="Unpublish" startIcon={<FileDownloadOffIcon fontSize="medium" />}>
+                                            Unpublish
+                                        </Button>
+                                    </Box>
                                 </Box>
                             </Grid>
                         ))}

@@ -33,7 +33,8 @@ const ModalStyles: StyleContainer = {
   modalButtonContainer: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-evenly'
+    justifyContent: 'space-evenly',
+    marginTop: '20px',
   },
 };
 

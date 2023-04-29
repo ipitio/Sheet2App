@@ -69,6 +69,12 @@ export interface IS2AState {
     /* The type of modal currently open for creation/edit/deletion. */
     currentModalType: ModalType | null,
 
+    /* The app marked for publish on confirmation. */
+    currentAppToPublish: App | null,
+
+    /* The app marked for unpublish on confirmation. */
+    currentAppToUnpublish: App | null,
+
     /* The datasource marked for edit on confirmation. */
     currentDatasourceToEdit: Datasource | null,
 
@@ -80,8 +86,6 @@ export interface IS2AState {
 
     /* The app marked for deletion on confirmation. */
     currentAppToDelete: App | null,
-
-    currentAppToPublish: App | null,
 
     /* The datasource marked for deletion on confirmation. */
     currentDatasourceToDelete: Datasource | null,
@@ -125,12 +129,14 @@ const S2AState: IS2AState = {
     currentDetailview: null,
     currentModalType: null,
 
+    currentAppToPublish: null,
+    currentAppToUnpublish: null,
+    
     currentDatasourceToEdit: null,
     currentTableviewToEdit: null,
     currentDetailviewToEdit: null,
 
     currentAppToDelete: null,
-    currentAppToPublish: null,
     currentDatasourceToDelete: null,
     currentTableviewToDelete: null,
     currentDetailviewToDelete: null,
@@ -159,6 +165,7 @@ export const S2AReducer = createSlice({
             state.searchedAccApps = [];
             state.searchedDevApps = [];
         },
+
         /* Set current resource reducers. */
         setCurrentApp: (state, action: PayloadAction<App>) => {
             state.currentApp = action.payload;
@@ -176,8 +183,12 @@ export const S2AReducer = createSlice({
             state.currentModalType = action.payload;
         },
 
+        /* Mark resource publish reducers. */
         markAppToPublish: (state, action: PayloadAction<App>) => {
             state.currentAppToPublish = action.payload;
+        },
+        markAppToUnpublish: (state, action: PayloadAction<App>) => {
+            state.currentAppToUnpublish = action.payload;
         },
 
         /* Mark resource edit reducers. */
@@ -209,7 +220,19 @@ export const S2AReducer = createSlice({
         finishCreation: (state) => {
             state.currentModalType = null;
 
-            console.log("Finished/cancelled creation of resource.")
+            console.log("Finished/cancelled creation of resource.");
+        },
+        finishPublish: (state) => {
+            state.currentModalType = null;
+            state.currentAppToPublish = null;
+
+            console.log("Finished publishment of resource.");
+        },
+        finishUnpublish: (state) => {
+            state.currentModalType = null;
+            state.currentAppToUnpublish = null;
+
+            console.log("Finished unpublishment of resource.");
         },
         finishEdit: (state) => {    
             state.datasourceColumns = [];
@@ -232,7 +255,7 @@ export const S2AReducer = createSlice({
             state.currentTableviewToEdit = null;
             state.currentDetailviewToEdit = null;
 
-            console.log("Finished/cancelled edit of resource.")
+            console.log("Finished/cancelled edit of resource.");
         },
         finishDeletion: (state) => {
             state.currentModalType = null;
@@ -242,11 +265,7 @@ export const S2AReducer = createSlice({
             state.currentTableviewToDelete = null;
             state.currentDetailviewToDelete = null;
 
-            console.log("Finished/cancelled deletion of resource.")
-        },
-        finishPublish: (state) => {
-            state.currentModalType = null;
-            state.currentAppToPublish = null;
+            console.log("Finished/cancelled deletion of resource.");
         },
         resetAll: (state) => {
             state.devApps = [],
@@ -287,7 +306,7 @@ export const S2AReducer = createSlice({
             state.currentTableviewToDelete = null,
             state.currentDetailviewToDelete = null
 
-            console.log("Complete reset of store state.")
+            console.log("Complete reset of store state.");
         },
     }, 
     extraReducers(builder) {
@@ -309,7 +328,7 @@ export const S2AReducer = createSlice({
 
         builder.addCase(viewAppRoles.fulfilled, (state, action) => {
             state.roles = action.payload;
-            console.log("Retrieved app roles.")
+            console.log("Retrieved app roles.");
         });
         builder.addCase(viewAppRoles.rejected, (state, action) => {
             console.log(`viewAppRoles failed with the error ${action.error?.message}`);
@@ -326,7 +345,7 @@ export const S2AReducer = createSlice({
 
         builder.addCase(editApp.fulfilled, (state, action) => {
             state.showSuccessAlert = true;
-            console.log("Edited app.")
+            console.log("Edited app.");
         });
         builder.addCase(editApp.rejected, (state, action) => {
             state.showErrorAlert = true;
@@ -716,9 +735,9 @@ const webAppReducer = createSlice({
 export const { 
     hideSuccessAlert, hideErrorAlert, searchDevApps, searchAccApps, clearSearch,
     setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
-    markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, markAppToPublish,
+    markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, markAppToPublish, markAppToUnpublish,
     markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
-    finishCreation, finishEdit, finishDeletion, finishPublish, resetAll
+    finishCreation, finishEdit, finishDeletion, finishPublish, finishUnpublish, resetAll
  } = S2AReducer.actions
 
 export const { openApp, returnToS2A, addRecord, editRecord, deleteRecord, setCurrentRecordIndex,
