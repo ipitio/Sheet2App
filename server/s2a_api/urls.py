@@ -10,6 +10,7 @@ urlpatterns = [
     path('getUsableApps', views.get_usable_apps),
     
     path('createApp', views.create_app),
+    path('getAppById', views.get_app_by_id),
     path('editApp', views.edit_app),
     path('publishApp', views.publish_app),
     path('deleteApp', views.delete_app),

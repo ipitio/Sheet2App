@@ -186,7 +186,11 @@ def get_creator(creator_email):
 
 def get_app_by_id(app_id):
     try:
-        app = Application.objects.get(id=app_id)
+        app = Application.objects.filter(id=app_id).values(
+            'id', 'name', 'creator_id__email', "role_mem_url", "is_published"
+        )
+        app = mysql_db.utils.annotate_apps(app)
+        
         return app, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR

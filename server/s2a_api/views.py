@@ -118,6 +118,23 @@ def create_app(request):
 
 
 @csrf_exempt
+def get_app_by_id(request):
+    body = json.loads(request.body)
+    app_id = body["appId"]
+
+    app, response_code = queries.get_app_by_id(app_id=app_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    res_body = { "app": app }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+@csrf_exempt
 def get_developable_apps(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
