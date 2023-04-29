@@ -398,6 +398,37 @@ def get_roles_for_detail_view(detail_view_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+def get_detail_view_columns(detail_view_id):
+    try:
+        detail_view = DetailView.objects.get(id=detail_view_id)
+        detail_columns = DatasourceColumn.objects.filter(
+            datasource_id=detail_view.datasource_id, 
+            is_filter=False, is_user_filter=False, is_edit_filter=False
+        )
+        
+        detail_columns = detail_columns.values()
+        detail_columns = mysql_db.utils.annotate_detail_view_columns(detail_columns, detail_view_id)
+        detail_columns = list(detail_columns)
+
+        edit_filter_column_name = f"{detail_view.id} {detail_view.name} Edit Filter"
+
+        # edit_filter_column = DatasourceColumn.objects.get(
+        #     datasource_id=detail_view.datasource_id, name=edit_filter_column_name,
+        #     is_filter=False, is_user_filter=False, is_edit_filter=True
+        # )
+        edit_filter_column = None
+        
+        columns = {
+            "detail_columns": detail_columns,
+            "edit_filter_column": edit_filter_column
+        }
+
+        return columns, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 def get_detail_view_viewable_columns(detail_view_id):
     try:
         columns = DatasourceColumn.objects.filter(detailviewviewablecolumn__detail_view_id=detail_view_id)
@@ -550,20 +581,20 @@ def update_detail_view_viewable_columns(detail_view_id, columns):
             viewable = column["viewable"]
             editable = column["editable"]
             
-            exists_in_viewable_cols = DetailViewViewableColumn.objects.exists(
+            exists_in_viewable_cols = DetailViewViewableColumn.objects.filter(
                 detail_view_id=detail_view_id, datasource_column_id=column_id
-            )
-            exists_in_editable_cols = DetailViewEditableColumn.objects.exists(
+            ).exists()
+            exists_in_editable_cols = DetailViewEditableColumn.objects.filter(
                 detail_view_id=detail_view_id, datasource_column_id=column_id
-            )
+            ).exists()
 
             
             if viewable and not exists_in_viewable_cols:
-                viewable_column = TableViewViewableColumn.objects.create(
+                viewable_column = DetailViewViewableColumn.objects.create(
                     detail_view_id=detail_view_id, datasource_column_id=column_id
                 )
             elif not viewable and exists_in_viewable_cols:
-                entry = TableViewViewableColumn.objects.get(
+                entry = DetailViewViewableColumn.objects.get(
                     detail_view_id=detail_view_id, datasource_column_id=column_id
                 )
                 entry.delete()
