@@ -13,6 +13,7 @@ urlpatterns = [
     path('getAppById', views.get_app_by_id),
     path('editApp', views.edit_app),
     path('publishApp', views.publish_app),
+    path('unpublishApp', views.unpublish_app),
     path('deleteApp', views.delete_app),
     
     path('getAppRoles', views.get_app_roles),

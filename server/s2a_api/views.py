@@ -251,6 +251,23 @@ def publish_app(request):
 
 
 @csrf_exempt
+def unpublish_app(request):
+    body = json.loads(request.body)
+    app_id = body["app"]["id"]
+
+    output, response_code = queries.unpublish_app(app_id=app_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+@csrf_exempt
 def delete_app(request):
     body = json.loads(request.body)
     app_id = body["app"]["id"]
