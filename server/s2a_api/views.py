@@ -177,7 +177,7 @@ def get_developable_apps(request):
 
 
 @csrf_exempt
-def get_usable_apps(request):
+def get_accessible_apps(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
     creator_email = body["email"]

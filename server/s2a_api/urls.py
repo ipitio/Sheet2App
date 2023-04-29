@@ -7,7 +7,7 @@ urlpatterns = [
     path('createCreator', views.create_creator),
     
     path('getDevelopableApps', views.get_developable_apps),
-    path('getUsableApps', views.get_usable_apps),
+    path('getaccessibleApps', views.get_accessible_apps),
     
     path('createApp', views.create_app),
     path('getAppById', views.get_app_by_id),
