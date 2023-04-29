@@ -8,9 +8,10 @@ import store, { hideErrorAlert, hideSuccessAlert, setCurrentModalType, StoreStat
 import { ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/navbars/HomeNavBarStyles'
-import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, TextField } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, TextField, Box } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 
 import Cookies from 'js-cookie';
 
@@ -94,7 +95,7 @@ function HomeNavBar() {
                 )}
 
                 {/* Search Textfield and Navigation Buttons */}
-                <TextField sx={styles.searchAppTextfield} label="Search App" variant="filled" onKeyDown={handleKeyDown} onChange={handleSearchInput} onSubmit={handleSearchApp}/>
+                <TextField sx={styles.searchAppTextfield} label={<Box sx={{display: 'flex'}}><SearchIcon/>{"Search App"}</Box>} variant="filled" onKeyDown={handleKeyDown} onChange={handleSearchInput} onSubmit={handleSearchApp}/>
                 <Button onClick={displayAppsInDev} sx={{ ...styles.displayButton, ...styles.displayDevAppsButton }} color="inherit">Apps in Development</Button>
                 <Button onClick={displayAppsAccessible} sx={{ ...styles.displayButton, ...styles.displayAccAppsButton }} color="inherit">Accessible Apps</Button>
                 <IconButton onClick={handleProfileOpen} sx={styles.openProfileButton} color="inherit" aria-label="open profile menu">
