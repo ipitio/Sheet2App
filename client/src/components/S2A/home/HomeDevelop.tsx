@@ -11,7 +11,7 @@ import { Grid, IconButton, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import PublishIcon from '@mui/icons-material/Publish';
-import { editApp, viewDevApps } from '../../../store/StoreController';
+import { publishApp, viewDevApps } from '../../../store/StoreController';
 
 function HomeDevelop() {
     const navigate = useNavigate();
@@ -38,18 +38,6 @@ function HomeDevelop() {
         }
     }
 
-    /* If the publish icon next to an app is clicked. */
-    const handlePublish = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const publishButton = event.currentTarget as HTMLButtonElement;
-        const appToPublish = devApps.find(app => app.id == Number(publishButton.id));
-
-        if(appToPublish) {
-            const newApp = {...appToPublish, isPublished: true};
-            dispatch(editApp(newApp));
-            dispatch(viewDevApps());
-        }
-    }
-
     /* If the edit icon next to an app is clicked. */
     const handleEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
         const editButton = event.currentTarget as HTMLButtonElement;
@@ -58,6 +46,18 @@ function HomeDevelop() {
         if(appToEdit) {
             dispatch(setCurrentApp(appToEdit));
             navigate(`/S2A/editapp/datasources/${editButton.id}`);
+        }
+    }
+
+    /* If the publish icon next to an app is clicked. */
+    const handlePublish = (event: React.MouseEvent<HTMLButtonElement>) => {
+        const publishButton = event.currentTarget as HTMLButtonElement;
+        const appToPublish = devApps.find(app => app.id == Number(publishButton.id));
+
+        if(appToPublish) {
+            const newApp = {...appToPublish, isPublished: true};
+            dispatch(publishApp(newApp));
+            dispatch(viewDevApps());
         }
     }
 
@@ -80,13 +80,12 @@ function HomeDevelop() {
                             <IconButton id={app.id.toString()} onClick={handleOpenDeleteModal} sx={styles.deleteAppButton} title="Delete">
                                 <DeleteIcon fontSize="medium"/>
                             </IconButton>
-                            <IconButton id={app.id.toString()} onClick={handlePublish} sx={styles.publishAppButton} title="Publish">
-                                <PublishIcon fontSize="medium"/>
-                            </IconButton>
                             <IconButton id={app.id.toString()} onClick={handleEdit} sx={styles.editAppButton} title="Edit">
                                 <EditIcon fontSize="medium"/>
                             </IconButton>
-                            
+                            <IconButton id={app.id.toString()} onClick={handlePublish} sx={styles.publishAppButton} title="Publish">
+                                <PublishIcon fontSize="medium"/>
+                            </IconButton>
                         </Box>
                     </Grid>
                 ))}

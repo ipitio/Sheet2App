@@ -34,12 +34,12 @@ const HomeStyles: StyleContainer = {
     bottom: '0',
     right: '60%',
   },
-  publishAppButton: {
+  editAppButton: {
     position: 'absolute',
     bottom: '0',
     right: '45%',
   },
-  editAppButton: {
+  publishAppButton: {
     position: 'absolute',
     bottom: '0',
     right: '30%',
