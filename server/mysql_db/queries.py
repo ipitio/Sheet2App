@@ -192,17 +192,6 @@ def get_app_by_id(app_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def get_apps_by_email(creator_email):
-    try:
-        creator = Creator.objects.get(email=creator_email)
-        apps = Application.objects.filter(creator=creator.id)
-        apps = [to_camel_case(app) for app in apps.values()]
-
-        return apps, HTTPStatus.OK
-    except Exception as e:
-        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
 def get_all_unpublished_apps_with_creator_email():
     try:
         apps = Application.objects.filter(is_published=False).values(
