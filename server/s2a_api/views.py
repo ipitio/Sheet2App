@@ -232,7 +232,11 @@ def edit_app(request):
 @csrf_exempt
 def publish_app(request):
     body = json.loads(request.body)
-    app_id = body["appID"]
+    app_id = body["app"]["id"]
+    role_mem_url = body["app"]["roleMemUrl"]
+    
+    if role_mem_url == None:
+        return HttpResponse({}, status=HTTPStatus.BAD_REQUEST)
 
     output, response_code = queries.publish_app(app_id=app_id)
     if response_code != HTTPStatus.OK:
