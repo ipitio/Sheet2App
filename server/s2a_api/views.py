@@ -876,11 +876,13 @@ def add_record(request):
     record_data_array = [""] * len(datasource_columns)
     
     for column in datasource_columns:
-        col_name = column["name"]
         col_index = column["column_index"]
+        col_initial_value = column["initial_value"]
         
-        if col_name in record_data:
-            record_data_array[col_index] = record_data[col_name]
+        if col_index in record_data:
+            record_data_array[col_index] = record_data[col_index]
+        else:
+            record_data_array[col_index] = col_initial_value
         
 
     spreadsheet_id = datasource.spreadsheet_id
@@ -891,13 +893,8 @@ def add_record(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-
-    # Get and send the refreshed data in response
-    data, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)
-    if response_code != HTTPStatus.OK:
-        return HttpResponse({}, status=response_code)
     
-    res_body = {"spreadsheet_data": data}
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
