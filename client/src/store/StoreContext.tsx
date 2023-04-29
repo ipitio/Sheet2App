@@ -515,6 +515,10 @@ export const S2AReducer = createSlice({
         builder.addCase(editTableviewRoles.rejected, (state, action) => {
             state.showErrorAlert = true;
         });
+
+
+        /** User App additional reducers */
+        
     }
   }
 )

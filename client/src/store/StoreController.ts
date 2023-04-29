@@ -737,9 +737,9 @@ export const editDetailviewRoles = createAsyncThunk('S2A/editDetailviewRoles', a
  * @param appId The app ID of the application to load
  * @returns The app object associated with the app Id
  */
-async function getAppById(appId: number): Promise<App> {
+export async function getAppById(appId: number): Promise<App> {
     try {
-        const reqForm = await getRequestForm("GET", {"appId": appId});
+        const reqForm = await getRequestForm("POST", {"appId": appId});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/getAppById`, reqForm);
@@ -762,7 +762,7 @@ async function getAppById(appId: number): Promise<App> {
  */
 async function loadApp(app: App): Promise<Tableview[]> {
     try {
-        const reqForm = await getRequestForm("GET", {"app": app});
+        const reqForm = await getRequestForm("POST", {"app": app});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
@@ -785,7 +785,7 @@ async function loadApp(app: App): Promise<Tableview[]> {
  */
 async function loadTableview(datasource: Datasource): Promise<Detailview> {
     try {
-        const reqForm = await getRequestForm("GET", {"datasource": datasource});
+        const reqForm = await getRequestForm("POST", {"datasource": datasource});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/loadTableview`, reqForm);
@@ -877,5 +877,5 @@ async function deleteRecord(datasource: Datasource, recordID: number) {
 }
 
 export default {
-                getAppById, loadApp, loadTableview, addRecord, editRecord, deleteRecord,
+                loadApp, loadTableview, addRecord, editRecord, deleteRecord,
             };
