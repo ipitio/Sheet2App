@@ -305,9 +305,11 @@ export const S2AReducer = createSlice({
         });
 
         builder.addCase(createApp.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Created app.");
         });
         builder.addCase(createApp.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`createApp failed with the error ${action.error?.message}`);
         });
 
@@ -321,9 +323,11 @@ export const S2AReducer = createSlice({
         });
 
         builder.addCase(deleteApp.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Deleted app.");
         });
         builder.addCase(deleteApp.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`deleteApp failed with the error ${action.error?.message}`);
         });
 

@@ -7,7 +7,12 @@ import { ModalType } from '../../../store/StoreTypes'
 
 import styles from '../../../styles/S2A/navbars/EditAppNavBarStyles';
 import { AppBar, Toolbar, Typography, Button, IconButton, TextField } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
+import EqualizerIcon from '@mui/icons-material/Equalizer';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import ExpandIcon from '@mui/icons-material/Expand';
+import PeopleIcon from '@mui/icons-material/People';
 import { editApp } from '../../../store/StoreController';
 
 
@@ -92,11 +97,11 @@ function EditAppNavBar() {
 
                 {/* Navigation Buttons */}
                 <div style={styles.buttonContainer}>
-                    <Button onClick={displayDatasources} sx={{ ...styles.displayButton, ...styles.displayDatasourcesButton }} color="inherit">Data Sources</Button>
-                    <Button onClick={displayTableviews} sx={{ ...styles.displayButton, ...styles.displayTableviewsButton }} color="inherit">Table Views</Button>
-                    <Button onClick={displayDetailviews}sx={{ ...styles.displayButton, ...styles.displayDetailviewsButton }}  color="inherit">Detail Views</Button>
-                    <Button onClick={displayRoles} sx={{ ...styles.displayButton, ...styles.displayRolesButton }} color="inherit">Role Spreadsheet</Button>
-                    <Button onClick={handleReturn} sx={{ ...styles.displayButton, ...styles.displayReturnButton }}  color="inherit">Home</Button>
+                    <Button onClick={displayDatasources} sx={{ ...styles.displayButton, ...styles.displayDatasourcesButton }} color="inherit"><EqualizerIcon sx={styles.displayIcon}/>Data Sources</Button>
+                    <Button onClick={displayTableviews} sx={{ ...styles.displayButton, ...styles.displayTableviewsButton }} color="inherit"><TableChartIcon sx={styles.displayIcon}/>Table Views</Button>
+                    <Button onClick={displayDetailviews}sx={{ ...styles.displayButton, ...styles.displayDetailviewsButton }}  color="inherit"><ExpandIcon sx={styles.displayIcon}/>Detail Views</Button>
+                    <Button onClick={displayRoles} sx={{ ...styles.displayButton, ...styles.displayRolesButton }} color="inherit"><PeopleIcon sx={styles.displayIcon}/>Role Spreadsheet</Button>
+                    <Button onClick={handleReturn} sx={{ ...styles.displayButton, ...styles.displayReturnButton }}  color="inherit"><HomeIcon sx={styles.displayIcon}/>Home</Button>
                 </div>
             </Toolbar>
         </AppBar>

@@ -53,6 +53,9 @@ const EditAppNavBarStyles: StyleContainer = {
   displayReturnButton: {
     marginLeft: '10px',
   },
+  displayIcon: {
+    marginBottom: '3px'
+  },
 };
 
 export default EditAppNavBarStyles;

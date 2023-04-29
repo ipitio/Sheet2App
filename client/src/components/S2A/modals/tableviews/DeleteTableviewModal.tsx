@@ -35,7 +35,7 @@ function DeleteTableviewModal() {
     return (
         <Modal open={currentModalType == ModalType.DeleteTableviewModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
-                Delete {currentTableviewToDelete?.name} Tableview?
+                Delete {currentTableviewToDelete?.name} Table View?
 
                 {/* Confirm/Cancel Buttons */}
                 <Button onClick={handleDelete} variant="outlined" size="large" sx={styles.modalButton}>Confirm</Button>
