@@ -59,7 +59,7 @@ function HomeDevelop() {
                 {/* Map each app in development to a grid item. */}
                 {(searchedDevApps.length > 0 ? searchedDevApps : devApps).map((app) => (
                     <Grid item xs={2} key={app.id}>
-                    <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#9BE8FF"}}}>
+                    <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                             {app.name}
 
                             {/* Edit and delete buttons for apps. */}

@@ -90,7 +90,7 @@ function EditAppDetailviewRoles() {
                     {isLoading ? <CircularProgress /> :
                         roles.map((role) => (
                             <Grid item xs={1.5} key={role.name}>
-                                <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#9BE8FF"}}}>
+                                <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                                     {/* Name */}
                                     <div style={styles.columnElement}>{role.name}</div>
 

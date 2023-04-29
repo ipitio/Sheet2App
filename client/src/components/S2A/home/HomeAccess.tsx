@@ -42,7 +42,7 @@ function HomeAccess() {
                 {/* Map each app in development to a grid item. */}
                 {(searchedAccApps.length > 0 ? searchedAccApps : accApps).map((app) => (
                     <Grid item xs={2} key={app.id}>
-                        <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#9BE8FF"}}}>
+                        <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                             {app.name}
 
                                 {/* Access button for apps. */}

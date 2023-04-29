@@ -143,7 +143,7 @@ function EditAppDetailviewColumns() {
                         {/* Map each datasource column to a grid item. */}
                         {changedColumns.map((col) => (
                             <Grid item xs={1.5} key={col.id}>
-                             <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#9BE8FF"}}}>
+                             <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                                     {/* Name*/}
                                     <div style={styles.columnElement}> {col.name} </div>
 
