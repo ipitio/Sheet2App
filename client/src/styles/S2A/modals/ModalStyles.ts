@@ -30,6 +30,11 @@ const ModalStyles: StyleContainer = {
     backgroundColor: '#669cc1',
     color: '#2e495c',
   },
+  modalButtonContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly'
+  },
 };
 
 export default ModalStyles;

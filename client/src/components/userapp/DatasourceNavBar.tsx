@@ -4,46 +4,44 @@ import { useDispatch, useSelector} from 'react-redux';
 
 import { getLoggedOut } from '../../auth/AuthController';
 
-import { StoreState, setCurrentModalType, loadTableview } from '../../store/StoreContext';
+import store, { StoreState, setCurrentModalType, loadTableview } from '../../store/StoreContext';
 import { Datasource, ModalType, Tableview, View } from '../../store/StoreTypes';
 
 import styles from '../../styles/userapp/navbars/HomeNavBarStyles'
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, Box, TextField, SwipeableDrawer } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
-
+import SearchIcon from '@mui/icons-material/Search';
 import Cookies from 'js-cookie';
+
+import { getAppById } from '../../store/StoreController';
 
 function DatasourceNavBar() {
     const location = useLocation();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<typeof store.dispatch>();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const app = useSelector((state: StoreState) => state.webAppReducer.app);
     // TODO: have the tableviews list load based on the current web app reducer
-    // const tableviews = useSelector((state: StoreState) => state.webAppReducer.tableviews);
-
-    // TODO: remove test data
-    const tableviews: View[] = [
-        {
-            id: 0, 
-            name: "First Table",
-            canView: true,
-            datasource: {
-                id: 0,
-                name: "Datasource 1",
-                spreadsheetUrl: "url",
-                sheetName: "some sheet name"
-            }
-        }        
-    ]
+    const tableviews = useSelector((state: StoreState) => state.webAppReducer.tableviews);
 
     useEffect(() => {
         dispatch(setCurrentModalType(null));
     }, []);
+
+    useEffect(() => {
+        if (app) return;
+
+        const appId: number = location.pathname.split('/')[2] as unknown as number;
+
+        getAppById(appId)
+        .then((res) => {
+            console.log(res);
+        })
+    });
 
     /* Event handlers. */
     const handleOpenView = (datasource: Datasource) => {
@@ -85,17 +83,6 @@ function DatasourceNavBar() {
     return (
         <AppBar sx={styles.navBarWrapper}>
             <Toolbar>
-                <IconButton
-                    size="large"
-                    edge="start"
-                    color="inherit"
-                    aria-label="menu"
-                    sx={{ mr: 2 }}
-                    onClick={handleOpenDrawer}
-                >
-                    <MenuIcon />
-                </IconButton>
-
                 <SwipeableDrawer
                     open={isDrawerOpen}
                     onClose={handleCloseDrawer}
@@ -103,17 +90,33 @@ function DatasourceNavBar() {
                 >
                     {datasources}
                 </SwipeableDrawer>
+                <Box sx={styles.navBarContainer}>
+                    <IconButton
+                        size="large"
+                        edge="start"
+                        color="inherit"
+                        aria-label="menu"
+                        sx={{ mr: 2 }}
+                        onClick={handleOpenDrawer}
+                    >
+                        <MenuIcon />
+                    </IconButton>
 
-                <Typography sx={styles.navBarTitle} variant="h6" component="div">{app?.name}</Typography>
-                <IconButton onClick={handleProfileOpen} sx={styles.openProfileButton} color="inherit">
-                    <AccountCircle />
-                </IconButton>
+                    <Typography sx={styles.appName}>{window.location.pathname.split('/')[2]}</Typography>
 
-                {/* Search Textfield and Navigation Buttons */}
-                <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleProfileClose}>
-                    <MenuItem> {Cookies.get("email")} </MenuItem>
-                    <MenuItem onClick={handleLogout}> Logout </MenuItem>
-                </Menu>
+                    <TextField sx={styles.searchAppTextfield} label={<Box sx={{ display: 'flex' }}><SearchIcon />{"Search App"}</Box>} variant="filled" />
+
+                    <Typography sx={styles.navBarTitle} variant="h6" component="div">{app?.name}</Typography>
+                    <IconButton onClick={handleProfileOpen} sx={styles.openProfileButton} color="inherit">
+                        <AccountCircle />
+                    </IconButton>
+
+                    {/* Search Textfield and Navigation Buttons */}
+                    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleProfileClose}>
+                        <MenuItem> {Cookies.get("email")} </MenuItem>
+                        <MenuItem onClick={handleLogout}> Logout </MenuItem>
+                    </Menu>
+                </Box>
             </Toolbar>
         </AppBar>
     );
