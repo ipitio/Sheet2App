@@ -75,18 +75,18 @@ function EditAppDatasources() {
                 {/* Map each app datasource to a grid item. */}
                 {datasources.map((ds) => (
                     <Grid item xs={1.5} key={ds.id}>
-                    <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#9BE8FF"}}}>
+                    <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                             {ds.name}
 
                             {/* Edit, delete, and edit columns buttons for datasources. */}
                             <IconButton id={ds.id.toString()} onClick={handleOpenDeleteModal} sx={styles.deleteDatasourceButton} title="Delete">
-                                <DeleteIcon fontSize="small"/>
+                                <DeleteIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={ds.id.toString()} onClick={handleNavigateEditColumns} sx={styles.editDatasourceColumnsButton} title="Edit Datasource Columns">
-                                <ViewColumnIcon fontSize="small"/>
+                                <ViewColumnIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={ds.id.toString()} onClick={handleOpenEditModal} sx={styles.editDatasourceButton} title="Edit Datasource">
-                                <EditIcon fontSize="small"/>
+                                <EditIcon fontSize="medium"/>
                             </IconButton>                         
                         </Box>
                     </Grid>
