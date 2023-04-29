@@ -554,6 +554,8 @@ export interface IWebAppState {
     // The current modal type that is open on the screen (Add record modal, edit record modal, delete record modal)
     currentModalType: ModalType | null,
 
+    currentRecordIndex: number | null,
+
     columns: Column[],
     columnData: any[][],
     rowData: any[],
@@ -574,6 +576,8 @@ const webAppState: IWebAppState = {
     currentDetailview: null,
     currentModalType: null,
     currentRecord: null,
+
+    currentRecordIndex: null,
 
     columns: [],
     columnData: [],
@@ -596,6 +600,9 @@ const webAppReducer = createSlice({
 
         webAppSetCurrentTableview: (state, action: PayloadAction<Tableview>) => {
             state.currentTableview = action.payload;
+        },
+        setCurrentRecordIndex: (state, action: PayloadAction<number>) => {
+            state.currentRecordIndex = action.payload;
         },
         
         // loadTableview: (state, action: PayloadAction<Tableview>) => {
@@ -657,10 +664,8 @@ const webAppReducer = createSlice({
             state.currentRecord = action.payload;
         },
         // Displays the DeleteRecord Modal
-        showDeleteRecordModal: (state, action: {payload: Record}) => {
+        showDeleteRecordModal: (state) => {
             state.currentModalType = ModalType.DeleteRecordModal;
-
-            state.currentRecord = action.payload;
         },
         // Hides the current Modal
         hideWebAppModal: state => {
@@ -716,7 +721,7 @@ export const {
     finishCreation, finishEdit, finishDeletion, finishPublish, resetAll
  } = S2AReducer.actions
 
-export const { openApp, returnToS2A, addRecord, editRecord, deleteRecord,
+export const { openApp, returnToS2A, addRecord, editRecord, deleteRecord, setCurrentRecordIndex,
     showAddRecordModal, showEditRecordModal, showDeleteRecordModal, webAppSetCurrentTableview,
     hideWebAppModal, hideWebAppErrorAlert, hideWebAppSuccessAlert, goToUserAppHome } = webAppReducer.actions;
 

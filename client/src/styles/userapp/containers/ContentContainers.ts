@@ -50,7 +50,7 @@ const ContentContainer: StyleContainer = {
     top: '0',
     right: '0',
     color: 'white'
-  },
+  }
 };
 
 export default ContentContainer;
