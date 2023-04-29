@@ -300,12 +300,12 @@ def get_table_views_by_app_id(app_id):
     
 def get_table_views_for_roles(app_id, roles):
     try:
+        table_views = TableView.objects.filter(app_id=app_id).values()
+        table_views = mysql_db.utils.annotate_table_views(table_views)
+        table_views = list(table_views)
+        
         table_views_for_role = set()
-        for role in roles:
-            table_views = TableView.objects.filter(app_id=app_id).values()
-            table_views = mysql_db.utils.annotate_table_views(table_views)
-            table_views = list(table_views)
-            
+        for role in roles:    
             for table_view in table_views:
                 if TableViewPerm.objects.exists(table_view_id=table_view["id"], role=role):
                     table_views_for_role.add(table_view)
@@ -370,7 +370,7 @@ def get_table_view_viewable_columns(table_view_id):
     try:
         columns = DatasourceColumn.objects.filter(tableviewviewablecolumn__table_view_id=table_view_id)
         columns = columns.values()
-        columns = mysql_db.utils.annotate_datasource_columns(columns)
+        columns = mysql_db.utils.annotate_table_view_viewable_columns(columns)
         columns = list(columns)
 
         return columns, HTTPStatus.OK
@@ -386,6 +386,23 @@ def get_detail_views_by_app_id(app_id):
         detail_views = list(detail_views)
         
         return detail_views, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def get_detail_view_for_role(datasource_id, roles):
+    try:
+        detail_views = DetailView.objects.filter(datasource_id=datasource_id).values()
+        detail_views = mysql_db.utils.annotate_detail_views(detail_views)
+        detail_views = list(detail_views)
+        
+        for role in roles:
+            for detail_view in detail_views:
+                if DetailViewPerm.objects.exists(detail_view_id=detail_view["id"], role=role):
+                    return detail_view, HTTPStatus.OK
+        
+        return None, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR

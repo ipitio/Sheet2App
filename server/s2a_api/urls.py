@@ -51,5 +51,5 @@ urlpatterns = [
     path('editRecord', views.edit_record),
     
     path('loadApp', views.get_app_table_views_for_role),
-    path('loadTableview', views.load_table_view_column_data),
+    path('loadTableview', views.load_table_view),
 ]

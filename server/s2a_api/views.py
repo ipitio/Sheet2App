@@ -992,11 +992,17 @@ def get_app_table_views_for_role(request):
 
 
 @csrf_exempt
-def load_table_view_column_data(request):
+def load_table_view(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    email = body["email"]
+    role_mem_url = body["app"]["roleMemUrl"]
     table_view_id = body["tableview"]["id"]
-    spreadsheet_url = body["tableview"]["datasource"]["spreadsheetUrl"]
+    datasource = body["tableview"]["datasource"]
+    datasource_id = datasource["id"]
+    spreadsheet_url = datasource["spreadsheetUrl"]
     
+    # Load the table view data 
     viewable_columns, response_code = queries.get_table_view_viewable_columns(table_view_id=table_view_id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -1007,15 +1013,27 @@ def load_table_view_column_data(request):
     column_indexes = [column["column_index"] for column in viewable_columns]
     
     column_data, response_code = sheets_api.get_column_data(
-        spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
-        columns=column_indexes
+        tokens=tokens, spreadsheet_id=spreadsheet_id, 
+        sheet_id=sheet_id, columns=column_indexes
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    # Retrieve a detailview the role has access to based on the datasource the given table view uses
+    roles, response_code = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    detail_view, response_code = queries.get_detail_view_for_role(
+        datasource_id=datasource_id, roles=roles
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
     res_body = {
         "columns": viewable_columns,
-        "columnData": column_data
+        "columnData": column_data,
+        "detailview": detail_view
     }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
