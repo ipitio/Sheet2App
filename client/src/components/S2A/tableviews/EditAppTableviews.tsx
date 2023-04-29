@@ -7,7 +7,7 @@ import { Datasource, Tableview, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/tableviews/EditAppTableviewsStyles";
 import EditAppNavBar from "../navbars/EditAppNavBar";
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Grid, IconButton, Typography, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import PeopleIcon from '@mui/icons-material/People';
@@ -87,7 +87,7 @@ function EditAppTableviews() {
                 {/* Map each app tableview to a grid item. */}
                 {tableviews.map((tv) => (
                     <Grid item xs={1.5} key={tv.id}>
-                        <div style={styles.gridItemContainer}>
+                        <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#9BE8FF"}}}>
                             {tv.name}
 
                             {/* Delete, edit columns, edit roles, edit buttons for tableviews. */}
@@ -103,7 +103,7 @@ function EditAppTableviews() {
                             <IconButton id={tv.id.toString()} onClick={handleOpenEditModal} sx={styles.editTableviewButton} title="Edit Tableview">
                                 <EditIcon fontSize="small"/>
                             </IconButton>                         
-                        </div>
+                        </Box>
                     </Grid>
                 ))}
                 </Grid>
