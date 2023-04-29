@@ -1030,10 +1030,54 @@ def load_table_view(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
+    if detail_view != None:
+        datasource, response_code = queries.get_datasource_by_detail_view_id(detail_view_id=detail_view.id)
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        detail_view["datasource"] = datasource
+    
     res_body = {
         "columns": viewable_columns,
         "columnData": column_data,
         "detailview": detail_view
+    }
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+@csrf_exempt
+def load_detail_view(request):
+    body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    detail_view = body["detailview"]
+    record_index = body["recordIndex"]
+    spreadsheet_url = detail_view["datasource"]["spreadsheetUrl"]
+    
+    viewable_columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view.id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    sheet_id = sheets.utils.get_gid(spreadsheet_url)
+    
+    column_indexes = [column["column_index"] for column in viewable_columns]
+    
+    column_data, response_code = sheets_api.get_column_data(
+        tokens=tokens, spreadsheet_id=spreadsheet_id, 
+        sheet_id=sheet_id, columns=column_indexes
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    rowData = [column[record_index - 1] for column in column_data]
+    
+    res_body = {
+        "columns": viewable_columns,
+        "rowData": rowData
     }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
