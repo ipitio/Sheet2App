@@ -161,6 +161,7 @@ def publish_app(app_id):
 
         return app, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
@@ -172,6 +173,7 @@ def unpublish_app(app_id):
 
         return app, HTTPStatus.OK
     except Exception as e:
+        print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
