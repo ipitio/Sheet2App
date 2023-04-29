@@ -54,7 +54,7 @@ function EditAppRoleSheet() {
                 <div style={styles.textfieldLabel}>{"Role Membership Spreadsheet URL:"}</div>
 
                 {/* Role Membership Spreadsheet URL Textfield */}
-                <TextField onBlur={handleChangeRoleSheet} onChange={handleTextChange} style={styles.textfield} variant="outlined"> </TextField>
+                <TextField onBlur={handleChangeRoleSheet} defaultValue={currApp?.roleMemUrl? currApp?.roleMemUrl : ''} onChange={handleTextChange} style={styles.textfield} variant="outlined"> </TextField>
             </div>
         </div>
     );
