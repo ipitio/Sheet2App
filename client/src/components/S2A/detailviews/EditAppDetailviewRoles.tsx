@@ -6,7 +6,7 @@ import { Role, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/detailviews/EditAppDetailviewRolesStyles';
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
-import { Grid, Checkbox, IconButton, FormControlLabel, Typography } from '@mui/material';
+import { Box, Grid, Checkbox, IconButton, FormControlLabel, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import { editDetailviewRoles, viewAppRoles, viewDetailviewRoles } from '../../../store/StoreController';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -90,7 +90,7 @@ function EditAppDetailviewRoles() {
                     {isLoading ? <CircularProgress /> :
                         roles.map((role) => (
                             <Grid item xs={1.5} key={role.name}>
-                                <div style={styles.gridItemContainer}>
+                                <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                                     {/* Name */}
                                     <div style={styles.columnElement}>{role.name}</div>
 
@@ -100,7 +100,7 @@ function EditAppDetailviewRoles() {
                                         label="Allow Access"
                                         sx={styles.columnElement}
                                     />
-                                </div>
+                                </Box>
                             </Grid>
                         ))}
                 </Grid>

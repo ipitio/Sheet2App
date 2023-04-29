@@ -37,7 +37,7 @@ function DeleteDatasourceModal() {
     return (
         <Modal open={currentModalType == ModalType.DeleteDatasourceModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
-                Delete {currentDatasourceToDelete?.name} App?
+                Delete {currentDatasourceToDelete?.name} Datasource?
 
                 {/* Confirm/Cancel Buttons */}
                 <Button onClick={handleDelete} variant="outlined" size="large" sx={styles.modalButton}>Confirm</Button>

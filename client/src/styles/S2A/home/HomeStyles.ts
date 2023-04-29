@@ -18,10 +18,16 @@ const HomeStyles: StyleContainer = {
     padding: '2px',
   },
   gridItemContainer: {
-    height: '60px',
+    height: '20vh',
     border: '2px solid #87CEEB',
     textAlign: 'center',
     position: 'relative',
+    borderRadius: '8px',
+    fontSize: '36px',
+    textOverflow: 'ellipsis',
+    alignItems: 'center',
+    justifyContent: 'center',
+    display: 'flex',
   },
   deleteAppButton: {
     position: 'absolute',

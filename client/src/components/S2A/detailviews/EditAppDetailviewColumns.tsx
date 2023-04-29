@@ -6,7 +6,7 @@ import { Column } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/detailviews/EditAppDetailviewColumnsStyles';
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
-import { Grid, Checkbox, IconButton, TextField, FormControlLabel, InputLabel, Typography } from '@mui/material';
+import { Box, Grid, Checkbox, IconButton, TextField, FormControlLabel, InputLabel, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import AddIcon from '@mui/icons-material/Add';
@@ -143,7 +143,7 @@ function EditAppDetailviewColumns() {
                         {/* Map each datasource column to a grid item. */}
                         {changedColumns.map((col) => (
                             <Grid item xs={1.5} key={col.id}>
-                                <div style={styles.gridItemContainer}>
+                             <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                                     {/* Name*/}
                                     <div style={styles.columnElement}> {col.name} </div>
 
@@ -160,7 +160,7 @@ function EditAppDetailviewColumns() {
                                         label="Editable"
                                         sx={styles.columnElement}
                                     />
-                                </div>
+                                </Box>
                             </Grid>
                         ))}
                     </Grid>

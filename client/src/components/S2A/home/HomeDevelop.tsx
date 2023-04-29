@@ -7,7 +7,7 @@ import { App, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/home/HomeStyles'
 import HomeNavBar from '../navbars/HomeNavBar';
-import { Grid, IconButton } from '@mui/material';
+import { Grid, IconButton, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { viewDevApps } from '../../../store/StoreController';
@@ -59,17 +59,17 @@ function HomeDevelop() {
                 {/* Map each app in development to a grid item. */}
                 {(searchedDevApps.length > 0 ? searchedDevApps : devApps).map((app) => (
                     <Grid item xs={2} key={app.id}>
-                        <div style={styles.gridItemContainer}>
+                    <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                             {app.name}
 
                             {/* Edit and delete buttons for apps. */}
                             <IconButton id={app.id.toString()} onClick={handleOpenDeleteModal} sx={styles.deleteAppButton}>
-                                <DeleteIcon fontSize="small"/>
+                                <DeleteIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={app.id.toString()} onClick={handleEdit} sx={styles.editAppButton}>
-                                <EditIcon fontSize="small"/>
+                                <EditIcon fontSize="medium"/>
                             </IconButton>
-                        </div>
+                        </Box>
                     </Grid>
                 ))}
                 </Grid>

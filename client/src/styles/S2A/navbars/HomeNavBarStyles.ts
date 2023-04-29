@@ -22,7 +22,8 @@ const HomeNavBarStyles: StyleContainer = {
     height: '55px',
     flexGrow: 0.75,
     marginLeft: 'auto',
-    background: 'linear-gradient(to bottom, #5a8cad, #6CA6CD)',
+    background: 'white',
+    borderRadius: '12px'
   },
   displayButton: {
     textTransform: 'capitalize',

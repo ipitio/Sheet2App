@@ -7,7 +7,7 @@ import { Datasource, Tableview, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/tableviews/EditAppTableviewsStyles";
 import EditAppNavBar from "../navbars/EditAppNavBar";
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Grid, IconButton, Typography, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import PeopleIcon from '@mui/icons-material/People';
@@ -87,23 +87,23 @@ function EditAppTableviews() {
                 {/* Map each app tableview to a grid item. */}
                 {tableviews.map((tv) => (
                     <Grid item xs={1.5} key={tv.id}>
-                        <div style={styles.gridItemContainer}>
+                        <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                             {tv.name}
 
                             {/* Delete, edit columns, edit roles, edit buttons for tableviews. */}
                             <IconButton id={tv.id.toString()} onClick={handleOpenDeleteModal} sx={styles.deleteTableviewButton} title="Delete">
-                                <DeleteIcon fontSize="small"/>
+                                <DeleteIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={tv.id.toString()} onClick={handleNavigateEditColumns} sx={styles.editTableviewColumnsButton} title="Edit Tableview Columns">
-                                <ViewColumnIcon fontSize="small"/>
+                                <ViewColumnIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={tv.id.toString()} onClick={handleNavigateEditRoles} sx={styles.editTableviewRolesButton} title="Edit Tableview Roles">
-                                <PeopleIcon fontSize="small"/>
+                                <PeopleIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={tv.id.toString()} onClick={handleOpenEditModal} sx={styles.editTableviewButton} title="Edit Tableview">
-                                <EditIcon fontSize="small"/>
+                                <EditIcon fontSize="medium"/>
                             </IconButton>                         
-                        </div>
+                        </Box>
                     </Grid>
                 ))}
                 </Grid>
