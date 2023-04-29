@@ -1034,6 +1034,8 @@ def load_table_view(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
+    column_data_dict = {index: data for index, data in zip(column_indexes, column_data)}
+    
     # Retrieve a detailview the role has access to based on the datasource the given table view uses
     roles, response_code = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email)
     if response_code != HTTPStatus.OK:
@@ -1054,7 +1056,7 @@ def load_table_view(request):
     
     res_body = {
         "columns": viewable_columns,
-        "columnData": column_data,
+        "columnData": column_data_dict,
         "detailview": detail_view
     }
     response = HttpResponse(
