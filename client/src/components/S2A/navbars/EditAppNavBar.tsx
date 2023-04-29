@@ -92,11 +92,11 @@ function EditAppNavBar() {
 
                 {/* Navigation Buttons */}
                 <div style={styles.buttonContainer}>
-                    <Button onClick={displayDatasources} sx={{ ...styles.displayButton, ...styles.displayDatasourcesButton }} color="inherit">App Data Sources</Button>
-                    <Button onClick={displayTableviews} sx={{ ...styles.displayButton, ...styles.displayTableviewsButton }} color="inherit">App Tableviews</Button>
-                    <Button onClick={displayDetailviews}sx={{ ...styles.displayButton, ...styles.displayDetailviewsButton }}  color="inherit">App Detailviews</Button>
-                    <Button onClick={displayRoles} sx={{ ...styles.displayButton, ...styles.displayRolesButton }} color="inherit">App Role Spreadsheet</Button>
-                    <Button onClick={handleReturn} sx={{ ...styles.displayButton, ...styles.displayReturnButton }}  color="inherit">Return To Home</Button>
+                    <Button onClick={displayDatasources} sx={{ ...styles.displayButton, ...styles.displayDatasourcesButton }} color="inherit">Data Sources</Button>
+                    <Button onClick={displayTableviews} sx={{ ...styles.displayButton, ...styles.displayTableviewsButton }} color="inherit">Table Views</Button>
+                    <Button onClick={displayDetailviews}sx={{ ...styles.displayButton, ...styles.displayDetailviewsButton }}  color="inherit">Detail Views</Button>
+                    <Button onClick={displayRoles} sx={{ ...styles.displayButton, ...styles.displayRolesButton }} color="inherit">Role Spreadsheet</Button>
+                    <Button onClick={handleReturn} sx={{ ...styles.displayButton, ...styles.displayReturnButton }}  color="inherit">Home</Button>
                 </div>
             </Toolbar>
         </AppBar>
