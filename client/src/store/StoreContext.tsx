@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import storeController, { createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -81,6 +81,8 @@ export interface IS2AState {
     /* The app marked for deletion on confirmation. */
     currentAppToDelete: App | null,
 
+    currentAppToPublish: App | null,
+
     /* The datasource marked for deletion on confirmation. */
     currentDatasourceToDelete: Datasource | null,
 
@@ -128,6 +130,7 @@ const S2AState: IS2AState = {
     currentDetailviewToEdit: null,
 
     currentAppToDelete: null,
+    currentAppToPublish: null,
     currentDatasourceToDelete: null,
     currentTableviewToDelete: null,
     currentDetailviewToDelete: null,
@@ -171,6 +174,10 @@ export const S2AReducer = createSlice({
         },
         setCurrentModalType: (state, action: PayloadAction<ModalType | null>) => {
             state.currentModalType = action.payload;
+        },
+
+        markAppToPublish: (state, action: PayloadAction<App>) => {
+            state.currentAppToPublish = action.payload;
         },
 
         /* Mark resource edit reducers. */
@@ -236,6 +243,10 @@ export const S2AReducer = createSlice({
             state.currentDetailviewToDelete = null;
 
             console.log("Finished/cancelled deletion of resource.")
+        },
+        finishPublish: (state) => {
+            state.currentModalType = null;
+            state.currentAppToPublish = null;
         },
         resetAll: (state) => {
             state.devApps = [],
@@ -516,6 +527,13 @@ export const S2AReducer = createSlice({
             state.showErrorAlert = true;
         });
 
+        builder.addCase(publishApp.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(publishApp.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
 
         /** User App additional reducers */
         
@@ -640,9 +658,9 @@ const webAppReducer = createSlice({
 export const { 
     hideSuccessAlert, hideErrorAlert, searchDevApps, searchAccApps, clearSearch,
     setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
-    markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
+    markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, markAppToPublish,
     markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
-    finishCreation, finishEdit, finishDeletion, resetAll
+    finishCreation, finishEdit, finishDeletion, finishPublish, resetAll
  } = S2AReducer.actions
 
 export const { setCurrentView, addRecord, editRecord, deleteRecord,
