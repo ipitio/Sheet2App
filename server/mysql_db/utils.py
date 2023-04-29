@@ -1,16 +1,6 @@
-import inflection
+from s2a_api.models import *
 from django.db.models import F
 from django.db.models import Case, When, BooleanField
-
-def to_camel_case(data):
-    camelcased_data = {}
-    for key, value in data.items():
-        if isinstance(key, str):
-            camelcase_key = inflection.camelize(key, False)
-            camelcased_data[camelcase_key] = value
-        else:
-            camelcased_data[key] = value
-    return camelcased_data
 
 
 def annotate_apps(apps):
@@ -61,16 +51,21 @@ def annotate_table_view_viewable_columns(columns, table_view_id):
         isFilter=F("is_filter"),
         isUserFilter=F("is_user_filter"),
         isEditFilter=F("is_edit_filter"),
-        viewable=Case(
-            When(
-                tableviewviewablecolumn__table_view_id=table_view_id,
-                tableviewviewablecolumn__datasource_column_id=F("id"),
-                then=True
-            ),
-            default=False,
-            output_field=BooleanField(),
-        )
+        # viewable=Case(
+        #     When(
+        #         tableviewviewablecolumn__table_view_id=table_view_id,
+        #         tableviewviewablecolumn__datasource_column_id=F("id"),
+        #         then=True
+        #     ),
+        #     default=False,
+        #     output_field=BooleanField(),
+        # )
     )
+    for column in columns:
+        column["viewable"] = TableViewViewableColumn.objects.filter(
+            table_view_id=table_view_id, datasource_column_id=column["id"]
+        ).exists()
+
     return columns
 
 

@@ -1,13 +1,9 @@
 from s2a_api.models import *
-from mysql_db.utils import to_camel_case
-from django.core.serializers import serialize
 from http import HTTPStatus
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.db.models import F
 
 import mysql_db.utils
-import sheets.sheets_api as sheets_api
 import sheets.utils
 
 
@@ -196,17 +192,6 @@ def get_app_by_id(app_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def get_apps_by_email(creator_email):
-    try:
-        creator = Creator.objects.get(email=creator_email)
-        apps = Application.objects.filter(creator=creator.id)
-        apps = [to_camel_case(app) for app in apps.values()]
-
-        return apps, HTTPStatus.OK
-    except Exception as e:
-        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
 def get_all_unpublished_apps_with_creator_email():
     try:
         apps = Application.objects.filter(is_published=False).values(
@@ -347,6 +332,7 @@ def get_table_view_columns(table_view_id):
             datasource_id=table_view.datasource_id, 
             is_filter=False, is_user_filter=False, is_edit_filter=False
         )
+        
         table_columns = table_columns.values()
         table_columns = mysql_db.utils.annotate_table_view_viewable_columns(table_columns, table_view.id)
         table_columns = list(table_columns)
