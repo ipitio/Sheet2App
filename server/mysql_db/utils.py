@@ -75,3 +75,25 @@ def annotate_detail_views(detail_views):
         canEdit=F("can_edit")
     )
     return detail_views
+
+
+def annotate_detail_view_columns(columns, detail_view_id):
+    columns = columns.annotate(
+        initialValue=F("initial_value"),
+        isLabel=F("is_link_text"),
+        isRef=F("is_table_ref"),
+        type=F("value_type"), 
+        isFilter=F("is_filter"),
+        isUserFilter=F("is_user_filter"),
+        isEditFilter=F("is_edit_filter"),
+    )
+    for column in columns:
+        column["viewable"] = DetailViewViewableColumn.objects.filter(
+            detail_view_id=detail_view_id, datasource_column_id=column["id"]
+        ).exists()
+        
+        column["editable"] = DetailViewEditableColumn.objects.filter(
+            detail_view_id=detail_view_id, datasource_column_id=column["id"]
+        ).exists()
+
+    return columns
