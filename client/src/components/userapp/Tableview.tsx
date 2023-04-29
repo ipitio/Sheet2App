@@ -39,7 +39,6 @@ function Tableview() {
             })
     })
 
-
     const columnNames = columns.map((col) => { return col.name });
 
     // Find the percentage of space each cell should take in a row. This assumes that all cells take an even amount of space with the other cells.

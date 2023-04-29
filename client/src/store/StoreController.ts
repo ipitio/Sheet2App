@@ -833,9 +833,13 @@ export const loadTableview = createAsyncThunk('webApp/loadTableview', async() =>
  * Adds a record to the specified datasource
  * @returns the new data and columns after adding a record to the datasource
  */
-async function addRecord(datasource: Datasource, record: Record): Promise<{columns: Column[], columnData: any[][]}> {
+export const addRecord = createAsyncThunk('webApp/addRecord', async() => {
     try {
-        const reqForm = await getRequestForm("POST", {"datasource": datasource, "record": record});
+        const app = store.getState().webAppReducer.app;
+        const datasource = store.getState().webAppReducer.currentDatasource;
+        const recordIndex = store.getState().webAppReducer.currentRecordIndex;
+
+        const reqForm = await getRequestForm("POST", {"app": app, "datasource": datasource, "record": recordIndex});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/addRecord`, reqForm);
@@ -854,7 +858,7 @@ async function addRecord(datasource: Datasource, record: Record): Promise<{colum
     catch(err) {
         return Promise.reject(`addRecord failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Adds a record to the specified datasource
@@ -910,5 +914,5 @@ export const deleteRecord = createAsyncThunk('/webApp/deleteRecord', async () =>
 })
 
 export default {
-                addRecord, editRecord
+                editRecord
             };

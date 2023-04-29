@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit"
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteRecord, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, loadApp, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import storeController, { addRecord, createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteRecord, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, loadApp, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -617,18 +617,6 @@ const webAppReducer = createSlice({
             // On successful response, update the current view to the responded data
             // state.currentView = res.data
         },
-        // Called by the AddRecordModal when changes are submitted
-        addRecord: (state, action: {payload: Record, type: string}) => {
-            if (!state.currentDatasource) return;
-
-            storeController.addRecord(state.currentDatasource, action.payload)
-            .then(() => {
-                console.log("Added Record");
-            })
-            .catch((error: Error) => {
-                console.log(error);
-            })
-        },
         // Called by the EditRecordModal when changes are submitted
         editRecord: (state, action: {payload: Record}) => {
             if (!state.currentDatasource || !state.currentRecord) return;
@@ -698,6 +686,13 @@ const webAppReducer = createSlice({
             state.showErrorAlert = true;
         });
 
+        builder.addCase(addRecord.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(addRecord.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
         builder.addCase(deleteRecord.fulfilled, (state, action) => {
             state.showSuccessAlert = true;
         });
@@ -716,7 +711,7 @@ export const {
     finishCreation, finishEdit, finishDeletion, finishPublish, resetAll
  } = S2AReducer.actions
 
-export const { openApp, returnToS2A, addRecord, editRecord, setCurrentRecordIndex,
+export const { openApp, returnToS2A, editRecord, setCurrentRecordIndex,
     showAddRecordModal, showEditRecordModal, showDeleteRecordModal, webAppSetCurrentTableview,
     hideWebAppModal, hideWebAppErrorAlert, hideWebAppSuccessAlert, goToUserAppHome } = webAppReducer.actions;
 

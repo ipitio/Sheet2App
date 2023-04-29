@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import store, { hideWebAppModal, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
 import { deleteRecord, loadTableview } from '../../../store/StoreController';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 
 function DeleteRecordModal() {
     const dispatch = useDispatch<typeof store.dispatch>();
@@ -50,10 +52,10 @@ function DeleteRecordModal() {
                         </Box>
                     </DialogContentText>
                     <DialogActions>
-                        <Button onClick={handleDeleteRecord}>
+                        <Button onClick={handleDeleteRecord} startIcon={<CheckIcon/>}>
                             Confirm
                         </Button>
-                        <Button onClick={() => dispatch(hideWebAppModal())}>
+                        <Button onClick={() => dispatch(hideWebAppModal())} startIcon={<CloseIcon/>}>
                             Cancel
                         </Button>
                     </DialogActions>
