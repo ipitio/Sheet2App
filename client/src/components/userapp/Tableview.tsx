@@ -32,10 +32,10 @@ function Tableview() {
     const columnNames = columns.map((col) => { return col.name });
 
     // Find the percentage of space each cell should take in a row. This assumes that all cells take an even amount of space with the other cells.
-    const cellWidthPercentage: string = (100 / (records && records[0] ? records[0].length : 1)) + '%'
+    const cellWidthPercentage: string = (100 / (columnNames ? columnNames.length : 1) + '%')
 
     // Determine the dimensions of the table cells.
-    const cellWidth = `repeat(${(records && records[0] ? records[0].length : 1)}, ${cellWidthPercentage})`
+    const cellWidth = `repeat(${(columnNames ? columnNames.length : 1)}, ${cellWidthPercentage})`
 
     // Constant to determine the spacing between each row. Change as necessary.
     const rowPadding: string = '8px'

@@ -52,7 +52,7 @@ function AddRecordModal() {
                         })} 
                     </DialogContentText>
                     <DialogActions>
-                        <Button onClick={handleAddRecord} startIcon={<CheckIcon />}>
+                        <Button onClick={handleAddRecord} startIcon={<CheckIcon />} disabled={firstRecordColumns && firstRecordColumns.length == 0}>
                             Confirm
                         </Button>
                         <Button onClick={() => dispatch(hideWebAppModal())} startIcon={<CloseIcon />}>

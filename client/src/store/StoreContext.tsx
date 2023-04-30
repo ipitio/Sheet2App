@@ -725,7 +725,10 @@ const webAppReducer = createSlice({
             state.firstRecordColumns = firstRecordColumns;
         });
         builder.addCase(loadTableview.rejected, (state, action) => {
-            state.showErrorAlert = true;
+            state.columnData = [];
+            state.records = [];
+            state.firstRecordColumns = [];
+            // state.showErrorAlert = true;
         });
 
 

@@ -849,10 +849,15 @@ export const loadTableview = createAsyncThunk('webApp/loadTableview', async() =>
             return {columns, columnData, detailview, editableColumns};
         }
 
-        const editableColumnsRes = await loadEditableColumns(detailview);
-        const editableColumns = editableColumnsRes.columns;
-
-        return {columns, columnData, detailview, editableColumns};
+        try {
+            const editableColumnsRes = await loadEditableColumns(detailview);
+            const editableColumns = editableColumnsRes.columns;
+    
+            return {columns, columnData, detailview, editableColumns};
+        } catch {
+            const editableColumns: Column[] = [];
+            return {columns, columnData, detailview, editableColumns};
+        }
     }
     catch(err) {
         return Promise.reject(`loadTableView failed with the error: ${err}`);
