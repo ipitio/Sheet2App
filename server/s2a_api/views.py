@@ -1102,7 +1102,7 @@ def load_detail_view(request):
     record_index = body["recordIndex"]
     spreadsheet_url = detail_view["datasource"]["spreadsheetUrl"]
     
-    viewable_columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view.id)
+    viewable_columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view["id"])
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     

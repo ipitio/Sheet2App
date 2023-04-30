@@ -4,6 +4,7 @@ import {store, hideWebAppModal, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import { useEffect } from 'react';
 
 function AddRecordModal() {
     const dispatch = useDispatch<typeof store.dispatch>();
@@ -16,6 +17,10 @@ function AddRecordModal() {
     const handleAddRecord = () => {
 
     }
+
+    useEffect(() => {
+        // console.log(firstRecordColumns);
+    })
 
     return (
         <Box id='add-record-modal'>

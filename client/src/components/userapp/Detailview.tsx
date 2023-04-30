@@ -1,68 +1,47 @@
-import React, { useEffect } from 'react';
-import {Box, Button, Divider, Typography} from '@mui/material';
-import { View } from '../../store/StoreTypes';
-import EditIcon from '@mui/icons-material/Edit';
-import { showEditRecordModal } from '../../store/StoreContext';
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Divider, Typography } from '@mui/material';
+import { StoreState, showEditRecordModal, store } from '../../store/StoreContext';
+import { useDispatch, useSelector } from 'react-redux';
 import DatasourceNavBar from './DatasourceNavBar';
+import styles from '../../styles/userapp/containers/ContentContainers';
+import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
 
 function Detailview() {
-    const dispatch = useDispatch();
-    // TODO: Make API call to the spreadsheet URL
-    // let spreadsheetData = api.get
-    // let columnName = spreadsheetData[0] // Since the spreadsheet is passed back as a 2d list, the first element (row-wise) contains all of the columns
+    const dispatch = useDispatch<typeof store.dispatch>();
 
-    let testColumnHeader: string[] = ['A', 'B', 'C', 'D']
+    const columns = useSelector((state: StoreState) => state.webAppReducer.columns);
+    const currentRecordData = useSelector((state: StoreState) => state.webAppReducer.currentRecordData);
+
+    const [isEditing, setIsEditing] = useState(false);
+
+    const handleToggleEditing = () => {
+        setIsEditing(true);
+    }
+
+    const handleEditRecord = () => {
+
+    }
 
     return (
         <Box>
             <DatasourceNavBar />
-            <Box
-                id='detail-view-container'
-                sx={{
-                    display: 'grid',
-                    flexDirection: 'column',
-                    width: '100%',
-                    fontSize: '32px',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
-            >
-                <Box
-                    id='detail-header'
-                    sx={{
-                        display: 'block',
-                        justifyContent: 'space-between',
-                        width: 'full'
-                    }}
-                >
-                    {
-                        testColumnHeader.map((columnHeader) => {
-                            return <div key={columnHeader}>{columnHeader}</div>
-                        })
-                    }
+            <Box sx={{ ...styles.contentContainer, display: 'grid', flexDirection: 'column', width: '100%', fontSize: '32px', alignItems: 'center', justifyContent: 'center' }}>
+                <Box sx={{ display: 'block', justifyContent: 'space-between', width: 'full' }}>
+                    {columns.map((column) => {
+                        return <Box>{column.name}</Box>
+                    })}
                 </Box>
-                <Divider
-                    sx={{
-                        bgcolor: 'black',
-                        fontWeight: 'bold'
-                    }}
-                />
+                <Divider sx={{ bgcolor: 'black', fontWeight: 'bold' }} />
 
-                {/** TODO: ADD THE SPREADSHEET DATA HERE */}
-
-                <Button
-                    id='edit-record-button'
-                    sx={{
-                        display: 'flex'
-                    }}
-                    // onClick={() => { dispatch(showEditRecordModal(props)) }}
-                >
-                    <Typography>
-                        Edit Record
-                    </Typography>
-                    <EditIcon />
-                </Button>
+                {!isEditing ?
+                    <Button sx={{ display: 'flex' }} startIcon={<EditIcon />} onClick={handleToggleEditing}>
+                        <Typography>Edit Record</Typography>
+                    </Button> :
+                    <Button sx={{ display: 'flex' }} startIcon={<SaveIcon />} onClick={handleEditRecord}>
+                        <Typography>Save Record</Typography>
+                    </Button>
+                }
             </Box>
         </Box>
     )

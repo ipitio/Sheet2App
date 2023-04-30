@@ -6,15 +6,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { store, StoreState, setCurrentRecordIndex, showAddRecordModal, showDeleteRecordModal, setFirstRecordColumns, setRecords } from '../../store/StoreContext';
 import { useEffect, useState } from 'react';
 import DatasourceNavBar from './DatasourceNavBar';
+import { loadDetailview, loadTableview } from '../../store/StoreController';
+import { useNavigate } from 'react-router-dom';
 import styles from '../../styles/userapp/containers/ContentContainers';
-import { loadTableview } from '../../store/StoreController';
 
 function Tableview() {
     const dispatch = useDispatch<typeof store.dispatch>();
+    const navigate = useNavigate();
 
+    const app = useSelector((state: StoreState) => state.webAppReducer.app);
     const records = useSelector((state: StoreState) => state.webAppReducer.records);
     const columns = useSelector((state: StoreState) => state.webAppReducer.columns);
-    const columnData = useSelector((state: StoreState) => state.webAppReducer.columnData);
 
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
@@ -38,9 +40,18 @@ function Tableview() {
     const rowPadding: string = '8px'
 
     const handleShowDeleteModal = (index: number) => {
-        /** Add 1 to the index because Sheets uses 1-indexed rows and columns */
-        dispatch(setCurrentRecordIndex(index + 1));
+        dispatch(setCurrentRecordIndex(index));
         dispatch(showDeleteRecordModal());
+    }
+
+    const handleShowAddRecordModal = () => {
+        dispatch(showAddRecordModal());
+    }
+    
+    const handleOpenDetailview = (index: number) => {
+        dispatch(loadDetailview());
+        //TODO: replace index with detailview id
+        navigate(`/userapp/${app?.id}/detailview/${index}`);
     }
 
     const buttons = (
@@ -48,13 +59,13 @@ function Tableview() {
             {records?.map((record, index) => {
                 return (
                     <Box id='row-button' sx={{ display: 'flex', flexDirection: 'row' }}>
-                        <Button sx={{ paddingY: rowPadding }}>
+                        <Button sx={{ paddingY: rowPadding }} onClick={() => {handleOpenDetailview(index + 1)}}>
                             <UnfoldMoreIcon />
                             <Typography>
                                 View
                             </Typography>
                         </Button>
-                        <Button sx={{ paddingY: rowPadding }} onClick={() => { handleShowDeleteModal(index) }}>
+                        <Button sx={{ paddingY: rowPadding }} onClick={() => { handleShowDeleteModal(index + 1) }}>
                             <DeleteOutlineIcon />
                             <Typography>
                                 Delete
@@ -113,7 +124,7 @@ function Tableview() {
     )
 
     const addRecordButton = (
-        <Button startIcon={<AddCircleOutlineIcon />} sx={{ border: 1, width: '15%', marginTop: '32px', bgcolor: '#1976d2', color: 'white', '&:hover': { 'background': "#0062A5" } }} onClick={() => dispatch(showAddRecordModal())}>
+        <Button startIcon={<AddCircleOutlineIcon />} sx={{ border: 1, width: '15%', marginTop: '32px', bgcolor: '#1976d2', color: 'white', '&:hover': { 'background': "#0062A5" } }} onClick={handleShowAddRecordModal}>
             <Typography>
                 Add Record
             </Typography>

@@ -843,7 +843,10 @@ export const loadTableview = createAsyncThunk('webApp/loadTableview', async() =>
         const columnData = data.columnData;
         const detailview = data.detailview;
 
-        return {columns, columnData, detailview};
+        const editableColumnsRes = await loadEditableColumns(detailview);
+        const editableColumns = editableColumnsRes.columns;
+
+        return {columns, columnData, detailview, editableColumns};
     }
     catch(err) {
         return Promise.reject(`loadTableView failed with the error: ${err}`);
@@ -856,7 +859,7 @@ export const loadDetailview = createAsyncThunk('webApp/loadDetailview', async() 
         const detailview = store.getState().webAppReducer.currentDetailview;
         const recordIndex = store.getState().webAppReducer.currentRecordIndex;
 
-        const reqForm = await getRequestForm("DELETE", {"app": app, "detailview": detailview, "recordIndex": recordIndex});
+        const reqForm = await getRequestForm("POST", {"app": app, "detailview": detailview, "recordIndex": recordIndex});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/loadDetailview`, reqForm);
@@ -867,12 +870,38 @@ export const loadDetailview = createAsyncThunk('webApp/loadDetailview', async() 
         const columns = data.columns;
         const rowData = data.rowData;
 
-        return {columns, rowData};
+        return {columns, rowData}; 
     }
     catch(err) {
         return Promise.reject(`loadDetailview failed with the error: ${err}`);
     }
 })
+
+/** Exactly the same as loadDetailview. Need this to get the editable columns in the detail view
+ * for adding a record as per the specs. Also allows us to put an extra reducer to seperate their fulfilled behaviors.
+ */
+async function loadEditableColumns(detailview: Detailview): Promise<{columns: Column[], rowData: any[]}> {
+    try {
+        const app = store.getState().webAppReducer.app;
+        const recordIndex = 1;
+
+        const reqForm = await getRequestForm("POST", {"app": app, "detailview": detailview, "recordIndex": recordIndex});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/loadDetailview`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`loadEditableColumns request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const columns = data.columns;
+        const rowData = data.rowData;
+
+        return {columns, rowData}; 
+    }
+    catch(err) {
+        return Promise.reject(`loadEditableColumns failed with the error: ${err}`);
+    }
+}
 
 /**
  * Adds a record to the specified datasource

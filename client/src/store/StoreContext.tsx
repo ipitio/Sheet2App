@@ -1,14 +1,15 @@
-import { configureStore, combineReducers, createSlice, Reducer, Action } from '@reduxjs/toolkit'
+import { configureStore, combineReducers, createSlice, Reducer, Action, Store } from '@reduxjs/toolkit'
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { addRecord, createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteRecord, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, loadApp, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import storeController, { addRecord, createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteRecord, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, loadApp, loadDetailview, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
+import { useDispatch } from 'react-redux';
 
 export interface IS2AState {
     /* An array of developable apps for the current user. Set when navigating onto developable apps screen. */
@@ -580,7 +581,7 @@ export interface IWebAppState {
     records: any[][],
     columns: Column[],
     columnData: any[][],
-    rowData: any[],
+    currentRecordData: any[],
 
     firstRecordColumns: Column[],
 
@@ -606,7 +607,7 @@ const webAppState: IWebAppState = {
     records: [],
     columns: [],
     columnData: [],
-    rowData: [],
+    currentRecordData: [],
 
     /** Store the indexes of the columns contained by the first record in the current table */
     firstRecordColumns: [],
@@ -699,7 +700,7 @@ const webAppReducer = createSlice({
         });
 
         builder.addCase(loadTableview.fulfilled, (state, action) => {
-            const {columns, columnData, detailview} = action.payload;
+            const {columns, columnData, detailview, editableColumns} = action.payload;
 
             state.columns = columns;
             state.columnData = columnData;
@@ -712,7 +713,7 @@ const webAppReducer = createSlice({
             for (let i = 1; i < columnData[columnKeys[0]].length; i++) {
                 let currRecord = [];
                 for (let j = 0; j < columnKeys.length; j++) {
-                    if (i == 1 && columns[j].editable) {
+                    if (i == 1 && editableColumns[j].editable) {
                         /** Store the data for the first detail view */
                         firstRecordColumns.push(columns[j]);
                     }
@@ -725,6 +726,14 @@ const webAppReducer = createSlice({
             state.firstRecordColumns = firstRecordColumns;
         });
         builder.addCase(loadTableview.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+
+        builder.addCase(loadDetailview.fulfilled, (state, action) => {
+            console.log(action.payload);
+        });
+        builder.addCase(loadDetailview.rejected, (state, action) => {
             state.showErrorAlert = true;
         });
 

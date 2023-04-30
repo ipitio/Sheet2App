@@ -456,7 +456,7 @@ def get_detail_view_viewable_columns(detail_view_id):
     try:
         columns = DatasourceColumn.objects.filter(detailviewviewablecolumn__detail_view_id=detail_view_id)
         columns = columns.values()
-        columns = mysql_db.utils.annotate_detail_view_columns(columns)
+        columns = mysql_db.utils.annotate_detail_view_columns(columns, detail_view_id)
         columns = list(columns)
 
         return columns, HTTPStatus.OK
