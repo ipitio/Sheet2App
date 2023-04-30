@@ -15,6 +15,7 @@ function DeleteRecordModal() {
     const handleDeleteRecord = () => {
         dispatch(deleteRecord())
         .then(() => {
+            dispatch(hideWebAppModal());
             dispatch(loadTableview());
         })
     }

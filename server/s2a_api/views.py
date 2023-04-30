@@ -890,22 +890,22 @@ def add_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
-    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource.id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    record_data_array = [""] * len(datasource_columns)
-    
-    for column in datasource_columns:
-        col_index = column["column_index"]
-        col_initial_value = column["initial_value"]
-        
-        if col_index in record_data:
-            record_data_array[col_index] = record_data[col_index]
-        else:
-            record_data_array[col_index] = col_initial_value
-        
+    record_data_array = [""] * (len(datasource_columns) + 1)
 
+    datasource_columns = datasource_columns[0]
+    for index, column in enumerate(datasource_columns):
+        col_index = column["column_index"] - 1
+        col_initial_value = column["initial_value"]
+
+        if str(col_index) in record_data:
+            record_data_array[index] = record_data[str(col_index)]
+        else:
+            record_data_array[index] = col_initial_value
+        
     spreadsheet_id = datasource.spreadsheet_id
     gid = datasource.gid
     output, response_code = sheets_api.insert_row(
@@ -929,16 +929,16 @@ def edit_record(request):
     tokens = parse_tokens(request)
     datasource = body["datasource"]
     record_data = body["record"]
-    record_index = body["recordID"]
-    
-    spreadsheet_id = datasource.spreadsheet_id
-    gid = datasource.gid
+    record_index = body["recordIndex"]
 
     datasource, response_code = queries.get_datasource_by_id(
         datasource_id=datasource["id"]
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
+    
+    spreadsheet_id = datasource["spreadsheet_id"]
+    gid = datasource["gid"]
 
     datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
     if response_code != HTTPStatus.OK:
@@ -997,7 +997,35 @@ def delete_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    res_body = {"spreadsheet_data": data}
+    res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+@csrf_exempt
+def delete_record(request):
+    body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    datasource = body["datasource"]
+    record_index = body["recordIndex"]
+    
+    datasource, response_code = queries.get_datasource_by_id(
+        datasource_id=datasource["id"]
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    spreadsheet_id = datasource.spreadsheet_id
+    gid = datasource.gid
+    
+    output, response_code = sheets_api.delete_row(
+        tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, row_index=record_index
+    )
+    
+    res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
@@ -1117,7 +1145,7 @@ def load_detail_view(request):
     record_index = body["recordIndex"]
     spreadsheet_url = detail_view["datasource"]["spreadsheetUrl"]
     
-    viewable_columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view.id)
+    viewable_columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view["id"])
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
@@ -1134,6 +1162,7 @@ def load_detail_view(request):
         return HttpResponse({}, status=response_code)
     
     rowData = [column[record_index - 1] for column in column_data]
+    rowData = {index: data for index, data in zip(column_indexes, rowData)}
     
     res_body = {
         "columns": viewable_columns,

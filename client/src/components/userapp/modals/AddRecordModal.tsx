@@ -1,9 +1,11 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import {store, hideWebAppModal, StoreState } from '../../../store/StoreContext';
-import { ModalType } from '../../../store/StoreTypes';
+import { Column, ModalType } from '../../../store/StoreTypes';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import { useEffect, useState } from 'react';
+import { addRecord, loadTableview } from '../../../store/StoreController';
 
 function AddRecordModal() {
     const dispatch = useDispatch<typeof store.dispatch>();
@@ -13,8 +15,21 @@ function AddRecordModal() {
     const columnData = useSelector((state: StoreState) => state.webAppReducer.columnData);
     const firstRecordColumns = useSelector((state: StoreState) => state.webAppReducer.firstRecordColumns);
 
-    const handleAddRecord = () => {
+    const [columnToDataPairs, setColumnToDataPairs] = useState<Record<number, any>>({})
 
+    const handleAddRecord = () => {
+        dispatch(hideWebAppModal());
+        dispatch(addRecord(columnToDataPairs))
+        .then(() => {
+            dispatch(loadTableview());
+        })
+    }
+
+    const handleInputChange = (event: any, index: number) => {
+        let newPairs = columnToDataPairs;
+        newPairs[index] = event.target.value;
+
+        setColumnToDataPairs(newPairs);
     }
 
     return (
@@ -25,15 +40,13 @@ function AddRecordModal() {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        {firstRecordColumns?.map((column) => {
+                        {firstRecordColumns?.map((column, index) => {
                             return (
                                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: '8px'}}>
                                     <Typography sx={{marginRight: '40px', alignContent: 'center', paddingTop:'16px'}}>
                                         {column.name}
                                     </Typography>
-                                    <TextField>
-
-                                    </TextField>
+                                    <TextField onChange={(event) => handleInputChange(event, index)}/>
                                 </Box>
                             )
                         })} 
