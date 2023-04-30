@@ -3,7 +3,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useDispatch, useSelector } from 'react-redux';
-import { store, StoreState, setCurrentRecordIndex, showAddRecordModal, showDeleteRecordModal, setFirstRecordColumns, setRecords } from '../../store/StoreContext';
+import { store, StoreState, showAddRecordModal, showDeleteRecordModal, setFirstRecordColumns, setRecords, setCurrentRecordIndex } from '../../store/StoreContext';
 import { useEffect, useState } from 'react';
 import DatasourceNavBar from './DatasourceNavBar';
 import { loadDetailview, loadTableview } from '../../store/StoreController';
@@ -17,6 +17,7 @@ function Tableview() {
     const app = useSelector((state: StoreState) => state.webAppReducer.app);
     const records = useSelector((state: StoreState) => state.webAppReducer.records);
     const columns = useSelector((state: StoreState) => state.webAppReducer.columns);
+    const currentRecordIndex = useSelector((state: StoreState) => state.webAppReducer.currentRecordIndex);
 
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
@@ -40,7 +41,7 @@ function Tableview() {
     const rowPadding: string = '8px'
 
     const handleShowDeleteModal = (index: number) => {
-        dispatch(setCurrentRecordIndex(index));
+        dispatch(setCurrentRecordIndex(index))
         dispatch(showDeleteRecordModal());
     }
 

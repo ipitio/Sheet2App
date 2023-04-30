@@ -847,6 +847,12 @@ export const loadTableview = createAsyncThunk('webApp/loadTableview', async() =>
         const columnData = data.columnData;
         const detailview = data.detailview;
 
+        // If no permissions to any editable columns:
+        if (!detailview) {
+            const editableColumns: Column[] = [];
+            return {columns, columnData, detailview, editableColumns};
+        }
+
         const editableColumnsRes = await loadEditableColumns(detailview);
         const editableColumns = editableColumnsRes.columns;
 
@@ -966,6 +972,8 @@ export const deleteRecord = createAsyncThunk('/webApp/deleteRecord', async () =>
         const app = store.getState().webAppReducer.app;
         const datasource = store.getState().webAppReducer.currentDatasource;
         const recordIndex = store.getState().webAppReducer.currentRecordIndex;
+
+        console.log(recordIndex);
 
         const reqForm = await getRequestForm("DELETE", {"app": app, "datasource": datasource, "recordIndex": recordIndex});
         
