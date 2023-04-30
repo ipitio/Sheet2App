@@ -560,6 +560,8 @@ export interface IWebAppState {
     columnData: any[][],
     rowData: any[],
 
+    firstRecordColumns: Column[],
+
     // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
     // or clicks on the Delete Record button.
     currentRecord: Record | null,
@@ -583,6 +585,9 @@ const webAppState: IWebAppState = {
     columnData: [],
     rowData: [],
 
+    /** Store the indexes of the columns contained by the first record in the current table */
+    firstRecordColumns: [],
+
     showSuccessAlert: false,
     showErrorAlert: false,
 }
@@ -603,6 +608,10 @@ const webAppReducer = createSlice({
         },
         setCurrentRecordIndex: (state, action: PayloadAction<number>) => {
             state.currentRecordIndex = action.payload;
+        },
+
+        setFirstRecordColumns: (state, action: PayloadAction<any[]>) => {
+            state.firstRecordColumns = action.payload;
         },
         
         // loadTableview: (state, action: PayloadAction<Tableview>) => {
@@ -711,7 +720,7 @@ export const {
     finishCreation, finishEdit, finishDeletion, finishPublish, resetAll
  } = S2AReducer.actions
 
-export const { openApp, returnToS2A, editRecord, setCurrentRecordIndex,
+export const { openApp, returnToS2A, editRecord, setCurrentRecordIndex, setFirstRecordColumns,
     showAddRecordModal, showEditRecordModal, showDeleteRecordModal, webAppSetCurrentTableview,
     hideWebAppModal, hideWebAppErrorAlert, hideWebAppSuccessAlert, goToUserAppHome } = webAppReducer.actions;
 

@@ -3,7 +3,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useDispatch, useSelector } from 'react-redux';
-import store, { StoreState, setCurrentRecordIndex, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
+import store, { StoreState, setCurrentRecordIndex, setFirstRecordColumns, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
 import { useEffect, useState } from 'react';
 import DatasourceNavBar from './DatasourceNavBar';
 import styles from '../../styles/userapp/containers/ContentContainers'
@@ -25,15 +25,24 @@ function Tableview() {
             .then(() => {
                 /** Convert columns into records */
                 const newRecords = [];
-                for (let i = 1; i < (columnData && columnData[0] ? columnData[0].length : 1); i++) {
+                const columnKeys = Object.keys(columnData) as unknown as number[];
+                const firstRecordColumns = [];
+
+                for (let i = 1; i < columnData[columnKeys[0]].length; i++) {
                     let currRecord = [];
-                    /** Start j at 1 to skip the column header name */
-                    for (let j = 0; j < columnData.length; j++) {
-                        currRecord.push(columnData[j][i]);
+                    for (let j = 0; j < columnKeys.length; j++) {
+                        console.log(columns[j]);
+                        if (i == 1 && columns[j].editable) {
+                            /** Store the data for the first detail view */
+                            firstRecordColumns.push(columns[j]);
+                        }
+
+                        currRecord.push(columnData[columnKeys[j]][i]);
                     }
                     newRecords.push(currRecord);
                 }
-        
+                
+                dispatch(setFirstRecordColumns(firstRecordColumns));
                 setRecords(newRecords);
                 setIsLoading(false);
             })
