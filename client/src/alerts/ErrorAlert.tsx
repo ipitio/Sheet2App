@@ -1,6 +1,6 @@
 import Alert from '@mui/material/Alert';
 import { useDispatch, useSelector } from 'react-redux';
-import store, { StoreState, hideErrorAlert, hideWebAppErrorAlert } from '../store/StoreContext';
+import {store, StoreState, hideErrorAlert, hideWebAppErrorAlert } from '../store/StoreContext';
 
 export default function ErrorAlert() {
     const dispatch = useDispatch<typeof store.dispatch>();

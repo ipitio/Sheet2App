@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { StoreState } from '../../../store/StoreContext';
+import {store, StoreState } from '../../../store/StoreContext';
 import { Role, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/detailviews/EditAppDetailviewRolesStyles';

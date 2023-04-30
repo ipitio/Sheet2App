@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { setCurrentDetailview, setCurrentModalType, markDetailviewToEdit, markDetailviewToDelete, StoreState} from '../../../store/StoreContext';
+import {store, setCurrentDetailview, setCurrentModalType, markDetailviewToEdit, markDetailviewToDelete, StoreState} from '../../../store/StoreContext';
 import { Datasource, Detailview, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/detailviews/EditAppDetailviewsStyles";

@@ -2,7 +2,7 @@ import Cookies from "js-cookie";
 import { refreshAccess } from "../auth/AuthController";
 import { App, Datasource, Column, Record, Tableview, Detailview, Role } from './StoreTypes'
 import { Dictionary, createAsyncThunk } from "@reduxjs/toolkit";
-import store from "./StoreContext";
+import { store } from "./StoreContext";
 
 /* Define constants for constructing a URL to reach Django server. */
 const DJANGO_HOST = process.env.REACT_APP_DJANGO_HOST;

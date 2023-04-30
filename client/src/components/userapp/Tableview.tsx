@@ -3,7 +3,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useDispatch, useSelector } from 'react-redux';
-import store, { StoreState, setCurrentRecordIndex, setFirstRecordColumns, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
+import {store, StoreState, setCurrentRecordIndex, setFirstRecordColumns, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
 import { useEffect, useState } from 'react';
 import DatasourceNavBar from './DatasourceNavBar';
 import styles from '../../styles/userapp/containers/ContentContainers'
@@ -31,7 +31,6 @@ function Tableview() {
                 for (let i = 1; i < columnData[columnKeys[0]].length; i++) {
                     let currRecord = [];
                     for (let j = 0; j < columnKeys.length; j++) {
-                        console.log(columns[j]);
                         if (i == 1 && columns[j].editable) {
                             /** Store the data for the first detail view */
                             firstRecordColumns.push(columns[j]);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { finishEdit, StoreState } from '../../../../store/StoreContext';
+import {store, finishEdit, StoreState } from '../../../../store/StoreContext';
 import { Datasource, ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';

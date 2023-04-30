@@ -4,7 +4,7 @@ import { useDispatch, useSelector} from 'react-redux';
 
 import { getLoggedOut } from '../../auth/AuthController';
 
-import store, { StoreState, setCurrentModalType, returnToS2A, goToUserAppHome, webAppSetCurrentTableview } from '../../store/StoreContext';
+import {store, StoreState, setCurrentModalType, returnToS2A, goToUserAppHome, webAppSetCurrentTableview } from '../../store/StoreContext';
 import { Datasource, Tableview } from '../../store/StoreTypes';
 
 import styles from '../../styles/userapp/navbars/HomeNavBarStyles'

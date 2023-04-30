@@ -4,7 +4,7 @@ import { useDispatch, useSelector} from 'react-redux';
 
 import { getLoggedOut } from '../../../auth/AuthController';
 
-import store, { hideErrorAlert, hideSuccessAlert, setCurrentModalType, StoreState, searchDevApps, clearSearch } from '../../../store/StoreContext';
+import {store, hideErrorAlert, hideSuccessAlert, setCurrentModalType, StoreState, searchDevApps, clearSearch } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/navbars/HomeNavBarStyles'

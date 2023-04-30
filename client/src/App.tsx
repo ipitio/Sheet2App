@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux'
 
-import store from './store/StoreContext'
+import {store} from './store/StoreContext'
 
 import Splash from './components/S2A/splash/Splash'
 import S2AHomeAccess from './components/S2A/home/HomeAccess'

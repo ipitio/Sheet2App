@@ -1,6 +1,6 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import store, { hideWebAppModal, StoreState } from '../../../store/StoreContext';
+import {store, hideWebAppModal, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
 import { deleteRecord, loadTableview } from '../../../store/StoreController';
 import CheckIcon from '@mui/icons-material/Check';
