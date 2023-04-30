@@ -456,6 +456,18 @@ def get_detail_view_viewable_columns(detail_view_id):
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
+# Retrieve all of the viewable columns without including edit filters and user filters
+def get_detail_view_viewable_columns_without_filters(detail_view_id):
+    try:
+        columns = DatasourceColumn.objects.filter(detailviewviewablecolumn__detail_view_id=detail_view_id,is_filter=0, is_user_filter=0, is_edit_filter=0)
+        columns = columns.values()
+        columns = mysql_db.utils.annotate_detail_view_columns(columns, detail_view_id)
+        columns = list(columns)
+
+        return columns, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Update

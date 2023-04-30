@@ -3,19 +3,21 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useDispatch, useSelector } from 'react-redux';
-import { store, StoreState, setCurrentRecordIndex, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
+import { store, StoreState, showAddRecordModal, showDeleteRecordModal, setFirstRecordColumns, setRecords, setCurrentRecordIndex, setCurrentRecordViewableData } from '../../store/StoreContext';
 import { useEffect, useState } from 'react';
 import DatasourceNavBar from './DatasourceNavBar';
-import styles from '../../styles/userapp/containers/ContentContainers'
-import { loadTableview } from '../../store/StoreController';
+import { loadDetailview, loadTableview } from '../../store/StoreController';
+import { useNavigate } from 'react-router-dom';
+import styles from '../../styles/userapp/containers/ContentContainers';
 
 function Tableview() {
     const dispatch = useDispatch<typeof store.dispatch>();
+    const navigate = useNavigate();
 
-    const [records, setRecords] = useState<any[][]>([]);
-
+    const app = useSelector((state: StoreState) => state.webAppReducer.app);
+    const records = useSelector((state: StoreState) => state.webAppReducer.records);
     const columns = useSelector((state: StoreState) => state.webAppReducer.columns);
-    const columnData = useSelector((state: StoreState) => state.webAppReducer.columnData);
+    const currentRecordIndex = useSelector((state: StoreState) => state.webAppReducer.currentRecordIndex);
 
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
@@ -24,30 +26,16 @@ function Tableview() {
         dispatch(loadTableview())
             .then(() => {
                 setIsLoading(false);
-
-                /** Convert columns into records */
-                const newRecords = [];
-                for (let i = 1; i < (columnData && columnData[0] ? columnData[0].length : 1); i++) {
-                    let currRecord = [];
-                    /** Start j at 1 to skip the column header name */
-                    for (let j = 0; j < columnData.length; j++) {
-                        currRecord.push(columnData[j][i]);
-                    }
-                    newRecords.push(currRecord);
-                }
-        
-                setRecords(newRecords);
             })
     })
-
 
     const columnNames = columns.map((col) => { return col.name });
 
     // Find the percentage of space each cell should take in a row. This assumes that all cells take an even amount of space with the other cells.
-    const cellWidthPercentage: string = (100 / (records && records[0] ? records[0].length : 1)) + '%'
+    const cellWidthPercentage: string = (100 / (columnNames ? columnNames.length : 1) + '%')
 
     // Determine the dimensions of the table cells.
-    const cellWidth = `repeat(${(records && records[0] ? records[0].length : 1)}, ${cellWidthPercentage})`
+    const cellWidth = `repeat(${(columnNames ? columnNames.length : 1)}, ${cellWidthPercentage})`
 
     // Constant to determine the spacing between each row. Change as necessary.
     const rowPadding: string = '8px'
@@ -57,18 +45,29 @@ function Tableview() {
         dispatch(showDeleteRecordModal());
     }
 
+    const handleShowAddRecordModal = () => {
+        dispatch(showAddRecordModal());
+    }
+    
+    const handleOpenDetailview = (index: number) => {
+        dispatch(setCurrentRecordIndex(index));
+        dispatch(loadDetailview());
+        //TODO: replace index with detailview id
+        navigate(`/userapp/${app?.id}/detailview/${index}`);
+    }
+
     const buttons = (
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-            {records.map((record, index) => {
+            {records?.map((record, index) => {
                 return (
                     <Box id='row-button' sx={{ display: 'flex', flexDirection: 'row' }}>
-                        <Button sx={{ paddingY: rowPadding }}>
+                        <Button sx={{ paddingY: rowPadding }} onClick={() => {handleOpenDetailview(index + 1)}}>
                             <UnfoldMoreIcon />
                             <Typography>
                                 View
                             </Typography>
                         </Button>
-                        <Button sx={{ paddingY: rowPadding }} onClick={() => { handleShowDeleteModal(index) }}>
+                        <Button sx={{ paddingY: rowPadding }} onClick={() => { handleShowDeleteModal(index + 1) }}>
                             <DeleteOutlineIcon />
                             <Typography>
                                 Delete
@@ -96,7 +95,7 @@ function Tableview() {
             </Box>
 
             {/** Table Data */}
-            {records.map((record, index) => {
+            {records?.map((record, index) => {
                 // Alternate table row colors for visual clarity
                 const bgColor = index % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
 
@@ -127,7 +126,7 @@ function Tableview() {
     )
 
     const addRecordButton = (
-        <Button startIcon={<AddCircleOutlineIcon />} sx={{ border: 1, width: '15%', marginTop: '32px', bgcolor: '#1976d2', color: 'white', '&:hover': { 'background': "#0062A5" } }} onClick={() => dispatch(showAddRecordModal())}>
+        <Button startIcon={<AddCircleOutlineIcon />} sx={{ border: 1, width: '15%', marginTop: '32px', bgcolor: '#1976d2', color: 'white', '&:hover': { 'background': "#0062A5" } }} onClick={handleShowAddRecordModal}>
             <Typography>
                 Add Record
             </Typography>

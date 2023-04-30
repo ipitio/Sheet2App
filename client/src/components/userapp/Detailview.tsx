@@ -1,69 +1,91 @@
-import React, { useEffect } from 'react';
-import {Box, Button, Divider, Typography} from '@mui/material';
-import { View } from '../../store/StoreTypes';
-import EditIcon from '@mui/icons-material/Edit';
-import { showEditRecordModal } from '../../store/StoreContext';
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, CircularProgress, Divider, TextField, Typography } from '@mui/material';
+import { StoreState, showEditRecordModal, store } from '../../store/StoreContext';
+import { useDispatch, useSelector } from 'react-redux';
 import DatasourceNavBar from './DatasourceNavBar';
+import styles from '../../styles/userapp/containers/ContentContainers';
+import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
+import { editRecord, loadDetailview } from '../../store/StoreController';
 
 function Detailview() {
-    const dispatch = useDispatch();
-    // TODO: Make API call to the spreadsheet URL
-    // let spreadsheetData = api.get
-    // let columnName = spreadsheetData[0] // Since the spreadsheet is passed back as a 2d list, the first element (row-wise) contains all of the columns
+    const dispatch = useDispatch<typeof store.dispatch>();
 
-    let testColumnHeader: string[] = ['A', 'B', 'C', 'D']
+    const columns = useSelector((state: StoreState) => state.webAppReducer.columns);
+    const currentRecordData = useSelector((state: StoreState) => state.webAppReducer.currentRecordData);
+    const editableColumns = useSelector((state: StoreState) => state.webAppReducer.editableColumns);
+    const viewableColumns = useSelector((state: StoreState) => state.webAppReducer.viewableColumns);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [columnToDataPairs, setColumnToDataPairs] = useState<Record<number, any>>({})
+
+    const [isLoading, setIsLoading] = useState(true);
+    useEffect(() => {
+        if (!isLoading) return;
+
+        dispatch(loadDetailview())
+            .then(() => {
+                setIsLoading(false);
+            })
+    })
+
+    const handleToggleEditing = () => {
+        setIsEditing(true);
+    }
+
+    const handleEditRecord = () => {
+        dispatch(editRecord(columnToDataPairs))
+        .then(() => {
+            setIsEditing(false);
+            setIsLoading(true);
+        })
+    }
+
+    const handleInputChange = (event: any, index: number) => {
+        let newPairs = columnToDataPairs;
+        newPairs[index] = event.target.value;
+
+        setColumnToDataPairs(newPairs);
+    }
 
     return (
         <Box>
             <DatasourceNavBar />
-            <Box
-                id='detail-view-container'
-                sx={{
-                    display: 'grid',
-                    flexDirection: 'column',
-                    width: '100%',
-                    fontSize: '32px',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
-            >
-                <Box
-                    id='detail-header'
-                    sx={{
-                        display: 'block',
-                        justifyContent: 'space-between',
-                        width: 'full'
-                    }}
-                >
-                    {
-                        testColumnHeader.map((columnHeader) => {
-                            return <div key={columnHeader}>{columnHeader}</div>
-                        })
+            {isLoading ? <CircularProgress sx={{ ...styles.contentContainer }} /> :
+                <Box sx={{ ...styles.contentContainer, display: 'grid', flexDirection: 'column', width: '100%', fontSize: '32px', alignItems: 'center', justifyContent: 'center' }}>
+                    <Box sx={{ display: 'block', justifyContent: 'space-between', width: 'full' }}>
+                        {isEditing ? editableColumns.map((column, index) => {
+                            return (
+                                column.editable &&
+                                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                                        <Typography sx={{ marginRight: '40px', marginTop: '40px' }}>{column.name}</Typography>
+                                        <TextField sx={{ marginTop: '20px' }} onChange={(event) => handleInputChange(event, index)} defaultValue={currentRecordData ? currentRecordData[index + 1] : ''} />
+                                    </Box>
+                            )
+                        }) :
+                            viewableColumns.map((column, index) => {
+                                return (
+                                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                                        <Typography sx={{ marginRight: '40px', marginTop: '12px' }}>{column.name}</Typography>
+                                        <Typography sx={{ marginTop: '12px' }}>{currentRecordData ? currentRecordData[index + 1] : ''}</Typography>
+                                    </Box>
+                                )
+                            }
+                            )
+                        }
+                    </Box>
+                    <Divider sx={{ bgcolor: 'black', fontWeight: 'bold', marginTop: '20px' }} />
+
+                    {isEditing ?
+                        <Button sx={{ display: 'flex' }} startIcon={<SaveIcon />} onClick={handleEditRecord}>
+                            <Typography>Save Record</Typography>
+                        </Button> :
+                        <Button sx={{ display: 'flex' }} startIcon={<EditIcon />} onClick={handleToggleEditing}>
+                            <Typography>Edit Record</Typography>
+                        </Button>
                     }
                 </Box>
-                <Divider
-                    sx={{
-                        bgcolor: 'black',
-                        fontWeight: 'bold'
-                    }}
-                />
-
-                {/** TODO: ADD THE SPREADSHEET DATA HERE */}
-
-                <Button
-                    id='edit-record-button'
-                    sx={{
-                        display: 'flex'
-                    }}
-                    // onClick={() => { dispatch(showEditRecordModal(props)) }}
-                >
-                    <Typography>
-                        Edit Record
-                    </Typography>
-                    <EditIcon />
-                </Button>
-            </Box>
+            }
         </Box>
     )
 }

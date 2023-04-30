@@ -44,6 +44,26 @@ def get_creds():
     return creds
 
 
+# Log updates, errors, etc.
+def setup_logger(app_id):
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    logger = logging.getLogger("app_%s" % app_id)
+    logger.setLevel(logging.DEBUG)
+
+    log_file = os.path.join(log_dir, "app_%s.log" % app_id)
+    file_handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
+    file_handler.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    return logger
+
+
 # Create a spreadsheet and return the new spreadsheet ID.
 def create_spreadsheet(tokens, title):
     try:
@@ -299,7 +319,7 @@ def insert_row(tokens, spreadsheet_id, sheet_id, row_to_insert, row_index=-1):
                     "updateCells": {
                         "start": {
                             "sheetId": sheet_id,
-                            "rowIndex": get_num_rows(tokens, spreadsheet_id, sheet_id),
+                            "rowIndex": len(get_data(tokens, spreadsheet_id)[0]),
                             "columnIndex": 0,
                         },
                         "rows": [

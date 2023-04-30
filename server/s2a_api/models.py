@@ -105,4 +105,3 @@ class DetailViewEditableColumn(models.Model):
     datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
     class Meta:
         db_table = 'DetailViewEditableColumn'
-    

@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { store, StoreState, setCurrentApp } from '../../../store/StoreContext';
+import {store, StoreState, setCurrentApp } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes'
 
 import styles from '../../../styles/S2A/rolesheet/EditAppRoleSheetStyles';

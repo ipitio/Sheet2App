@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 import json
 from http import HTTPStatus
@@ -899,22 +901,38 @@ def add_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
-    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource.id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    record_data_array = [""] * len(datasource_columns)
-    
-    for column in datasource_columns:
-        col_index = column["column_index"]
-        col_initial_value = column["initial_value"]
-        
-        if col_index in record_data:
-            record_data_array[col_index] = record_data[col_index]
-        else:
-            record_data_array[col_index] = col_initial_value
-        
+    record_data_array = [""] * (len(datasource_columns) + 1)
 
+    datasource_columns = datasource_columns[0]
+    for index, column in enumerate(datasource_columns):
+        col_index = column["column_index"] - 1
+        col_initial_value = column["initial_value"]
+        col_type = column["type"]
+
+        if str(col_index) in record_data:
+            # Now do type checking
+            current_entry = record_data[str(col_index)]
+            
+            django_url_validator = URLValidator()
+
+            if col_type == 'Number' and not current_entry.isnumeric():
+                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            elif col_type == 'URL':
+                try:
+                    django_url_validator(current_entry)
+                except:
+                    return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            elif col_type == 'Boolean' and not current_entry.lower() == 'true' and not current_entry.lower() == 'false':
+                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
+            record_data_array[index] = record_data[str(col_index)]
+        else:
+            record_data_array[index] = col_initial_value
+        
     spreadsheet_id = datasource.spreadsheet_id
     gid = datasource.gid
     output, response_code = sheets_api.insert_row(
@@ -946,24 +964,40 @@ def edit_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    spreadsheet_id = datasource["spreadsheet_id"]
-    gid = datasource["gid"]
+    spreadsheet_id = datasource.spreadsheet_id
+    gid = datasource.gid
 
-    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource.id)[0]
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    record_data_array, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)[record_index]
+    record_data_array, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    record_data_array = record_data_array[record_index]
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
     for column in datasource_columns:
         col_name = column["name"]
         col_index = column["column_index"]
-        
-        if col_name in record_data:
-            record_data_array[col_index] = record_data[col_name]
-        
+        col_type = column["type"]
+
+        if str(col_index - 1) in record_data:
+             # Now do type checking
+            current_entry = record_data[str(col_index - 1)]
+            
+            django_url_validator = URLValidator()
+
+            if col_type == 'Number' and not current_entry.isnumeric():
+                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            elif col_type == 'URL':
+                try:
+                    django_url_validator(current_entry)
+                except:
+                    return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            elif col_type == 'Boolean' and not current_entry.lower() == 'true' and not current_entry.lower() == 'false':
+                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
+            record_data_array[col_index - 1] = record_data[str(col_index - 1)]
 
     output, response_code = sheets_api.update_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, 
@@ -998,8 +1032,8 @@ def delete_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    spreadsheet_id = datasource["spreadsheet_id"]
-    gid = datasource["gid"]
+    spreadsheet_id = datasource.spreadsheet_id
+    gid = datasource.gid
     
     output, response_code = sheets_api.delete_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, row_index=record_index
@@ -1114,7 +1148,7 @@ def load_detail_view(request):
     record_index = body["recordIndex"]
     spreadsheet_url = detail_view["datasource"]["spreadsheetUrl"]
     
-    viewable_columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view.id)
+    viewable_columns, response_code = queries.get_detail_view_viewable_columns_without_filters(detail_view_id=detail_view["id"])
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
@@ -1129,8 +1163,7 @@ def load_detail_view(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-    
-    rowData = [column[record_index - 1] for column in column_data]
+    rowData = [(column[record_index] if record_index < len(column) else '') for column in column_data]
     rowData = {index: data for index, data in zip(column_indexes, rowData)}
     
     res_body = {
