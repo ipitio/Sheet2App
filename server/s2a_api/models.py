@@ -54,8 +54,6 @@ class TableView(models.Model):
     can_view = models.BooleanField()
     can_add = models.BooleanField()
     can_delete = models.BooleanField()
-    uses_filter = models.BooleanField()
-    uses_user_filter = models.BooleanField()
     class Meta:
         db_table = 'TableView'
     
@@ -103,3 +101,10 @@ class DetailViewEditableColumn(models.Model):
     datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
     class Meta:
         db_table = 'DetailViewEditableColumn'
+    
+    
+class TableViewFilterColumn(models.Model):
+    table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
+    datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'TableViewFilterColumn'
