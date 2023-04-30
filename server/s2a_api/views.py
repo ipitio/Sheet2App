@@ -934,14 +934,15 @@ def edit_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    spreadsheet_id = datasource["spreadsheet_id"]
-    gid = datasource["gid"]
+    spreadsheet_id = datasource.spreadsheet_id
+    gid = datasource.gid
 
-    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource.id)[0]
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    record_data_array, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)[record_index]
+    record_data_array, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    record_data_array = record_data_array[record_index]
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
@@ -949,10 +950,9 @@ def edit_record(request):
         col_name = column["name"]
         col_index = column["column_index"]
         
-        if col_name in record_data:
-            record_data_array[col_index] = record_data[col_name]
-        
-
+        if str(col_index - 1) in record_data:
+            record_data_array[col_index - 1] = record_data[str(col_index - 1)]
+    
     output, response_code = sheets_api.update_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, 
         updated_row_data=record_data_array, row_index=record_index
@@ -1102,7 +1102,7 @@ def load_detail_view(request):
     record_index = body["recordIndex"]
     spreadsheet_url = detail_view["datasource"]["spreadsheetUrl"]
     
-    viewable_columns, response_code = queries.get_detail_view_viewable_columns(detail_view_id=detail_view["id"])
+    viewable_columns, response_code = queries.get_detail_view_viewable_columns_without_filters(detail_view_id=detail_view["id"])
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
@@ -1117,7 +1117,6 @@ def load_detail_view(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-    
     rowData = [column[record_index] for column in column_data]
     rowData = {index: data for index, data in zip(column_indexes, rowData)}
     

@@ -36,7 +36,6 @@ import Tableview from './components/userapp/Tableview';
 import Detailview from './components/userapp/Detailview';
 
 import AddRecordModal from './components/userapp/modals/AddRecordModal';
-import EditRecordModal from './components/userapp/modals/EditRecordModal';
 import DeleteRecordModal from './components/userapp/modals/DeleteRecordModal';
 import EditAppRoleSheet from './components/S2A/rolesheet/EditAppRoleSheet';
 
@@ -97,7 +96,6 @@ const App: React.FC = () => {
 
         {/* User App Modals */}
         <AddRecordModal/>
-        <EditRecordModal/>
         <DeleteRecordModal/>
 
       </PersistGate>

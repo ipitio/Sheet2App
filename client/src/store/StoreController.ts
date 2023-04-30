@@ -913,7 +913,7 @@ async function loadEditableColumns(detailview: Detailview): Promise<{columns: Co
  * Adds a record to the specified datasource
  * @returns the new data and columns after adding a record to the datasource
  */
-export const addRecord = createAsyncThunk('webApp/addRecord', async(record: {[key: number]: any}) => {
+export const addRecord = createAsyncThunk('/webApp/addRecord', async(record: {[key: number]: any}) => {
     try {
         const app = store.getState().webAppReducer.app;
         const datasource = store.getState().webAppReducer.currentDatasource;
@@ -936,40 +936,36 @@ export const addRecord = createAsyncThunk('webApp/addRecord', async(record: {[ke
  * Adds a record to the specified datasource
  * @returns the new data and columns after adding a record to the datasource
  */
-async function editRecord(datasource: Datasource, recordID: number, record: Record): Promise<{columns: Column[], columnData: any[][]}> {
+export const editRecord = createAsyncThunk('webApp/editRecord', async (record: {[key: number]: any}) => {
     try {
-        const reqForm = await getRequestForm("PUT", {"datasource": datasource, "recordID": recordID, "record": record});
+        const app = store.getState().webAppReducer.app;
+        const datasource = store.getState().webAppReducer.currentDatasource;
+        const recordIndex = store.getState().webAppReducer.currentRecordIndex;
+
+        const reqForm = await getRequestForm("PUT", {"app": app, "datasource": datasource, "recordIndex": recordIndex, "record": record});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/editRecord`, reqForm);
         if(!res.ok)
             return Promise.reject(`editRecord request failed with status: ${res.status}`);
         
-        const data = await res.json();
-        const columns: Column[] = data.columns;
-        const columnData: any[][] = data.columnData;
-
-        return {
-            columns: columns,
-            columnData: columnData
-        };
+        console.log("resolving here")
+        return Promise.resolve();
     }
     catch(err) {
         return Promise.reject(`editRecord failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Load a specific datasource in the web app
  * @returns the data and columns associated with the specified datasource
  */
-export const deleteRecord = createAsyncThunk('/webApp/deleteRecord', async () => {
+export const deleteRecord = createAsyncThunk('webApp/deleteRecord', async () => {
     try {
         const app = store.getState().webAppReducer.app;
         const datasource = store.getState().webAppReducer.currentDatasource;
         const recordIndex = store.getState().webAppReducer.currentRecordIndex;
-
-        console.log(recordIndex);
 
         const reqForm = await getRequestForm("DELETE", {"app": app, "datasource": datasource, "recordIndex": recordIndex});
         
@@ -984,7 +980,3 @@ export const deleteRecord = createAsyncThunk('/webApp/deleteRecord', async () =>
         return Promise.reject(`deleteRecord failed with the error: ${err}`);
     }
 })
-
-export default {
-                editRecord
-            };
