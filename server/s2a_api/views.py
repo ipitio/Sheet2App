@@ -480,7 +480,7 @@ def create_table_view(request):
     filter_column_header =  f"{new_table_view.id} {table_view_name} Filter"
     output, response_code = sheets_api.write_column(
         tokens, spreadsheet_id, sheet_id, 
-        column_data=[filter_column_header], column_index=new_column_index
+        column_data=[filter_column_header], column_index=new_column_index, app_id=app_id
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -500,7 +500,7 @@ def create_table_view(request):
     user_filter_column_header =  f"{new_table_view.id} {table_view_name} User Filter"
     output, response_code = sheets_api.write_column(
         tokens, spreadsheet_id, sheet_id, 
-        column_data=[user_filter_column_header], column_index=new_column_index
+        column_data=[user_filter_column_header], column_index=new_column_index, app_id=app_id
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
