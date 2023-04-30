@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { StoreState, finishPublish } from '../../../../store/StoreContext';
+import { store, StoreState, finishPublish } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
@@ -16,12 +16,12 @@ function PublishAppModal() {
 
     /* Event handlers. */
 
-    /* If the user clicks on space outside of the modal or confirms/cancels creation.*/
+    /* If the user clicks on space outside of the modal or confirms/cancels publishment.*/
     const handleCloseModal = () => {
         dispatch(finishPublish());
     }
 
-    /* If the user confirms creation, create the app. */
+    /* If the user confirms publishment, publish the app. */
     const handlePublish = () => {
         if (currentAppToPublish) {
             dispatch(publishApp({ ...currentAppToPublish, isPublished: true }))

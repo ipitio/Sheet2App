@@ -33,27 +33,8 @@ const HomeStyles: StyleContainer = {
   buttonContainer: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-evenly'
-  },
-  deleteAppButton: {
-    position: 'absolute',
-    bottom: '0',
-    right: '60%',
-  },
-  editAppButton: {
-    position: 'absolute',
-    bottom: '0',
-    right: '45%',
-  },
-  publishAppButton: {
-    position: 'absolute',
-    bottom: '0',
-    right: '30%',
-  },
-  accessAppButton: {
-    position: 'absolute',
-    top: '0',
-    right: '0',
+    justifyContent: 'space-evenly',
+    marginTop: '30px',
   },
 };
 

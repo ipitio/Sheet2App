@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { StoreState, setCurrentApp } from '../../../store/StoreContext';
+import { store, StoreState, setCurrentApp } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes'
 
 import styles from '../../../styles/S2A/rolesheet/EditAppRoleSheetStyles';
@@ -54,7 +54,7 @@ function EditAppRoleSheet() {
                 <div style={styles.textfieldLabel}>{"Role Membership Spreadsheet URL:"}</div>
 
                 {/* Role Membership Spreadsheet URL Textfield */}
-                <TextField onBlur={handleChangeRoleSheet} onChange={handleTextChange} style={styles.textfield} variant="outlined"> </TextField>
+                <TextField onBlur={handleChangeRoleSheet} defaultValue={currApp?.roleMemUrl? currApp?.roleMemUrl : ''} onChange={handleTextChange} style={styles.textfield} variant="outlined"> </TextField>
             </div>
         </div>
     );

@@ -12,7 +12,9 @@ const HomeNavBarStyles: StyleContainer = {
   },
   appName: {
     fontSize: '36px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    color: 'white',
+    textTransform: 'none'
   },
   navBarContainer: {
     display: 'flex',

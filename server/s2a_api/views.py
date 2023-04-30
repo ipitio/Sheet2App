@@ -992,7 +992,7 @@ def get_app_table_views_for_role(request):
         return HttpResponse({}, status=response_code)
     
     for table_view in table_views:
-        datasource, response_code = queries.get_datasource_by_table_view_id(table_view_id=table_view.id)
+        datasource, response_code = queries.get_datasource_by_table_view_id(table_view_id=table_view["id"])
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
         
@@ -1048,7 +1048,7 @@ def load_table_view(request):
         return HttpResponse({}, status=response_code)
     
     if detail_view != None:
-        datasource, response_code = queries.get_datasource_by_detail_view_id(detail_view_id=detail_view.id)
+        datasource, response_code = queries.get_datasource_by_detail_view_id(detail_view_id=detail_view['id'])
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
         

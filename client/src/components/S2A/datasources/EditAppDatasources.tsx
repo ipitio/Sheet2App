@@ -2,7 +2,7 @@ import { KeyboardEventHandler, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { setCurrentModalType, markDatasourceToEdit, markDatasourceToDelete, StoreState, setCurrentDatasource } from '../../../store/StoreContext';
+import { store, setCurrentModalType, markDatasourceToEdit, markDatasourceToDelete, StoreState, setCurrentDatasource } from '../../../store/StoreContext';
 import { Column, Datasource, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/datasources/EditAppDatasourcesStyles";
