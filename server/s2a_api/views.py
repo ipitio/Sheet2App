@@ -479,7 +479,7 @@ def create_table_view(request):
         return HttpResponse({}, status=response_code)
     
     new_column_index =  len(columns) + 1
-    filter_column_header =  f"{new_table_view.id} {table_view_name} Filter"
+    filter_column_header =  new_table_view.filter_column_name
     output, response_code = sheets_api.write_column(
         tokens, spreadsheet_id, sheet_id, 
         column_data=[filter_column_header], column_index=new_column_index
@@ -493,13 +493,9 @@ def create_table_view(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-    # table_view_filter_column = queries.create_table_view_filter_column(
-    #     table_view_id=new_table_view.id, datasource_column_id=filter_column.id
-    # )
-    
     
     new_column_index += 1
-    user_filter_column_header =  f"{new_table_view.id} {table_view_name} User Filter"
+    user_filter_column_header = new_table_view.user_filter_column_name
     output, response_code = sheets_api.write_column(
         tokens, spreadsheet_id, sheet_id, 
         column_data=[user_filter_column_header], column_index=new_column_index
@@ -652,6 +648,7 @@ def get_table_view_columns(request):
 @csrf_exempt
 def edit_table_view_columns(request):
     body = json.loads(request.body)
+    table_view = body["tableview"]
     table_view_id = body["tableview"]["id"]
     columns = body["tableviewColumns"]
     filter_column_entries = body["filterColumn"]            # boolean array
@@ -663,8 +660,23 @@ def edit_table_view_columns(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
+    uses_filter = filter_column_entries != None
+    uses_user_filter = user_filter_column_entries != None
+        
+    output, response_code = queries.update_table_view_filter_usage(
+        table_view=table_view, uses_filter=uses_filter, uses_user_filter=uses_user_filter
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
     
-
+    if uses_filter:
+        # fill in user filter oclumn with corresponding values
+        pass
+    
+    if uses_user_filter:
+        # fill in user filter column with corresponding values
+        pass
+    
     res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code

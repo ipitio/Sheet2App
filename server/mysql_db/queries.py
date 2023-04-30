@@ -90,8 +90,12 @@ def create_table_view(app_id, table_view_name, datasource_id):
     try:
         new_table_view = TableView.objects.create(
             app_id=app_id, datasource_id=datasource_id, name=table_view_name, 
-            can_view=True, can_add=True, can_delete=True
+            can_view=True, can_add=True, can_delete=True,
+            uses_filter=False, uses_user_filter=False
         )
+        new_table_view.filter_column_name = f"{new_table_view.id} {new_table_view.name} Filter"
+        new_table_view.user_filter_column_name = f"{new_table_view.id} {new_table_view.name} User Filter"
+        new_table_view.save()
         
         # By default all columns of the datasource the table view uses are viewable
         table_view_id = new_table_view.id
@@ -530,11 +534,16 @@ def update_table_view(table_view):
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
-def update_table_view_filter_columns(table_view, filter_column):
+    
+    
+def update_table_view_filter_usage(table_view, uses_filter, uses_user_filter):
     try:
-        pass
+        updated_table_view = TableView.objects.get(id=table_view["id"])
+        updated_table_view.uses_filter = uses_filter
+        updated_table_view.uses_user_filter = uses_user_filter
+        updated_table_view.save()
+
+        return {}, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
