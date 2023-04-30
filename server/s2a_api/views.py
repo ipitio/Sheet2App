@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 import json
 from http import HTTPStatus
@@ -897,8 +899,24 @@ def add_record(request):
     for index, column in enumerate(datasource_columns):
         col_index = column["column_index"] - 1
         col_initial_value = column["initial_value"]
+        col_type = column["type"]
 
         if str(col_index) in record_data:
+            # Now do type checking
+            current_entry = record_data[str(col_index)]
+            
+            django_url_validator = URLValidator()
+
+            if col_type == 'Number' and not current_entry.isnumeric():
+                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            elif col_type == 'URL':
+                try:
+                    django_url_validator(current_entry)
+                except:
+                    return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            elif col_type == 'Boolean' and not current_entry.lower() == 'true' and not current_entry.lower() == 'false':
+                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
             record_data_array[index] = record_data[str(col_index)]
         else:
             record_data_array[index] = col_initial_value
@@ -949,10 +967,26 @@ def edit_record(request):
     for column in datasource_columns:
         col_name = column["name"]
         col_index = column["column_index"]
-        
+        col_type = column["type"]
+
         if str(col_index - 1) in record_data:
+             # Now do type checking
+            current_entry = record_data[str(col_index - 1)]
+            
+            django_url_validator = URLValidator()
+
+            if col_type == 'Number' and not current_entry.isnumeric():
+                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            elif col_type == 'URL':
+                try:
+                    django_url_validator(current_entry)
+                except:
+                    return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            elif col_type == 'Boolean' and not current_entry.lower() == 'true' and not current_entry.lower() == 'false':
+                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
             record_data_array[col_index - 1] = record_data[str(col_index - 1)]
-    
+
     output, response_code = sheets_api.update_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, 
         updated_row_data=record_data_array, row_index=record_index
