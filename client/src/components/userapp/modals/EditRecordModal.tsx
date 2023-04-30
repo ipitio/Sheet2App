@@ -2,6 +2,8 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, D
 import { useDispatch, useSelector } from 'react-redux';
 import { editRecord, hideWebAppModal, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 
 function EditRecordModal() {
     // Retrieve the dispatcher for the store
@@ -9,6 +11,10 @@ function EditRecordModal() {
 
     const currentModalType = useSelector((state: StoreState) => state.webAppReducer.currentModalType);
     const currentRecord = useSelector((state: StoreState) => state.webAppReducer.currentRecord);
+
+    const handleEditRecord = () => {
+
+    }
 
     return (
         <Box
@@ -41,19 +47,10 @@ function EditRecordModal() {
                         }
                     </DialogContentText>
                     <DialogActions>
-                        <Button
-                            // TODO: Populate the fields of the Record using elements from the input form 
-                            onClick={() => dispatch(editRecord({
-                                index: 0,
-                                data: ["some", "test", "data"],
-                                id: 0
-                            }))}
-                        >
+                        <Button onClick={handleEditRecord} startIcon={<CheckIcon/>}>
                             Confirm
                         </Button>
-                        <Button
-                            onClick={() => dispatch(hideWebAppModal())}
-                        >
+                        <Button onClick={() => dispatch(hideWebAppModal())} startIcon={<CloseIcon/>}>
                             Cancel
                         </Button>
                     </DialogActions>

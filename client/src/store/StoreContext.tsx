@@ -5,7 +5,7 @@ import storage from 'redux-persist/lib/storage';
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, loadApp, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import storeController, { addRecord, createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteRecord, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, loadApp, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -581,6 +581,8 @@ export interface IWebAppState {
     columnData: any[][],
     rowData: any[],
 
+    firstRecordColumns: Column[],
+
     // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
     // or clicks on the Delete Record button.
     currentRecord: Record | null,
@@ -604,6 +606,9 @@ const webAppState: IWebAppState = {
     columnData: [],
     rowData: [],
 
+    /** Store the indexes of the columns contained by the first record in the current table */
+    firstRecordColumns: [],
+
     showSuccessAlert: false,
     showErrorAlert: false,
 }
@@ -625,6 +630,10 @@ const webAppReducer = createSlice({
         setCurrentRecordIndex: (state, action: PayloadAction<number>) => {
             state.currentRecordIndex = action.payload;
         },
+
+        setFirstRecordColumns: (state, action: PayloadAction<any[]>) => {
+            state.firstRecordColumns = action.payload;
+        },
         
         // loadTableview: (state, action: PayloadAction<Tableview>) => {
         //     state.currentTableview = action.payload;
@@ -637,30 +646,6 @@ const webAppReducer = createSlice({
 
             // On successful response, update the current view to the responded data
             // state.currentView = res.data
-        },
-        // Called by the AddRecordModal when changes are submitted
-        addRecord: (state, action: {payload: Record, type: string}) => {
-            if (!state.currentDatasource) return;
-
-            storeController.addRecord(state.currentDatasource, action.payload)
-            .then(() => {
-                console.log("Added Record");
-            })
-            .catch((error: Error) => {
-                console.log(error);
-            })
-        },
-        // Called by the DeleteRecordModal when changes are submitted
-        deleteRecord: (state) => {
-            if (!state.currentDatasource || !state.currentRecord) return;
-
-            storeController.deleteRecord(state.currentDatasource, state.currentRecord.id)
-            .then(() => {
-                console.log("Deleted Record");
-            })
-            .catch((error: Error) => {
-                console.log(error);
-            })
         },
         // Called by the EditRecordModal when changes are submitted
         editRecord: (state, action: {payload: Record}) => {
@@ -730,6 +715,20 @@ const webAppReducer = createSlice({
         builder.addCase(loadTableview.rejected, (state, action) => {
             state.showErrorAlert = true;
         });
+
+        builder.addCase(addRecord.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(addRecord.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(deleteRecord.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(deleteRecord.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
     }
 })
 
@@ -742,7 +741,7 @@ export const {
     finishCreation, finishEdit, finishDeletion, finishPublish, finishUnpublish, resetAll
  } = S2AReducer.actions
 
-export const { openApp, returnToS2A, addRecord, editRecord, deleteRecord, setCurrentRecordIndex,
+export const { openApp, returnToS2A, editRecord, setCurrentRecordIndex, setFirstRecordColumns,
     showAddRecordModal, showEditRecordModal, showDeleteRecordModal, webAppSetCurrentTableview,
     hideWebAppModal, hideWebAppErrorAlert, hideWebAppSuccessAlert, goToUserAppHome } = webAppReducer.actions;
 
