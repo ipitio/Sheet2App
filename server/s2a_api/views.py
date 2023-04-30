@@ -1117,9 +1117,11 @@ def load_detail_view(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-    rowData = [column[record_index] for column in column_data]
+    rowData = [(column[record_index] if record_index < len(column) else '') for column in column_data]
     rowData = {index: data for index, data in zip(column_indexes, rowData)}
     
+    print(viewable_columns)
+
     res_body = {
         "columns": viewable_columns,
         "rowData": rowData

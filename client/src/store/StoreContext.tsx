@@ -722,15 +722,13 @@ const webAppReducer = createSlice({
             }
 
             state.records = newRecords;
-            state.firstRecordColumns = firstRecordColumns;
+            state.firstRecordColumns = (newRecords.length == 0 ? editableColumns : firstRecordColumns);
         });
         builder.addCase(loadTableview.rejected, (state, action) => {
             state.columnData = [];
             state.records = [];
-            state.firstRecordColumns = [];
             // state.showErrorAlert = true;
         });
-
 
         builder.addCase(loadDetailview.fulfilled, (state, action) => {
             const {columns, rowData} = action.payload;

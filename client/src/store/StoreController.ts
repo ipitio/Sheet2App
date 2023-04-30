@@ -891,7 +891,7 @@ export const loadDetailview = createAsyncThunk('webApp/loadDetailview', async() 
 /** Exactly the same as loadDetailview. Need this to get the editable columns in the detail view
  * for adding a record as per the specs. Also allows us to put an extra reducer to seperate their fulfilled behaviors.
  */
-async function loadEditableColumns(detailview: Detailview): Promise<{columns: Column[], rowData: any[]}> {
+export async function loadEditableColumns(detailview: Detailview): Promise<{columns: Column[], rowData: any[]}> {
     try {
         const app = store.getState().webAppReducer.app;
         const recordIndex = 1;
