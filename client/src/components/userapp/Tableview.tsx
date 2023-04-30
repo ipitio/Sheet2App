@@ -50,6 +50,7 @@ function Tableview() {
     }
     
     const handleOpenDetailview = (index: number) => {
+        dispatch(setCurrentRecordIndex(index));
         dispatch(loadDetailview());
         //TODO: replace index with detailview id
         navigate(`/userapp/${app?.id}/detailview/${index}`);
