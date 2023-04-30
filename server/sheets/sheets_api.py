@@ -315,7 +315,7 @@ def update_row(tokens, spreadsheet_id, sheet_id, updated_row_data, row_index, ap
         # Invalidate other sheets and read the updated sheet
         queries = importlib.import_module("mysql_db.queries")
         queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
-        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id, app_id)
+        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id)
         
         logger.info("Updated row %s in sheet %s of spreadsheet %s", row_index, sheet_id, spreadsheet_id)
 
@@ -387,7 +387,7 @@ def insert_row(tokens, spreadsheet_id, sheet_id, row_to_insert, row_index=-1, ap
         # Invalidate other sheets and read the updated sheet
         queries = importlib.import_module("mysql_db.queries")
         queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
-        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id, app_id)
+        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id)
         
         logger.info("Inserted row %s in sheet %s of spreadsheet %s", row_index, sheet_id, spreadsheet_id)
 

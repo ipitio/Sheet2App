@@ -878,7 +878,6 @@ def edit_detail_view_roles(request):
 def add_record(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
-    app = body["app"]
     datasource = body["datasource"]
     record_data = body["record"]
 
@@ -908,7 +907,7 @@ def add_record(request):
     gid = datasource.gid
     output, response_code = sheets_api.insert_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=gid, row_to_insert=record_data_array, app_id=app["id"]
+        sheet_id=gid, row_to_insert=record_data_array
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -925,7 +924,6 @@ def add_record(request):
 def edit_record(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
-    app = body["app"]
     datasource = body["datasource"]
     record_data = body["record"]
     record_index = body["recordIndex"]
@@ -957,7 +955,7 @@ def edit_record(request):
     
     output, response_code = sheets_api.update_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, 
-        updated_row_data=record_data_array, row_index=record_index, app_id=app["id"]
+        updated_row_data=record_data_array, row_index=record_index
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
