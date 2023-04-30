@@ -54,7 +54,7 @@ def setup_logger(app_id):
         os.makedirs(log_dir)
 
     logger = logging.getLogger("app_%s" % app_id)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     log_file = os.path.join(log_dir, "app_%s.log" % app_id)
     file_handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
