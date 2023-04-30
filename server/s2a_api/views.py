@@ -979,7 +979,6 @@ def edit_record(request):
 def delete_record(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
-    app = body["app"]
     datasource = body["datasource"]
     record_index = body["recordIndex"]
     
@@ -993,7 +992,7 @@ def delete_record(request):
     gid = datasource.gid
     
     output, response_code = sheets_api.delete_row(
-        tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, row_index=record_index, app_id=app["id"]
+        tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, row_index=record_index
     )
     
     res_body = {}
