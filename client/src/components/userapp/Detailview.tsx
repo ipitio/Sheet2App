@@ -13,9 +13,8 @@ function Detailview() {
 
     const columns = useSelector((state: StoreState) => state.webAppReducer.columns);
     const currentRecordData = useSelector((state: StoreState) => state.webAppReducer.currentRecordData);
-    const firstRecordColumns = useSelector((state: StoreState) => state.webAppReducer.firstRecordColumns);
-    const records = useSelector((state: StoreState) => state.webAppReducer.records);
-    const currentRecordIndex = useSelector((state: StoreState) => state.webAppReducer.currentRecordIndex);
+    const editableColumns = useSelector((state: StoreState) => state.webAppReducer.editableColumns);
+    const viewableColumns = useSelector((state: StoreState) => state.webAppReducer.viewableColumns);
 
     const [isEditing, setIsEditing] = useState(false);
     const [columnToDataPairs, setColumnToDataPairs] = useState<Record<number, any>>({})
@@ -55,22 +54,24 @@ function Detailview() {
             {isLoading ? <CircularProgress sx={{ ...styles.contentContainer }} /> :
                 <Box sx={{ ...styles.contentContainer, display: 'grid', flexDirection: 'column', width: '100%', fontSize: '32px', alignItems: 'center', justifyContent: 'center' }}>
                     <Box sx={{ display: 'block', justifyContent: 'space-between', width: 'full' }}>
-                        {isEditing ? firstRecordColumns.map((column, index) => {
+                        {isEditing ? editableColumns.map((column, index) => {
                             return (
-                                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                                    <Typography sx={{ marginRight: '40px', marginTop: '40px' }}>{column.name}</Typography>
-                                    <TextField sx={{marginTop: '20px'}} onChange={(event) => handleInputChange(event, index)} defaultValue={currentRecordData ? currentRecordData[index + 1] : ''} />
-                                </Box>
+                                column.editable &&
+                                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                                        <Typography sx={{ marginRight: '40px', marginTop: '40px' }}>{column.name}</Typography>
+                                        <TextField sx={{ marginTop: '20px' }} onChange={(event) => handleInputChange(event, index)} defaultValue={currentRecordData ? currentRecordData[index + 1] : ''} />
+                                    </Box>
                             )
                         }) :
-                            columns.map((column, index) => {
+                            viewableColumns.map((column, index) => {
                                 return (
                                     <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Typography sx={{ marginRight: '40px', marginTop: '12px' }}>{column.name}</Typography>
-                                        <Typography sx={{marginTop: '12px'}}>{currentRecordData ? currentRecordData[index + 1] : ''}</Typography>
+                                        <Typography sx={{ marginTop: '12px' }}>{currentRecordData ? currentRecordData[index + 1] : ''}</Typography>
                                     </Box>
                                 )
-                            })
+                            }
+                            )
                         }
                     </Box>
                     <Divider sx={{ bgcolor: 'black', fontWeight: 'bold', marginTop: '20px' }} />

@@ -586,6 +586,8 @@ export interface IWebAppState {
     currentRecordViewableData: any[],
 
     firstRecordColumns: Column[],
+    editableColumns: Column[],
+    viewableColumns: Column[],
 
     // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
     // or clicks on the Delete Record button.
@@ -615,6 +617,9 @@ const webAppState: IWebAppState = {
 
     /** Store the indexes of the columns contained by the first record in the current table */
     firstRecordColumns: [],
+
+    editableColumns: [],
+    viewableColumns: [],
 
     showSuccessAlert: false,
     showErrorAlert: false,
@@ -723,6 +728,7 @@ const webAppReducer = createSlice({
 
             state.records = newRecords;
             state.firstRecordColumns = (newRecords.length == 0 ? editableColumns : firstRecordColumns);
+            state.editableColumns = editableColumns;
         });
         builder.addCase(loadTableview.rejected, (state, action) => {
             state.columnData = [];
@@ -732,8 +738,7 @@ const webAppReducer = createSlice({
         builder.addCase(loadDetailview.fulfilled, (state, action) => {
             const {columns, rowData} = action.payload;
 
-            /** Don't need this because the Detailview is already requested when the Table is loaded */
-            // state.columns = columns;
+            state.viewableColumns = columns;
             state.currentRecordData = rowData;
         });
         builder.addCase(loadDetailview.rejected, (state, action) => {
