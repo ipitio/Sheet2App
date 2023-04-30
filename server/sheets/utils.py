@@ -2,7 +2,7 @@ import re
 
 # Function to convert the data type of the value as a Sheets-compatible
 # data type.
-def get_spreadsheet_value_type(value):
+""" def get_spreadsheet_value_type(value):
     if isinstance(value, str):
         return 'stringValue'
     
@@ -10,11 +10,11 @@ def get_spreadsheet_value_type(value):
         return 'numberValue'
     
     if isinstance(value, bool):
-        return 'boolValue'
+        return 'boolValue' """
 
 # Convert a list of row data into a list of objects parsable by the 
 # Sheets API.
-def generate_row_data(row_data):
+""" def generate_row_data(row_data):
     values = []
 
     for data in row_data:
@@ -30,7 +30,26 @@ def generate_row_data(row_data):
         )
     
     # Return a list of parsable objects that represent a row of data within the spreadsheet.
-    return values
+    return values """
+    
+def get_spreadsheet_value_type(value):
+    if isinstance(value, str):
+        return "stringValue"
+    elif isinstance(value, int):
+        return "numberValue"
+    elif isinstance(value, float):
+        return "numberValue"
+    elif isinstance(value, bool):
+        return "boolValue"
+    else:
+        return "errorValue"
+
+
+def generate_row_data(row_data):
+    row = []
+    for value in row_data:
+        row.append({get_spreadsheet_value_type(value): value})
+    return row
 
 
 def get_spreadsheet_id(url):

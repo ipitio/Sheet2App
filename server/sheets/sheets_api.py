@@ -1,6 +1,6 @@
 from __future__ import print_function
 import json
-
+import importlib
 import os.path
 from http import HTTPStatus
 
@@ -67,7 +67,7 @@ def create_spreadsheet(tokens, title):
 
 # Retrieve data from a spreadsheet. If a range is specified, retrieve all data from within that range.
 # If no range is specified, returns the entire first sheet. Reads the data row by row as a default.
-def get_data(tokens, spreadsheet_id, sheet_id=None, range=None, majorDimension="ROWS") -> list:
+def get_data(tokens, spreadsheet_id, sheet_id=None, range=None, majorDimension="ROWS"):
     try:
         service = build("sheets", "v4", credentials=get_credentials(tokens))
 
@@ -125,7 +125,7 @@ def get_data(tokens, spreadsheet_id, sheet_id=None, range=None, majorDimension="
 # Retrieve column data for certain specified columns Expects columns to be a
 # array of column indices to retrieve the data for. Returns a 2 dimensional
 # list containing the column data, where list[0] is the first column, etc...
-def get_column_data(tokens, spreadsheet_id, sheet_id, columns) -> list:
+def get_column_data(tokens, spreadsheet_id, sheet_id, columns):
     try:
         service = build("sheets", "v4", credentials=get_credentials(tokens))
 
@@ -217,7 +217,12 @@ def update_cell(tokens, spreadsheet_id, sheet_id, value_to_update, row_index, co
             .execute()
         )
 
-        return res, HTTPStatus.OK
+        # Invalidate other sheets and read the updated sheet
+        queries = importlib.import_module("mysql_db.queries")
+        queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
+        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id)
+
+        return updated_sheet_data, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
@@ -264,8 +269,13 @@ def update_row(tokens, spreadsheet_id, sheet_id, updated_row_data, row_index):
             .batchUpdate(spreadsheetId=spreadsheet_id, body=request_body)
             .execute()
         )
+        
+        # Invalidate other sheets and read the updated sheet
+        queries = importlib.import_module("mysql_db.queries")
+        queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
+        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id)
 
-        return res, HTTPStatus.OK
+        return updated_sheet_data, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
@@ -327,8 +337,13 @@ def insert_row(tokens, spreadsheet_id, sheet_id, row_to_insert, row_index=-1):
             .batchUpdate(spreadsheetId=spreadsheet_id, body=request_body)
             .execute()
         )
+        
+        # Invalidate other sheets and read the updated sheet
+        queries = importlib.import_module("mysql_db.queries")
+        queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
+        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id)
 
-        return res, HTTPStatus.OK
+        return updated_sheet_data, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
@@ -365,14 +380,17 @@ def delete_row(tokens, spreadsheet_id, sheet_id, row_index):
             .batchUpdate(spreadsheetId=spreadsheet_id, body=request_body)
             .execute()
         )
+        
+        # Invalidate other sheets and read the updated sheet
+        queries = importlib.import_module("mysql_db.queries")
+        queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
+        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id)
 
-        return res, HTTPStatus.OK
+        return updated_sheet_data, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
         return err, HTTPStatus.INTERNAL_SERVER_ERROR
-
-    return
 
 
 # Write data to the first open column in the sheet
@@ -407,7 +425,13 @@ def write_column(tokens, spreadsheet_id, sheet_id, column_data, column_index):
         
         res = request.execute()
 
-        return res, HTTPStatus.OK
+        # Invalidate other sheets and read the updated sheet
+        queries = importlib.import_module("mysql_db.queries")
+        queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
+        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id)
+
+        return updated_sheet_data, HTTPStatus.OK
+    
     except HttpError as err:
         print(err)
         return err, HTTPStatus.INTERNAL_SERVER_ERROR
@@ -428,27 +452,7 @@ def get_metadata(tokens, spreadsheet_id):
         return err, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def get_spreadsheet_value_type(value):
-    if isinstance(value, str):
-        return "stringValue"
-    elif isinstance(value, int):
-        return "numberValue"
-    elif isinstance(value, float):
-        return "numberValue"
-    elif isinstance(value, bool):
-        return "boolValue"
-    else:
-        return "errorValue"
-
-
-def generate_row_data(row_data):
-    row = []
-    for value in row_data:
-        row.append({get_spreadsheet_value_type(value): value})
-    return row
-
-
-def get_num_rows(tokens, spreadsheet_id, sheet_id) -> int:
+def get_num_rows(tokens, spreadsheet_id, sheet_id):
     try:
         service = build("sheets", "v4", credentials=get_credentials(tokens))
 
@@ -463,10 +467,10 @@ def get_num_rows(tokens, spreadsheet_id, sheet_id) -> int:
             if sheet["properties"]["sheetId"] == sheet_id:
                 num_rows = sheet["properties"]["gridProperties"]["rowCount"]
                 return num_rows
-        return 0, HTTPStatus.OK
+        return 0
     except HttpError as err:
         print(err)
-        return 0, HTTPStatus.INTERNAL_SERVER_ERROR
+        return 0
     
     
 def get_end_user_roles(tokens, role_mem_url, email):

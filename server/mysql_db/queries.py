@@ -5,6 +5,7 @@ from django.core.validators import validate_email
 
 import mysql_db.utils
 import sheets.utils
+from sheets.sheets_api import get_data
 
 
 # Create
@@ -456,7 +457,7 @@ def get_detail_view_viewable_columns(detail_view_id):
     try:
         columns = DatasourceColumn.objects.filter(detailviewviewablecolumn__detail_view_id=detail_view_id)
         columns = columns.values()
-        columns = mysql_db.utils.annotate_detail_view_columns(columns)
+        columns = mysql_db.utils.annotate_detail_view_columns(columns, detail_view_id)
         columns = list(columns)
 
         return columns, HTTPStatus.OK
@@ -709,3 +710,21 @@ def delete_detail_view(detail_view_id):
         return {}, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+# Util
+def invalidate_other_sheets(spreadsheet_id, updated_sheet_id):
+    other_sheets = Datasource.objects.filter(spreadsheet_id=spreadsheet_id).exclude(gid=updated_sheet_id)
+    for sheet in other_sheets:
+        sheet.schema_validated = False
+        sheet.save()
+
+
+def read_updated_sheet(tokens, updated_sheet_id):
+    updated_sheet = Datasource.objects.get(gid=updated_sheet_id)
+    new_data = get_data(tokens, updated_sheet.spreadsheet_id, updated_sheet_id)
+
+    # Update the schema_validated flag for the updated sheet
+    updated_sheet.schema_validated = True
+    updated_sheet.save()
+
+    return new_data

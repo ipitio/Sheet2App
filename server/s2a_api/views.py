@@ -976,6 +976,35 @@ def edit_record(request):
 
 
 @csrf_exempt
+def delete_record(request):
+    body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    datasource = body["datasource"]
+    record_index = body["recordID"]
+    
+    spreadsheet_id = datasource.spreadsheet_id
+    gid = datasource.gid
+
+    output, response_code = sheets_api.delete_row(
+        tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, row_index=record_index
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+
+    # Get and send the refreshed data in response
+    data, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    res_body = {"spreadsheet_data": data}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+@csrf_exempt
 def get_app_table_views_for_role(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
@@ -1112,3 +1141,30 @@ def load_detail_view(request):
     )
 
     return response
+
+@csrf_exempt
+def invalidate_other_sheets_api(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        spreadsheet_id = data.get("spreadsheetId")
+        updated_sheet_id = data.get("updatedSheetId")
+
+        queries.invalidate_other_sheets(spreadsheet_id, updated_sheet_id)
+
+        return JsonResponse({"message": "Sheets invalidated successfully"})
+
+    return JsonResponse({"message": "Invalid request method"})
+
+
+@csrf_exempt
+def read_updated_sheet_api(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        tokens = parse_tokens(request)
+        updated_sheet_id = data.get("updatedSheetId")
+
+        new_data = queries.read_updated_sheet(tokens, updated_sheet_id)
+
+        return JsonResponse({"updatedSheetData": new_data})
+
+    return JsonResponse({"message": "Invalid request method"})
