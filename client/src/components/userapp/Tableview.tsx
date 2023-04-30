@@ -3,17 +3,16 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useDispatch, useSelector } from 'react-redux';
-import { store, StoreState, setCurrentRecordIndex, showAddRecordModal, showDeleteRecordModal, setFirstRecordColumns } from '../../store/StoreContext';
+import { store, StoreState, setCurrentRecordIndex, showAddRecordModal, showDeleteRecordModal, setFirstRecordColumns, setRecords } from '../../store/StoreContext';
 import { useEffect, useState } from 'react';
 import DatasourceNavBar from './DatasourceNavBar';
-import styles from '../../styles/userapp/containers/ContentContainers'
+import styles from '../../styles/userapp/containers/ContentContainers';
 import { loadTableview } from '../../store/StoreController';
 
 function Tableview() {
     const dispatch = useDispatch<typeof store.dispatch>();
 
-    const [records, setRecords] = useState<any[][]>([]);
-
+    const records = useSelector((state: StoreState) => state.webAppReducer.records);
     const columns = useSelector((state: StoreState) => state.webAppReducer.columns);
     const columnData = useSelector((state: StoreState) => state.webAppReducer.columnData);
 
@@ -23,26 +22,6 @@ function Tableview() {
 
         dispatch(loadTableview())
             .then(() => {
-                /** Convert columns into records */
-                const newRecords = [];
-                const columnKeys = Object.keys(columnData) as unknown as number[];
-                const firstRecordColumns = [];
-
-                for (let i = 1; i < columnData[columnKeys[0]].length; i++) {
-                    let currRecord = [];
-                    for (let j = 0; j < columnKeys.length; j++) {
-                        if (i == 1 && columns[j].editable) {
-                            /** Store the data for the first detail view */
-                            firstRecordColumns.push(columns[j]);
-                        }
-
-                        currRecord.push(columnData[columnKeys[j]][i]);
-                    }
-                    newRecords.push(currRecord);
-                }
-                
-                dispatch(setFirstRecordColumns(firstRecordColumns));
-                setRecords(newRecords);
                 setIsLoading(false);
             })
     })
@@ -59,13 +38,14 @@ function Tableview() {
     const rowPadding: string = '8px'
 
     const handleShowDeleteModal = (index: number) => {
-        dispatch(setCurrentRecordIndex(index));
+        /** Add 1 to the index because Sheets uses 1-indexed rows and columns */
+        dispatch(setCurrentRecordIndex(index + 1));
         dispatch(showDeleteRecordModal());
     }
 
     const buttons = (
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-            {records.map((record, index) => {
+            {records?.map((record, index) => {
                 return (
                     <Box id='row-button' sx={{ display: 'flex', flexDirection: 'row' }}>
                         <Button sx={{ paddingY: rowPadding }}>
@@ -102,7 +82,7 @@ function Tableview() {
             </Box>
 
             {/** Table Data */}
-            {records.map((record, index) => {
+            {records?.map((record, index) => {
                 // Alternate table row colors for visual clarity
                 const bgColor = index % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
 

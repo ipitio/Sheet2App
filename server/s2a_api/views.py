@@ -986,8 +986,8 @@ def delete_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    spreadsheet_id = datasource["spreadsheet_id"]
-    gid = datasource["gid"]
+    spreadsheet_id = datasource.spreadsheet_id
+    gid = datasource.gid
     
     output, response_code = sheets_api.delete_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, row_index=record_index

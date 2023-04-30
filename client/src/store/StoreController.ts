@@ -850,6 +850,30 @@ export const loadTableview = createAsyncThunk('webApp/loadTableview', async() =>
     }
 })
 
+export const loadDetailview = createAsyncThunk('webApp/loadDetailview', async() => {
+    try {
+        const app = store.getState().webAppReducer.app;
+        const detailview = store.getState().webAppReducer.currentDetailview;
+        const recordIndex = store.getState().webAppReducer.currentRecordIndex;
+
+        const reqForm = await getRequestForm("DELETE", {"app": app, "detailview": detailview, "recordIndex": recordIndex});
+        
+        /* Send request and return promise resolving to the array of detailviews if successful. */
+        const res = await fetch(`${DJANGO_URL}/loadDetailview`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`loadDetailview request failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        const columns = data.columns;
+        const rowData = data.rowData;
+
+        return {columns, rowData};
+    }
+    catch(err) {
+        return Promise.reject(`loadDetailview failed with the error: ${err}`);
+    }
+})
+
 /**
  * Adds a record to the specified datasource
  * @returns the new data and columns after adding a record to the datasource
@@ -917,8 +941,6 @@ export const deleteRecord = createAsyncThunk('/webApp/deleteRecord', async () =>
         const app = store.getState().webAppReducer.app;
         const datasource = store.getState().webAppReducer.currentDatasource;
         const recordIndex = store.getState().webAppReducer.currentRecordIndex;
-
-        console.log(app, datasource, recordIndex);
 
         const reqForm = await getRequestForm("DELETE", {"app": app, "datasource": datasource, "recordIndex": recordIndex});
         

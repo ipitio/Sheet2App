@@ -577,6 +577,7 @@ export interface IWebAppState {
 
     currentRecordIndex: number | null,
 
+    records: any[][],
     columns: Column[],
     columnData: any[][],
     rowData: any[],
@@ -602,6 +603,7 @@ const webAppState: IWebAppState = {
 
     currentRecordIndex: null,
 
+    records: [],
     columns: [],
     columnData: [],
     rowData: [],
@@ -624,8 +626,14 @@ const webAppReducer = createSlice({
             state.app = null;
         },
 
+        setRecords: (state, action: PayloadAction<any[][]>) => {
+            state.records = action.payload;
+        },
         webAppSetCurrentTableview: (state, action: PayloadAction<Tableview>) => {
             state.currentTableview = action.payload;
+        },
+        webAppSetCurrentDatasource: (state, action: PayloadAction<Datasource>) => {
+            state.currentDatasource = action.payload;
         },
         setCurrentRecordIndex: (state, action: PayloadAction<number>) => {
             state.currentRecordIndex = action.payload;
@@ -634,20 +642,6 @@ const webAppReducer = createSlice({
         setFirstRecordColumns: (state, action: PayloadAction<any[]>) => {
             state.firstRecordColumns = action.payload;
         },
-        
-        // loadTableview: (state, action: PayloadAction<Tableview>) => {
-        //     state.currentTableview = action.payload;
-        // },
-        // Loads a view and sets it as the current (visible) view
-        loadView: (state, action: {payload: View, type: string}) => {
-            // TODO
-
-            // Make the API call to retrieve the view from the sheets database
-
-            // On successful response, update the current view to the responded data
-            // state.currentView = res.data
-        },
-        // Called by the EditRecordModal when changes are submitted
         editRecord: (state, action: {payload: Record}) => {
             if (!state.currentDatasource || !state.currentRecord) return;
 
@@ -709,8 +703,26 @@ const webAppReducer = createSlice({
 
             state.columns = columns;
             state.columnData = columnData;
+            state.currentDetailview = detailview;
 
-            // state.currentDetailview = detailview;
+            const newRecords = [];
+            const columnKeys = Object.keys(columnData) as unknown as number[];
+            const firstRecordColumns = [];
+
+            for (let i = 1; i < columnData[columnKeys[0]].length; i++) {
+                let currRecord = [];
+                for (let j = 0; j < columnKeys.length; j++) {
+                    if (i == 1 && columns[j].editable) {
+                        /** Store the data for the first detail view */
+                        firstRecordColumns.push(columns[j]);
+                    }
+                    currRecord.push(columnData[columnKeys[j]][i]);
+                }
+                newRecords.push(currRecord);
+            }
+
+            state.records = newRecords;
+            state.firstRecordColumns = firstRecordColumns;
         });
         builder.addCase(loadTableview.rejected, (state, action) => {
             state.showErrorAlert = true;
@@ -741,8 +753,8 @@ export const {
     finishCreation, finishEdit, finishDeletion, finishPublish, finishUnpublish, resetAll
  } = S2AReducer.actions
 
-export const { openApp, returnToS2A, editRecord, setCurrentRecordIndex, setFirstRecordColumns,
-    showAddRecordModal, showEditRecordModal, showDeleteRecordModal, webAppSetCurrentTableview,
+export const { openApp, returnToS2A, editRecord, setCurrentRecordIndex, setFirstRecordColumns, setRecords,
+    showAddRecordModal, showEditRecordModal, showDeleteRecordModal, webAppSetCurrentTableview, webAppSetCurrentDatasource,
     hideWebAppModal, hideWebAppErrorAlert, hideWebAppSuccessAlert, goToUserAppHome } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors

@@ -3,7 +3,7 @@ import DatasourceNavBar from './DatasourceNavBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { loadApp } from '../../store/StoreController';
-import {store, StoreState, webAppSetCurrentTableview } from '../../store/StoreContext';
+import {store, StoreState, webAppSetCurrentDatasource, webAppSetCurrentTableview } from '../../store/StoreContext';
 import styles from '../../styles/userapp/containers/ContentContainers'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Tableview } from '../../store/StoreTypes';
@@ -29,6 +29,7 @@ function UserAppHome() {
     const handleOpenTableview = (tableview: Tableview) => {
         if (!app) return;
 
+        dispatch(webAppSetCurrentDatasource(tableview.datasource));
         dispatch(webAppSetCurrentTableview(tableview));
         navigate(`/userapp/${app.id}/tableview/${tableview.id}`);
     }
