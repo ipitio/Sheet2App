@@ -434,7 +434,7 @@ def delete_row(tokens, spreadsheet_id, sheet_id, row_index, app_id=None):
         # Invalidate other sheets and read the updated sheet
         queries = importlib.import_module("mysql_db.queries")
         queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
-        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id)
+        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id, app_id)
         
         logger.info("Deleted row %s in sheet %s of spreadsheet %s", row_index, sheet_id, spreadsheet_id)
 
