@@ -695,7 +695,7 @@ const webAppReducer = createSlice({
             state.tableviews = action.payload;
         });
         builder.addCase(loadApp.rejected, (state, action) => {
-            state.showErrorAlert = true;
+            // state.showErrorAlert = true;
         });
 
         builder.addCase(loadTableview.fulfilled, (state, action) => {
@@ -727,7 +727,6 @@ const webAppReducer = createSlice({
         builder.addCase(loadTableview.rejected, (state, action) => {
             state.columnData = [];
             state.records = [];
-            // state.showErrorAlert = true;
         });
 
         builder.addCase(loadDetailview.fulfilled, (state, action) => {
@@ -739,7 +738,6 @@ const webAppReducer = createSlice({
         });
         builder.addCase(loadDetailview.rejected, (state, action) => {
             state.currentRecordData = [];
-            // state.showErrorAlert = true;
         });
 
         builder.addCase(addRecord.fulfilled, (state, action) => {
