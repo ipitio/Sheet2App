@@ -887,22 +887,22 @@ def add_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
-    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource.id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    record_data_array = [""] * len(datasource_columns)
-    
-    for column in datasource_columns:
-        col_index = column["column_index"]
-        col_initial_value = column["initial_value"]
-        
-        if col_index in record_data:
-            record_data_array[col_index] = record_data[col_index]
-        else:
-            record_data_array[col_index] = col_initial_value
-        
+    record_data_array = [""] * (len(datasource_columns) + 1)
 
+    datasource_columns = datasource_columns[0]
+    for index, column in enumerate(datasource_columns):
+        col_index = column["column_index"] - 1
+        col_initial_value = column["initial_value"]
+
+        if str(col_index) in record_data:
+            record_data_array[index] = record_data[str(col_index)]
+        else:
+            record_data_array[index] = col_initial_value
+        
     spreadsheet_id = datasource.spreadsheet_id
     gid = datasource.gid
     output, response_code = sheets_api.insert_row(

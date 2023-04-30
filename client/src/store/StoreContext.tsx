@@ -700,11 +700,15 @@ const webAppReducer = createSlice({
         });
 
         builder.addCase(loadTableview.fulfilled, (state, action) => {
+            console.log("fulfilled loadtableview")
+
             const {columns, columnData, detailview, editableColumns} = action.payload;
 
             state.columns = columns;
             state.columnData = columnData;
             state.currentDetailview = detailview;
+
+            console.log("rendering here", columnData);
 
             const newRecords = [];
             const columnKeys = Object.keys(columnData) as unknown as number[];

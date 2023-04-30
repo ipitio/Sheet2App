@@ -907,27 +907,19 @@ async function loadEditableColumns(detailview: Detailview): Promise<{columns: Co
  * Adds a record to the specified datasource
  * @returns the new data and columns after adding a record to the datasource
  */
-export const addRecord = createAsyncThunk('webApp/addRecord', async() => {
+export const addRecord = createAsyncThunk('webApp/addRecord', async(record: {[key: number]: any}) => {
     try {
         const app = store.getState().webAppReducer.app;
         const datasource = store.getState().webAppReducer.currentDatasource;
-        const recordIndex = store.getState().webAppReducer.currentRecordIndex;
 
-        const reqForm = await getRequestForm("POST", {"app": app, "datasource": datasource, "record": recordIndex});
+        const reqForm = await getRequestForm("POST", {"app": app, "datasource": datasource, "record": record});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/addRecord`, reqForm);
         if(!res.ok)
             return Promise.reject(`addRecord request failed with status: ${res.status}`);
         
-        const data = await res.json();
-        const columns: Column[] = data.columns;
-        const columnData: any[][] = data.columnData;
-
-        return {
-            columns: columns,
-            columnData: columnData
-        };
+        return Promise.resolve();
     }
     catch(err) {
         return Promise.reject(`addRecord failed with the error: ${err}`);
