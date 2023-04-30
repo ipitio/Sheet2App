@@ -4,13 +4,13 @@ from django.db import models
 class GlobalDevelopers(models.Model):
     email = models.TextField()
     class Meta:
-        db_table = 's2a_api_globaldevelopers'
+        db_table = 'GlobalDevelopers'
 
 
 class Creator(models.Model):
     email = models.TextField()
     class Meta:
-        db_table = 's2a_api_creator'
+        db_table = 'Creator'
 
 
 class Application(models.Model):
@@ -19,7 +19,7 @@ class Application(models.Model):
     role_mem_url = models.TextField(null=True)
     is_published = models.BooleanField()
     class Meta:
-        db_table = 's2a_api_application'
+        db_table = 'Application'
 
 
 class Datasource(models.Model):
@@ -29,7 +29,7 @@ class Datasource(models.Model):
     gid = models.IntegerField()
     name = models.TextField()
     class Meta:
-        db_table = 's2a_api_datasource'
+        db_table = 'Datasource'
 
 
 class DatasourceColumn(models.Model):
@@ -44,7 +44,7 @@ class DatasourceColumn(models.Model):
     is_user_filter = models.BooleanField()
     is_edit_filter = models.BooleanField()
     class Meta:
-        db_table = 's2a_api_datasourcecolumn'
+        db_table = 'DatasourceColumn'
     
 
 class TableView(models.Model):
@@ -54,10 +54,8 @@ class TableView(models.Model):
     can_view = models.BooleanField()
     can_add = models.BooleanField()
     can_delete = models.BooleanField()
-    uses_filter = models.BooleanField()
-    uses_user_filter = models.BooleanField()
     class Meta:
-        db_table = 's2a_api_tableview'
+        db_table = 'TableView'
     
     
 class DetailView(models.Model):
@@ -67,39 +65,46 @@ class DetailView(models.Model):
     can_view = models.BooleanField()
     can_edit = models.BooleanField()
     class Meta:
-        db_table = 's2a_api_detailview'
+        db_table = 'DetailView'
 
 
 class TableViewPerm(models.Model):
     table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
     role = models.TextField()
     class Meta:
-        db_table = 's2a_api_tableviewperm'
+        db_table = 'TableViewPerm'
     
     
 class DetailViewPerm(models.Model):
     detail_view = models.ForeignKey(DetailView, on_delete=models.CASCADE)
     role = models.TextField()
     class Meta:
-        db_table = 's2a_api_detailviewperm'
+        db_table = 'DetailViewPerm'
     
     
 class TableViewViewableColumn(models.Model):
     table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
     datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
     class Meta:
-        db_table = 's2a_api_tableviewviewablecolumn'
+        db_table = 'TableViewViewableColumn'
 
 
 class DetailViewViewableColumn(models.Model):
     detail_view = models.ForeignKey(DetailView, on_delete=models.CASCADE)
     datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
     class Meta:
-        db_table = 's2a_api_detailviewviewablecolumn'
+        db_table = 'DetailViewViewableColumn'
 
 
 class DetailViewEditableColumn(models.Model):
     detail_view = models.ForeignKey(DetailView, on_delete=models.CASCADE)
     datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
     class Meta:
-        db_table = 's2a_api_detailvieweditablecolumn'
+        db_table = 'DetailViewEditableColumn'
+    
+    
+class TableViewFilterColumn(models.Model):
+    table_view = models.ForeignKey(TableView, on_delete=models.CASCADE)
+    datasource_column = models.ForeignKey(DatasourceColumn, on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'TableViewFilterColumn'
