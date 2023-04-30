@@ -356,7 +356,7 @@ def insert_row(tokens, spreadsheet_id, sheet_id, row_to_insert, row_index=-1, ap
                     "updateCells": {
                         "start": {
                             "sheetId": sheet_id,
-                            "rowIndex": get_num_rows(tokens, spreadsheet_id, sheet_id),
+                            "rowIndex": len(get_data(tokens, spreadsheet_id)[0]),
                             "columnIndex": 0,
                         },
                         "rows": [

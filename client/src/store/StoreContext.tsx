@@ -5,7 +5,7 @@ import storage from 'redux-persist/lib/storage';
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { addRecord, createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteRecord, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editTableview, editTableviewColumns, editTableviewRoles, loadApp, loadDetailview, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import { addRecord, createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteRecord, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editRecord, editTableview, editTableviewColumns, editTableviewRoles, loadApp, loadDetailview, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
@@ -583,6 +583,8 @@ export interface IWebAppState {
     columnData: any[][],
     currentRecordData: any[],
 
+    currentRecordViewableData: any[],
+
     firstRecordColumns: Column[],
 
     // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
@@ -608,6 +610,8 @@ const webAppState: IWebAppState = {
     columns: [],
     columnData: [],
     currentRecordData: [],
+
+    currentRecordViewableData: [],
 
     /** Store the indexes of the columns contained by the first record in the current table */
     firstRecordColumns: [],
@@ -638,21 +642,16 @@ const webAppReducer = createSlice({
         },
         setCurrentRecordIndex: (state, action: PayloadAction<number>) => {  
             state.currentRecordIndex = action.payload;
+
+            console.log(action.payload);
         },
 
         setFirstRecordColumns: (state, action: PayloadAction<any[]>) => {
             state.firstRecordColumns = action.payload;
         },
-        editRecord: (state, action: {payload: Record}) => {
-            if (!state.currentDatasource || !state.currentRecord) return;
 
-            storeController.editRecord(state.currentDatasource, state.currentRecord.id, action.payload)
-            .then(() => {
-                console.log("Edited Record");
-            })
-            .catch((error: Error) => {
-                console.log(error);
-            })
+        setCurrentRecordViewableData: (state, action: PayloadAction<any[]>) => {
+            state.currentRecordViewableData = action.payload;
         },
         // Displays the AddRecord Modal
         showAddRecordModal: state => {
@@ -713,7 +712,7 @@ const webAppReducer = createSlice({
             for (let i = 1; i < columnData[columnKeys[0]].length; i++) {
                 let currRecord = [];
                 for (let j = 0; j < columnKeys.length; j++) {
-                    if (i == 1 && editableColumns[j].editable) {
+                    if (i == 1 && editableColumns[j] && editableColumns[j].editable) {
                         /** Store the data for the first detail view */
                         firstRecordColumns.push(columns[j]);
                     }
@@ -723,24 +722,37 @@ const webAppReducer = createSlice({
             }
 
             state.records = newRecords;
-            state.firstRecordColumns = firstRecordColumns;
+            state.firstRecordColumns = (newRecords.length == 0 ? editableColumns : firstRecordColumns);
         });
         builder.addCase(loadTableview.rejected, (state, action) => {
-            state.showErrorAlert = true;
+            state.columnData = [];
+            state.records = [];
+            // state.showErrorAlert = true;
         });
-
 
         builder.addCase(loadDetailview.fulfilled, (state, action) => {
-            console.log(action.payload);
+            const {columns, rowData} = action.payload;
+
+            /** Don't need this because the Detailview is already requested when the Table is loaded */
+            // state.columns = columns;
+            state.currentRecordData = rowData;
         });
         builder.addCase(loadDetailview.rejected, (state, action) => {
-            state.showErrorAlert = true;
+            state.currentRecordData = [];
+            // state.showErrorAlert = true;
         });
 
         builder.addCase(addRecord.fulfilled, (state, action) => {
             state.showSuccessAlert = true;
         });
         builder.addCase(addRecord.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(editRecord.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(editRecord.rejected, (state, action) => {
             state.showErrorAlert = true;
         });
 
@@ -762,7 +774,7 @@ export const {
     finishCreation, finishEdit, finishDeletion, finishPublish, finishUnpublish, resetAll
  } = S2AReducer.actions
 
-export const { openApp, returnToS2A, editRecord, setCurrentRecordIndex, setFirstRecordColumns, setRecords,
+export const { openApp, returnToS2A, setCurrentRecordIndex, setFirstRecordColumns, setRecords, setCurrentRecordViewableData,
     showAddRecordModal, showEditRecordModal, showDeleteRecordModal, webAppSetCurrentTableview, webAppSetCurrentDatasource,
     hideWebAppModal, hideWebAppErrorAlert, hideWebAppSuccessAlert, goToUserAppHome } = webAppReducer.actions;
 

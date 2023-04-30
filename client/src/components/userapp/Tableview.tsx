@@ -3,7 +3,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useDispatch, useSelector } from 'react-redux';
-import { store, StoreState, showAddRecordModal, showDeleteRecordModal, setFirstRecordColumns, setRecords, setCurrentRecordIndex } from '../../store/StoreContext';
+import { store, StoreState, showAddRecordModal, showDeleteRecordModal, setFirstRecordColumns, setRecords, setCurrentRecordIndex, setCurrentRecordViewableData } from '../../store/StoreContext';
 import { useEffect, useState } from 'react';
 import DatasourceNavBar from './DatasourceNavBar';
 import { loadDetailview, loadTableview } from '../../store/StoreController';
@@ -32,16 +32,16 @@ function Tableview() {
     const columnNames = columns.map((col) => { return col.name });
 
     // Find the percentage of space each cell should take in a row. This assumes that all cells take an even amount of space with the other cells.
-    const cellWidthPercentage: string = (100 / (records && records[0] ? records[0].length : 1)) + '%'
+    const cellWidthPercentage: string = (100 / (columnNames ? columnNames.length : 1) + '%')
 
     // Determine the dimensions of the table cells.
-    const cellWidth = `repeat(${(records && records[0] ? records[0].length : 1)}, ${cellWidthPercentage})`
+    const cellWidth = `repeat(${(columnNames ? columnNames.length : 1)}, ${cellWidthPercentage})`
 
     // Constant to determine the spacing between each row. Change as necessary.
     const rowPadding: string = '8px'
 
     const handleShowDeleteModal = (index: number) => {
-        dispatch(setCurrentRecordIndex(index))
+        dispatch(setCurrentRecordIndex(index));
         dispatch(showDeleteRecordModal());
     }
 
@@ -50,6 +50,7 @@ function Tableview() {
     }
     
     const handleOpenDetailview = (index: number) => {
+        dispatch(setCurrentRecordIndex(index));
         dispatch(loadDetailview());
         //TODO: replace index with detailview id
         navigate(`/userapp/${app?.id}/detailview/${index}`);

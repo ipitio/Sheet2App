@@ -87,18 +87,6 @@ def create_datasource_column(datasource_id, column_index, name, is_filter, is_us
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def create_table_view_filter_column(table_view_id, datasource_column_id):
-    try:
-        new_table_view_filter_column = TableViewFilterColumn.objects.create(
-            table_view_id=table_view_id, datasource_column_id=datasource_column_id
-        )
-
-        return new_table_view_filter_column, HTTPStatus.OK
-    except Exception as e:
-        print(e)
-        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
 def create_table_view(app_id, table_view_name, datasource_id):
     try:
         new_table_view = TableView.objects.create(
@@ -465,6 +453,18 @@ def get_detail_view_viewable_columns(detail_view_id):
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
+# Retrieve all of the viewable columns without including edit filters and user filters
+def get_detail_view_viewable_columns_without_filters(detail_view_id):
+    try:
+        columns = DatasourceColumn.objects.filter(detailviewviewablecolumn__detail_view_id=detail_view_id,is_filter=0, is_user_filter=0, is_edit_filter=0)
+        columns = columns.values()
+        columns = mysql_db.utils.annotate_detail_view_columns(columns, detail_view_id)
+        columns = list(columns)
+
+        return columns, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 # Update
@@ -533,8 +533,12 @@ def update_table_view(table_view):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def update_table_view_filter_column():
-    pass
+def update_table_view_filter_columns(table_view, filter_column):
+    try:
+        pass
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def update_table_view_viewable_columns(table_view_id, columns):
