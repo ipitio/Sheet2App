@@ -854,9 +854,13 @@ export const loadTableview = createAsyncThunk('webApp/loadTableview', async() =>
  * Adds a record to the specified datasource
  * @returns the new data and columns after adding a record to the datasource
  */
-async function addRecord(datasource: Datasource, record: Record): Promise<{columns: Column[], columnData: any[][]}> {
+export const addRecord = createAsyncThunk('webApp/addRecord', async() => {
     try {
-        const reqForm = await getRequestForm("POST", {"datasource": datasource, "record": record});
+        const app = store.getState().webAppReducer.app;
+        const datasource = store.getState().webAppReducer.currentDatasource;
+        const recordIndex = store.getState().webAppReducer.currentRecordIndex;
+
+        const reqForm = await getRequestForm("POST", {"app": app, "datasource": datasource, "record": recordIndex});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/addRecord`, reqForm);
@@ -875,7 +879,7 @@ async function addRecord(datasource: Datasource, record: Record): Promise<{colum
     catch(err) {
         return Promise.reject(`addRecord failed with the error: ${err}`);
     }
-}
+})
 
 /**
  * Adds a record to the specified datasource
@@ -908,22 +912,28 @@ async function editRecord(datasource: Datasource, recordID: number, record: Reco
  * Load a specific datasource in the web app
  * @returns the data and columns associated with the specified datasource
  */
-async function deleteRecord(datasource: Datasource, recordID: number) {
+export const deleteRecord = createAsyncThunk('/webApp/deleteRecord', async () => {
     try {
-        const reqForm = await getRequestForm("DELETE", {"datasource": datasource, "recordID": recordID});
+        const app = store.getState().webAppReducer.app;
+        const datasource = store.getState().webAppReducer.currentDatasource;
+        const recordIndex = store.getState().webAppReducer.currentRecordIndex;
+
+        console.log(app, datasource, recordIndex);
+
+        const reqForm = await getRequestForm("DELETE", {"app": app, "datasource": datasource, "recordIndex": recordIndex});
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/deleteRecord`, reqForm);
         if(!res.ok)
             return Promise.reject(`deleteRecord request failed with status: ${res.status}`);
-        
-        const data = await res.json();
+
+        return Promise.resolve();
     }
     catch(err) {
         return Promise.reject(`deleteRecord failed with the error: ${err}`);
     }
-}
+})
 
 export default {
-                addRecord, editRecord, deleteRecord,
+                editRecord
             };
