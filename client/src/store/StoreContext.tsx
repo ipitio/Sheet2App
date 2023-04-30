@@ -1,5 +1,7 @@
-import { configureStore, createSlice } from '@reduxjs/toolkit'
+import { configureStore, combineReducers, createSlice, Reducer, Action } from '@reduxjs/toolkit'
 import type { PayloadAction } from "@reduxjs/toolkit"
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
@@ -750,11 +752,27 @@ export interface StoreState {
     webAppReducer: IWebAppState
 }
 
-const store = configureStore({
-    reducer: {
-        S2AReducer: S2AReducer.reducer,
-        webAppReducer: webAppReducer.reducer
-    }
-})  
+/* Combine reducers into single object. */
+const rootReducer: Reducer<StoreState, Action<any>> = combineReducers({
+    S2AReducer: S2AReducer.reducer,
+    webAppReducer: webAppReducer.reducer
+});
 
-export default store
+/* Setup configuration such that redux knows how to persist state in local storage. */
+const persistConfig = {
+    key: 'store',
+    storage,
+};
+
+/* Have redux generate new reducer functions that takes care of persistence. */
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+/* Create store object with new reducer. */
+const store = configureStore({
+    reducer: persistedReducer
+});
+
+/* Create persistor object that will be introduced into the DOM along with the store. */
+const persistor = persistStore(store);
+
+export {store, persistor}

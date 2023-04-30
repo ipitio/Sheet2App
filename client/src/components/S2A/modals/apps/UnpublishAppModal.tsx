@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { StoreState, finishUnpublish } from '../../../../store/StoreContext';
+import { store, StoreState, finishUnpublish } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';

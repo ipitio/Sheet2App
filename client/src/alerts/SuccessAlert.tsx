@@ -1,6 +1,6 @@
 import Alert from '@mui/material/Alert';
 import { useDispatch, useSelector } from 'react-redux';
-import store, { StoreState, hideSuccessAlert, hideWebAppSuccessAlert } from '../store/StoreContext';
+import { store, StoreState, hideSuccessAlert, hideWebAppSuccessAlert } from '../store/StoreContext';
 
 export default function SuccessAlert() {
     const dispatch = useDispatch<typeof store.dispatch>();

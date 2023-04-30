@@ -3,7 +3,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useDispatch, useSelector } from 'react-redux';
-import store, { StoreState, setCurrentRecordIndex, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
+import { store, StoreState, setCurrentRecordIndex, showAddRecordModal, showDeleteRecordModal } from '../../store/StoreContext';
 import { useEffect, useState } from 'react';
 import DatasourceNavBar from './DatasourceNavBar';
 import styles from '../../styles/userapp/containers/ContentContainers'
