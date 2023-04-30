@@ -46,7 +46,7 @@ function AddRecordModal() {
                                     <Typography sx={{marginRight: '40px', alignContent: 'center', paddingTop:'16px'}}>
                                         {column.name}
                                     </Typography>
-                                    <TextField onChange={(event) => handleInputChange(event, index)}/>
+                                    <TextField defaultValue={column.initialValue} onChange={(event) => handleInputChange(event, index)}/>
                                 </Box>
                             )
                         })} 
