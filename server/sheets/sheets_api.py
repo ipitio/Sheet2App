@@ -260,7 +260,7 @@ def update_cell(tokens, spreadsheet_id, sheet_id, value_to_update, row_index, co
         # Invalidate other sheets and read the updated sheet
         queries = importlib.import_module("mysql_db.queries")
         queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
-        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id, app_id)
+        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id)
 
         return updated_sheet_data, HTTPStatus.OK
 
@@ -482,7 +482,7 @@ def write_column(tokens, spreadsheet_id, sheet_id, column_data, column_index, ap
         # Invalidate other sheets and read the updated sheet
         queries = importlib.import_module("mysql_db.queries")
         queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
-        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id, app_id)
+        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id)
         
         logger.info("Wrote column %s in sheet %s of spreadsheet %s", column_index, sheet_id, spreadsheet_id)
 

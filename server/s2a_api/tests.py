@@ -56,19 +56,19 @@ class SheetsAPITestCase(TestCase):
             [["Some", "Second"], ["Data", "Data"]],
         )
 
-    # def test_update_cell(self):
-    #     update_cell(
-    #         self.tokens,
-    #         self.spreadsheet_id,
-    #         self.sheet_id,
-    #         self.value_to_update,
-    #         self.row_index,
-    #         self.column_index,
-    #     )
-    #     self.assertListEqual(
-    #         get_data(self.tokens, self.tokens, self.spreadsheet_id, self.sheet_id, "3:3"),
-    #         [["Updated cell value"]],
-    #     )
+    def test_update_cell(self):
+        update_cell(
+            self.tokens,
+            self.spreadsheet_id,
+            self.sheet_id,
+            self.value_to_update,
+            self.row_index,
+            self.column_index,
+        )
+        self.assertListEqual(
+            get_data(self.tokens, self.tokens, self.spreadsheet_id, self.sheet_id, "3:3"),
+            [["Updated cell value"]],
+        )
 
     def test_update_row(self):
         update_row(self.tokens, self.spreadsheet_id, self.sheet_id, self.updated_row_data, 3)
