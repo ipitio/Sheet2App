@@ -13,6 +13,7 @@ from googleapiclient.errors import HttpError
 from openpyxl.utils.cell import get_column_letter
 from sheets.utils import *
 from sheets.auth import get_credentials
+from s2a_api.models import SheetSchema
 
 # Allow the API to have complete control over the spreadsheet with this scope
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -482,3 +483,35 @@ def get_end_user_roles(tokens, role_mem_url, email):
             roles.append(role_col[0])
             
     return roles, HTTPStatus.OK
+
+
+def fetch_sheet_header(tokens, spreadsheet_id, sheet_name):
+    service = build("sheets", "v4", credentials=get_credentials(tokens))
+    range_name = f'{sheet_name}!1:1'
+    
+    try:
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id, range=range_name).execute()
+        return result.get('values', [])[0] if 'values' in result else []
+    except HttpError as error:
+        print(f'An error occurred: {error}')
+        return []
+    
+
+def check_schema_consistency(tokens, app, spreadsheet_id):
+    expected_schemas = SheetSchema.objects.filter(app=app)
+    sheet_schemas = {}
+
+    for schema in expected_schemas:
+        if schema.sheet_name not in sheet_schemas:
+            sheet_schemas[schema.sheet_name] = []
+        sheet_schemas[schema.sheet_name].append(schema.column_name)
+
+    for sheet_name, expected_columns in sheet_schemas.items():
+        fetched_columns = fetch_sheet_header(tokens, spreadsheet_id, sheet_name)
+
+        if len(fetched_columns) != len(expected_columns) or \
+                any([col != expected for col, expected in zip(fetched_columns, expected_columns)]):
+            return False
+
+    return True

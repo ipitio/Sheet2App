@@ -14,6 +14,8 @@ from django.forms import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Model
 
+from .models import Datasource
+from sheets.sheets_api import check_schema_consistency
 
 # to encode model objects into json
 class ExtendedEncoder(DjangoJSONEncoder):
@@ -997,8 +999,19 @@ def get_app_table_views_for_role(request):
             return HttpResponse({}, status=response_code)
         
         table_view["datasource"] = datasource
+        
+    try:
+        datasource = Datasource.objects.get(app=app_id)
+        spreadsheet_id = datasource.spreadsheet_id
+    except Datasource.DoesNotExist:
+        return HttpResponse(
+            {"error": "Datasource not found for the given app"},
+            status=HTTPStatus.NOT_FOUND
+        )
+
+    is_schema_consistent = check_schema_consistency(tokens, app_id, spreadsheet_id)
     
-    res_body = {"tableviews": table_views}
+    res_body = {"tableviews": table_views, "isSchemaConsistent": is_schema_consistent}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )
