@@ -636,7 +636,7 @@ const webAppReducer = createSlice({
         webAppSetCurrentDatasource: (state, action: PayloadAction<Datasource>) => {
             state.currentDatasource = action.payload;
         },
-        setCurrentRecordIndex: (state, action: PayloadAction<number>) => {
+        setCurrentRecordIndex: (state, action: PayloadAction<number>) => {  
             state.currentRecordIndex = action.payload;
         },
 
@@ -700,15 +700,11 @@ const webAppReducer = createSlice({
         });
 
         builder.addCase(loadTableview.fulfilled, (state, action) => {
-            console.log("fulfilled loadtableview")
-
             const {columns, columnData, detailview, editableColumns} = action.payload;
 
             state.columns = columns;
             state.columnData = columnData;
             state.currentDetailview = detailview;
-
-            console.log("rendering here", columnData);
 
             const newRecords = [];
             const columnKeys = Object.keys(columnData) as unknown as number[];
