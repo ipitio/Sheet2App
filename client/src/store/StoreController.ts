@@ -814,10 +814,6 @@ export const loadApp = createAsyncThunk('webApp/loadApp', async () => {
         
         const data = await res.json();
         const tableviews: Tableview[] = data.tableviews;
-        const isSchemaConsistent: boolean = data.isSchemaConsistent;
-
-        if(!isSchemaConsistent)
-            return Promise.reject("The schema of the database has changed since the last time the app was loaded. Please fix the schema and reload the app.");
 
         return tableviews;
     }

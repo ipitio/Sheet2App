@@ -20,12 +20,7 @@ class Application(models.Model):
     is_published = models.BooleanField()
     class Meta:
         db_table = 'Application'
-        
-class SheetSchema(models.Model):
-    app = models.ForeignKey(Application, on_delete=models.CASCADE)
-    sheet_name = models.CharField(max_length=255)
-    column_name = models.CharField(max_length=255)
-    data_type = models.CharField(max_length=50)
+
 
 class Datasource(models.Model):
     app = models.ForeignKey(Application, on_delete=models.CASCADE)
@@ -33,7 +28,6 @@ class Datasource(models.Model):
     spreadsheet_id = models.TextField()
     gid = models.IntegerField()
     name = models.TextField()
-    schema_validated = models.BooleanField(default=True)
     class Meta:
         db_table = 'Datasource'
 
