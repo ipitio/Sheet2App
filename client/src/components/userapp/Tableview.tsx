@@ -70,8 +70,8 @@ function Tableview() {
 
         formattedData[i].push(
             <Grid item xs={0.5} sx={{justifyContent: 'center', bgcolor: bgColor, borderLeft: 1}}>
-                <Button sx={{ justifyContent: 'center' }} onClick={() => { handleOpenDetailview(i + 1) }}>
-                    <UnfoldMoreIcon />
+                <Button sx={{ justifyContent: 'center' }} onClick={() => { handleOpenDetailview(i + 1) }} disabled={!store.getState().webAppReducer.currentDetailview}>
+                    <UnfoldMoreIcon/>
                     <Typography>
                         View
                     </Typography>
