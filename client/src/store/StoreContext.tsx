@@ -590,7 +590,7 @@ export interface IWebAppState {
     viewableColumns: Column[],
 
     filterColumns: string[],
-    userFilterColumns: Column[],
+    userFilterColumns: string[],
 
     // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
     // or clicks on the Delete Record button.
