@@ -1171,33 +1171,24 @@ def get_app_table_views_for_role(request):
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
         
+        spreadsheet_id = sheets.utils.get_spreadsheet_id(datasource["spreadsheet_url"])
         columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
-        data, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=datasource["spreadsheet_id"], sheet_id=datasource["gid"], app_id=app_id)
+        data, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=datasource["gid"], app_id=app_id)
         
-        is_valid = True
         for column in columns:
             column_index = column["column_index"]
             column_name = column["name"]
-            column_type = column["value_type"]
 
             if column_index < len(data) and column_index < len(data[0]):
-                sheet_column_name = data[0][column_index]
-                sheet_column_type = sheets_api.get_spreadsheet_value_type(data[1][column_index])
+                sheet_column_name = data[0][column_index - 1]
 
-                if sheet_column_name != column_name or sheet_column_type != column_type:
-                    is_valid = False
-                    break
-            else:
-                is_valid = False
-                break
+                if sheet_column_name != column_name:
+                    queries.invalidate_datasource(datasource["id"])
+                    return HttpResponse(
+                        {"error": "The datasource is not valid. The column names or types do not match."},
+                        status=HTTPStatus.BAD_REQUEST,
+                    )      
 
-        if not is_valid:
-            queries.invalidate_datasource(datasource["id"])
-            return HttpResponse(
-                {"error": "The datasource is not valid. The column names or types do not match."},
-                status=HTTPStatus.BAD_REQUEST,
-            )      
-        
         table_view["datasource"] = datasource
     
     res_body = {"tableviews": table_views}
@@ -1266,12 +1257,12 @@ def load_table_view(request):
     filter_column = None
     user_filter_column = None
     
-    if table_view["uses_filter"]:
+    if table_view.uses_filter:
         column, response = queries.get_table_view_filter_column(table_view_id=table_view_id, uses_filter=True)
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
         
-        filter_column_index = column["column_index"]
+        filter_column_index = column.column_index
         column_data, response_code = sheets_api.get_column_data(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
             columns=[filter_column_index], app_id=body["app"]["id"]
@@ -1282,12 +1273,12 @@ def load_table_view(request):
         filter_column = column_data[0][1:]
         
     
-    if table_view["uses_user_filter"]:
+    if table_view.uses_user_filter:
         column, response = queries.get_table_view_filter_column(table_view_id=table_view_id, uses_user_filter=True)
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
         
-        user_filter_column_index = column["column_index"]
+        user_filter_column_index = column.column_index
         column_data, response_code = sheets_api.get_column_data(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
             columns=[user_filter_column_index], app_id=body["app"]["id"]
