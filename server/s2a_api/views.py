@@ -1101,7 +1101,9 @@ def edit_record(request):
         if column["is_key"]:
             key_indexes.add(index)
 
-    for record in record_data_array:
+    for index, record in enumerate(record_data_array):
+        if index == record_index:
+            continue
         for key_index in key_indexes:
             key_set.add(record[key_index])
 
