@@ -644,6 +644,7 @@ def get_table_view_viewable_columns(request):
 def get_table_view_columns(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
+    app = body["app"]
     table_view_id = body["tableview"]["id"]
     spreadsheet_url = body["tableview"]["datasource"]["spreadsheetUrl"]
     
@@ -659,8 +660,8 @@ def get_table_view_columns(request):
     column_indexes = [filter_column_index, user_filter_column_index]
     
     column_data, response_code = sheets_api.get_column_data(
-        tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=gid, columns=column_indexes, app_id=body["tableview"]["app"]["id"]
+        tokens=tokens, spreadsheet_id=spreadsheet_id,
+        sheet_id=gid, columns=column_indexes, app_id=app["id"]
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -691,6 +692,7 @@ def get_table_view_columns(request):
 def edit_table_view_columns(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
+    app = body["app"]
     table_view = body["tableview"]
     table_view_id = body["tableview"]["id"]
     datasource = body["tableview"]["datasource"]
@@ -734,7 +736,7 @@ def edit_table_view_columns(request):
         print(filter_column_data)
         output, response_code = sheets_api.write_column(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid,
-            column_data=filter_column_data, column_index=filter_column_index
+            column_data=filter_column_data, column_index=filter_column_index, app_id=app["id"]
         )
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
@@ -752,11 +754,15 @@ def edit_table_view_columns(request):
         print(user_filter_column_data)
         output, response_code = sheets_api.write_column(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid,
-            column_data=user_filter_column_data, column_index=user_filter_column_index
+            column_data=user_filter_column_data, column_index=user_filter_column_index, app_id=app["id"]
         )
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
-        
+    
+    queries.invalidate_other_sheets(spreadsheet_id, gid)
+    data, response_code = sheets_api.get_data(tokens, spreadsheet_id, gid, app_id=app["id"])
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)        
     
     res_body = {}
     response = HttpResponse(
@@ -1238,7 +1244,7 @@ def load_table_view(request):
     
     
     # Retrieve a detailview the role has access to based on the datasource the given table view uses
-    roles, response_code = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email)
+    roles, response_code = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email, app_id=body["app"]["id"])
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
@@ -1268,7 +1274,7 @@ def load_table_view(request):
         filter_column_index = column["column_index"]
         column_data, response_code = sheets_api.get_column_data(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
-            columns=[filter_column_index]
+            columns=[filter_column_index], app_id=body["app"]["id"]
         )
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
@@ -1284,7 +1290,7 @@ def load_table_view(request):
         user_filter_column_index = column["column_index"]
         column_data, response_code = sheets_api.get_column_data(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
-            columns=[user_filter_column_index]
+            columns=[user_filter_column_index], app_id=body["app"]["id"]
         )
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
@@ -1325,7 +1331,7 @@ def load_detail_view(request):
     
     column_data, response_code = sheets_api.get_column_data(
         tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=sheet_id, columns=column_indexes
+        sheet_id=sheet_id, columns=column_indexes, app_id=body["app"]["id"]
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)

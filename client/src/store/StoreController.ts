@@ -478,9 +478,10 @@ export const deleteTableview = createAsyncThunk('S2A/deleteTableview', async() =
 
 export const viewTableviewColumns = createAsyncThunk('S2A/viewTableviewColumns', async () => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
         const tableview = store.getState().S2AReducer.currentTableview;
 
-        const reqForm = await getRequestForm("POST", {"tableview": tableview});
+        const reqForm = await getRequestForm("POST", {"tableview": tableview, "app": app});
         
         /* Send request and return promise resolving to an array of tableview columns if successful. */
         const res = await fetch(`${DJANGO_URL}/getTableviewColumns`, reqForm);
@@ -509,9 +510,10 @@ export const viewTableviewColumns = createAsyncThunk('S2A/viewTableviewColumns',
  */
 export const editTableviewColumns = createAsyncThunk('S2A/editTableviewColumns', async ({tableviewColumns, filterColumn, userFilterColumn}: {tableviewColumns: Column[], filterColumn: boolean[] | null, userFilterColumn: string[] | null}) => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
         const tableview = store.getState().S2AReducer.currentTableview;
 
-        const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewColumns": tableviewColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn});
+        const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewColumns": tableviewColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn, "app": app});
         
         /* Send request and return promise resolving if edit successful. */
         const res = await fetch(`${DJANGO_URL}/editTableviewColumns`, reqForm);

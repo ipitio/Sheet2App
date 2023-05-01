@@ -55,10 +55,10 @@ class TableView(models.Model):
     can_view = models.BooleanField()
     can_add = models.BooleanField()
     can_delete = models.BooleanField()
-    uses_filter = models.BooleanField()
-    uses_user_filter = models.BooleanField()
-    filter_column_name = models.TextField()
-    user_filter_column_name = models.TextField()
+    uses_filter = models.BooleanField(default=False)
+    uses_user_filter = models.BooleanField(default=False)
+    filter_column_name = models.TextField(default='')
+    user_filter_column_name = models.TextField(default='')
     class Meta:
         db_table = 'TableView'
     
