@@ -54,6 +54,25 @@ async function getRequestForm(method: string, data: {[key: string]: any}): Promi
     Functions for API requests.
 */
 
+export const getIsGlobalDev = createAsyncThunk('S2A/isGlobalDev', async() => {
+    try {
+        /* Build request form. */
+        const reqForm = await getRequestForm("POST", {});
+
+        /* Send request and return promise resolving to array of developable apps if successful. */
+        const res = await fetch(`${DJANGO_URL}/isGlobalDev`, reqForm);
+        if(!res.ok)
+            return Promise.reject(`isGlobalDev request failed with status: ${res.status}`);
+            
+        const data = await res.json();
+        const isGlobalDev = data;
+        return isGlobalDev;
+    }
+    catch(err) {
+        return Promise.reject(`isGlobalDev failed with the error: ${err}`);
+    }
+})
+
 /**
  * Requests an array of all apps that the user has permission to develop. 
  * @return {Promise<App[]>} - A promise that resolves to the array of apps on success, rejects on failure.
