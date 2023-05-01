@@ -28,7 +28,8 @@ def annotate_datasource_columns(columns):
         type=F("value_type"),
         isFilter=F("is_filter"),
         isUserFilter=F("is_user_filter"),
-        isEditFilter=F("is_edit_filter")
+        isEditFilter=F("is_edit_filter"),
+        isKey=F("is_key")
     )
     return columns
 
@@ -51,6 +52,7 @@ def annotate_table_view_viewable_columns(columns, table_view_id):
         isFilter=F("is_filter"),
         isUserFilter=F("is_user_filter"),
         isEditFilter=F("is_edit_filter"),
+        isKey=F("is_key")
         # viewable=Case(
         #     When(
         #         tableviewviewablecolumn__table_view_id=table_view_id,
@@ -86,6 +88,7 @@ def annotate_detail_view_columns(columns, detail_view_id):
         isFilter=F("is_filter"),
         isUserFilter=F("is_user_filter"),
         isEditFilter=F("is_edit_filter"),
+        isKey=F("is_key")
     )
     for column in columns:
         column["viewable"] = DetailViewViewableColumn.objects.filter(

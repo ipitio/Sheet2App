@@ -540,6 +540,7 @@ def update_datasource_columns(columns):
             updated_column.is_filter = column["isFilter"]
             updated_column.is_user_filter = column["isUserFilter"]
             updated_column.is_edit_filter = column["isEditFilter"]
+            updated_column.is_key = column["isKey"]
             updated_column.save()
 
         return {}, HTTPStatus.OK

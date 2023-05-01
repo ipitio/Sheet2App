@@ -54,8 +54,8 @@ function Tableview() {
     let colorCounter = 0;
 
     let formattedData = records?.map((record, index) => {
-        if (filterColumns[index].toLowerCase() == 'false') return ([<></>]);
-        if (userFilterColumns[index].toLowerCase() != 'none' && Cookies.get("email") != userFilterColumns[index]) return ([<></>]);
+        if (filterColumns && filterColumns[index] && filterColumns[index].toLowerCase() == 'false') return ([<></>]);
+        if (userFilterColumns && userFilterColumns[index] && userFilterColumns[index].toLowerCase() != 'none' && userFilterColumns[index].toLowerCase() != '' && Cookies.get("email") != userFilterColumns[index]) return ([<></>]);
 
         let bgColor = ((colorCounter % 2 == 0) ? '#E0E0E0' : '#FFFFFF');
         let rounded = index == records.length - 1 ? '8px' : '0px';
@@ -77,11 +77,11 @@ function Tableview() {
     colorCounter = 0;
     /** Add the View and Delete buttons for each record */
     for (let i = 0; i < formattedData.length; i++) {
-        if (filterColumns[i].toLowerCase() == 'false') {
+        if (filterColumns && filterColumns[i] && filterColumns[i].toLowerCase() == 'false') {
             formattedData[i].push(<></>);
             continue;
         }
-        if (userFilterColumns[i].toLowerCase() != 'none' && Cookies.get("email") != userFilterColumns[i]) {
+        if (userFilterColumns && userFilterColumns[i] && userFilterColumns[i].toLowerCase() != 'none' && userFilterColumns[i].toLowerCase() != '' && Cookies.get("email") != userFilterColumns[i]) {
             formattedData[i].push(<></>);
             continue;
         }
