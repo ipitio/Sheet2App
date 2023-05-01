@@ -43,7 +43,7 @@ function EditAppTableviewColumns() {
         .then(() => {
           setColumns(tableviewColumns);
           setFilter(filterColumn);
-
+          setUserFilter(userFilterColumn);
           setIsLoading(false);
         })
     });
@@ -62,7 +62,7 @@ function EditAppTableviewColumns() {
 
     /* If the save button is clicked. */
     const handleSaveTableviewColumns = () => {
-        dispatch(editTableviewColumns({"tableviewColumns": changedColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn}))
+        dispatch(editTableviewColumns({"tableviewColumns": changedColumns, "filterColumn": changedFilter, "userFilterColumn": changedUserFilter}))
         .then(() => {
             dispatch(viewTableviewColumns());
         })
@@ -83,7 +83,7 @@ function EditAppTableviewColumns() {
 
     /* If the add filter button is clicked. */
     const handleAddFilter = () => {
-        setFilter([]);
+        setFilter(filterColumn);
         handleSaveTableviewColumns();
     }
 
@@ -107,7 +107,7 @@ function EditAppTableviewColumns() {
 
     /* If the add user filter button is clicked. */
     const handleAddUserFilter = () => {
-        setUserFilter([]);
+        setUserFilter(userFilterColumn);
         handleSaveTableviewColumns();
     }
 

@@ -90,8 +90,12 @@ def create_table_view(app_id, table_view_name, datasource_id):
     try:
         new_table_view = TableView.objects.create(
             app_id=app_id, datasource_id=datasource_id, name=table_view_name, 
-            can_view=True, can_add=True, can_delete=True
+            can_view=True, can_add=True, can_delete=True,
+            uses_filter=True, uses_user_filter=True
         )
+        new_table_view.filter_column_name = f"{new_table_view.id} {new_table_view.name} Filter"
+        new_table_view.user_filter_column_name = f"{new_table_view.id} {new_table_view.name} User Filter"
+        new_table_view.save()
         
         # By default all columns of the datasource the table view uses are viewable
         table_view_id = new_table_view.id
@@ -288,6 +292,16 @@ def get_table_views_by_app_id(app_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
     
     
+def get_table_view_by_id(table_view_id):
+    try:
+        table_view = TableView.objects.get(id=table_view_id)
+        
+        return table_view, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
 def get_table_views_for_roles(app_id, roles):
     try:
         table_views = TableView.objects.filter(app_id=app_id).values()
@@ -376,6 +390,24 @@ def get_detail_views_by_app_id(app_id):
         detail_views = list(detail_views)
         
         return detail_views, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def get_table_view_filter_column(table_view_id, uses_filter=False, uses_user_filter=False):
+    try:
+        table_view = TableView.objects.get(id=table_view_id)
+        if uses_filter:
+            column = DatasourceColumn.objects.get(
+                name=table_view.filter_column_name, is_filter=True
+            )
+        if uses_user_filter:
+            column = DatasourceColumn.objects.get(
+                name=table_view.user_filter_column_name, is_user_filter=True
+            )
+        
+        return column, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
@@ -530,11 +562,16 @@ def update_table_view(table_view):
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
-
-
-def update_table_view_filter_columns(table_view, filter_column):
+    
+    
+def update_table_view_filter_usage(table_view_id, uses_filter, uses_user_filter):
     try:
-        pass
+        updated_table_view = TableView.objects.get(id=table_view_id)
+        updated_table_view.uses_filter = uses_filter
+        updated_table_view.uses_user_filter = uses_user_filter
+        updated_table_view.save()
+
+        return {}, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR

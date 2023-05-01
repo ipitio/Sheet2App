@@ -478,11 +478,39 @@ def create_table_view(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
+    # Find out how many rows the filter columns have to be filled in with a default value
+    datasource_columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    column_indexes = [datasource_col["column_index"] - 1 for datasource_col in datasource_columns]
+    
+    num_records, response_code = sheets_api.get_longest_column_length(
+        tokens=tokens, spreadsheet_url=spreadsheet_url, column_indexes=column_indexes
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    # Find out how many rows the filter columns have to be filled in with a default value
+    datasource_columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    column_indexes = [datasource_col["column_index"] - 1 for datasource_col in datasource_columns]
+    
+    num_records, response_code = sheets_api.get_longest_column_length(
+        tokens=tokens, spreadsheet_url=spreadsheet_url, column_indexes=column_indexes
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
     new_column_index =  len(columns) + 1
-    filter_column_header =  f"{new_table_view.id} {table_view_name} Filter"
+    filter_column_header =  new_table_view.filter_column_name
+    filter_column_data = [filter_column_header] + ([True] * num_records)
+    
     output, response_code = sheets_api.write_column(
         tokens, spreadsheet_id, sheet_id, 
-        column_data=[filter_column_header], column_index=new_column_index, app_id=app_id
+        column_data=filter_column_data, column_index=new_column_index, app_id=app_id
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -493,16 +521,15 @@ def create_table_view(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-    # table_view_filter_column = queries.create_table_view_filter_column(
-    #     table_view_id=new_table_view.id, datasource_column_id=filter_column.id
-    # )
     
     
     new_column_index += 1
-    user_filter_column_header =  f"{new_table_view.id} {table_view_name} User Filter"
-    output2, response_code = sheets_api.write_column(
+    user_filter_column_header = new_table_view.user_filter_column_name
+    user_filter_column_data = [user_filter_column_header] + (["None"] * num_records)
+    
+    output, response_code = sheets_api.write_column(
         tokens, spreadsheet_id, sheet_id, 
-        column_data=[user_filter_column_header], column_index=new_column_index, app_id=app_id
+        column_data=user_filter_column_data, column_index=new_column_index, app_id=app_id
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -513,10 +540,6 @@ def create_table_view(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-    
-    # table_view_user_filter_column = queries.create_table_view_filter_column(
-    #     table_view_id=new_table_view.id, datasource_column_id=user_filter_column.id
-    # )
     
     queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
     data, response_code = sheets_api.get_data(tokens, spreadsheet_id, sheet_id, app_id=app_id)
@@ -641,11 +664,21 @@ def get_table_view_columns(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
+    
+    true_false_dict = { 
+        "TRUE": True, 
+        "FALSE": False
+    }
+    
+    filter_column_data = column_data[0][1:]
+    filter_column_data = [true_false_dict[cell_data] for cell_data in filter_column_data]
+    
+    user_filter_column_data = column_data[1][1:]
 
     res_body = {
         "tableviewColumns": columns["table_columns"],
-        "filterColumn": column_data[0][1:],
-        "userFilterColumn": column_data[1][1:]
+        "filterColumn": filter_column_data,
+        "userFilterColumn": user_filter_column_data
     }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -657,7 +690,10 @@ def get_table_view_columns(request):
 @csrf_exempt
 def edit_table_view_columns(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    table_view = body["tableview"]
     table_view_id = body["tableview"]["id"]
+    datasource = body["tableview"]["datasource"]
     columns = body["tableviewColumns"]
     filter_column_entries = body["filterColumn"]            # boolean array
     user_filter_column_entries = body["userFilterColumn"]   # string array
@@ -668,8 +704,60 @@ def edit_table_view_columns(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
+    uses_filter = filter_column_entries != None
+    uses_user_filter = user_filter_column_entries != None
+        
+    output, response_code = queries.update_table_view_filter_usage(
+        table_view_id=table_view_id, uses_filter=uses_filter, uses_user_filter=uses_user_filter
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
     
-
+    table_view_object, response_code = queries.get_table_view_by_id(table_view_id=table_view_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    spreadsheet_url = datasource["spreadsheetUrl"]
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    gid = sheets.utils.get_gid(spreadsheet_url)
+    
+    # Write to filter column if table view is using one
+    if uses_filter:
+        filter_column, response_code = queries.get_table_view_filter_column(
+            table_view_id=table_view_id, uses_filter=uses_filter
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        filter_column_index = filter_column.column_index
+        filter_column_data = [table_view_object.filter_column_name] + filter_column_entries
+        print(filter_column_data)
+        output, response_code = sheets_api.write_column(
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid,
+            column_data=filter_column_data, column_index=filter_column_index
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+    
+    # Write to user filter column if table view is using one
+    if uses_user_filter:
+        user_filter_column, response_code = queries.get_table_view_filter_column(
+            table_view_id=table_view_id, uses_user_filter=uses_user_filter
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        user_filter_column_index = user_filter_column.column_index
+        user_filter_column_data = [table_view_object.user_filter_column_name] + user_filter_column_entries
+        print(user_filter_column_data)
+        output, response_code = sheets_api.write_column(
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid,
+            column_data=user_filter_column_data, column_index=user_filter_column_index
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+    
     res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -1125,6 +1213,10 @@ def load_table_view(request):
     datasource_id = datasource["id"]
     spreadsheet_url = datasource["spreadsheetUrl"]
     
+    table_view, response_code = queries.get_table_view_by_id(table_view_id=table_view_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
     # Load the table view data 
     viewable_columns, response_code = queries.get_table_view_viewable_columns(table_view_id=table_view_id)
     if response_code != HTTPStatus.OK:
@@ -1144,6 +1236,7 @@ def load_table_view(request):
     
     column_data_dict = {index: data for index, data in zip(column_indexes, column_data)}
     
+    
     # Retrieve a detailview the role has access to based on the datasource the given table view uses
     roles, response_code = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email)
     if response_code != HTTPStatus.OK:
@@ -1161,11 +1254,50 @@ def load_table_view(request):
             return HttpResponse({}, status=response_code)
         
         detail_view["datasource"] = datasource
+        
+    
+    # Get the filter column values for this table view
+    filter_column = None
+    user_filter_column = None
+    
+    if table_view["uses_filter"]:
+        column, response = queries.get_table_view_filter_column(table_view_id=table_view_id, uses_filter=True)
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        filter_column_index = column["column_index"]
+        column_data, response_code = sheets_api.get_column_data(
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
+            columns=[filter_column_index]
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        filter_column = column_data[0][1:]
+        
+    
+    if table_view["uses_user_filter"]:
+        column, response = queries.get_table_view_filter_column(table_view_id=table_view_id, uses_user_filter=True)
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        user_filter_column_index = column["column_index"]
+        column_data, response_code = sheets_api.get_column_data(
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
+            columns=[user_filter_column_index]
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        user_filter_column = column_data[0][1:]
+        
     
     res_body = {
         "columns": viewable_columns,
         "columnData": column_data_dict,
-        "detailview": detail_view
+        "detailview": detail_view,
+        "filterColumn": filter_column,
+        "userFilterColumn": user_filter_column
     }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
