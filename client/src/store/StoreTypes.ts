@@ -24,6 +24,7 @@ export interface Column {
 	isFilter: boolean;
 	isUserFilter: boolean;  
 	isEditFilter: boolean;
+	isKey: boolean;
 
     viewable: boolean | null;
     editable: boolean | null;

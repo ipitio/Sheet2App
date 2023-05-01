@@ -44,6 +44,7 @@ class DatasourceColumn(models.Model):
     is_filter = models.BooleanField()
     is_user_filter = models.BooleanField()
     is_edit_filter = models.BooleanField()
+    is_key = models.BooleanField(default=False)
     class Meta:
         db_table = 'DatasourceColumn'
     
