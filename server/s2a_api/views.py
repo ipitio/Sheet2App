@@ -5,6 +5,7 @@ from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 
 import json
+import os
 from http import HTTPStatus
 
 import mysql_db.queries as queries
@@ -91,6 +92,35 @@ def create_creator(request):
         return HttpResponse({}, status=response_code)
     
     res_body = {}
+    response = HttpResponse(
+        json.dumps(res_body, cls=ExtendedEncoder), status=response_code
+    )
+
+    return response
+
+
+@csrf_exempt
+def is_in_global_developer_list(request):
+    body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    email = body["email"]
+    global_dev_sheet_url = os.getenv("GLOBAL_DEVELOPER_LIST_URL")
+    
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(global_dev_sheet_url)
+    gid = sheets.utils.get_gid(global_dev_sheet_url)
+
+    data, response_code = sheets_api.get_data(
+        tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, majorDimension="COLUMNS"
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    is_global_developer = False
+    for col in data:
+        if email in col:
+            is_global_developer = True
+    
+    res_body = { "isGlobalDeveloper": is_global_developer }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
     )

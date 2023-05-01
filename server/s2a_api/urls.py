@@ -5,6 +5,7 @@ urlpatterns = [
     path('getLoggedIn', views.get_logged_in),
     path('refreshAccess', views.refresh_access_tokens),
     path('createCreator', views.create_creator),
+    path('isGlobalDev', views.is_in_global_developer_list),
     
     path('getDevelopableApps', views.get_developable_apps),
     path('getAccessibleApps', views.get_accessible_apps),

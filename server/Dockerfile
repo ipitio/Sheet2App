@@ -19,6 +19,8 @@ ENV OAUTH_CLIENT_SECRET=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
 ENV CREDS_JSON=creds
 ENV TOKEN_JSON=token
 
+ENV GLOBAL_DEVELOPER_LIST_URL=https://docs.google.com/spreadsheets/d/14w7zzJdmVNkuwXYIZ_eYEoMgwz8dFJAnrQbQvC6sz-c/edit#gid=0
+
 ENV REDIS_HOST=redis
 
 ENV DJANGO_SUPERUSER_USERNAME=admin
