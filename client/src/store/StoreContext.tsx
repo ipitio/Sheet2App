@@ -5,13 +5,15 @@ import storage from 'redux-persist/lib/storage';
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import { addRecord, createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteRecord, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editRecord, editTableview, editTableviewColumns, editTableviewRoles, loadApp, loadDetailview, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import { addRecord, createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteRecord, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editRecord, editTableview, editTableviewColumns, editTableviewRoles, getIsGlobalDev, loadApp, loadDetailview, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
 import { useDispatch } from 'react-redux';
 
 export interface IS2AState {
+    isGlobalDev: boolean,
+
     /* An array of developable apps for the current user. Set when navigating onto developable apps screen. */
     devApps: App[],
 
@@ -104,6 +106,8 @@ export interface IS2AState {
 }
 
 const S2AState: IS2AState = {
+    isGlobalDev: false,
+
     devApps: [],
     accApps: [],
 
@@ -313,6 +317,13 @@ export const S2AReducer = createSlice({
         },
     }, 
     extraReducers(builder) {
+        builder.addCase(getIsGlobalDev.fulfilled, (state, action) => {
+            state.isGlobalDev = true;
+        });
+        builder.addCase(getIsGlobalDev.rejected, (state, action) => {
+            state.isGlobalDev = false;
+        });
+
         builder.addCase(viewDevApps.fulfilled, (state, action) => {
             state.devApps = action.payload;
             console.log("Retrieved developable apps.");

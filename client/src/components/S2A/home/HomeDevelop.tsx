@@ -11,13 +11,14 @@ import { Grid, Button, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import PublishIcon from '@mui/icons-material/Publish';
-import { viewDevApps } from '../../../store/StoreController';
+import { getIsGlobalDev, viewDevApps } from '../../../store/StoreController';
 
 function HomeDevelop() {
     const navigate = useNavigate();
     const dispatch = useDispatch<typeof store.dispatch>();
 
     useEffect(() => {
+        dispatch(getIsGlobalDev());
         dispatch(viewDevApps());
     }, []);
 

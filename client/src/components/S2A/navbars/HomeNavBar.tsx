@@ -21,6 +21,7 @@ function HomeNavBar() {
     const dispatch = useDispatch<typeof store.dispatch>();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
+    const isGlobalDev = useSelector((state: StoreState) => state.S2AReducer.isGlobalDev);
     const [searchQuery, setSearchQuery] = useState('');
 
     // const devApps = useSelector((state: StoreState) => state.S2AReducer.devApps);
@@ -88,7 +89,7 @@ function HomeNavBar() {
 
                 {/* Create App Button */}
                 {location.pathname === "/S2A/home/develop" && (
-                    <IconButton onClick={handleOpenModal} sx={styles.createAppButton}>
+                    <IconButton onClick={handleOpenModal} sx={styles.createAppButton} disabled={!isGlobalDev}>
                         <AddIcon/>
                         Create New App
                     </IconButton>   
