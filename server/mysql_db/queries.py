@@ -190,9 +190,9 @@ def get_app_by_id(app_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-def get_all_unpublished_apps_with_creator_email():
+def get_all_apps_with_creator_email():
     try:
-        apps = Application.objects.filter(is_published=False).values(
+        apps = Application.objects.filter().values(
             'id', 'name', 'creator_id__email', "role_mem_url", "is_published"
         )
         apps = mysql_db.utils.annotate_apps(apps)
@@ -270,6 +270,20 @@ def get_datasource_columns_by_datasource_id(datasource_id):
     try:
         datasource_columns = DatasourceColumn.objects.filter(
             datasource_id=datasource_id, is_filter=False, is_user_filter=False, is_edit_filter=False
+        ).values()
+        datasource_columns = mysql_db.utils.annotate_datasource_columns(datasource_columns)
+        datasource_columns = list(datasource_columns)
+        
+        return datasource_columns, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def get_all_datasource_columns_by_datasource_id(datasource_id):
+    try:
+        datasource_columns = DatasourceColumn.objects.filter(
+            datasource_id=datasource_id
         ).values()
         datasource_columns = mysql_db.utils.annotate_datasource_columns(datasource_columns)
         datasource_columns = list(datasource_columns)
