@@ -7,7 +7,7 @@ import { store, StoreState, showAddRecordModal, showDeleteRecordModal, setFirstR
 import { useEffect, useState } from 'react';
 import DatasourceNavBar from './DatasourceNavBar';
 import { loadDetailview, loadTableview } from '../../store/StoreController';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import styles from '../../styles/userapp/containers/ContentContainers';
 
 function Tableview() {
@@ -104,9 +104,12 @@ function Tableview() {
 
                 return (
                     <Box sx={{ display: 'grid', gridTemplateColumns: cellWidth, bgcolor: bgColor, borderBottomLeftRadius: rounded, borderBottomRightRadius: rounded, paddingY: rowPadding }}>
-                        {record.map((entry) => {
+                        {record.map((entry, index) => {
                             return (
-                                <Typography sx={{ textAlign: 'center' }}>{entry}</Typography>
+                                columns && columns[index] && columns[index].type == 'URL' ?
+                                    <Typography sx={{ textAlign: 'center' }}><NavLink to={entry} target="_blank">{entry}</NavLink></Typography>
+                                    :
+                                    <Typography sx={{ textAlign: 'center' }}>{entry}</Typography>
                             )
                         })}
                     </Box>
