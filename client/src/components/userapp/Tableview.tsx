@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Divider, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Divider, Grid, Typography } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
@@ -31,15 +31,6 @@ function Tableview() {
 
     const columnNames = columns.map((col) => { return col.name });
 
-    // Find the percentage of space each cell should take in a row. This assumes that all cells take an even amount of space with the other cells.
-    const cellWidthPercentage: string = (100 / (columnNames ? columnNames.length : 1) + '%')
-
-    // Determine the dimensions of the table cells.
-    const cellWidth = `repeat(${(columnNames ? columnNames.length : 1)}, ${cellWidthPercentage})`
-
-    // Constant to determine the spacing between each row. Change as necessary.
-    const rowPadding: string = '8px'
-
     const handleShowDeleteModal = (index: number) => {
         dispatch(setCurrentRecordIndex(index));
         dispatch(showDeleteRecordModal());
@@ -48,7 +39,7 @@ function Tableview() {
     const handleShowAddRecordModal = () => {
         dispatch(showAddRecordModal());
     }
-    
+
     const handleOpenDetailview = (index: number) => {
         dispatch(setCurrentRecordIndex(index));
         dispatch(loadDetailview());
@@ -56,77 +47,66 @@ function Tableview() {
         navigate(`/userapp/${app?.id}/detailview/${index}`);
     }
 
-    const buttons = (
-        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-            {records?.map((record, index) => {
-                return (
-                    <Box id='row-button' sx={{ display: 'flex', flexDirection: 'row' }}>
-                        <Button sx={{ paddingY: rowPadding }} onClick={() => {handleOpenDetailview(index + 1)}}>
-                            <UnfoldMoreIcon />
-                            <Typography>
-                                View
-                            </Typography>
-                        </Button>
-                        <Button sx={{ paddingY: rowPadding }} onClick={() => { handleShowDeleteModal(index + 1) }}>
-                            <DeleteOutlineIcon />
-                            <Typography>
-                                Delete
-                            </Typography>
-                        </Button>
-                    </Box>
-                )
-            })}
-        </Box>
+    let formattedData = records?.map((record, index) => {
+        const bgColor = index % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
+        const rounded = index == records.length - 1 ? '8px' : '0px'
+
+        return (
+            record.map((entry, index) => (
+                <Grid item xs={1} sx={{ bgcolor: bgColor, borderBottomLeftRadius: rounded, borderBottomRightRadius: rounded }}>
+                    {columns && columns[index] && columns[index].type == 'URL' ?
+                        <Typography sx={{ textAlign: 'center' }}><NavLink to={entry} target="_blank">{entry}</NavLink></Typography>
+                        :
+                        <Typography sx={{ textAlign: 'center' }}>{entry}</Typography>
+                    }
+                </Grid>
+            ))
+        )
+    });
+
+    /** Add the View and Delete buttons for each record */
+    for (let i = 0; i < formattedData.length; i++) {
+        const bgColor = i % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
+
+        formattedData[i].push(
+            <Grid item xs={0.5} sx={{justifyContent: 'center', bgcolor: bgColor, borderLeft: 1}}>
+                <Button sx={{ justifyContent: 'center' }} onClick={() => { handleOpenDetailview(i + 1) }}>
+                    <UnfoldMoreIcon />
+                    <Typography>
+                        View
+                    </Typography>
+                </Button>
+            </Grid>
+        )
+
+        formattedData[i].push(
+            <Grid item xs={0.5} sx={{justifyContent: 'center', bgcolor: bgColor}}>
+                <Button sx={{ justifyContent: 'center'}} onClick={() => { handleShowDeleteModal(i + 1) }}>
+                    <DeleteOutlineIcon />
+                    <Typography>
+                        Delete
+                    </Typography>
+                </Button>
+            </Grid>
+        )
+    }
+
+    /** Insert the column headers */
+    formattedData.unshift(
+        columnNames.map((columnHeader) => {
+            return (
+                <Grid item xs={1}><Typography sx={{ textAlign: 'center', fontWeight: 'bold', fontSize: '32px' }}>{columnHeader}</Typography></Grid>
+            )
+        })
     )
 
-    const table = (
-        <Box id='table' sx={{ border: 1, borderRadius: '8px', borderColor: 'black' }}>
+    /** Insert a filler cell for the column headers */
+    formattedData[0].splice(columnNames.length, 0, <Grid item xs={1} sx={{ borderLeft: 1}}/>)
 
-            {/** Table Headers */}
-            <Box>
-                <Box id='table-header' sx={{ display: 'grid', gridTemplateColumns: cellWidth, gridColumn: '1' }}>
-                    {columnNames.map((columnHeader) => {
-                        return (
-                            <Typography sx={{ textAlign: 'center', fontWeight: 'bold', fontSize: '32px' }}>{columnHeader}</Typography>
-                        )
-                    })}
-                </Box>
-                <Divider sx={{ bgcolor: 'black' }} />
-            </Box>
-
-            {/** Table Data */}
-            {records?.map((record, index) => {
-                // Alternate table row colors for visual clarity
-                const bgColor = index % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
-
-                // Make the last row have a rounded bottom border. This prevents it from overlapping with the table border
-                const rounded = index == records.length - 1 ? '8px' : '0px'
-
-                return (
-                    <Box sx={{ display: 'grid', gridTemplateColumns: cellWidth, bgcolor: bgColor, borderBottomLeftRadius: rounded, borderBottomRightRadius: rounded, paddingY: rowPadding }}>
-                        {record.map((entry, index) => {
-                            return (
-                                columns && columns[index] && columns[index].type == 'URL' ?
-                                    <Typography sx={{ textAlign: 'center' }}><NavLink to={entry} target="_blank">{entry}</NavLink></Typography>
-                                    :
-                                    <Typography sx={{ textAlign: 'center' }}>{entry}</Typography>
-                            )
-                        })}
-                    </Box>
-                )
-            })
-            }
-        </Box>
-    )
-
-    const tableView = (
-        <Box id='table-view-container' sx={{ display: 'block', width: '100%', fontSize: '32px' }}>
-            <Box id='table-with-headers' sx={{ display: 'grid', gridTemplateColumns: '90% 10%' }}>
-                {table}
-                {buttons}
-            </Box>
-        </Box>
-    )
+    const table =
+        <Grid container columns={columnNames.length + 1} rowSpacing="8px" sx={{ border: 1, borderRadius: '8px', borderColor: 'black' }}>
+            {formattedData}
+        </Grid >
 
     const addRecordButton = (
         <Button startIcon={<AddCircleOutlineIcon />} sx={{ border: 1, width: '15%', marginTop: '32px', bgcolor: '#1976d2', color: 'white', '&:hover': { 'background': "#0062A5" } }} onClick={handleShowAddRecordModal}>
@@ -141,7 +121,7 @@ function Tableview() {
             <DatasourceNavBar />
             {isLoading ? <CircularProgress sx={styles.contentContainer} /> :
                 <Box sx={{ ...styles.contentContainer, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    {tableView}
+                    {table}
                     {addRecordButton}
                 </Box>
             }
