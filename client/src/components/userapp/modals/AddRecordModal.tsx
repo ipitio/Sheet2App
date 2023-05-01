@@ -27,7 +27,7 @@ function AddRecordModal() {
 
     const handleInputChange = (event: any, index: number) => {
         let newPairs = columnToDataPairs;
-        newPairs[index] = event.target.value;
+        newPairs[index - 1] = event.target.value;
 
         setColumnToDataPairs(newPairs);
     }
@@ -46,7 +46,7 @@ function AddRecordModal() {
                                     <Typography sx={{marginRight: '40px', alignContent: 'center', paddingTop:'16px'}}>
                                         {column.name}
                                     </Typography>
-                                    <TextField defaultValue={column.initialValue} onChange={(event) => handleInputChange(event, index)}/>
+                                    <TextField defaultValue={column.initialValue} onChange={(event) => handleInputChange(event, column.column_index)}/>
                                 </Box>
                             )
                         })} 

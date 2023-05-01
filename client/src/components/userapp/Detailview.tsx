@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, CircularProgress, Divider, TextField, Typography } from '@mui/material';
-import { StoreState, showEditRecordModal, store } from '../../store/StoreContext';
+import { StoreState, showEditRecordModal, store, webAppSetCurrentDatasource, webAppSetCurrentTableview } from '../../store/StoreContext';
 import { useDispatch, useSelector } from 'react-redux';
 import DatasourceNavBar from './DatasourceNavBar';
 import styles from '../../styles/userapp/containers/ContentContainers';
 import SaveIcon from '@mui/icons-material/Save';
 import EditIcon from '@mui/icons-material/Edit';
 import { editRecord, loadDetailview } from '../../store/StoreController';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import { useNavigate } from 'react-router-dom';
 
 function Detailview() {
     const dispatch = useDispatch<typeof store.dispatch>();
+    const navigate = useNavigate();
 
-    const columns = useSelector((state: StoreState) => state.webAppReducer.columns);
+    const currentTableview = useSelector((state: StoreState) => state.webAppReducer.currentTableview)
+    const app = useSelector((state: StoreState) => state.webAppReducer.app)
     const currentRecordData = useSelector((state: StoreState) => state.webAppReducer.currentRecordData);
     const editableColumns = useSelector((state: StoreState) => state.webAppReducer.editableColumns);
     const viewableColumns = useSelector((state: StoreState) => state.webAppReducer.viewableColumns);
@@ -46,6 +50,12 @@ function Detailview() {
         newPairs[index] = event.target.value;
 
         setColumnToDataPairs(newPairs);
+    }
+
+    const handleReturnToTableview = () => {
+        dispatch(webAppSetCurrentDatasource(currentTableview.datasource));
+        dispatch(webAppSetCurrentTableview(currentTableview));
+        navigate(`/userapp/${app.id}/tableview/${currentTableview.id}`);
     }
 
     return (
@@ -84,6 +94,10 @@ function Detailview() {
                             <Typography>Edit Record</Typography>
                         </Button>
                     }
+
+                    <Button startIcon={<KeyboardReturnIcon/>} sx={{marginTop: '15vh'}} onClick={handleReturnToTableview}>
+                        <Typography>Return to Table View</Typography>
+                    </Button>
                 </Box>
             }
         </Box>

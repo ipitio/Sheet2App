@@ -47,6 +47,22 @@ function EditAppDatasourceColumns() {
         }
     };
 
+    /** If the key checkbox is checked/unchecked */
+    const handleKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setShouldUseStore(false);
+
+        const labelCheckbox = event.currentTarget as HTMLInputElement;
+        const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(labelCheckbox.id));
+        const isKey = labelCheckbox.checked;
+
+        if(colToEditIdx != -1) {
+            const newColumns = [...(shouldUseStore ? storeDatasourceColumns : datasourceColumns)];
+            newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isKey: isKey};
+        
+            setDatasourceColumns(newColumns);    
+        }
+    }
+
     /* If the label checkbox is checked/unchecked. */
     const handleLabelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setShouldUseStore(false);
@@ -134,6 +150,11 @@ function EditAppDatasourceColumns() {
                                 </FormControl>
 
                                 {/* Label/Reference Checkboxes */}
+                                <FormControlLabel
+                                    control={<Checkbox id={col.id.toString()} onChange={handleKeyChange} checked={col.isKey} sx={styles.columnCheckbox}/>}
+                                    label="Key"
+                                    sx={styles.columnElement}
+                                />
                                 <FormControlLabel
                                     control={<Checkbox id={col.id.toString()} onChange={handleLabelChange} checked={col.isLabel} sx={styles.columnCheckbox}/>}
                                     label="Label"

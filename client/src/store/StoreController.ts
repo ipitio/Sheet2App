@@ -478,9 +478,10 @@ export const deleteTableview = createAsyncThunk('S2A/deleteTableview', async() =
 
 export const viewTableviewColumns = createAsyncThunk('S2A/viewTableviewColumns', async () => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
         const tableview = store.getState().S2AReducer.currentTableview;
 
-        const reqForm = await getRequestForm("POST", {"tableview": tableview});
+        const reqForm = await getRequestForm("POST", {"tableview": tableview, "app": app});
         
         /* Send request and return promise resolving to an array of tableview columns if successful. */
         const res = await fetch(`${DJANGO_URL}/getTableviewColumns`, reqForm);
@@ -509,9 +510,10 @@ export const viewTableviewColumns = createAsyncThunk('S2A/viewTableviewColumns',
  */
 export const editTableviewColumns = createAsyncThunk('S2A/editTableviewColumns', async ({tableviewColumns, filterColumn, userFilterColumn}: {tableviewColumns: Column[], filterColumn: boolean[] | null, userFilterColumn: string[] | null}) => {
     try {
+        const app = store.getState().S2AReducer.currentApp;
         const tableview = store.getState().S2AReducer.currentTableview;
 
-        const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewColumns": tableviewColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn});
+        const reqForm = await getRequestForm("PUT", {"tableview": tableview, "tableviewColumns": tableviewColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn, "app": app});
         
         /* Send request and return promise resolving if edit successful. */
         const res = await fetch(`${DJANGO_URL}/editTableviewColumns`, reqForm);
@@ -809,8 +811,10 @@ export const loadApp = createAsyncThunk('webApp/loadApp', async () => {
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
-        if(!res.ok)
-            return Promise.reject(`loadApp request failed with status: ${res.status}`);
+        if(!res.ok) {
+            const text = await res.text()
+            return Promise.reject(`loadApp request failed with status: ${text}`);
+        }
         
         const data = await res.json();
         const tableviews: Tableview[] = data.tableviews;
@@ -843,20 +847,23 @@ export const loadTableview = createAsyncThunk('webApp/loadTableview', async() =>
         const columnData = data.columnData;
         const detailview = data.detailview;
 
+        const filterColumns = data.filterColumn;
+        const userFilterColumns = data.userFilterColumn;
+
         // If no permissions to any editable columns:
         if (!detailview) {
             const editableColumns: Column[] = [];
-            return {columns, columnData, detailview, editableColumns};
+            return {columns, columnData, detailview, editableColumns, filterColumns, userFilterColumns};
         }
 
         try {
             const editableColumnsRes = await loadEditableColumns(detailview);
             const editableColumns = editableColumnsRes.columns;
     
-            return {columns, columnData, detailview, editableColumns};
+            return {columns, columnData, detailview, editableColumns, filterColumns, userFilterColumns};
         } catch {
             const editableColumns: Column[] = [];
-            return {columns, columnData, detailview, editableColumns};
+            return {columns, columnData, detailview, editableColumns, filterColumns, userFilterColumns};
         }
     }
     catch(err) {
@@ -927,8 +934,10 @@ export const addRecord = createAsyncThunk('/webApp/addRecord', async(record: {[k
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/addRecord`, reqForm);
-        if(!res.ok)
-            return Promise.reject(`addRecord request failed with status: ${res.status}`);
+        if(!res.ok) {
+            const text = await res.text()
+            return Promise.reject(`addRecord request failed with status: ${text}`);
+        }
         
         return Promise.resolve();
     }
@@ -951,8 +960,10 @@ export const editRecord = createAsyncThunk('webApp/editRecord', async (record: {
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/editRecord`, reqForm);
-        if(!res.ok)
-            return Promise.reject(`editRecord request failed with status: ${res.status}`);
+        if(!res.ok) {
+            const text = await res.text();
+            return Promise.reject(`editRecord request failed with status: ${text}`);
+        }
         
         console.log("resolving here")
         return Promise.resolve();

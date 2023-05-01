@@ -8,6 +8,10 @@ import json
 import os
 from http import HTTPStatus
 
+import os
+import logging
+from logging.handlers import RotatingFileHandler
+
 import mysql_db.queries as queries
 import sheets.sheets_api as sheets_api
 import sheets.auth as auth
@@ -25,6 +29,24 @@ class ExtendedEncoder(DjangoJSONEncoder):
             return model_to_dict(o)
         return super().default(o)
 
+# Log updates, errors, etc.
+def setup_logger(app_id):
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    logger = logging.getLogger("app_%s" % app_id)
+    logger.setLevel(logging.DEBUG)
+
+    log_file = os.path.join(log_dir, "app_%s.log" % app_id)
+    file_handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
+    file_handler.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    return logger
 
 def parse_tokens(request):
     headers = request.headers
@@ -191,7 +213,7 @@ def get_developable_apps(request):
         
         developers_col = [1]
         developers_list, response_code = sheets_api.get_column_data(
-            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, columns=developers_col
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, columns=developers_col, app_id=app["id"]
         )[0]
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
@@ -226,7 +248,7 @@ def get_accessible_apps(request):
         gid = sheets.utils.get_gid(role_mem_url)
         
         roles_columns, response_code = sheets_api.get_data(
-            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, majorDimension="COLUMNS"
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, majorDimension="COLUMNS", app_id=app["id"]
         )
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
@@ -328,7 +350,7 @@ def get_app_roles(request):
     
     roles, response_code = sheets_api.get_data(
         tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=sheet_id, range="1:1", majorDimension="ROWS"
+        sheet_id=sheet_id, range="1:1", majorDimension="ROWS", app_id=body["app"]["id"]
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -369,7 +391,7 @@ def create_datasource(request):
     # Create all datasource columns from the datasource
     spreadsheet_headers, response_code = sheets_api.get_data(
         tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=gid, range="1:1", majorDimension="ROWS"
+        sheet_id=gid, range="1:1", majorDimension="ROWS", app_id=app_id
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -503,7 +525,20 @@ def create_table_view(request):
     sheet_id = sheets.utils.get_gid(spreadsheet_url)
     columns, response_code = sheets_api.get_data(
         tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=sheet_id, majorDimension="COLUMNS"
+        sheet_id=sheet_id, majorDimension="COLUMNS", app_id=app_id
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    # Find out how many rows the filter columns have to be filled in with a default value
+    datasource_columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    column_indexes = [datasource_col["column_index"] - 1 for datasource_col in datasource_columns]
+    
+    num_records, response_code = sheets_api.get_longest_column_length(
+        tokens=tokens, spreadsheet_url=spreadsheet_url, column_indexes=column_indexes
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -527,7 +562,7 @@ def create_table_view(request):
     
     output, response_code = sheets_api.write_column(
         tokens, spreadsheet_id, sheet_id, 
-        column_data=filter_column_data, column_index=new_column_index
+        column_data=filter_column_data, column_index=new_column_index, app_id=app_id
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -546,7 +581,7 @@ def create_table_view(request):
     
     output, response_code = sheets_api.write_column(
         tokens, spreadsheet_id, sheet_id, 
-        column_data=user_filter_column_data, column_index=new_column_index
+        column_data=user_filter_column_data, column_index=new_column_index, app_id=app_id
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -558,7 +593,11 @@ def create_table_view(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    
+    queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
+    data, response_code = sheets_api.get_data(tokens, spreadsheet_id, sheet_id, app_id=app_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+
     res_body = {}
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -657,6 +696,7 @@ def get_table_view_viewable_columns(request):
 def get_table_view_columns(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
+    app = body["app"]
     table_view_id = body["tableview"]["id"]
     spreadsheet_url = body["tableview"]["datasource"]["spreadsheetUrl"]
     
@@ -672,16 +712,26 @@ def get_table_view_columns(request):
     column_indexes = [filter_column_index, user_filter_column_index]
     
     column_data, response_code = sheets_api.get_column_data(
-        tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=gid, columns=column_indexes
+        tokens=tokens, spreadsheet_id=spreadsheet_id,
+        sheet_id=gid, columns=column_indexes, app_id=app["id"]
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
+    
+    true_false_dict = { 
+        "TRUE": True, 
+        "FALSE": False
+    }
+    
+    filter_column_data = column_data[0][1:]
+    filter_column_data = [true_false_dict[cell_data] for cell_data in filter_column_data]
+    
+    user_filter_column_data = column_data[1][1:]
 
-    res_body = { 
+    res_body = {
         "tableviewColumns": columns["table_columns"],
-        "filterColumn": column_data[0][1:],
-        "userFilterColumn": column_data[1][1:]
+        "filterColumn": filter_column_data,
+        "userFilterColumn": user_filter_column_data
     }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -694,6 +744,7 @@ def get_table_view_columns(request):
 def edit_table_view_columns(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
+    app = body["app"]
     table_view = body["tableview"]
     table_view_id = body["tableview"]["id"]
     datasource = body["tableview"]["datasource"]
@@ -737,7 +788,7 @@ def edit_table_view_columns(request):
         print(filter_column_data)
         output, response_code = sheets_api.write_column(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid,
-            column_data=filter_column_data, column_index=filter_column_index
+            column_data=filter_column_data, column_index=filter_column_index, app_id=app["id"]
         )
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
@@ -755,11 +806,15 @@ def edit_table_view_columns(request):
         print(user_filter_column_data)
         output, response_code = sheets_api.write_column(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid,
-            column_data=user_filter_column_data, column_index=user_filter_column_index
+            column_data=user_filter_column_data, column_index=user_filter_column_index, app_id=app["id"]
         )
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
-        
+    
+    queries.invalidate_other_sheets(spreadsheet_id, gid)
+    data, response_code = sheets_api.get_data(tokens, spreadsheet_id, gid, app_id=app["id"])
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)        
     
     res_body = {}
     response = HttpResponse(
@@ -977,6 +1032,7 @@ def add_record(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
     user_email = body["email"]
+    app = body["app"]
     datasource = body["datasource"]
     record_data = body["record"]
 
@@ -992,7 +1048,26 @@ def add_record(request):
     
     record_data_array = [""] * (len(datasource_columns) + 1)
 
+    # Ensure no duplicate keys
+    key_set = set() # The keys we have already seen
+    key_indexes = set() # The indexes of the key columns
+
+    data, response_code = sheets_api.get_data(tokens, datasource.spreadsheet_id, datasource.gid, app_id=app["id"])
+
     datasource_columns = datasource_columns[0]
+    print(datasource_columns)
+    for index, column in enumerate(datasource_columns):
+        if column["is_key"]:
+            key_indexes.add(index)
+
+    for record in data:
+        for key_index in key_indexes:
+            key_set.add(record[key_index])
+
+    for key_index in key_indexes:
+        if record_data[str(key_index)] in key_set:
+            return HttpResponse(content='Duplicate key value \'{}\' encountered.'.format(record_data[str(key_index)]), status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
     for index, column in enumerate(datasource_columns):
         col_index = column["column_index"] - 1
         col_initial_value = column["initial_value"]
@@ -1007,14 +1082,14 @@ def add_record(request):
             django_url_validator = URLValidator()
 
             if col_type == 'Number' and not current_entry.isnumeric():
-                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return HttpResponse(content='Expected a Number at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
             elif col_type == 'URL':
                 try:
                     django_url_validator(current_entry)
                 except:
-                    return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                    return HttpResponse(content='Expected a URL at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
             elif col_type == 'Boolean' and not current_entry.lower() == 'true' and not current_entry.lower() == 'false':
-                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return HttpResponse(content='Expected a Boolean at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
             record_data_array[index] = record_data[str(col_index)]
         elif is_filter_col:
@@ -1028,8 +1103,13 @@ def add_record(request):
     gid = datasource.gid
     output, response_code = sheets_api.insert_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=gid, row_to_insert=record_data_array
+        sheet_id=gid, row_to_insert=record_data_array, app_id=app["id"]
     )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    queries.invalidate_other_sheets(spreadsheet_id, gid)
+    data, response_code = sheets_api.get_data(tokens, spreadsheet_id, gid, app_id=app["id"])
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
@@ -1045,6 +1125,7 @@ def add_record(request):
 def edit_record(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
+    app = body["app"]
     datasource = body["datasource"]
     record_data = body["record"]
     record_index = body["recordIndex"]
@@ -1062,7 +1143,26 @@ def edit_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    record_data_array, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    record_data_array, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, app_id=app["id"])
+    
+    # Ensure no duplicate keys
+    key_set = set() # The keys we have already seen
+    key_indexes = set() # The indexes of the key columns
+
+    for index, column in enumerate(datasource_columns):
+        if column["is_key"]:
+            key_indexes.add(index)
+
+    for index, record in enumerate(record_data_array):
+        if index == record_index:
+            continue
+        for key_index in key_indexes:
+            key_set.add(record[key_index])
+
+    for key_index in key_indexes:
+        if record_data[str(key_index)] in key_set:
+            return HttpResponse(content='Duplicate key value \'{}\' encountered.'.format(record_data[str(key_index)]), status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
     record_data_array = record_data_array[record_index]
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -1079,26 +1179,27 @@ def edit_record(request):
             django_url_validator = URLValidator()
 
             if col_type == 'Number' and not current_entry.isnumeric():
-                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return HttpResponse(content='Expected a Number at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
             elif col_type == 'URL':
                 try:
                     django_url_validator(current_entry)
                 except:
-                    return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                    return HttpResponse(content='Expected a URL at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
             elif col_type == 'Boolean' and not current_entry.lower() == 'true' and not current_entry.lower() == 'false':
-                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return HttpResponse(content='Expected a Boolean at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
             record_data_array[col_index - 1] = record_data[str(col_index - 1)]
 
     output, response_code = sheets_api.update_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, 
-        updated_row_data=record_data_array, row_index=record_index
+        updated_row_data=record_data_array, row_index=record_index, app_id=app["id"]
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
     # Get and send the refreshed data in response
-    data, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid)
+    queries.invalidate_other_sheets(spreadsheet_id, gid)
+    data, response_code = sheets_api.get_data(tokens, spreadsheet_id, gid, app_id=app["id"])
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
@@ -1114,6 +1215,7 @@ def edit_record(request):
 def delete_record(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
+    app = body["app"]
     datasource = body["datasource"]
     record_index = body["recordIndex"]
     
@@ -1127,8 +1229,13 @@ def delete_record(request):
     gid = datasource.gid
     
     output, response_code = sheets_api.delete_row(
-        tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, row_index=record_index
+        tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, row_index=record_index, app_id=app["id"]
     )
+    
+    queries.invalidate_other_sheets(spreadsheet_id, gid)
+    data, response_code = sheets_api.get_data(tokens, spreadsheet_id, gid, app_id=app["id"])
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
     
     res_body = {}
     response = HttpResponse(
@@ -1146,7 +1253,7 @@ def get_app_table_views_for_role(request):
     app_id = body["app"]["id"]
     role_mem_url = body["app"]["roleMemUrl"]
     
-    roles, response_code = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email)
+    roles, response_code = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email, app_id=app_id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
@@ -1161,6 +1268,28 @@ def get_app_table_views_for_role(request):
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
         
+        spreadsheet_id = sheets.utils.get_spreadsheet_id(datasource["spreadsheet_url"])
+        columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+        data, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=datasource["gid"], app_id=app_id)
+        
+        for column in columns:
+            column_index = column["column_index"]
+            column_name = column["name"]
+
+            if column_index < len(data) and column_index < len(data[0]):
+                sheet_column_name = data[0][column_index - 1]
+
+                if sheet_column_name != column_name:
+                    queries.invalidate_datasource(datasource["id"])
+
+                    logger = setup_logger(app_id)
+                    logger.error("Datasource {} in app {} is not valid. The column names \'{}\' and \'{}\' do not match".format(datasource["name"], app_id, sheet_column_name, column_name))
+
+                    return HttpResponse(
+                        "The datasource is not valid. The column names \'{}\' and \'{}\' do not match.".format(sheet_column_name, column_name),
+                        status=HTTPStatus.BAD_REQUEST,
+                    )      
+
         table_view["datasource"] = datasource
     
     res_body = {"tableviews": table_views}
@@ -1198,7 +1327,7 @@ def load_table_view(request):
     
     column_data, response_code = sheets_api.get_column_data(
         tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=sheet_id, columns=column_indexes
+        sheet_id=sheet_id, columns=column_indexes, app_id=body["app"]["id"]
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -1207,7 +1336,7 @@ def load_table_view(request):
     
     
     # Retrieve a detailview the role has access to based on the datasource the given table view uses
-    roles, response_code = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email)
+    roles, response_code = sheets_api.get_end_user_roles(tokens=tokens, role_mem_url=role_mem_url, email=email, app_id=body["app"]["id"])
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
@@ -1229,15 +1358,15 @@ def load_table_view(request):
     filter_column = None
     user_filter_column = None
     
-    if table_view["uses_filter"]:
+    if table_view.uses_filter:
         column, response = queries.get_table_view_filter_column(table_view_id=table_view_id, uses_filter=True)
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
         
-        filter_column_index = column["column_index"]
+        filter_column_index = column.column_index
         column_data, response_code = sheets_api.get_column_data(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
-            columns=[filter_column_index]
+            columns=[filter_column_index], app_id=body["app"]["id"]
         )
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
@@ -1245,15 +1374,15 @@ def load_table_view(request):
         filter_column = column_data[0][1:]
         
     
-    if table_view["uses_user_filter"]:
+    if table_view.uses_user_filter:
         column, response = queries.get_table_view_filter_column(table_view_id=table_view_id, uses_user_filter=True)
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
         
-        user_filter_column_index = column["column_index"]
+        user_filter_column_index = column.column_index
         column_data, response_code = sheets_api.get_column_data(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
-            columns=[user_filter_column_index]
+            columns=[user_filter_column_index], app_id=body["app"]["id"]
         )
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
@@ -1294,7 +1423,7 @@ def load_detail_view(request):
     
     column_data, response_code = sheets_api.get_column_data(
         tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=sheet_id, columns=column_indexes
+        sheet_id=sheet_id, columns=column_indexes, app_id=body["app"]["id"]
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)

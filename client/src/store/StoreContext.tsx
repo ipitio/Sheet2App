@@ -589,9 +589,14 @@ export interface IWebAppState {
     editableColumns: Column[],
     viewableColumns: Column[],
 
+    filterColumns: string[],
+    userFilterColumns: string[],
+
     // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
     // or clicks on the Delete Record button.
     currentRecord: Record | null,
+
+    errorMessage: string,
 
     showSuccessAlert: boolean,
     showErrorAlert: boolean
@@ -621,6 +626,11 @@ const webAppState: IWebAppState = {
     editableColumns: [],
     viewableColumns: [],
 
+    filterColumns: [],
+    userFilterColumns: [],
+
+    errorMessage: '',
+
     showSuccessAlert: false,
     showErrorAlert: false,
 }
@@ -647,8 +657,6 @@ const webAppReducer = createSlice({
         },
         setCurrentRecordIndex: (state, action: PayloadAction<number>) => {  
             state.currentRecordIndex = action.payload;
-
-            console.log(action.payload);
         },
 
         setFirstRecordColumns: (state, action: PayloadAction<any[]>) => {
@@ -677,6 +685,9 @@ const webAppReducer = createSlice({
             state.currentModalType = null
         },
 
+        clearErrorMessage: state => {
+            state.errorMessage = '';
+        },
         hideWebAppSuccessAlert: state => {
             state.showSuccessAlert = false;
         },
@@ -700,15 +711,19 @@ const webAppReducer = createSlice({
             state.tableviews = action.payload;
         });
         builder.addCase(loadApp.rejected, (state, action) => {
+            state.errorMessage = action.error.message;
             state.showErrorAlert = true;
         });
 
         builder.addCase(loadTableview.fulfilled, (state, action) => {
-            const {columns, columnData, detailview, editableColumns} = action.payload;
+            const {columns, columnData, detailview, editableColumns, filterColumns, userFilterColumns} = action.payload;
 
             state.columns = columns;
             state.columnData = columnData;
             state.currentDetailview = detailview;
+
+            state.filterColumns = filterColumns;
+            state.userFilterColumns = userFilterColumns;
 
             const newRecords = [];
             const columnKeys = Object.keys(columnData) as unknown as number[];
@@ -752,6 +767,8 @@ const webAppReducer = createSlice({
         });
         builder.addCase(addRecord.rejected, (state, action) => {
             state.showErrorAlert = true;
+
+            state.errorMessage = action.error.message;
         });
 
         builder.addCase(editRecord.fulfilled, (state, action) => {
@@ -759,6 +776,8 @@ const webAppReducer = createSlice({
         });
         builder.addCase(editRecord.rejected, (state, action) => {
             state.showErrorAlert = true;
+
+            state.errorMessage = action.error.message;
         });
 
         builder.addCase(deleteRecord.fulfilled, (state, action) => {
@@ -781,7 +800,7 @@ export const {
 
 export const { openApp, returnToS2A, setCurrentRecordIndex, setFirstRecordColumns, setRecords, setCurrentRecordViewableData,
     showAddRecordModal, showEditRecordModal, showDeleteRecordModal, webAppSetCurrentTableview, webAppSetCurrentDatasource,
-    hideWebAppModal, hideWebAppErrorAlert, hideWebAppSuccessAlert, goToUserAppHome } = webAppReducer.actions;
+    hideWebAppModal, hideWebAppErrorAlert, clearErrorMessage, hideWebAppSuccessAlert, goToUserAppHome } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
 export interface StoreState {

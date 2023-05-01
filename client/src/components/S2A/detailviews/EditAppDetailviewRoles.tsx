@@ -35,6 +35,11 @@ function EditAppDetailviewRoles() {
     /* React state for tableview roles. */
     const [changedDetailviewRoles, setRoles] = useState<Role[]>(detailviewRoles);
 
+    /* Ensures that the role access checkbox is reflected immediately if detailviewRoles is pulled. */
+    useEffect(() => {
+        setRoles(detailviewRoles);
+    }, [detailviewRoles]);
+
     /* Event handlers. */
 
     /* If the save button is clicked. */
@@ -53,21 +58,22 @@ function EditAppDetailviewRoles() {
         const detailviewRoleCheckbox = event.currentTarget;
         const roleName = detailviewRoleCheckbox.id;
         
-        /* Add to list if checked. */
-        if (detailviewRoleCheckbox.checked) {
-            const newDetailviewRoles = [...changedDetailviewRoles, { name: roleName }];
-            setRoles(newDetailviewRoles);
-        } 
-        /* Remove from list if unchecked. */
-        else {
-            const newDetailviewRoles = [...changedDetailviewRoles];
-            const removalIdx = newDetailviewRoles.findIndex((detailviewRole) => detailviewRole.name === roleName);
-            if (removalIdx !== -1) {
-                newDetailviewRoles.splice(removalIdx, 1);
-                setRoles(newDetailviewRoles);
+        setRoles(prevState => {
+            /* Add to list if checked. */
+            if (detailviewRoleCheckbox.checked) {
+                return [...prevState, { name: roleName }];
             }
-        }
+            /* Remove from list if unchecked. */
+            else {
+                return prevState.filter((detailviewRole) => detailviewRole.name !== roleName);
+            }
+        });
     };
+
+    /* Checks if a role is allowed access to the tableview. */
+    const allowAccess = (role: Role) => {
+        return changedDetailviewRoles.some(detailviewRole => detailviewRole.name === role.name);
+    }
 
     return (
         <div style={styles.editAppDetailviewRolesWrapper}>   
@@ -96,7 +102,7 @@ function EditAppDetailviewRoles() {
 
                                     {/* Access checkbox. */}
                                     <FormControlLabel
-                                        control={<Checkbox id={role.name} onChange={handleDetailviewRoleChange} checked={changedDetailviewRoles.some(detailviewRole => detailviewRole.name === role.name)} sx={styles.columnCheckbox} />}
+                                        control={<Checkbox id={role.name} onChange={handleDetailviewRoleChange} checked={allowAccess(role)} sx={styles.columnCheckbox} />}
                                         label="Allow Access"
                                         sx={styles.columnElement}
                                     />
