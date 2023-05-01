@@ -318,7 +318,7 @@ export const S2AReducer = createSlice({
     }, 
     extraReducers(builder) {
         builder.addCase(getIsGlobalDev.fulfilled, (state, action) => {
-            state.isGlobalDev = true;
+            state.isGlobalDev = action.payload;
         });
         builder.addCase(getIsGlobalDev.rejected, (state, action) => {
             state.isGlobalDev = false;

@@ -65,7 +65,7 @@ export const getIsGlobalDev = createAsyncThunk('S2A/isGlobalDev', async() => {
             return Promise.reject(`isGlobalDev request failed with status: ${res.status}`);
             
         const data = await res.json();
-        const isGlobalDev = data;
+        const isGlobalDev = data.isGlobalDev;
         return isGlobalDev;
     }
     catch(err) {
