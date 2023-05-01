@@ -995,7 +995,26 @@ def add_record(request):
     
     record_data_array = [""] * (len(datasource_columns) + 1)
 
+    # Ensure no duplicate keys
+    key_set = set() # The keys we have already seen
+    key_indexes = set() # The indexes of the key columns
+
+    data, response_code = sheets_api.get_data(tokens, datasource.spreadsheet_id, datasource.gid, app_id=app["id"])
+
     datasource_columns = datasource_columns[0]
+    print(datasource_columns)
+    for index, column in enumerate(datasource_columns):
+        if column["is_key"]:
+            key_indexes.add(index)
+
+    for record in data:
+        for key_index in key_indexes:
+            key_set.add(record[key_index])
+
+    for key_index in key_indexes:
+        if record_data[str(key_index)] in key_set:
+            return HttpResponse(content='Duplicate key value \'{}\' encountered.'.format(record_data[str(key_index)]), status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
     for index, column in enumerate(datasource_columns):
         col_index = column["column_index"] - 1
         col_initial_value = column["initial_value"]
@@ -1066,6 +1085,23 @@ def edit_record(request):
         return HttpResponse({}, status=response_code)
     
     record_data_array, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, app_id=app["id"])
+    
+    # Ensure no duplicate keys
+    key_set = set() # The keys we have already seen
+    key_indexes = set() # The indexes of the key columns
+
+    for index, column in enumerate(datasource_columns):
+        if column["is_key"]:
+            key_indexes.add(index)
+
+    for record in record_data_array:
+        for key_index in key_indexes:
+            key_set.add(record[key_index])
+
+    for key_index in key_indexes:
+        if record_data[str(key_index)] in key_set:
+            return HttpResponse(content='Duplicate key value \'{}\' encountered.'.format(record_data[str(key_index)]), status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
     record_data_array = record_data_array[record_index]
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
