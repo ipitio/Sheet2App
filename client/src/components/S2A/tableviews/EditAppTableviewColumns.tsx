@@ -43,7 +43,7 @@ function EditAppTableviewColumns() {
         .then(() => {
           setColumns(tableviewColumns);
           setFilter(filterColumn);
-
+          setUserFilter(userFilterColumn);
           setIsLoading(false);
         })
     });
