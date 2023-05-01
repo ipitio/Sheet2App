@@ -27,6 +27,8 @@ export interface Column {
 
     viewable: boolean | null;
     editable: boolean | null;
+
+	column_index: number | null;
 }
 
 export interface Record {
