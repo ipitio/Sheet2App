@@ -83,7 +83,7 @@ function EditAppTableviewColumns() {
 
     /* If the add filter button is clicked. */
     const handleAddFilter = () => {
-        setFilter([]);
+        setFilter(filterColumn);
         handleSaveTableviewColumns();
     }
 
@@ -107,7 +107,7 @@ function EditAppTableviewColumns() {
 
     /* If the add user filter button is clicked. */
     const handleAddUserFilter = () => {
-        setUserFilter([]);
+        setUserFilter(userFilterColumn);
         handleSaveTableviewColumns();
     }
 

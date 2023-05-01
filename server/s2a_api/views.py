@@ -647,11 +647,21 @@ def get_table_view_columns(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
+    
+    true_false_dict = { 
+        "TRUE": True, 
+        "FALSE": False
+    }
+    
+    filter_column_data = column_data[0][1:]
+    filter_column_data = [true_false_dict[cell_data] for cell_data in filter_column_data]
+    
+    user_filter_column_data = column_data[1][1:]
 
     res_body = { 
         "tableviewColumns": columns["table_columns"],
-        "filterColumn": column_data[0][1:],
-        "userFilterColumn": column_data[1][1:]
+        "filterColumn": filter_column_data,
+        "userFilterColumn": user_filter_column_data
     }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
