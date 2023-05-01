@@ -62,7 +62,7 @@ function EditAppTableviewColumns() {
 
     /* If the save button is clicked. */
     const handleSaveTableviewColumns = () => {
-        dispatch(editTableviewColumns({"tableviewColumns": changedColumns, "filterColumn": filterColumn, "userFilterColumn": userFilterColumn}))
+        dispatch(editTableviewColumns({"tableviewColumns": changedColumns, "filterColumn": changedFilter, "userFilterColumn": changedUserFilter}))
         .then(() => {
             dispatch(viewTableviewColumns());
         })
