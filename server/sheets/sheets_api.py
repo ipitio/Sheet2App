@@ -502,3 +502,18 @@ def get_end_user_roles(tokens, role_mem_url, email):
             roles.append(role_col[0])
             
     return roles, HTTPStatus.OK
+
+
+def get_longest_column_length(tokens, spreadsheet_url, column_indexes):
+    spreadsheet_id = get_spreadsheet_id(spreadsheet_url)
+    sheet_id = get_gid(spreadsheet_url)
+    
+    data, response_code = get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id, majorDimension="COLUMNS")
+    if response_code != HTTPStatus.OK:
+        return -1, response_code
+    
+    longest = 0
+    for index in column_indexes:
+        longest = max(longest, len(data[index][1:]))
+            
+    return longest, HTTPStatus.OK
