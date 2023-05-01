@@ -663,8 +663,10 @@ def get_table_view_columns(request):
 @csrf_exempt
 def edit_table_view_columns(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     table_view = body["tableview"]
     table_view_id = body["tableview"]["id"]
+    datasource = body["tableview"]["datasource"]
     columns = body["tableviewColumns"]
     filter_column_entries = body["filterColumn"]            # boolean array
     user_filter_column_entries = body["userFilterColumn"]   # string array
@@ -679,18 +681,55 @@ def edit_table_view_columns(request):
     uses_user_filter = user_filter_column_entries != None
         
     output, response_code = queries.update_table_view_filter_usage(
-        table_view=table_view, uses_filter=uses_filter, uses_user_filter=uses_user_filter
+        table_view_id=table_view_id, uses_filter=uses_filter, uses_user_filter=uses_user_filter
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    if uses_filter:
-        # fill in user filter oclumn with corresponding values
-        pass
+    table_view_object, response_code = queries.get_table_view_by_id(table_view_id=table_view_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
     
+    spreadsheet_url = datasource["spreadsheetUrl"]
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    gid = sheets.utils.get_gid(spreadsheet_url)
+    
+    # Write to filter column if table view is using one
+    if uses_filter:
+        filter_column, response_code = queries.get_table_view_filter_column(
+            table_view_id=table_view_id, uses_filter=uses_filter
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        filter_column_index = filter_column.column_index
+        filter_column_data = [table_view_object.filter_column_name] + filter_column_entries
+        print(filter_column_data)
+        output, response_code = sheets_api.write_column(
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid,
+            column_data=filter_column_data, column_index=filter_column_index
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+    
+    # Write to user filter column if table view is using one
     if uses_user_filter:
-        # fill in user filter column with corresponding values
-        pass
+        user_filter_column, response_code = queries.get_table_view_filter_column(
+            table_view_id=table_view_id, uses_user_filter=uses_user_filter
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        user_filter_column_index = user_filter_column.column_index
+        user_filter_column_data = [table_view_object.user_filter_column_name] + user_filter_column_entries
+        print(user_filter_column_data)
+        output, response_code = sheets_api.write_column(
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid,
+            column_data=user_filter_column_data, column_index=user_filter_column_index
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
     
     res_body = {}
     response = HttpResponse(
