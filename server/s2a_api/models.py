@@ -28,6 +28,7 @@ class Datasource(models.Model):
     spreadsheet_id = models.TextField()
     gid = models.IntegerField()
     name = models.TextField()
+    schema_validated = models.BooleanField(default=True)
     class Meta:
         db_table = 'Datasource'
 

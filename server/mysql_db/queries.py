@@ -444,7 +444,7 @@ def get_detail_view_viewable_columns(detail_view_id):
     try:
         columns = DatasourceColumn.objects.filter(detailviewviewablecolumn__detail_view_id=detail_view_id)
         columns = columns.values()
-        columns = mysql_db.utils.annotate_detail_view_columns(columns)
+        columns = mysql_db.utils.annotate_detail_view_columns(columns, detail_view_id)
         columns = list(columns)
 
         return columns, HTTPStatus.OK
@@ -715,6 +715,12 @@ def delete_detail_view(detail_view_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 # Util
+def invalidate_datasource(datasource_id):
+    sheet = Datasource.objects.get(id=datasource_id)
+    sheet.schema_validated = False
+    sheet.save()
+
+
 def invalidate_other_sheets(spreadsheet_id, updated_sheet_id):
     other_sheets = Datasource.objects.filter(spreadsheet_id=spreadsheet_id).exclude(gid=updated_sheet_id)
     for sheet in other_sheets:

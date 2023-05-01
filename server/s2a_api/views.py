@@ -482,7 +482,7 @@ def create_table_view(request):
     filter_column_header =  f"{new_table_view.id} {table_view_name} Filter"
     output, response_code = sheets_api.write_column(
         tokens, spreadsheet_id, sheet_id, 
-        column_data=[filter_column_header], column_index=new_column_index
+        column_data=[filter_column_header], column_index=new_column_index, app_id=app_id
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -502,7 +502,7 @@ def create_table_view(request):
     user_filter_column_header =  f"{new_table_view.id} {table_view_name} User Filter"
     output2, response_code = sheets_api.write_column(
         tokens, spreadsheet_id, sheet_id, 
-        column_data=[user_filter_column_header], column_index=new_column_index
+        column_data=[user_filter_column_header], column_index=new_column_index, app_id=app_id
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -885,6 +885,7 @@ def edit_detail_view_roles(request):
 def add_record(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
+    app = body["app"]
     datasource = body["datasource"]
     record_data = body["record"]
 
@@ -930,7 +931,7 @@ def add_record(request):
     gid = datasource.gid
     output, response_code = sheets_api.insert_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, 
-        sheet_id=gid, row_to_insert=record_data_array
+        sheet_id=gid, row_to_insert=record_data_array, app_id=app["id"]
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -952,6 +953,7 @@ def add_record(request):
 def edit_record(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
+    app = body["app"]
     datasource = body["datasource"]
     record_data = body["record"]
     record_index = body["recordIndex"]
@@ -999,7 +1001,7 @@ def edit_record(request):
 
     output, response_code = sheets_api.update_row(
         tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, 
-        updated_row_data=record_data_array, row_index=record_index
+        updated_row_data=record_data_array, row_index=record_index, app_id=app["id"]
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
@@ -1022,6 +1024,7 @@ def edit_record(request):
 def delete_record(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
+    app = body["app"]
     datasource = body["datasource"]
     record_index = body["recordIndex"]
     
@@ -1035,7 +1038,7 @@ def delete_record(request):
     gid = datasource.gid
     
     output, response_code = sheets_api.delete_row(
-        tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, row_index=record_index
+        tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid, row_index=record_index, app_id=app["id"]
     )
     
     queries.invalidate_other_sheets(spreadsheet_id, gid)
@@ -1073,6 +1076,33 @@ def get_app_table_views_for_role(request):
         datasource, response_code = queries.get_datasource_by_table_view_id(table_view_id=table_view["id"])
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
+        
+        columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
+        data, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=datasource["spreadsheet_id"], sheet_id=datasource["gid"], app_id=app_id)
+        
+        is_valid = True
+        for column in columns:
+            column_index = column["column_index"]
+            column_name = column["name"]
+            column_type = column["value_type"]
+
+            if column_index < len(data) and column_index < len(data[0]):
+                sheet_column_name = data[0][column_index]
+                sheet_column_type = sheets_api.get_spreadsheet_value_type(data[1][column_index])
+
+                if sheet_column_name != column_name or sheet_column_type != column_type:
+                    is_valid = False
+                    break
+            else:
+                is_valid = False
+                break
+
+        if not is_valid:
+            queries.invalidate_datasource(datasource["id"])
+            return HttpResponse(
+                {"error": "The datasource is not valid. The column names or types do not match."},
+                status=HTTPStatus.BAD_REQUEST,
+            )      
         
         table_view["datasource"] = datasource
     
