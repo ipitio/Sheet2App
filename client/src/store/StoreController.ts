@@ -932,8 +932,10 @@ export const addRecord = createAsyncThunk('/webApp/addRecord', async(record: {[k
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/addRecord`, reqForm);
-        if(!res.ok)
-            return Promise.reject(`addRecord request failed with status: ${res.status}`);
+        if(!res.ok) {
+            const text = await res.text()
+            return Promise.reject(`addRecord request failed with status: ${text}`);
+        }
         
         return Promise.resolve();
     }
@@ -956,8 +958,10 @@ export const editRecord = createAsyncThunk('webApp/editRecord', async (record: {
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/editRecord`, reqForm);
-        if(!res.ok)
-            return Promise.reject(`editRecord request failed with status: ${res.status}`);
+        if(!res.ok) {
+            const text = await res.text();
+            return Promise.reject(`editRecord request failed with status: ${text}`);
+        }
         
         console.log("resolving here")
         return Promise.resolve();

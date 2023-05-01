@@ -1008,14 +1008,14 @@ def add_record(request):
             django_url_validator = URLValidator()
 
             if col_type == 'Number' and not current_entry.isnumeric():
-                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return HttpResponse(content='Expected a Number at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
             elif col_type == 'URL':
                 try:
                     django_url_validator(current_entry)
                 except:
-                    return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                    return HttpResponse(content='Expected a URL at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
             elif col_type == 'Boolean' and not current_entry.lower() == 'true' and not current_entry.lower() == 'false':
-                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return HttpResponse(content='Expected a Boolean at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
             record_data_array[index] = record_data[str(col_index)]
         else:
@@ -1082,14 +1082,14 @@ def edit_record(request):
             django_url_validator = URLValidator()
 
             if col_type == 'Number' and not current_entry.isnumeric():
-                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return HttpResponse(content='Expected a Number at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
             elif col_type == 'URL':
                 try:
                     django_url_validator(current_entry)
                 except:
-                    return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                    return HttpResponse(content='Expected a URL at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
             elif col_type == 'Boolean' and not current_entry.lower() == 'true' and not current_entry.lower() == 'false':
-                return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return HttpResponse(content='Expected a Boolean at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
             record_data_array[col_index - 1] = record_data[str(col_index - 1)]
 
