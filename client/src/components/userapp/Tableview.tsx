@@ -9,6 +9,7 @@ import DatasourceNavBar from './DatasourceNavBar';
 import { loadDetailview, loadTableview } from '../../store/StoreController';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styles from '../../styles/userapp/containers/ContentContainers';
+import Cookies from 'js-cookie';
 
 function Tableview() {
     const dispatch = useDispatch<typeof store.dispatch>();
@@ -18,6 +19,9 @@ function Tableview() {
     const records = useSelector((state: StoreState) => state.webAppReducer.records);
     const columns = useSelector((state: StoreState) => state.webAppReducer.columns);
     const currentRecordIndex = useSelector((state: StoreState) => state.webAppReducer.currentRecordIndex);
+
+    const filterColumns = useSelector((state: StoreState) => state.webAppReducer.filterColumns);
+    const userFilterColumns = useSelector((state: StoreState) => state.webAppReducer.userFilterColumns);
 
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
@@ -47,9 +51,15 @@ function Tableview() {
         navigate(`/userapp/${app?.id}/detailview/${index}`);
     }
 
+    let colorCounter = 0;
+
     let formattedData = records?.map((record, index) => {
-        const bgColor = index % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
-        const rounded = index == records.length - 1 ? '8px' : '0px'
+        if (filterColumns[index].toLowerCase() == 'false') return ([<></>]);
+        if (userFilterColumns[index].toLowerCase() != 'none' && Cookies.get("email") != userFilterColumns[index]) return ([<></>]);
+
+        let bgColor = ((colorCounter % 2 == 0) ? '#E0E0E0' : '#FFFFFF');
+        let rounded = index == records.length - 1 ? '8px' : '0px';
+        colorCounter++;
 
         return (
             record.map((entry, index) => (
@@ -64,14 +74,25 @@ function Tableview() {
         )
     });
 
+    colorCounter = 0;
     /** Add the View and Delete buttons for each record */
     for (let i = 0; i < formattedData.length; i++) {
-        const bgColor = i % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
+        if (filterColumns[i].toLowerCase() == 'false') {
+            formattedData[i].push(<></>);
+            continue;
+        }
+        if (userFilterColumns[i].toLowerCase() != 'none' && Cookies.get("email") != userFilterColumns[i]) {
+            formattedData[i].push(<></>);
+            continue;
+        }
+
+        let bgColor = ((colorCounter % 2 == 0) ? '#E0E0E0' : '#FFFFFF');
+        colorCounter++;
 
         formattedData[i].push(
             <Grid item xs={0.5} sx={{justifyContent: 'center', bgcolor: bgColor, borderLeft: 1}}>
-                <Button sx={{ justifyContent: 'center' }} onClick={() => { handleOpenDetailview(i + 1) }}>
-                    <UnfoldMoreIcon />
+                <Button sx={{ justifyContent: 'center' }} onClick={() => { handleOpenDetailview(i + 1) }} disabled={!store.getState().webAppReducer.currentDetailview}>
+                    <UnfoldMoreIcon/>
                     <Typography>
                         View
                     </Typography>

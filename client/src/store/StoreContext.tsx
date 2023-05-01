@@ -589,6 +589,9 @@ export interface IWebAppState {
     editableColumns: Column[],
     viewableColumns: Column[],
 
+    filterColumns: string[],
+    userFilterColumns: string[],
+
     // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
     // or clicks on the Delete Record button.
     currentRecord: Record | null,
@@ -620,6 +623,9 @@ const webAppState: IWebAppState = {
 
     editableColumns: [],
     viewableColumns: [],
+
+    filterColumns: [],
+    userFilterColumns: [],
 
     showSuccessAlert: false,
     showErrorAlert: false,
@@ -704,11 +710,14 @@ const webAppReducer = createSlice({
         });
 
         builder.addCase(loadTableview.fulfilled, (state, action) => {
-            const {columns, columnData, detailview, editableColumns} = action.payload;
+            const {columns, columnData, detailview, editableColumns, filterColumns, userFilterColumns} = action.payload;
 
             state.columns = columns;
             state.columnData = columnData;
             state.currentDetailview = detailview;
+
+            state.filterColumns = filterColumns;
+            state.userFilterColumns = userFilterColumns;
 
             const newRecords = [];
             const columnKeys = Object.keys(columnData) as unknown as number[];
