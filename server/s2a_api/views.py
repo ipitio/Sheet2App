@@ -142,7 +142,7 @@ def get_developable_apps(request):
     tokens = parse_tokens(request)
     creator_email = body["email"]
     
-    apps, response_code = queries.get_all_unpublished_apps_with_creator_email()
+    apps, response_code = queries.get_all_apps_with_creator_email()
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
@@ -946,6 +946,7 @@ def edit_detail_view_roles(request):
 def add_record(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
+    user_email = body["email"]
     datasource = body["datasource"]
     record_data = body["record"]
 
@@ -955,7 +956,7 @@ def add_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
-    datasource_columns = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource.id)
+    datasource_columns = queries.get_all_datasource_columns_by_datasource_id(datasource_id=datasource.id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
@@ -966,6 +967,8 @@ def add_record(request):
         col_index = column["column_index"] - 1
         col_initial_value = column["initial_value"]
         col_type = column["type"]
+        is_filter_col = column["is_filter"]
+        is_user_filter_col = column["is_user_filter"]
 
         if str(col_index) in record_data:
             # Now do type checking
@@ -984,6 +987,10 @@ def add_record(request):
                 return HttpResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
             record_data_array[index] = record_data[str(col_index)]
+        elif is_filter_col:
+            record_data_array[index] = True
+        elif is_user_filter_col:
+            record_data_array[index] = user_email
         else:
             record_data_array[index] = col_initial_value
         
