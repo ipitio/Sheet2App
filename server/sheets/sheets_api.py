@@ -1,7 +1,8 @@
 from __future__ import print_function
 import json
-
-import os.path
+import os
+import logging
+from logging.handlers import RotatingFileHandler
 from http import HTTPStatus
 
 from google.auth.transport.requests import Request
@@ -235,6 +236,9 @@ def update_cell(tokens, spreadsheet_id, sheet_id, value_to_update, row_index, co
             .batchUpdate(spreadsheetId=spreadsheet_id, body=request_body)
             .execute()
         )
+        
+        # Log the update
+        logger.info("Updated cell (%s, %s) in sheet %s of spreadsheet %s", row_index, column_index, sheet_id, spreadsheet_id)
 
         return res, HTTPStatus.OK
 
@@ -283,6 +287,8 @@ def update_row(tokens, spreadsheet_id, sheet_id, updated_row_data, row_index):
             .batchUpdate(spreadsheetId=spreadsheet_id, body=request_body)
             .execute()
         )
+        
+        logger.info("Updated row %s in sheet %s of spreadsheet %s", row_index, sheet_id, spreadsheet_id)
 
         return res, HTTPStatus.OK
 
@@ -346,6 +352,8 @@ def insert_row(tokens, spreadsheet_id, sheet_id, row_to_insert, row_index=-1):
             .batchUpdate(spreadsheetId=spreadsheet_id, body=request_body)
             .execute()
         )
+        
+        logger.info("Inserted row %s in sheet %s of spreadsheet %s", row_index, sheet_id, spreadsheet_id)
 
         return res, HTTPStatus.OK
 
@@ -384,6 +392,8 @@ def delete_row(tokens, spreadsheet_id, sheet_id, row_index):
             .batchUpdate(spreadsheetId=spreadsheet_id, body=request_body)
             .execute()
         )
+        
+        logger.info("Deleted row %s in sheet %s of spreadsheet %s", row_index, sheet_id, spreadsheet_id)
 
         return res, HTTPStatus.OK
 
@@ -425,8 +435,11 @@ def write_column(tokens, spreadsheet_id, sheet_id, column_data, column_index):
         )
         
         res = request.execute()
+        
+        logger.info("Wrote column %s in sheet %s of spreadsheet %s", column_index, sheet_id, spreadsheet_id)
 
         return res, HTTPStatus.OK
+    
     except HttpError as err:
         print(err)
         return err, HTTPStatus.INTERNAL_SERVER_ERROR

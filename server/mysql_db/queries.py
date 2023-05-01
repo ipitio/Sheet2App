@@ -713,3 +713,11 @@ def delete_detail_view(detail_view_id):
         return {}, HTTPStatus.OK
     except Exception as e:
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+
+# Util
+def invalidate_other_sheets(spreadsheet_id, updated_sheet_id):
+    other_sheets = Datasource.objects.filter(spreadsheet_id=spreadsheet_id).exclude(gid=updated_sheet_id)
+    for sheet in other_sheets:
+        sheet.schema_validated = False
+        sheet.save()
+
