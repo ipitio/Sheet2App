@@ -74,6 +74,7 @@ function Tableview() {
         )
     });
 
+    colorCounter = 0;
     /** Add the View and Delete buttons for each record */
     for (let i = 0; i < formattedData.length; i++) {
         if (filterColumns[i].toLowerCase() == 'false') {
@@ -85,7 +86,8 @@ function Tableview() {
             continue;
         }
 
-        const bgColor = i % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
+        let bgColor = ((colorCounter % 2 == 0) ? '#E0E0E0' : '#FFFFFF');
+        colorCounter++;
 
         formattedData[i].push(
             <Grid item xs={0.5} sx={{justifyContent: 'center', bgcolor: bgColor, borderLeft: 1}}>
