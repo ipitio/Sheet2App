@@ -19,6 +19,8 @@ function Tableview() {
     const columns = useSelector((state: StoreState) => state.webAppReducer.columns);
     const currentRecordIndex = useSelector((state: StoreState) => state.webAppReducer.currentRecordIndex);
 
+    const filterColumns = useSelector((state: StoreState) => state.webAppReducer.filterColumns);
+
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         if (!isLoading) return;
@@ -48,8 +50,10 @@ function Tableview() {
     }
 
     let formattedData = records?.map((record, index) => {
+        if (filterColumns[index].toLowerCase() == 'false') return ([<></>]);
+
         const bgColor = index % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
-        const rounded = index == records.length - 1 ? '8px' : '0px'
+        const rounded = index == records.length - 1 ? '8px' : '0px';
 
         return (
             record.map((entry, index) => (
@@ -66,6 +70,11 @@ function Tableview() {
 
     /** Add the View and Delete buttons for each record */
     for (let i = 0; i < formattedData.length; i++) {
+        if (filterColumns[i].toLowerCase() == 'false') {
+            formattedData[i].push(<></>);
+            continue;
+        }
+
         const bgColor = i % 2 === 0 ? '#E0E0E0' : '#FFFFFF';
 
         formattedData[i].push(

@@ -845,20 +845,23 @@ export const loadTableview = createAsyncThunk('webApp/loadTableview', async() =>
         const columnData = data.columnData;
         const detailview = data.detailview;
 
+        const filterColumns = data.filterColumn;
+        const userFilterColumns = data.userFilterColumn;
+
         // If no permissions to any editable columns:
         if (!detailview) {
             const editableColumns: Column[] = [];
-            return {columns, columnData, detailview, editableColumns};
+            return {columns, columnData, detailview, editableColumns, filterColumns, userFilterColumns};
         }
 
         try {
             const editableColumnsRes = await loadEditableColumns(detailview);
             const editableColumns = editableColumnsRes.columns;
     
-            return {columns, columnData, detailview, editableColumns};
+            return {columns, columnData, detailview, editableColumns, filterColumns, userFilterColumns};
         } catch {
             const editableColumns: Column[] = [];
-            return {columns, columnData, detailview, editableColumns};
+            return {columns, columnData, detailview, editableColumns, filterColumns, userFilterColumns};
         }
     }
     catch(err) {
