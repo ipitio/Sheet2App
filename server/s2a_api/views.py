@@ -7,6 +7,10 @@ from django.core.exceptions import ValidationError
 import json
 from http import HTTPStatus
 
+import os
+import logging
+from logging.handlers import RotatingFileHandler
+
 import mysql_db.queries as queries
 import sheets.sheets_api as sheets_api
 import sheets.auth as auth
@@ -24,6 +28,24 @@ class ExtendedEncoder(DjangoJSONEncoder):
             return model_to_dict(o)
         return super().default(o)
 
+# Log updates, errors, etc.
+def setup_logger(app_id):
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    logger = logging.getLogger("app_%s" % app_id)
+    logger.setLevel(logging.DEBUG)
+
+    log_file = os.path.join(log_dir, "app_%s.log" % app_id)
+    file_handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
+    file_handler.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    return logger
 
 def parse_tokens(request):
     headers = request.headers
@@ -1229,8 +1251,12 @@ def get_app_table_views_for_role(request):
 
                 if sheet_column_name != column_name:
                     queries.invalidate_datasource(datasource["id"])
+
+                    logger = setup_logger(app_id)
+                    logger.error("Datasource {} in app {} is not valid. The column names \'{}\' and \'{}\' do not match".format(datasource["name"], app_id, sheet_column_name, column_name))
+
                     return HttpResponse(
-                        {"error": "The datasource is not valid. The column names or types do not match."},
+                        "The datasource is not valid. The column names \'{}\' and \'{}\' do not match.".format(sheet_column_name, column_name),
                         status=HTTPStatus.BAD_REQUEST,
                     )      
 

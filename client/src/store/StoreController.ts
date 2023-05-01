@@ -811,8 +811,10 @@ export const loadApp = createAsyncThunk('webApp/loadApp', async () => {
         
         /* Send request and return promise resolving to the array of detailviews if successful. */
         const res = await fetch(`${DJANGO_URL}/loadApp`, reqForm);
-        if(!res.ok)
-            return Promise.reject(`loadApp request failed with status: ${res.status}`);
+        if(!res.ok) {
+            const text = await res.text()
+            return Promise.reject(`loadApp request failed with status: ${text}`);
+        }
         
         const data = await res.json();
         const tableviews: Tableview[] = data.tableviews;

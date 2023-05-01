@@ -711,6 +711,7 @@ const webAppReducer = createSlice({
             state.tableviews = action.payload;
         });
         builder.addCase(loadApp.rejected, (state, action) => {
+            state.errorMessage = action.error.message;
             state.showErrorAlert = true;
         });
 
