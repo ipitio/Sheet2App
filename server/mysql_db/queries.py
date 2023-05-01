@@ -722,13 +722,3 @@ def invalidate_other_sheets(spreadsheet_id, updated_sheet_id):
         sheet.schema_validated = False
         sheet.save()
 
-
-def read_updated_sheet(tokens, updated_sheet_id, app_id):
-    updated_sheet = Datasource.objects.get(gid=updated_sheet_id)
-    new_data = get_data(tokens, updated_sheet.spreadsheet_id, updated_sheet_id, app_id=app_id)
-
-    # Update the schema_validated flag for the updated sheet
-    updated_sheet.schema_validated = True
-    updated_sheet.save()
-
-    return new_data

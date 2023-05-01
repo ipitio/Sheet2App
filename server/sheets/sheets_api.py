@@ -1,6 +1,5 @@
 from __future__ import print_function
 import json
-import importlib
 import os
 import logging
 from logging.handlers import RotatingFileHandler
@@ -257,12 +256,7 @@ def update_cell(tokens, spreadsheet_id, sheet_id, value_to_update, row_index, co
         # Log the update
         logger.info("Updated cell (%s, %s) in sheet %s of spreadsheet %s", row_index, column_index, sheet_id, spreadsheet_id)
 
-        # Invalidate other sheets and read the updated sheet
-        queries = importlib.import_module("mysql_db.queries")
-        queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
-        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id, app_id)
-
-        return updated_sheet_data, HTTPStatus.OK
+        return res, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
@@ -312,14 +306,9 @@ def update_row(tokens, spreadsheet_id, sheet_id, updated_row_data, row_index, ap
             .execute()
         )
         
-        # Invalidate other sheets and read the updated sheet
-        queries = importlib.import_module("mysql_db.queries")
-        queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
-        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id, app_id)
-        
         logger.info("Updated row %s in sheet %s of spreadsheet %s", row_index, sheet_id, spreadsheet_id)
 
-        return updated_sheet_data, HTTPStatus.OK
+        return res, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
@@ -384,14 +373,9 @@ def insert_row(tokens, spreadsheet_id, sheet_id, row_to_insert, row_index=-1, ap
             .execute()
         )
         
-        # Invalidate other sheets and read the updated sheet
-        queries = importlib.import_module("mysql_db.queries")
-        queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
-        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id, app_id)
-        
         logger.info("Inserted row %s in sheet %s of spreadsheet %s", row_index, sheet_id, spreadsheet_id)
 
-        return updated_sheet_data, HTTPStatus.OK
+        return res, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
@@ -431,14 +415,9 @@ def delete_row(tokens, spreadsheet_id, sheet_id, row_index, app_id=None):
             .execute()
         )
         
-        # Invalidate other sheets and read the updated sheet
-        queries = importlib.import_module("mysql_db.queries")
-        queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
-        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id, app_id)
-        
         logger.info("Deleted row %s in sheet %s of spreadsheet %s", row_index, sheet_id, spreadsheet_id)
 
-        return updated_sheet_data, HTTPStatus.OK
+        return res, HTTPStatus.OK
 
     except HttpError as err:
         print(err)
@@ -478,15 +457,10 @@ def write_column(tokens, spreadsheet_id, sheet_id, column_data, column_index, ap
         )
         
         res = request.execute()
-
-        # Invalidate other sheets and read the updated sheet
-        queries = importlib.import_module("mysql_db.queries")
-        queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
-        updated_sheet_data = queries.read_updated_sheet(tokens, sheet_id, app_id)
         
         logger.info("Wrote column %s in sheet %s of spreadsheet %s", column_index, sheet_id, spreadsheet_id)
 
-        return updated_sheet_data, HTTPStatus.OK
+        return res, HTTPStatus.OK
     
     except HttpError as err:
         print(err)
