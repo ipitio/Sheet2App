@@ -92,7 +92,7 @@ function Detailview() {
                         <Button sx={{ display: 'flex' }} startIcon={<SaveIcon />} onClick={handleEditRecord}>
                             <Typography>Save Record</Typography>
                         </Button> :
-                        <Button sx={{ display: 'flex' }} startIcon={<EditIcon />} onClick={handleToggleEditing} disabled={!(editFilterColumn) || !(editFilterColumn && editFilterColumn[currentRecordIndex - 1] && editFilterColumn[currentRecordIndex - 1].toLowerCase() == 'true')}>
+                        <Button sx={{ display: 'flex' }} startIcon={<EditIcon />} onClick={handleToggleEditing} disabled={!editFilterColumn || !(editFilterColumn && editFilterColumn[currentRecordIndex - 1] && editFilterColumn[currentRecordIndex - 1].toLowerCase() == 'true') || !store.getState().webAppReducer.currentDetailview.canEdit}>
                             <Typography>Edit Record</Typography>
                         </Button>
                     }
