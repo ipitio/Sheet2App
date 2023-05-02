@@ -465,6 +465,42 @@ def write_column(tokens, spreadsheet_id, sheet_id, column_data, column_index, ap
         print(err)
         logger.error("Error writing column %s in sheet %s of spreadsheet %s: %s", column_index, sheet_id, spreadsheet_id, err)
         return err, HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def delete_column(tokens, spreadsheet_id, sheet_id, column_index, app_id=None):
+    logger = setup_logger(app_id)
+    try:
+        service = build('sheets', 'v4', credentials=get_credentials(tokens))
+        
+        sheet = service.spreadsheets()
+        sheet_name = ""
+        if sheet_id is not None:
+            sheets_info = (
+                sheet.get(spreadsheetId=spreadsheet_id).execute().get("sheets")
+            )
+
+            for sheet_info in sheets_info:
+                if sheet_info.get("properties").get("sheetId") == sheet_id:
+                    sheet_name = sheet_info.get("properties").get("title")
+                    break
+        
+        column_letter = get_column_letter(column_index)
+        update_range = f'{sheet_name}!{column_letter}:{column_letter}'
+        
+        request = sheet.values().clear(
+            spreadsheetId=spreadsheet_id,
+            range=update_range
+        )
+        
+        res = request.execute()
+        
+        logger.info("Cleared column %s in sheet %s of spreadsheet %s", column_index, sheet_id, spreadsheet_id)
+        
+        return res, HTTPStatus.OK
+    except HttpError as err:
+        print(err)
+        logger.error("Error deleting column %s in sheet %s of spreadsheet %s: %s", column_index, sheet_id, spreadsheet_id, err)
+        return err, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_metadata(tokens, spreadsheet_id, app_id=None):
