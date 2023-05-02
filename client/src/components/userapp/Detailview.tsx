@@ -60,6 +60,8 @@ function Detailview() {
         navigate(`/userapp/${app.id}/tableview/${currentTableview.id}`);
     }
 
+    console.log(editFilterColumn);
+
     return (
         <Box>
             <DatasourceNavBar />
@@ -92,7 +94,7 @@ function Detailview() {
                         <Button sx={{ display: 'flex' }} startIcon={<SaveIcon />} onClick={handleEditRecord}>
                             <Typography>Save Record</Typography>
                         </Button> :
-                        <Button sx={{ display: 'flex' }} startIcon={<EditIcon />} onClick={handleToggleEditing} disabled={!(editFilterColumn && editFilterColumn[currentRecordIndex - 1] && editFilterColumn[currentRecordIndex - 1].toLowerCase() == 'true')}>
+                        <Button sx={{ display: 'flex' }} startIcon={<EditIcon />} onClick={handleToggleEditing} disabled={!(editFilterColumn) || !(editFilterColumn && editFilterColumn[currentRecordIndex - 1] && editFilterColumn[currentRecordIndex - 1].toLowerCase() == 'true')}>
                             <Typography>Edit Record</Typography>
                         </Button>
                     }
