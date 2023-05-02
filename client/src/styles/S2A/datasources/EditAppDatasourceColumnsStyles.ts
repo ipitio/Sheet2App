@@ -38,7 +38,7 @@ const EditAppDatasourceColumnsStyles: StyleContainer = {
     display: 'flex',
     flexDirection: 'column',
     maxWidth: '200px',
-    height: '350px',
+    height: '375px',
     marginBottom: '25px',
     border: '2px solid #87CEEB',
     textAlign: 'center',
