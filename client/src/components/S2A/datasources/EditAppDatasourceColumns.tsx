@@ -20,8 +20,18 @@ function EditAppDatasourceColumns() {
     /* Redux hooks into store. */
     const storeDatasourceColumns = useSelector((state: StoreState) => state.S2AReducer.datasourceColumns);
     const datasource = useSelector((state: StoreState) =>  state.S2AReducer.currentDatasource);
+
+    /* React state hooks. */
     const [datasourceColumns, setDatasourceColumns] = useState(JSON.parse(JSON.stringify(storeDatasourceColumns)) as Column[]);
-    const [shouldUseStore, setShouldUseStore] = useState(true);
+    const [keyColExists, setKeyColExists] = useState(storeDatasourceColumns.some(col => col.isKey));
+    const [labelColExists, setLabelColExists] = useState(storeDatasourceColumns.some(col => col.isLabel));
+
+    /* Ensures that all state variables are updated upon change of store's datasourceColumns. */
+    useEffect(() => {
+        setDatasourceColumns(storeDatasourceColumns);
+        setKeyColExists(storeDatasourceColumns.some(col => col.isKey));
+        setLabelColExists(storeDatasourceColumns.some(col => col.isLabel));
+    }, [storeDatasourceColumns]);
 
     /* If the save button is clicked. */
     const handleSaveDatasourceColumns = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -33,62 +43,56 @@ function EditAppDatasourceColumns() {
 
     /* If the initial value textfield is altered. */
     const handleInitialValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setShouldUseStore(false);
-
         const initialValueTextfield = event.currentTarget as HTMLInputElement;
         const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(initialValueTextfield.id));
         const newInitialValue = initialValueTextfield.value;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...(shouldUseStore ? storeDatasourceColumns : datasourceColumns)];
+            const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], initialValue: newInitialValue};
         
             setDatasourceColumns(newColumns);    
         }
     };
 
-    /** If the key checkbox is checked/unchecked */
+    /* If the key checkbox is checked/unchecked. */
     const handleKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setShouldUseStore(false);
-
         const labelCheckbox = event.currentTarget as HTMLInputElement;
         const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(labelCheckbox.id));
-        const isKey = labelCheckbox.checked;
-
-        if(colToEditIdx != -1) {
-            const newColumns = [...(shouldUseStore ? storeDatasourceColumns : datasourceColumns)];
-            newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isKey: isKey};
+        const newKey = labelCheckbox.checked;
         
+        if(colToEditIdx != -1) {
+            const newColumns = [...datasourceColumns];
+            newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isKey: newKey};
+            
             setDatasourceColumns(newColumns);    
+            setKeyColExists(newKey);
         }
     }
 
     /* If the label checkbox is checked/unchecked. */
     const handleLabelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setShouldUseStore(false);
-
         const labelCheckbox = event.currentTarget as HTMLInputElement;
         const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(labelCheckbox.id));
         const newLabel = labelCheckbox.checked;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...(shouldUseStore ? storeDatasourceColumns : datasourceColumns)];
+            const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isLabel: newLabel};
         
             setDatasourceColumns(newColumns);    
+            setLabelColExists(newLabel);
         }
     }
 
     /* If the reference checkbox is checked/unchecked. */
     const handleRefChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setShouldUseStore(false);
-
         const refCheckbox = event.currentTarget as HTMLInputElement;
         const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(refCheckbox.id));
         const newRef = refCheckbox.checked;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...(shouldUseStore ? storeDatasourceColumns : datasourceColumns)];
+            const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isRef: newRef};
           
             setDatasourceColumns(newColumns);    
@@ -97,14 +101,12 @@ function EditAppDatasourceColumns() {
 
     /* If a type is selected from the drop-down menu. */
     const handleTypeChange = (event: React.MouseEvent<HTMLElement>) => {
-        setShouldUseStore(false);
-
         const typeSelect = event.currentTarget as HTMLSelectElement;
         const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(typeSelect.id));
         const newType = typeSelect.getAttribute("data-value") ?? "Number";
 
         if(colToEditIdx !== -1) {
-            const newColumns = [...(shouldUseStore ? storeDatasourceColumns : datasourceColumns)];
+            const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], type: newType};
 
             setDatasourceColumns(newColumns);    
@@ -129,7 +131,7 @@ function EditAppDatasourceColumns() {
 
                 <Grid sx={styles.grid} container spacing={2}>  
                     {/* Map each datasource column to a grid item. */}
-                    {(shouldUseStore ? storeDatasourceColumns : datasourceColumns).map((col) => (
+                    {datasourceColumns.map((col) => (
                         <Grid item xs={1.5} key={col.id}>
                             <div style={styles.gridItemContainer}>
                                 {/* Name*/}
@@ -151,12 +153,12 @@ function EditAppDatasourceColumns() {
 
                                 {/* Label/Reference Checkboxes */}
                                 <FormControlLabel
-                                    control={<Checkbox id={col.id.toString()} onChange={handleKeyChange} checked={col.isKey} sx={styles.columnCheckbox}/>}
+                                    control={<Checkbox id={col.id.toString()} onChange={handleKeyChange} disabled={!col.isKey && keyColExists} checked={col.isKey} sx={styles.columnCheckbox}/>}
                                     label="Key"
                                     sx={styles.columnElement}
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox id={col.id.toString()} onChange={handleLabelChange} checked={col.isLabel} sx={styles.columnCheckbox}/>}
+                                    control={<Checkbox id={col.id.toString()} onChange={handleLabelChange} disabled={!col.isLabel && labelColExists} checked={col.isLabel} sx={styles.columnCheckbox}/>}
                                     label="Label"
                                     sx={styles.columnElement}
                                 />
