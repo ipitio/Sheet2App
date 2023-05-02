@@ -479,13 +479,10 @@ def get_detail_view_columns(detail_view_id):
         detail_columns = mysql_db.utils.annotate_detail_view_columns(detail_columns, detail_view_id)
         detail_columns = list(detail_columns)
 
-        edit_filter_column_name = f"{detail_view.id} {detail_view.name} Edit Filter"
-
-        # edit_filter_column = DatasourceColumn.objects.get(
-        #     datasource_id=detail_view.datasource_id, name=edit_filter_column_name,
-        #     is_filter=False, is_user_filter=False, is_edit_filter=True
-        # )
-        edit_filter_column = None
+        edit_filter_column = DatasourceColumn.objects.get(
+            datasource_id=detail_view.datasource_id, name=detail_view.edit_filter_column_name,
+            is_filter=False, is_user_filter=False, is_edit_filter=True
+        )
         
         columns = {
             "detail_columns": detail_columns,
@@ -515,7 +512,7 @@ def get_detail_view_filter_column(detail_view_id):
     try:
         detail_view = DetailView.objects.get(id=detail_view_id)
         column = DatasourceColumn.objects.get(
-            name=detail_view.filter_column_name, is_edit_filter=True
+            name=detail_view.edit_filter_column_name, is_edit_filter=True
         )
         
         return column, HTTPStatus.OK

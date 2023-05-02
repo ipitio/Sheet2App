@@ -1028,15 +1028,39 @@ def delete_detail_view(request):
 @csrf_exempt
 def get_detail_view_columns(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    # app = body["app"]
     detail_view_id = body["detailview"]["id"]
+    spreadsheet_url = body["detailview"]["datasource"]["spreadsheetUrl"]
+    
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    gid = sheets.utils.get_gid(spreadsheet_url)
 
     columns, response_code = queries.get_detail_view_columns(detail_view_id=detail_view_id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
+    
+    edit_filter_column_index = columns["edit_filter_column"].column_index
+    column_indexes = [edit_filter_column_index]
+    
+    column_data, response_code = sheets_api.get_column_data(
+        tokens=tokens, spreadsheet_id=spreadsheet_id,
+        sheet_id=gid, columns=column_indexes #, app_id=app["id"]
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    true_false_dict = { 
+        "TRUE": True, 
+        "FALSE": False
+    }
+    
+    edit_filter_column_data = column_data[0][1:]
+    edit_filter_column_data = [true_false_dict[cell_data] for cell_data in edit_filter_column_data]
 
     res_body = {
         "detailviewColumns": columns["detail_columns"],
-        "editFilterColumn": columns["edit_filter_column"]
+        "editFilterColumn": edit_filter_column_data
     }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
@@ -1049,7 +1073,7 @@ def get_detail_view_columns(request):
 def edit_detail_view_columns(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
-    app = body["app"]
+    # app = body["app"]
     detail_view_id = body["detailview"]["id"]
     datasource = body["detailview"]["datasource"]
     columns = body["detailviewColumns"]
@@ -1087,13 +1111,13 @@ def edit_detail_view_columns(request):
 
         output, response_code = sheets_api.write_column(
             tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid,
-            column_data=edit_filter_column_data, column_index=edit_filter_column_index, app_id=app["id"]
+            column_data=edit_filter_column_data, column_index=edit_filter_column_index #, app_id=app["id"]
         )
         if response_code != HTTPStatus.OK:
             return HttpResponse({}, status=response_code)
         
     queries.invalidate_other_sheets(spreadsheet_id, gid)
-    data, response_code = sheets_api.get_data(tokens, spreadsheet_id, gid, app_id=app["id"])
+    data, response_code = sheets_api.get_data(tokens, spreadsheet_id, gid) #, app_id=app["id"])
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 

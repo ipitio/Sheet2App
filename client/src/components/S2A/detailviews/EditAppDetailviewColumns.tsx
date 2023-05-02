@@ -90,7 +90,7 @@ function EditAppDetailviewColumns() {
 
     /* If the add edit filter button is clicked. */
     const handleAddEditFilter = () => {
-        setEditFilter([]);
+        setEditFilter(editFilterColumn);
         handleSaveDetailviewColumns();
     }
 
