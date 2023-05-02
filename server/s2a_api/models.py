@@ -70,6 +70,8 @@ class DetailView(models.Model):
     name = models.TextField()
     can_view = models.BooleanField()
     can_edit = models.BooleanField()
+    uses_edit_filter = models.BooleanField(default=False)
+    edit_filter_column_name = models.TextField(default='')
     class Meta:
         db_table = 'DetailView'
 

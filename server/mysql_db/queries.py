@@ -91,7 +91,7 @@ def create_table_view(app_id, table_view_name, datasource_id):
         new_table_view = TableView.objects.create(
             app_id=app_id, datasource_id=datasource_id, name=table_view_name, 
             can_view=True, can_add=True, can_delete=True,
-            uses_filter=True, uses_user_filter=True
+            uses_filter=False, uses_user_filter=False
         )
         new_table_view.filter_column_name = f"{new_table_view.id} {new_table_view.name} Filter"
         new_table_view.user_filter_column_name = f"{new_table_view.id} {new_table_view.name} User Filter"
@@ -118,8 +118,10 @@ def create_detail_view(app_id, name, datasource_id):
     try:
         new_detail_view = DetailView.objects.create(
             app_id=app_id, name=name, datasource_id=datasource_id,
-            can_view=True, can_edit=True
+            can_view=True, can_edit=True, uses_edit_filter=False
         )
+        new_detail_view.edit_filter_column_name = f"{new_detail_view.id} {new_detail_view.name} Edit Filter"
+        new_detail_view.save()
         
         # By default all columns of the datasource the detail view uses are viewable and editable
         detail_view_id = new_detail_view.id
@@ -395,6 +397,24 @@ def get_table_view_viewable_columns(table_view_id):
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+
+def get_table_view_filter_column(table_view_id, uses_filter=False, uses_user_filter=False):
+    try:
+        table_view = TableView.objects.get(id=table_view_id)
+        if uses_filter:
+            column = DatasourceColumn.objects.get(
+                name=table_view.filter_column_name, is_filter=True
+            )
+        if uses_user_filter:
+            column = DatasourceColumn.objects.get(
+                name=table_view.user_filter_column_name, is_user_filter=True
+            )
+        
+        return column, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def get_detail_views_by_app_id(app_id):
@@ -409,19 +429,11 @@ def get_detail_views_by_app_id(app_id):
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
     
     
-def get_table_view_filter_column(table_view_id, uses_filter=False, uses_user_filter=False):
+def get_detail_view_by_id(detail_view_id):
     try:
-        table_view = TableView.objects.get(id=table_view_id)
-        if uses_filter:
-            column = DatasourceColumn.objects.get(
-                name=table_view.filter_column_name, is_filter=True
-            )
-        if uses_user_filter:
-            column = DatasourceColumn.objects.get(
-                name=table_view.user_filter_column_name, is_user_filter=True
-            )
+        detail_view = DetailView.objects.get(id=detail_view_id)
         
-        return column, HTTPStatus.OK
+        return detail_view, HTTPStatus.OK
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
@@ -467,13 +479,10 @@ def get_detail_view_columns(detail_view_id):
         detail_columns = mysql_db.utils.annotate_detail_view_columns(detail_columns, detail_view_id)
         detail_columns = list(detail_columns)
 
-        edit_filter_column_name = f"{detail_view.id} {detail_view.name} Edit Filter"
-
-        # edit_filter_column = DatasourceColumn.objects.get(
-        #     datasource_id=detail_view.datasource_id, name=edit_filter_column_name,
-        #     is_filter=False, is_user_filter=False, is_edit_filter=True
-        # )
-        edit_filter_column = None
+        edit_filter_column = DatasourceColumn.objects.get(
+            datasource_id=detail_view.datasource_id, name=detail_view.edit_filter_column_name,
+            is_filter=False, is_user_filter=False, is_edit_filter=True
+        )
         
         columns = {
             "detail_columns": detail_columns,
@@ -497,11 +506,28 @@ def get_detail_view_viewable_columns(detail_view_id):
     except Exception as e:
         print(e)
         return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def get_detail_view_filter_column(detail_view_id):
+    try:
+        detail_view = DetailView.objects.get(id=detail_view_id)
+        column = DatasourceColumn.objects.get(
+            name=detail_view.edit_filter_column_name, is_edit_filter=True
+        )
+        
+        return column, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
 
 # Retrieve all of the viewable columns without including edit filters and user filters
 def get_detail_view_viewable_columns_without_filters(detail_view_id):
     try:
-        columns = DatasourceColumn.objects.filter(detailviewviewablecolumn__detail_view_id=detail_view_id,is_filter=0, is_user_filter=0, is_edit_filter=0)
+        columns = DatasourceColumn.objects.filter(
+            detailviewviewablecolumn__detail_view_id=detail_view_id,
+            is_filter=0, is_user_filter=0, is_edit_filter=0
+        )
         columns = columns.values()
         columns = mysql_db.utils.annotate_detail_view_columns(columns, detail_view_id)
         columns = list(columns)
@@ -647,6 +673,18 @@ def update_detail_view(detail_view):
         update_detail_view.can_edit = detail_view["canEdit"]
         update_detail_view.save()
         
+        return {}, HTTPStatus.OK
+    except Exception as e:
+        print(e)
+        return f"Error: {e}", HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    
+def update_detail_view_filter_usage(detail_view_id, uses_edit_filter):
+    try:
+        updated_detail_view = DetailView.objects.get(id=detail_view_id)
+        updated_detail_view.uses_edit_filter = uses_edit_filter
+        updated_detail_view.save()
+
         return {}, HTTPStatus.OK
     except Exception as e:
         print(e)
