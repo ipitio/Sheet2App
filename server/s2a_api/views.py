@@ -661,8 +661,35 @@ def get_app_table_views(request):
 @csrf_exempt
 def delete_table_view(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     table_view_id = body["tableview"]["id"]
+    spreadsheet_url = body["tableview"]["datasource"]["spreadsheetUrl"]
+    
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    gid = sheets.utils.get_gid(spreadsheet_url)
+    
+    # Delete the filter columns from the google sheet
+    filter_column, response_code = queries.get_table_view_filter_column(
+        table_view_id=table_view_id, uses_filter=True
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    user_filter_column, response_code = queries.get_table_view_filter_column(
+        table_view_id=table_view_id, uses_user_filter=True
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    output, response_code = sheets_api.delete_column(tokens, spreadsheet_id, gid, filter_column.column_index)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    output, response_code = sheets_api.delete_column(tokens, spreadsheet_id, gid, user_filter_column.column_index)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
 
+    # Delete the table
     output, response_code = queries.delete_table_view(table_view_id=table_view_id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
