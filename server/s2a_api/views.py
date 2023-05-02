@@ -543,18 +543,6 @@ def create_table_view(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    # Find out how many rows the filter columns have to be filled in with a default value
-    datasource_columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource_id)
-    if response_code != HTTPStatus.OK:
-        return HttpResponse({}, status=response_code)
-    
-    column_indexes = [datasource_col["column_index"] - 1 for datasource_col in datasource_columns]
-    
-    num_records, response_code = sheets_api.get_longest_column_length(
-        tokens=tokens, spreadsheet_url=spreadsheet_url, column_indexes=column_indexes
-    )
-    if response_code != HTTPStatus.OK:
-        return HttpResponse({}, status=response_code)
     
     new_column_index =  len(columns) + 1
     filter_column_header =  new_table_view.filter_column_name
@@ -891,13 +879,62 @@ def edit_table_view_roles(request):
 @csrf_exempt
 def create_detail_view(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     app_id = body["app"]["id"]
     name = body["detailviewName"]
     datasource_id = body["datasource"]["id"]
+    spreadsheet_url = body["datasource"]["spreadsheetUrl"]
 
-    output, response_code = queries.create_detail_view(
+    new_detail_view, response_code = queries.create_detail_view(
         app_id=app_id, name=name, datasource_id=datasource_id
     )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    # Create the edit filter column
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    sheet_id = sheets.utils.get_gid(spreadsheet_url)
+    columns, response_code = sheets_api.get_data(
+        tokens=tokens, spreadsheet_id=spreadsheet_id, 
+        sheet_id=sheet_id, majorDimension="COLUMNS", app_id=app_id
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    # Find out how many rows the filter columns have to be filled in with a default value
+    datasource_columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    column_indexes = [datasource_col["column_index"] - 1 for datasource_col in datasource_columns]
+    
+    num_records, response_code = sheets_api.get_longest_column_length(
+        tokens=tokens, spreadsheet_url=spreadsheet_url, column_indexes=column_indexes
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    new_column_index =  len(columns) + 1
+    edit_filter_column_header =  new_detail_view.edit_filter_column_name
+    edit_filter_column_data = [edit_filter_column_header] + ([True] * num_records)
+    
+    output, response_code = sheets_api.write_column(
+        tokens, spreadsheet_id, sheet_id, 
+        column_data=edit_filter_column_data, column_index=new_column_index, app_id=app_id
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    edit_filter_column, response_code = queries.create_datasource_column(
+        datasource_id=datasource_id, column_index=new_column_index, name=edit_filter_column_header,
+        is_filter=False, is_user_filter=False, is_edit_filter=True
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    
+    queries.invalidate_other_sheets(spreadsheet_id, sheet_id)
+    data, response_code = sheets_api.get_data(tokens, spreadsheet_id, sheet_id, app_id=app_id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
