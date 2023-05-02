@@ -36,12 +36,12 @@ def generate_row_data(row_data):
 def get_spreadsheet_value_type(value):
     if isinstance(value, str):
         return "stringValue"
+    elif isinstance(value, bool):
+        return "boolValue"
     elif isinstance(value, int):
         return "numberValue"
     elif isinstance(value, float):
         return "numberValue"
-    elif isinstance(value, bool):
-        return "boolValue"
     else:
         return "errorValue"
 

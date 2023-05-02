@@ -1055,7 +1055,6 @@ def add_record(request):
     data, response_code = sheets_api.get_data(tokens, datasource.spreadsheet_id, datasource.gid, app_id=app["id"])
 
     datasource_columns = datasource_columns[0]
-    print(datasource_columns)
     for index, column in enumerate(datasource_columns):
         if column["is_key"]:
             key_indexes.add(index)
@@ -1093,11 +1092,21 @@ def add_record(request):
 
             record_data_array[index] = record_data[str(col_index)]
         elif is_filter_col:
-            record_data_array[index] = True
+            if len(record_data_array) <= index:
+                record_data_array.append(True)
+            else:
+                record_data_array[index] = True
         elif is_user_filter_col:
-            record_data_array[index] = user_email
+            if len(record_data_array) <= index:
+                record_data_array.append(user_email)
+            else:
+                record_data_array[index] = user_email
         else:
-            record_data_array[index] = col_initial_value
+            if len(record_data_array) <= index:
+                record_data_array.append(col_initial_value)
+            else:
+                record_data_array[index] = col_initial_value
+
         
     spreadsheet_id = datasource.spreadsheet_id
     gid = datasource.gid
