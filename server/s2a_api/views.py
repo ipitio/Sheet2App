@@ -1211,6 +1211,7 @@ def add_record(request):
         col_type = column["type"]
         is_filter_col = column["is_filter"]
         is_user_filter_col = column["is_user_filter"]
+        is_edit_filter_col = column["is_edit_filter"]
         
         if str(col_index) in record_data:
             # Now do type checking
@@ -1233,6 +1234,8 @@ def add_record(request):
             record_data_array[col_index] = True
         elif is_user_filter_col:
             record_data_array[col_index] = user_email
+        elif is_edit_filter_col:
+            record_data_array[col_index] = True
         else:
             record_data_array[col_index] = col_initial_value
         
