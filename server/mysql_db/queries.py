@@ -118,8 +118,10 @@ def create_detail_view(app_id, name, datasource_id):
     try:
         new_detail_view = DetailView.objects.create(
             app_id=app_id, name=name, datasource_id=datasource_id,
-            can_view=True, can_edit=True
+            can_view=True, can_edit=True, uses_edit_filter=False
         )
+        new_detail_view.edit_filter_column_name = f"{new_detail_view.id} {new_detail_view.name} Edit Filter"
+        new_detail_view.save()
         
         # By default all columns of the datasource the detail view uses are viewable and editable
         detail_view_id = new_detail_view.id
