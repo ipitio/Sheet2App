@@ -1089,13 +1089,13 @@ def add_record(request):
             elif col_type == 'Boolean' and not current_entry.lower() == 'true' and not current_entry.lower() == 'false':
                 return HttpResponse(content='Expected a Boolean at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-            record_data_array[col_index - 1] = record_data[str(col_index)]
+            record_data_array[col_index] = record_data[str(col_index)]
         elif is_filter_col:
-            record_data_array[col_index - 1] = True
+            record_data_array[col_index] = True
         elif is_user_filter_col:
-            record_data_array[col_index - 1] = user_email
+            record_data_array[col_index] = user_email
         else:
-            record_data_array[col_index - 1] = col_initial_value
+            record_data_array[col_index] = col_initial_value
         
     spreadsheet_id = datasource.spreadsheet_id
     gid = datasource.gid
