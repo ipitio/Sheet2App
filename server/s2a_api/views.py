@@ -48,6 +48,7 @@ def setup_logger(app_id):
     logger.addHandler(file_handler)
     return logger
 
+
 def parse_tokens(request):
     headers = request.headers
     auth_header = headers["Authorization"].split(" ")
@@ -1047,12 +1048,52 @@ def get_detail_view_columns(request):
 @csrf_exempt
 def edit_detail_view_columns(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
+    app = body["app"]
     detail_view_id = body["detailview"]["id"]
+    datasource = body["detailview"]["datasource"]
     columns = body["detailviewColumns"]
+    edit_filter_column_entries = body["editFilterColumn"]
 
     output, response_code = queries.update_detail_view_viewable_columns(
         detail_view_id=detail_view_id, columns=columns
     )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    uses_edit_filter = edit_filter_column_entries != None
+    output, response_code = queries.update_detail_view_filter_usage(
+        detail_view_id=detail_view_id, uses_edit_filter=uses_edit_filter
+    )
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    detail_view_object, response_code = queries.get_detail_view_by_id(detail_view_id=detail_view_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    spreadsheet_url = datasource["spreadsheetUrl"]
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    gid = sheets.utils.get_gid(spreadsheet_url)
+    
+    # Write to filter column if table view is using one
+    if uses_edit_filter:
+        edit_filter_column, response_code = queries.get_detail_view_filter_column(detail_view_id=detail_view_id)
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        edit_filter_column_index = edit_filter_column.column_index
+        edit_filter_column_data = [detail_view_object.edit_filter_column_name] + edit_filter_column_entries
+
+        output, response_code = sheets_api.write_column(
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=gid,
+            column_data=edit_filter_column_data, column_index=edit_filter_column_index, app_id=app["id"]
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+    queries.invalidate_other_sheets(spreadsheet_id, gid)
+    data, response_code = sheets_api.get_data(tokens, spreadsheet_id, gid, app_id=app["id"])
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
