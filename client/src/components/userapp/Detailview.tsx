@@ -77,7 +77,7 @@ function Detailview() {
                                 return (
                                     <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Typography sx={{ marginRight: '40px', marginTop: '12px' }}>{column.name}</Typography>
-                                        <Typography sx={{ marginTop: '12px' }}>{currentRecordData ? currentRecordData[index + 1] : ''}</Typography>
+                                        <Typography sx={{ marginTop: '12px' }}>{currentRecordData ? currentRecordData[column.column_index] : ''}</Typography>
                                     </Box>
                                 )
                             }

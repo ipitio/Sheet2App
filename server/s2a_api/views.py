@@ -1158,7 +1158,7 @@ def edit_record(request):
             key_set.add(record[key_index])
 
     for key_index in key_indexes:
-        if record_data[str(key_index)] in key_set:
+        if str(key_index) in record_data and record_data[str(key_index)] in key_set:
             return HttpResponse(content='Duplicate key value \'{}\' encountered.'.format(record_data[str(key_index)]), status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
     record_data_array = record_data_array[record_index]
