@@ -91,7 +91,7 @@ def create_table_view(app_id, table_view_name, datasource_id):
         new_table_view = TableView.objects.create(
             app_id=app_id, datasource_id=datasource_id, name=table_view_name, 
             can_view=True, can_add=True, can_delete=True,
-            uses_filter=True, uses_user_filter=True
+            uses_filter=False, uses_user_filter=False
         )
         new_table_view.filter_column_name = f"{new_table_view.id} {new_table_view.name} Filter"
         new_table_view.user_filter_column_name = f"{new_table_view.id} {new_table_view.name} User Filter"

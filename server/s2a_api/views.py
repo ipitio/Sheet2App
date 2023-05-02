@@ -1040,6 +1040,13 @@ def get_detail_view_columns(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
+    # detail_view_obj, response_code = queries.get_detail_view_by_id(detail_view_id=detail_view_id)
+    # if response_code != HTTPStatus.OK:
+    #     return HttpResponse({}, status=response_code)
+    
+    # edit_filter_column_data = None
+    
+    # if detail_view_obj.uses_edit_filter:
     edit_filter_column_index = columns["edit_filter_column"].column_index
     column_indexes = [edit_filter_column_index]
     
@@ -1568,11 +1575,14 @@ def load_detail_view(request):
     )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
+    
     rowData = [(column[record_index] if record_index < len(column) else '') for column in column_data]
     rowData = {index: data for index, data in zip(column_indexes, rowData)}
 
     # Get edit_filter column data if the given detail view uses one
     detail_view_obj, response_code = queries.get_detail_view_by_id(detail_view_id=detail_view_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
     
     edit_filter_column = None
     if detail_view_obj.uses_edit_filter:
