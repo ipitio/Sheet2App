@@ -1042,10 +1042,10 @@ def add_record(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
-    datasource_columns = queries.get_all_datasource_columns_by_datasource_id(datasource_id=datasource.id)
+    datasource_columns, response_code = queries.get_all_datasource_columns_by_datasource_id(datasource_id=datasource.id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
-    
+
     record_data_array = [""] * (len(datasource_columns) + 1)
 
     # Ensure no duplicate keys
@@ -1054,7 +1054,6 @@ def add_record(request):
 
     data, response_code = sheets_api.get_data(tokens, datasource.spreadsheet_id, datasource.gid, app_id=app["id"])
 
-    datasource_columns = datasource_columns[0]
     for index, column in enumerate(datasource_columns):
         if column["is_key"]:
             key_indexes.add(index)
@@ -1073,7 +1072,7 @@ def add_record(request):
         col_type = column["type"]
         is_filter_col = column["is_filter"]
         is_user_filter_col = column["is_user_filter"]
-
+        
         if str(col_index) in record_data:
             # Now do type checking
             current_entry = record_data[str(col_index)]
@@ -1090,23 +1089,13 @@ def add_record(request):
             elif col_type == 'Boolean' and not current_entry.lower() == 'true' and not current_entry.lower() == 'false':
                 return HttpResponse(content='Expected a Boolean at column {}'.format(col_index), status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-            record_data_array[index] = record_data[str(col_index)]
+            record_data_array[col_index] = record_data[str(col_index)]
         elif is_filter_col:
-            if len(record_data_array) <= index:
-                record_data_array.append(True)
-            else:
-                record_data_array[index] = True
+            record_data_array[col_index] = True
         elif is_user_filter_col:
-            if len(record_data_array) <= index:
-                record_data_array.append(user_email)
-            else:
-                record_data_array[index] = user_email
+            record_data_array[col_index] = user_email
         else:
-            if len(record_data_array) <= index:
-                record_data_array.append(col_initial_value)
-            else:
-                record_data_array[index] = col_initial_value
-
+            record_data_array[col_index] = col_initial_value
         
     spreadsheet_id = datasource.spreadsheet_id
     gid = datasource.gid
