@@ -19,6 +19,8 @@ function Detailview() {
     const currentRecordData = useSelector((state: StoreState) => state.webAppReducer.currentRecordData);
     const editableColumns = useSelector((state: StoreState) => state.webAppReducer.editableColumns);
     const viewableColumns = useSelector((state: StoreState) => state.webAppReducer.viewableColumns);
+    const editFilterColumn = useSelector((state: StoreState) => state.webAppReducer.editFilterColumn);
+    const currentRecordIndex = useSelector((state: StoreState) => state.webAppReducer.currentRecordIndex);
 
     const [isEditing, setIsEditing] = useState(false);
     const [columnToDataPairs, setColumnToDataPairs] = useState<Record<number, any>>({})
@@ -90,7 +92,7 @@ function Detailview() {
                         <Button sx={{ display: 'flex' }} startIcon={<SaveIcon />} onClick={handleEditRecord}>
                             <Typography>Save Record</Typography>
                         </Button> :
-                        <Button sx={{ display: 'flex' }} startIcon={<EditIcon />} onClick={handleToggleEditing}>
+                        <Button sx={{ display: 'flex' }} startIcon={<EditIcon />} onClick={handleToggleEditing} disabled={!(editFilterColumn && editFilterColumn[currentRecordIndex - 1] && editFilterColumn[currentRecordIndex - 1].toLowerCase() == 'true')}>
                             <Typography>Edit Record</Typography>
                         </Button>
                     }
