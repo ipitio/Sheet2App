@@ -71,7 +71,7 @@ class DetailView(models.Model):
     can_view = models.BooleanField()
     can_edit = models.BooleanField()
     uses_edit_filter = models.BooleanField(default=False)
-    edit_filter_column_name = models.BooleanField(default='')
+    edit_filter_column_name = models.TextField(default='')
     class Meta:
         db_table = 'DetailView'
 
