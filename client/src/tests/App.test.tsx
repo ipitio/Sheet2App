@@ -10,6 +10,11 @@ import { store } from '../store/StoreContext'
 
 import App from '../App';
 import HomeNavBar from '../components/S2A/navbars/HomeNavBar';
+import S2AHomeAccess from '../components/S2A/home/HomeAccess'
+import S2AHomeDevelop from '../components/S2A/home/HomeDevelop'
+
+import * as StoreController from '../store/StoreController';
+import { viewDevApps } from '../store/StoreController';
 
 import { render, screen, fireEvent } from "@testing-library/react";
 import '@testing-library/jest-dom/extend-expect';
@@ -65,3 +70,123 @@ test('renders working navbar', () => {
   // Clean up the mock after the test
   getLoggedOutMock.mockRestore();
 });
+
+/* const viewDevAppsSpy = jest.spyOn(StoreController, 'viewDevApps');
+const mockDevApps = [
+  {
+    id: 1,
+    name: "My First App",
+    creatorEmail: "johndoe@example.com",
+    roleMemUrl: "https://example.com/role/membership",
+    isPublished: true
+  },
+  {
+    id: 2,
+    name: "My Second App",
+    creatorEmail: "janedoe@example.com",
+    roleMemUrl: "https://example.com/role/membership",
+    isPublished: false
+  },
+  {
+    id: 3,
+    name: "Awesome App",
+    creatorEmail: "johndoe@example.com",
+    roleMemUrl: "https://example.com/role/membership",
+    isPublished: true
+  },
+  {
+    id: 4,
+    name: "Cool App",
+    creatorEmail: "janedoe@example.com",
+    roleMemUrl: "https://example.com/role/membership",
+    isPublished: false
+  },
+  {
+    id: 5,
+    name: "My Awesome App",
+    creatorEmail: "johndoe@example.com",
+    roleMemUrl: "https://example.com/role/membership",
+    isPublished: true
+  },
+  {
+    id: 6,
+    name: "My Cool App",
+    creatorEmail: "janedoe@example.com",
+    roleMemUrl: "https://example.com/role/membership",
+    isPublished: false
+  },
+  {
+    id: 7,
+    name: "Amazing App",
+    creatorEmail: "johndoe@example.com",
+    roleMemUrl: "https://example.com/role/membership",
+    isPublished: true
+  },
+  {
+    id: 8,
+    name: "Incredible App",
+    creatorEmail: "janedoe@example.com",
+    roleMemUrl: "https://example.com/role/membership",
+    isPublished: false
+  },
+  {
+    id: 9,
+    name: "Another App",
+    creatorEmail: "johndoe@example.com",
+    roleMemUrl: "https://example.com/role/membership",
+    isPublished: true
+  },
+  {
+    id: 10,
+    name: "Yet Another App",
+    creatorEmail: "janedoe@example.com",
+    roleMemUrl: "https://example.com/role/membership",
+    isPublished: false
+  }
+];
+
+viewDevAppsSpy.mockImplementation(() => {
+  return async () => {
+    return {
+      type: 'S2A/viewDevApps/fulfilled',
+      payload: mockDevApps,
+    };
+  };
+});
+
+test('HomeDevelop renders and handles app interactions', () => {
+  const history = createMemoryHistory({ initialEntries: ['/S2A/home/develop'] });
+
+  render(
+    <Provider store={store}>
+      <Router location={history.location} navigator={history}>
+        <S2AHomeDevelop />
+      </Router>
+    </Provider>
+  );
+
+  // Check if the viewDevApps function is called on component mount
+  expect(viewDevAppsSpy).toHaveBeenCalledTimes(1);
+
+  // Find app elements and interaction buttons
+  const appElements = screen.getAllByText(/App/i);
+  const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
+  const editButtons = screen.getAllByRole('button', { name: /edit/i });
+
+  // Check if the app elements, delete buttons, and edit buttons are rendered
+  expect(appElements.length).toBeGreaterThan(0);
+  expect(deleteButtons.length).toBeGreaterThan(0);
+  expect(editButtons.length).toBeGreaterThan(0);
+
+  // Click the first delete button and check if the delete modal opens
+  fireEvent.click(deleteButtons[0]);
+  const deleteModal = screen.getByRole('dialog', { name: /delete app modal/i });
+  expect(deleteModal).toBeInTheDocument();
+
+  // Click the first edit button and check if the navigation occurs
+  fireEvent.click(editButtons[0]);
+  expect(history.location.pathname).toEqual('/S2A/editapp/datasources/1');
+
+  viewDevAppsSpy.mockRestore();
+});
+ */
