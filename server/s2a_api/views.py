@@ -1549,6 +1549,7 @@ def load_detail_view(request):
     body = json.loads(request.body)
     tokens = parse_tokens(request)
     detail_view = body["detailview"]
+    detail_view_id = detail_view["id"]
     record_index = body["recordIndex"]
     spreadsheet_url = detail_view["datasource"]["spreadsheetUrl"]
     
@@ -1569,10 +1570,30 @@ def load_detail_view(request):
         return HttpResponse({}, status=response_code)
     rowData = [(column[record_index] if record_index < len(column) else '') for column in column_data]
     rowData = {index: data for index, data in zip(column_indexes, rowData)}
+
+    # Get edit_filter column data if the given detail view uses one
+    detail_view_obj, response_code = queries.get_detail_view_by_id(detail_view_id=detail_view_id)
+    
+    edit_filter_column = None
+    if detail_view_obj.uses_edit_filter:
+        column, response = queries.get_detail_view_filter_column(detail_view_id=detail_view_id)
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        edit_filter_column_index = column.column_index
+        column_data, response_code = sheets_api.get_column_data(
+            tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=sheet_id,
+            columns=[edit_filter_column_index], app_id=body["app"]["id"]
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        edit_filter_column = column_data[0][1:]
     
     res_body = {
         "columns": viewable_columns,
-        "rowData": rowData
+        "rowData": rowData,
+        "editFilterColumn": edit_filter_column 
     }
     response = HttpResponse(
         json.dumps(res_body, cls=ExtendedEncoder), status=response_code
