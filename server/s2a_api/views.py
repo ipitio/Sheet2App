@@ -669,11 +669,21 @@ def delete_table_view(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
+    # Clear Google Sheets Columns
     output, response_code = sheets_api.delete_column(tokens, spreadsheet_id, gid, filter_column.column_index)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
     output, response_code = sheets_api.delete_column(tokens, spreadsheet_id, gid, user_filter_column.column_index)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    # Delete DatasourceColumn objects
+    output, response_code = queries.delete_datasource_column(filter_column.id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    output, response_code = queries.delete_datasource_column(user_filter_column.id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
 
