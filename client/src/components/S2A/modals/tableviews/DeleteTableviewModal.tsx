@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { finishDeletion, StoreState } from '../../../../store/StoreContext';
+import {store, finishDeletion, StoreState } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
@@ -35,7 +35,7 @@ function DeleteTableviewModal() {
     return (
         <Modal open={currentModalType == ModalType.DeleteTableviewModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
-                Delete {currentTableviewToDelete?.name} Tableview?
+                Delete {currentTableviewToDelete?.name} Table View?
 
                 {/* Confirm/Cancel Buttons */}
                 <Button onClick={handleDelete} variant="outlined" size="large" sx={styles.modalButton}>Confirm</Button>

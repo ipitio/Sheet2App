@@ -43,6 +43,7 @@ const EditAppTableviewColumnsStyles: StyleContainer = {
     border: '2px solid #87CEEB',
     textAlign: 'center',
     position: 'relative',
+    borderRadius: '8px'
   },
   columnElement: {
     marginTop: '15px',

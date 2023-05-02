@@ -6,7 +6,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import * as AuthController from "../auth/AuthController";
 
-import store from '../store/StoreContext'
+import { store } from '../store/StoreContext'
 
 import App from '../App';
 import HomeNavBar from '../components/S2A/navbars/HomeNavBar';

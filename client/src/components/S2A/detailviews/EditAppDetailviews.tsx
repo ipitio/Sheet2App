@@ -2,12 +2,12 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { setCurrentDetailview, setCurrentModalType, markDetailviewToEdit, markDetailviewToDelete, StoreState} from '../../../store/StoreContext';
+import { store, setCurrentDetailview, setCurrentModalType, markDetailviewToEdit, markDetailviewToDelete, StoreState} from '../../../store/StoreContext';
 import { Datasource, Detailview, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/detailviews/EditAppDetailviewsStyles";
 import EditAppNavBar from "../navbars/EditAppNavBar";
-import { Grid, IconButton } from '@mui/material';
+import { Box, Grid, IconButton, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import PeopleIcon from '@mui/icons-material/People';
@@ -25,51 +25,7 @@ function EditAppDetailviews() {
     /* Redux hooks into store. */
     const currApp = useSelector((state: StoreState) => state.S2AReducer.currentApp);
     const detailviews = useSelector((state: StoreState) => state.S2AReducer.detailviews);
-
-    /*const datasources: Datasource[] = [
-        {
-            id: 1,
-            name: "Employee Data",
-            spreadsheetUrl: "https://docs.google.com/spreadsheets/d/123abc/edit",
-            sheetName: "Employee Details",
-        },
-        {
-            id: 2,
-            name: "Product Catalog",
-            spreadsheetUrl: "https://docs.google.com/spreadsheets/d/456def/edit",
-            sheetName: "Product Details",
-        },
-        {
-            id: 3,
-            name: "Customer Data",
-            spreadsheetUrl: "https://docs.google.com/spreadsheets/d/789ghi/edit",
-            sheetName: "Customer Details",
-        },
-    ];*/
-    
-    /*const detailviews: Detailview[] = [
-        {
-            id: 1,
-            name: "Employees",
-            canView: true,
-            canEdit: true,
-            datasource: datasources[0],
-        },
-        {
-            id: 2,
-            name: "Products",
-            canView: true,
-            canEdit: false,
-            datasource: datasources[1],
-        },
-        {
-            id: 3,
-            name: "Customers",
-            canView: true,
-            canEdit: true,
-            datasource: datasources[2],
-        },
-    ];*/
+    const currentApp = useSelector((state: StoreState) => state.S2AReducer.currentApp);
 
      /* Event handlers. */
 
@@ -124,28 +80,31 @@ function EditAppDetailviews() {
 
             {/* Edit App Detailviews Display */}
             <div style={styles.editAppDetailviewsDisplay}>
+            <Typography sx={{fontSize: '32px', fontWeight: 'bold'}}>
+                {`${currentApp?.name} Detail Views`}
+            </Typography>
                 <Grid sx={styles.grid} container spacing={2}>  
 
                 {/* Map each app detailview to a grid item. */}
                 {detailviews.map((dv) => (
                     <Grid item xs={1.5} key={dv.id}>
-                        <div style={styles.gridItemContainer}>
+                        <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                             {dv.name}
 
                             {/* Delete, edit columns, edit roles, edit buttons for detailviews. */}
                             <IconButton id={dv.id.toString()} onClick={handleOpenDeleteModal} sx={styles.deleteDetailviewButton} title="Delete">
-                                <DeleteIcon fontSize="small"/>
+                                <DeleteIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={dv.id.toString()} onClick={handleNavigateEditColumns} sx={styles.editDetailviewColumnsButton} title="Edit Detailview Columns">
-                                <ViewColumnIcon fontSize="small"/>
+                                <ViewColumnIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={dv.id.toString()} onClick={handleNavigateEditRoles} sx={styles.editDetailviewRolesButton} title="Edit Detailview Roles">
-                                <PeopleIcon fontSize="small"/>
+                                <PeopleIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={dv.id.toString()} onClick={handleOpenEditModal} sx={styles.editDetailviewButton} title="Edit Detailview">
-                                <EditIcon fontSize="small"/>
+                                <EditIcon fontSize="medium"/>
                             </IconButton>                         
-                        </div>
+                        </Box>
                     </Grid>
                 ))}
                 </Grid>

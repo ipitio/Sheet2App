@@ -24,9 +24,12 @@ export interface Column {
 	isFilter: boolean;
 	isUserFilter: boolean;  
 	isEditFilter: boolean;
+	isKey: boolean;
 
     viewable: boolean | null;
     editable: boolean | null;
+
+	column_index: number | null;
 }
 
 export interface Record {
@@ -61,6 +64,8 @@ export enum ModalType {
 	/* S2A */
     CreateAppModal,
     DeleteAppModal,
+	PublishAppModal,
+	UnpublishAppModal,
 
     CreateDatasourceModal,
 	EditDatasourceModal,

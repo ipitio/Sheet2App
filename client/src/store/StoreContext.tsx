@@ -1,19 +1,27 @@
-import { configureStore, createSlice } from '@reduxjs/toolkit'
+import { configureStore, combineReducers, createSlice, Reducer, Action, Store } from '@reduxjs/toolkit'
 import type { PayloadAction } from "@reduxjs/toolkit"
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 import { App, Datasource, Column, Record, Tableview, Detailview, Role, ModalType, View } from './StoreTypes'
 
-import storeController, { createApp, createDatasource, createTableview, deleteApp, deleteDatasource, deleteTableview, editApp, editDatasource, editDatasourceColumns, editTableview, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
+import { addRecord, createApp, createDatasource, createDetailview, createTableview, deleteApp, deleteDatasource, deleteDetailview, deleteRecord, deleteTableview, editApp, editDatasource, editDatasourceColumns, editDetailview, editDetailviewColumns, editDetailviewRoles, editRecord, editTableview, editTableviewColumns, editTableviewRoles, getIsGlobalDev, loadApp, loadDetailview, loadTableview, publishApp, viewAccApps, viewAppRoles, viewDatasourceColumns, viewDatasources, viewDetailviewColumns, viewDetailviewRoles, viewDetailviews, viewTableviewColumns, viewTableviewRoles, viewTableviews } from './StoreController'
 
 // Import async thunks for API calls
 import { viewDevApps } from './StoreController'
+import { useDispatch } from 'react-redux';
 
 export interface IS2AState {
+    isGlobalDev: boolean,
+
     /* An array of developable apps for the current user. Set when navigating onto developable apps screen. */
     devApps: App[],
 
     /* An array of accessible apps for the current user. Set when navigating onto accessible apps screen. */
     accApps: App[],
+
+    searchedDevApps: App[],
+    searchedAccApps: App[],
 
     /* An array of roles belonging to the current app. Set when navigating onto edit tableview/detailview roles screen. */
     roles: Role[],
@@ -66,6 +74,12 @@ export interface IS2AState {
     /* The type of modal currently open for creation/edit/deletion. */
     currentModalType: ModalType | null,
 
+    /* The app marked for publish on confirmation. */
+    currentAppToPublish: App | null,
+
+    /* The app marked for unpublish on confirmation. */
+    currentAppToUnpublish: App | null,
+
     /* The datasource marked for edit on confirmation. */
     currentDatasourceToEdit: Datasource | null,
 
@@ -86,11 +100,19 @@ export interface IS2AState {
 
     /* The detailview marked for deletion on confirmation. */
     currentDetailviewToDelete: Detailview | null,
+
+    showSuccessAlert: boolean,
+    showErrorAlert: boolean
 }
 
 const S2AState: IS2AState = {
+    isGlobalDev: false,
+
     devApps: [],
     accApps: [],
+
+    searchedDevApps: [],
+    searchedAccApps: [],
 
     roles: [],
 
@@ -114,6 +136,9 @@ const S2AState: IS2AState = {
     currentDetailview: null,
     currentModalType: null,
 
+    currentAppToPublish: null,
+    currentAppToUnpublish: null,
+    
     currentDatasourceToEdit: null,
     currentTableviewToEdit: null,
     currentDetailviewToEdit: null,
@@ -122,13 +147,32 @@ const S2AState: IS2AState = {
     currentDatasourceToDelete: null,
     currentTableviewToDelete: null,
     currentDetailviewToDelete: null,
+
+    showSuccessAlert: false,
+    showErrorAlert: false
 }
 
 export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
-        /* Detailview role related reducers. */
+        hideSuccessAlert: (state) => {
+            state.showSuccessAlert = false;
+        },
+        hideErrorAlert: (state) => {
+            state.showErrorAlert = false;
+        },
+        searchDevApps: (state, action: PayloadAction<string>) => {
+            state.searchedDevApps = state.devApps.filter(app => app.name.includes(action.payload));
+        },
+        searchAccApps: (state, action: PayloadAction<string>) => {
+            state.searchedAccApps = state.accApps.filter(app => app.name.includes(action.payload));
+        },
+        clearSearch: (state) => {
+            state.searchedAccApps = [];
+            state.searchedDevApps = [];
+        },
+
         /* Set current resource reducers. */
         setCurrentApp: (state, action: PayloadAction<App>) => {
             state.currentApp = action.payload;
@@ -144,6 +188,14 @@ export const S2AReducer = createSlice({
         },
         setCurrentModalType: (state, action: PayloadAction<ModalType | null>) => {
             state.currentModalType = action.payload;
+        },
+
+        /* Mark resource publish reducers. */
+        markAppToPublish: (state, action: PayloadAction<App>) => {
+            state.currentAppToPublish = action.payload;
+        },
+        markAppToUnpublish: (state, action: PayloadAction<App>) => {
+            state.currentAppToUnpublish = action.payload;
         },
 
         /* Mark resource edit reducers. */
@@ -175,7 +227,19 @@ export const S2AReducer = createSlice({
         finishCreation: (state) => {
             state.currentModalType = null;
 
-            console.log("Finished/cancelled creation of resource.")
+            console.log("Finished/cancelled creation of resource.");
+        },
+        finishPublish: (state) => {
+            state.currentModalType = null;
+            state.currentAppToPublish = null;
+
+            console.log("Finished publishment of resource.");
+        },
+        finishUnpublish: (state) => {
+            state.currentModalType = null;
+            state.currentAppToUnpublish = null;
+
+            console.log("Finished unpublishment of resource.");
         },
         finishEdit: (state) => {    
             state.datasourceColumns = [];
@@ -198,7 +262,7 @@ export const S2AReducer = createSlice({
             state.currentTableviewToEdit = null;
             state.currentDetailviewToEdit = null;
 
-            console.log("Finished/cancelled edit of resource.")
+            console.log("Finished/cancelled edit of resource.");
         },
         finishDeletion: (state) => {
             state.currentModalType = null;
@@ -208,11 +272,17 @@ export const S2AReducer = createSlice({
             state.currentTableviewToDelete = null;
             state.currentDetailviewToDelete = null;
 
-            console.log("Finished/cancelled deletion of resource.")
+            console.log("Finished/cancelled deletion of resource.");
         },
         resetAll: (state) => {
             state.devApps = [],
             state.accApps = [],
+
+            state.searchedDevApps = [],
+            state.searchedAccApps = [],
+
+            state.showSuccessAlert = false,
+            state.showErrorAlert = false,
 
             state.datasources = [],
             state.datasourceColumns = [],
@@ -243,10 +313,17 @@ export const S2AReducer = createSlice({
             state.currentTableviewToDelete = null,
             state.currentDetailviewToDelete = null
 
-            console.log("Complete reset of store state.")
+            console.log("Complete reset of store state.");
         },
     }, 
     extraReducers(builder) {
+        builder.addCase(getIsGlobalDev.fulfilled, (state, action) => {
+            state.isGlobalDev = action.payload;
+        });
+        builder.addCase(getIsGlobalDev.rejected, (state, action) => {
+            state.isGlobalDev = false;
+        });
+
         builder.addCase(viewDevApps.fulfilled, (state, action) => {
             state.devApps = action.payload;
             console.log("Retrieved developable apps.");
@@ -265,30 +342,36 @@ export const S2AReducer = createSlice({
 
         builder.addCase(viewAppRoles.fulfilled, (state, action) => {
             state.roles = action.payload;
-            console.log("Retrieved app roles.")
+            console.log("Retrieved app roles.");
         });
         builder.addCase(viewAppRoles.rejected, (state, action) => {
             console.log(`viewAppRoles failed with the error ${action.error?.message}`);
         });
 
         builder.addCase(createApp.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Created app.");
         });
         builder.addCase(createApp.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`createApp failed with the error ${action.error?.message}`);
         });
 
         builder.addCase(editApp.fulfilled, (state, action) => {
-            console.log("Edited app.")
+            state.showSuccessAlert = true;
+            console.log("Edited app.");
         });
         builder.addCase(editApp.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`editApp failed with the error ${action.error?.message}`);
         });
 
         builder.addCase(deleteApp.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Deleted app.");
         });
         builder.addCase(deleteApp.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`deleteApp failed with the error ${action.error?.message}`);
         });
 
@@ -302,23 +385,29 @@ export const S2AReducer = createSlice({
         });
 
         builder.addCase(createDatasource.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Created Datasource");
         });
         builder.addCase(createDatasource.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`createDatasource failed with the error ${action.error?.message}`);
         });
 
         builder.addCase(editDatasource.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Edited datasource.");
         });
         builder.addCase(editDatasource.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`editDatasource failed with the error ${action.error?.message}`);
         });
 
         builder.addCase(deleteDatasource.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Deleted datasource.");
         });
         builder.addCase(deleteDatasource.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`deleteDatasource failed with the error ${action.error?.message}`);
         });
 
@@ -331,9 +420,11 @@ export const S2AReducer = createSlice({
         });
 
         builder.addCase(editDatasourceColumns.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Edited datasource columns.");
         });
         builder.addCase(editDatasourceColumns.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`editDatasourceColumns failed with the error ${action.error?.message}`);
         });
 
@@ -347,24 +438,51 @@ export const S2AReducer = createSlice({
 
         /** Modify views */
         builder.addCase(createTableview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Created tableview.");
         });
         builder.addCase(createTableview.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`createTableview failed with the error ${action.error?.message}`);
         });
 
         builder.addCase(editTableview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Edited tableview.");
         });   
         builder.addCase(editTableview.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`editTableview failed with the error  ${action.error?.message}`);
         });
 
         builder.addCase(deleteTableview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
             console.log("Deleted tableview.");
         });   
         builder.addCase(deleteTableview.rejected, (state, action) => {
+            state.showErrorAlert = true;
             console.log(`deleteTableview failed with the error ${action.error?.message}`);
+        });
+
+        builder.addCase(createDetailview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(createDetailview.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(editDetailview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });   
+        builder.addCase(editDetailview.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(deleteDetailview.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });   
+        builder.addCase(deleteDetailview.rejected, (state, action) => {
+            state.showErrorAlert = true;
         });
 
         builder.addCase(viewTableviewColumns.fulfilled, (state, action) => {
@@ -413,6 +531,45 @@ export const S2AReducer = createSlice({
         builder.addCase(viewDetailviewRoles.rejected, (state, action) => {
             console.log(`viewDetailviewRoles failed with the error ${action.error?.message}`);
         });
+
+        builder.addCase(editDetailviewColumns.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(editDetailviewColumns.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(editTableviewColumns.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(editTableviewColumns.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(editDetailviewRoles.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(editDetailviewRoles.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(editTableviewRoles.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(editTableviewRoles.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(publishApp.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(publishApp.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
+
+
+        /** User App additional reducers */
+        
     }
   }
 )
@@ -424,88 +581,101 @@ export interface IWebAppState {
     tableviews: Tableview[],
 
     currentDatasource: Datasource | null,
-
-    // The current view denotes the view that changes (add, edit, delete record) will apply to, since the user can only be on
-    // one view at a time.
-    currentView: View | null,
+    currentTableview: Tableview | null,
+    currentDetailview: Detailview | null,
     
     // The current modal type that is open on the screen (Add record modal, edit record modal, delete record modal)
     currentModalType: ModalType | null,
 
+    currentRecordIndex: number | null,
+
+    records: any[][],
+    columns: Column[],
+    columnData: any[][],
+    currentRecordData: any[],
+
+    currentRecordViewableData: any[],
+
+    firstRecordColumns: Column[],
+    editableColumns: Column[],
+    viewableColumns: Column[],
+
+    filterColumns: string[],
+    userFilterColumns: string[],
+
     // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
     // or clicks on the Delete Record button.
-    currentRecord: Record | null
+    currentRecord: Record | null,
+
+    errorMessage: string,
+
+    showSuccessAlert: boolean,
+    showErrorAlert: boolean
 }
 
 const webAppState: IWebAppState = {
     app: null,
     tableviews: [],
     currentDatasource: null,
-    currentView: null,
+    currentTableview: null,
+    currentDetailview: null,
     currentModalType: null,
-    currentRecord: null
+    currentRecord: null,
+
+    currentRecordIndex: null,
+
+    records: [],
+    columns: [],
+    columnData: [],
+    currentRecordData: [],
+
+    currentRecordViewableData: [],
+
+    /** Store the indexes of the columns contained by the first record in the current table */
+    firstRecordColumns: [],
+
+    editableColumns: [],
+    viewableColumns: [],
+
+    filterColumns: [],
+    userFilterColumns: [],
+
+    errorMessage: '',
+
+    showSuccessAlert: false,
+    showErrorAlert: false,
 }
 
 const webAppReducer = createSlice({
     name: 'webApp',
     initialState: webAppState,
     reducers: {
-        // Loads a view and sets it as the current (visible) view
-        loadView: (state, action: {payload: View, type: string}) => {
-            // TODO
-
-            // Make the API call to retrieve the view from the sheets database
-
-            // On successful response, update the current view to the responded data
-            // state.currentView = res.data
+        openApp: (state, action: PayloadAction<App>) => {
+            state.app = action.payload;
         },
-        setCurrentView: (state, action: {payload: View}) => {
-            state.currentView = action.payload;
+        returnToS2A: (state) => {
+            state.app = null;
         },
-        loadTableview: (state, action: {payload: Datasource}) => {
-            storeController.loadTableview(action.payload)
-            .then(() => {
 
-            })
-            .catch((error: Error) => {
-                console.log(error);
-            })
+        setRecords: (state, action: PayloadAction<any[][]>) => {
+            state.records = action.payload;
         },
-        // Called by the AddRecordModal when changes are submitted
-        addRecord: (state, action: {payload: Record, type: string}) => {
-            if (!state.currentDatasource) return;
-
-            storeController.addRecord(state.currentDatasource, action.payload)
-            .then(() => {
-                console.log("Added Record");
-            })
-            .catch((error: Error) => {
-                console.log(error);
-            })
+        webAppSetCurrentTableview: (state, action: PayloadAction<Tableview>) => {
+            state.currentTableview = action.payload;
         },
-        // Called by the DeleteRecordModal when changes are submitted
-        deleteRecord: (state) => {
-            if (!state.currentDatasource || !state.currentRecord) return;
-
-            storeController.deleteRecord(state.currentDatasource, state.currentRecord.id)
-            .then(() => {
-                console.log("Deleted Record");
-            })
-            .catch((error: Error) => {
-                console.log(error);
-            })
+        webAppSetCurrentDatasource: (state, action: PayloadAction<Datasource>) => {
+            state.currentDatasource = action.payload;
         },
-        // Called by the EditRecordModal when changes are submitted
-        editRecord: (state, action: {payload: Record}) => {
-            if (!state.currentDatasource || !state.currentRecord) return;
+        setCurrentRecordIndex: (state, action: PayloadAction<number>) => {  
+            state.currentRecordIndex = action.payload;
+        },
 
-            storeController.editRecord(state.currentDatasource, state.currentRecord.id, action.payload)
-            .then(() => {
-                console.log("Edited Record");
-            })
-            .catch((error: Error) => {
-                console.log(error);
-            })
+        setFirstRecordColumns: (state, action: PayloadAction<any[]>) => {
+            state.firstRecordColumns = action.payload;
+        },
+
+        setCurrentRecordViewableData: (state, action: PayloadAction<any[]>) => {
+            state.currentRecordViewableData = action.payload;
         },
         // Displays the AddRecord Modal
         showAddRecordModal: state => {
@@ -518,29 +688,130 @@ const webAppReducer = createSlice({
             state.currentRecord = action.payload;
         },
         // Displays the DeleteRecord Modal
-        showDeleteRecordModal: (state, action: {payload: Record}) => {
+        showDeleteRecordModal: (state) => {
             state.currentModalType = ModalType.DeleteRecordModal;
-
-            state.currentRecord = action.payload;
         },
         // Hides the current Modal
         hideWebAppModal: state => {
             state.currentModalType = null
+        },
+
+        clearErrorMessage: state => {
+            state.errorMessage = '';
+        },
+        hideWebAppSuccessAlert: state => {
+            state.showSuccessAlert = false;
+        },
+        hideWebAppErrorAlert: state => {
+            state.showErrorAlert = false;
+        },
+
+        goToUserAppHome: state => {
+            state.currentDatasource = null;
+            state.currentTableview = null;
+            state.currentDetailview = null;
+            state.currentModalType = null;
+            state.currentRecord = null;
+        
+            state.showSuccessAlert = false;
+            state.showErrorAlert = false;
         }
+    }, 
+    extraReducers(builder) {
+        builder.addCase(loadApp.fulfilled, (state, action) => {
+            state.tableviews = action.payload;
+        });
+        builder.addCase(loadApp.rejected, (state, action) => {
+            state.errorMessage = action.error.message;
+            state.showErrorAlert = true;
+        });
+
+        builder.addCase(loadTableview.fulfilled, (state, action) => {
+            const {columns, columnData, detailview, editableColumns, filterColumns, userFilterColumns} = action.payload;
+
+            state.columns = columns;
+            state.columnData = columnData;
+            state.currentDetailview = detailview;
+
+            state.filterColumns = filterColumns;
+            state.userFilterColumns = userFilterColumns;
+
+            const newRecords = [];
+            const columnKeys = Object.keys(columnData) as unknown as number[];
+            const firstRecordColumns = [];
+
+            for (let i = 1; i < columnData[columnKeys[0]].length; i++) {
+                let currRecord = [];
+                for (let j = 0; j < columnKeys.length; j++) {
+                    if (i == 1 && editableColumns[j] && editableColumns[j].editable) {
+                        /** Store the data for the first detail view */
+                        firstRecordColumns.push(columns[j]);
+                    }
+                    currRecord.push(columnData[columnKeys[j]][i]);
+                }
+                newRecords.push(currRecord);
+            }
+
+            state.records = newRecords;
+            state.firstRecordColumns = (newRecords.length == 0 ? editableColumns : firstRecordColumns);
+            state.editableColumns = editableColumns;
+        });
+        builder.addCase(loadTableview.rejected, (state, action) => {
+            state.columnData = [];
+            state.records = [];
+            // state.showErrorAlert = true;
+        });
+
+        builder.addCase(loadDetailview.fulfilled, (state, action) => {
+            const {columns, rowData} = action.payload;
+
+            state.viewableColumns = columns;
+            state.currentRecordData = rowData;
+        });
+        builder.addCase(loadDetailview.rejected, (state, action) => {
+            state.currentRecordData = [];
+            // state.showErrorAlert = true;
+        });
+
+        builder.addCase(addRecord.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(addRecord.rejected, (state, action) => {
+            state.showErrorAlert = true;
+
+            state.errorMessage = action.error.message;
+        });
+
+        builder.addCase(editRecord.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(editRecord.rejected, (state, action) => {
+            state.showErrorAlert = true;
+
+            state.errorMessage = action.error.message;
+        });
+
+        builder.addCase(deleteRecord.fulfilled, (state, action) => {
+            state.showSuccessAlert = true;
+        });
+        builder.addCase(deleteRecord.rejected, (state, action) => {
+            state.showErrorAlert = true;
+        });
     }
 })
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { 
+    hideSuccessAlert, hideErrorAlert, searchDevApps, searchAccApps, clearSearch,
     setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
-    markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, 
+    markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, markAppToPublish, markAppToUnpublish,
     markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
-    finishCreation, finishEdit, finishDeletion, resetAll
+    finishCreation, finishEdit, finishDeletion, finishPublish, finishUnpublish, resetAll
  } = S2AReducer.actions
 
-export const { setCurrentView, addRecord, editRecord, deleteRecord,
-    showAddRecordModal, showEditRecordModal, showDeleteRecordModal,
-    hideWebAppModal, loadTableview } = webAppReducer.actions;
+export const { openApp, returnToS2A, setCurrentRecordIndex, setFirstRecordColumns, setRecords, setCurrentRecordViewableData,
+    showAddRecordModal, showEditRecordModal, showDeleteRecordModal, webAppSetCurrentTableview, webAppSetCurrentDatasource,
+    hideWebAppModal, hideWebAppErrorAlert, clearErrorMessage, hideWebAppSuccessAlert, goToUserAppHome } = webAppReducer.actions;
 
 // Interface for pulling the reducer state. Prevents TypeScript type errors
 export interface StoreState {
@@ -548,11 +819,27 @@ export interface StoreState {
     webAppReducer: IWebAppState
 }
 
-const store = configureStore({
-    reducer: {
-        S2AReducer: S2AReducer.reducer,
-        webAppReducer: webAppReducer.reducer
-    }
-})  
+/* Combine reducers into single object. */
+const rootReducer: Reducer<StoreState, Action<any>> = combineReducers({
+    S2AReducer: S2AReducer.reducer,
+    webAppReducer: webAppReducer.reducer
+});
 
-export default store
+/* Setup configuration such that redux knows how to persist state in local storage. */
+const persistConfig = {
+    key: 'store',
+    storage,
+};
+
+/* Have redux generate new reducer functions that takes care of persistence. */
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+/* Create store object with new reducer. */
+const store = configureStore({
+    reducer: persistedReducer
+});
+
+/* Create persistor object that will be introduced into the DOM along with the store. */
+const persistor = persistStore(store);
+
+export {store, persistor}

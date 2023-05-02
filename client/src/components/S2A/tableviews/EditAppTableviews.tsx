@@ -2,12 +2,12 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { setCurrentTableview, setCurrentModalType, markTableviewToEdit, markTableviewToDelete, StoreState} from '../../../store/StoreContext';
+import { store, setCurrentTableview, setCurrentModalType, markTableviewToEdit, markTableviewToDelete, StoreState} from '../../../store/StoreContext';
 import { Datasource, Tableview, ModalType } from '../../../store/StoreTypes';
 
 import styles from "../../../styles/S2A/tableviews/EditAppTableviewsStyles";
 import EditAppNavBar from "../navbars/EditAppNavBar";
-import { Grid, IconButton } from '@mui/material';
+import { Grid, IconButton, Typography, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import PeopleIcon from '@mui/icons-material/People';
@@ -26,48 +26,6 @@ function EditAppTableviews() {
     /* Redux hooks into store. */
     const currApp = useSelector((state: StoreState) => state.S2AReducer.currentApp);
     const tableviews = useSelector((state: StoreState) => state.S2AReducer.tableviews);
-    
-    const datasource1: Datasource = {
-        id: 1,
-        name: "Sales Data",
-        spreadsheetUrl: "https://example.com/spreadsheet1",
-        sheetName: "Sheet1"
-    };
-    
-    const datasource2: Datasource = {
-        id: 2,
-        name: "Customer Data",
-        spreadsheetUrl: "https://example.com/spreadsheet2",
-        sheetName: "Sheet2"
-    };
-
-    /*const tableviews: Tableview[] = [
-        {
-            id: 1,
-            name: "Sales Table",
-            canView: true,
-            canAdd: true,
-            canDelete: true,
-            datasource: datasource1
-        },
-        {
-            id: 2,
-            name: "Customer Table",
-            canView: true,
-            canAdd: false,
-            canDelete: false,
-            datasource: datasource2
-        },
-        {
-            id: 3,
-            name: "Inventory Table",
-            canView: false,
-            canAdd: false,
-            canDelete: false,
-            datasource: datasource1
-        }
-    ];*/
-
     /* Event handlers. */
 
     /* If the delete icon next to a tableview is clicked. */
@@ -121,28 +79,31 @@ function EditAppTableviews() {
 
             {/* Edit App Tableviews Display */}
             <div style={styles.editAppTableviewsDisplay}>
+                <Typography sx={{fontSize: '32px', fontWeight: 'bold'}}>
+                    {`${currApp?.name} Table Views`}
+                </Typography>
                 <Grid sx={styles.grid} container spacing={2}>  
 
                 {/* Map each app tableview to a grid item. */}
                 {tableviews.map((tv) => (
                     <Grid item xs={1.5} key={tv.id}>
-                        <div style={styles.gridItemContainer}>
+                        <Box sx={{...styles.gridItemContainer, '&:hover': {'background': "#EEEEEE"}}}>
                             {tv.name}
 
                             {/* Delete, edit columns, edit roles, edit buttons for tableviews. */}
                             <IconButton id={tv.id.toString()} onClick={handleOpenDeleteModal} sx={styles.deleteTableviewButton} title="Delete">
-                                <DeleteIcon fontSize="small"/>
+                                <DeleteIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={tv.id.toString()} onClick={handleNavigateEditColumns} sx={styles.editTableviewColumnsButton} title="Edit Tableview Columns">
-                                <ViewColumnIcon fontSize="small"/>
+                                <ViewColumnIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={tv.id.toString()} onClick={handleNavigateEditRoles} sx={styles.editTableviewRolesButton} title="Edit Tableview Roles">
-                                <PeopleIcon fontSize="small"/>
+                                <PeopleIcon fontSize="medium"/>
                             </IconButton>
                             <IconButton id={tv.id.toString()} onClick={handleOpenEditModal} sx={styles.editTableviewButton} title="Edit Tableview">
-                                <EditIcon fontSize="small"/>
+                                <EditIcon fontSize="medium"/>
                             </IconButton>                         
-                        </div>
+                        </Box>
                     </Grid>
                 ))}
                 </Grid>

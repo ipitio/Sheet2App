@@ -38,11 +38,12 @@ const EditAppDatasourceColumnsStyles: StyleContainer = {
     display: 'flex',
     flexDirection: 'column',
     maxWidth: '200px',
-    height: '310px',
+    height: '375px',
     marginBottom: '25px',
     border: '2px solid #87CEEB',
     textAlign: 'center',
     position: 'relative',
+    borderRadius: '8px'
   },
   columnElement: {
     marginTop: '15px',

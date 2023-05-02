@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { finishDeletion, StoreState } from '../../../../store/StoreContext';
+import { store, finishDeletion, StoreState } from '../../../../store/StoreContext';
 import { ModalType } from '../../../../store/StoreTypes';
 
 import styles from '../../../../styles/S2A/modals/ModalStyles';
@@ -25,8 +25,10 @@ function DeleteAppModal() {
     /* If the user confirms deletion. */
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
         if(currentAppToDelete) {
-            dispatch(deleteApp());
-            dispatch(viewDevApps());
+            dispatch(deleteApp())
+            .then(() => {
+                dispatch(viewDevApps());
+            })
             handleCloseModal();
         }
     }

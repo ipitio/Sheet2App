@@ -18,25 +18,23 @@ const HomeStyles: StyleContainer = {
     padding: '2px',
   },
   gridItemContainer: {
-    height: '60px',
+    height: '20vh',
     border: '2px solid #87CEEB',
     textAlign: 'center',
     position: 'relative',
+    borderRadius: '8px',
+    fontSize: '36px',
+    textOverflow: 'ellipsis',
+    alignItems: 'center',
+    justifyContent: 'center',
+    display: 'flex',
+    flexDirection:'column'
   },
-  deleteAppButton: {
-    position: 'absolute',
-    top: '0',
-    left: '0',
-  },
-  editAppButton: {
-    position: 'absolute',
-    top: '0',
-    right: '0',
-  },
-  accessAppButton: {
-    position: 'absolute',
-    top: '0',
-    right: '0',
+  buttonContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginTop: '30px',
   },
 };
 

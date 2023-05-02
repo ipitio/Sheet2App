@@ -22,6 +22,7 @@ const EditAppDetailviewsStyles: StyleContainer = {
     border: '2px solid #87CEEB',
     textAlign: 'center',
     position: 'relative',
+    borderRadius: '8px'
   },
   deleteDetailviewButton: {
     position: 'absolute',

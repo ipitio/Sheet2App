@@ -5,13 +5,16 @@ urlpatterns = [
     path('getLoggedIn', views.get_logged_in),
     path('refreshAccess', views.refresh_access_tokens),
     path('createCreator', views.create_creator),
+    path('isGlobalDev', views.is_in_global_developer_list),
     
     path('getDevelopableApps', views.get_developable_apps),
-    path('getUsableApps', views.get_usable_apps),
+    path('getAccessibleApps', views.get_accessible_apps),
     
     path('createApp', views.create_app),
+    path('getAppById', views.get_app_by_id),
     path('editApp', views.edit_app),
     path('publishApp', views.publish_app),
+    path('unpublishApp', views.unpublish_app),
     path('deleteApp', views.delete_app),
     
     path('getAppRoles', views.get_app_roles),
@@ -48,7 +51,9 @@ urlpatterns = [
     
     path('addRecord', views.add_record),
     path('editRecord', views.edit_record),
+    path('deleteRecord', views.delete_record),
     
     path('loadApp', views.get_app_table_views_for_role),
-    path('loadTableview', views.load_table_view_column_data),
+    path('loadTableview', views.load_table_view),
+    path('loadDetailview', views.load_detail_view),
 ]

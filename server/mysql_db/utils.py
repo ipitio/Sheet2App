@@ -1,16 +1,6 @@
-import inflection
+from s2a_api.models import *
 from django.db.models import F
 from django.db.models import Case, When, BooleanField
-
-def to_camel_case(data):
-    camelcased_data = {}
-    for key, value in data.items():
-        if isinstance(key, str):
-            camelcase_key = inflection.camelize(key, False)
-            camelcased_data[camelcase_key] = value
-        else:
-            camelcased_data[key] = value
-    return camelcased_data
 
 
 def annotate_apps(apps):
@@ -38,7 +28,8 @@ def annotate_datasource_columns(columns):
         type=F("value_type"),
         isFilter=F("is_filter"),
         isUserFilter=F("is_user_filter"),
-        isEditFilter=F("is_edit_filter")
+        isEditFilter=F("is_edit_filter"),
+        isKey=F("is_key")
     )
     return columns
 
@@ -61,16 +52,22 @@ def annotate_table_view_viewable_columns(columns, table_view_id):
         isFilter=F("is_filter"),
         isUserFilter=F("is_user_filter"),
         isEditFilter=F("is_edit_filter"),
-        viewable=Case(
-            When(
-                tableviewviewablecolumn__table_view_id=table_view_id,
-                tableviewviewablecolumn__datasource_column_id=F("id"),
-                then=True
-            ),
-            default=False,
-            output_field=BooleanField(),
-        )
+        isKey=F("is_key")
+        # viewable=Case(
+        #     When(
+        #         tableviewviewablecolumn__table_view_id=table_view_id,
+        #         tableviewviewablecolumn__datasource_column_id=F("id"),
+        #         then=True
+        #     ),
+        #     default=False,
+        #     output_field=BooleanField(),
+        # )
     )
+    for column in columns:
+        column["viewable"] = TableViewViewableColumn.objects.filter(
+            table_view_id=table_view_id, datasource_column_id=column["id"]
+        ).exists()
+
     return columns
 
 
@@ -79,3 +76,27 @@ def annotate_detail_views(detail_views):
         canView=F("can_view"),
         canEdit=F("can_edit")
     )
+    return detail_views
+
+
+def annotate_detail_view_columns(columns, detail_view_id):
+    columns = columns.annotate(
+        initialValue=F("initial_value"),
+        isLabel=F("is_link_text"),
+        isRef=F("is_table_ref"),
+        type=F("value_type"), 
+        isFilter=F("is_filter"),
+        isUserFilter=F("is_user_filter"),
+        isEditFilter=F("is_edit_filter"),
+        isKey=F("is_key")
+    )
+    for column in columns:
+        column["viewable"] = DetailViewViewableColumn.objects.filter(
+            detail_view_id=detail_view_id, datasource_column_id=column["id"]
+        ).exists()
+        
+        column["editable"] = DetailViewEditableColumn.objects.filter(
+            detail_view_id=detail_view_id, datasource_column_id=column["id"]
+        ).exists()
+
+    return columns

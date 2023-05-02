@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { StoreState } from '../../../store/StoreContext';
+import { store, StoreState } from '../../../store/StoreContext';
 import { Column, ModalType } from '../../../store/StoreTypes';
 
 import styles from '../../../styles/S2A/datasources/EditAppDatasourceColumnsStyles';
 import EditAppInnerNavBar from "../navbars/EditAppInnerNavBar";
-import { Grid, Checkbox, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { Typography, Grid, Checkbox, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import { editDatasourceColumns, viewDatasourceColumns } from '../../../store/StoreController';
 
@@ -18,278 +18,24 @@ function EditAppDatasourceColumns() {
     }, []);
 
     /* Redux hooks into store. */
-    const datasourceColumns = useSelector((state: StoreState) => state.S2AReducer.datasourceColumns);
-    /*const datasourceColumns: Column[] = [
-        {
-          id: 1,
-          name: 'Column 1',
-          initialValue: 'Initial value 1',
-          isLabel: true,
-          isRef: false,
-          type: 'Text',
-          isFilter: true,
-          isUserFilter: false,
-          isEditFilter: true,
-          viewable: true,
-          editable: false
-        },
-        {
-          id: 2,
-          name: 'Column 2',
-          initialValue: 'Initial value 2',
-          isLabel: false,
-          isRef: true,
-          type: 'Number',
-          isFilter: false,
-          isUserFilter: true,
-          isEditFilter: false,
-          viewable: null,
-          editable: null
-        },
-        {
-          id: 3,
-          name: 'Column 3',
-          initialValue: '',
-          isLabel: false,
-          isRef: false,
-          type: 'URL',
-          isFilter: true,
-          isUserFilter: true,
-          isEditFilter: false,
-          viewable: false,
-          editable: true
-        },
-        {
-          id: 4,
-          name: 'Column 4',
-          initialValue: '',
-          isLabel: false,
-          isRef: false,
-          type: 'Text',
-          isFilter: true,
-          isUserFilter: false,
-          isEditFilter: false,
-          viewable: true,
-          editable: false
-        },
-        {
-          id: 5,
-          name: 'Column 5',
-          initialValue: '',
-          isLabel: true,
-          isRef: false,
-          type: 'Number',
-          isFilter: false,
-          isUserFilter: true,
-          isEditFilter: false,
-          viewable: null,
-          editable: null
-        },
-        {
-          id: 6,
-          name: 'Column 6',
-          initialValue: '',
-          isLabel: false,
-          isRef: true,
-          type: 'Text',
-          isFilter: true,
-          isUserFilter: true,
-          isEditFilter: false,
-          viewable: false,
-          editable: true
-        },
-        {
-          id: 7,
-          name: 'Column 7',
-          initialValue: '',
-          isLabel: false,
-          isRef: false,
-          type: 'URL',
-          isFilter: false,
-          isUserFilter: false,
-          isEditFilter: true,
-          viewable: true,
-          editable: true
-        },
-        {
-          id: 8,
-          name: 'Column 8',
-          initialValue: 'Initial value 8',
-          isLabel: true,
-          isRef: false,
-          type: 'Text',
-          isFilter: false,
-          isUserFilter: false,
-          isEditFilter: true,
-          viewable: false,
-          editable: false
-        },
-        {
-          id: 9,
-          name: 'Column 9',
-          initialValue: '',
-          isLabel: false,
-          isRef: true,
-          type: 'Number',
-          isFilter: true,
-          isUserFilter: true,
-          isEditFilter: false,
-          viewable: null,
-          editable: null
-        },
-        {
-          id: 10,
-          name: 'Column 10',
-          initialValue: '',
-          isLabel: false,
-          isRef: false,
-          type: 'Text',
-          isFilter: true,
-          isUserFilter: false,
-          isEditFilter: false,
-          viewable: false,
-          editable: true
-        },
-        {
-          id: 11,
-          name: 'Column 11',
-          initialValue: '',
-          isLabel: false,
-          isRef: false,
-          type: 'Text',
-          isFilter: true,
-          isUserFilter: true,
-          isEditFilter: false,
-          viewable: false,
-          editable: true
-        },
-        {
-          id: 12,
-          name: 'Column 12',
-          initialValue: '',
-          isLabel: false,
-          isRef: true,
-          type: 'Number',
-          isFilter: true,
-          isUserFilter: false,
-          isEditFilter: false,
-          viewable: null,
-          editable: null
-        },
-        {
-          id: 13,
-          name: 'Column 13',
-          initialValue: '',
-          isLabel: false,
-          isRef: false,
-          type: 'URL',
-          isFilter: false,
-          isUserFilter: false,
-          isEditFilter: true,
-          viewable: true,
-          editable: true
-        },
-        {
-          id: 14,
-          name: 'Column 14',
-          initialValue: '',
-          isLabel: true,
-          isRef: false,
-          type: 'Text',
-          isFilter: false,
-          isUserFilter: false,
-          isEditFilter: true,
-          viewable: false,
-          editable: false
-        },
-        {
-          id: 15,
-          name: 'Column 15',
-          initialValue: '',
-          isLabel: false,
-          isRef: true,
-          type: 'Number',
-          isFilter: true,
-          isUserFilter: true,
-          isEditFilter: false,
-          viewable: null,
-          editable: null
-        },
-        {
-          id: 16,
-          name: 'Column 16',
-          initialValue: '',
-          isLabel: false,
-          isRef: false,
-          type: 'Text',
-          isFilter: true,
-          isUserFilter: false,
-          isEditFilter: false,
-          viewable: false,
-          editable: true
-        },
-        {
-          id: 17,
-          name: 'Column 17',
-          initialValue: '',
-          isLabel: false,
-          isRef: false,
-          type: 'URL',
-          isFilter: true,
-          isUserFilter: true,
-          isEditFilter: false,
-          viewable: false,
-          editable: false
-        },
-        {
-          id: 18,
-          name: 'Column 18',
-          initialValue: '',
-          isLabel: false,
-          isRef: true,
-          type: 'Number',
-          isFilter: false,
-          isUserFilter: false,
-          isEditFilter: true,
-          viewable: true,
-          editable: true
-        },
-        {
-          id: 19,
-          name: 'Column 19',
-          initialValue: '',
-          isLabel: false,
-          isRef: false,
-          type: 'Text',
-          isFilter: false,
-          isUserFilter: true,
-          isEditFilter: false,
-          viewable: null,
-          editable: null
-        },
-        {
-          id: 20,
-          name: 'Column 20',
-          initialValue: '',
-          isLabel: true,
-          isRef: false,
-          type: 'URL',
-          isFilter: true,
-          isUserFilter: false,
-          isEditFilter: false,
-          viewable: false,
-          editable: true
-        },
-     ]*/
+    const storeDatasourceColumns = useSelector((state: StoreState) => state.S2AReducer.datasourceColumns);
+    const datasource = useSelector((state: StoreState) =>  state.S2AReducer.currentDatasource);
 
-    /* React state for datasource columns. */
-    const [changedColumns, setColumns] = useState<Column[]>(datasourceColumns);
-    
-    /* Event handlers. */
+    /* React state hooks. */
+    const [datasourceColumns, setDatasourceColumns] = useState(JSON.parse(JSON.stringify(storeDatasourceColumns)) as Column[]);
+    const [keyColExists, setKeyColExists] = useState(storeDatasourceColumns.some(col => col.isKey));
+    const [labelColExists, setLabelColExists] = useState(storeDatasourceColumns.some(col => col.isLabel));
+
+    /* Ensures that all state variables are updated upon change of store's datasourceColumns. */
+    useEffect(() => {
+        setDatasourceColumns(storeDatasourceColumns);
+        setKeyColExists(storeDatasourceColumns.some(col => col.isKey));
+        setLabelColExists(storeDatasourceColumns.some(col => col.isLabel));
+    }, [storeDatasourceColumns]);
 
     /* If the save button is clicked. */
     const handleSaveDatasourceColumns = (event: React.MouseEvent<HTMLButtonElement>) => {
-        dispatch(editDatasourceColumns(changedColumns))
+        dispatch(editDatasourceColumns(datasourceColumns))
         .then(() => {
           dispatch(viewDatasourceColumns());
         });
@@ -298,52 +44,72 @@ function EditAppDatasourceColumns() {
     /* If the initial value textfield is altered. */
     const handleInitialValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const initialValueTextfield = event.currentTarget as HTMLInputElement;
-        const colToEditIdx = datasourceColumns.findIndex(col => col.id === Number(initialValueTextfield.id));
+        const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(initialValueTextfield.id));
         const newInitialValue = initialValueTextfield.value;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...changedColumns];
+            const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], initialValue: newInitialValue};
-            setColumns(newColumns);
+        
+            setDatasourceColumns(newColumns);    
         }
     };
+
+    /* If the key checkbox is checked/unchecked. */
+    const handleKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const labelCheckbox = event.currentTarget as HTMLInputElement;
+        const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(labelCheckbox.id));
+        const newKey = labelCheckbox.checked;
+        
+        if(colToEditIdx != -1) {
+            const newColumns = [...datasourceColumns];
+            newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isKey: newKey};
+            
+            setDatasourceColumns(newColumns);    
+            setKeyColExists(newKey);
+        }
+    }
 
     /* If the label checkbox is checked/unchecked. */
     const handleLabelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const labelCheckbox = event.currentTarget as HTMLInputElement;
-        const colToEditIdx = datasourceColumns.findIndex(col => col.id === Number(labelCheckbox.id));
+        const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(labelCheckbox.id));
         const newLabel = labelCheckbox.checked;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...changedColumns];
+            const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isLabel: newLabel};
-            setColumns(newColumns);
+        
+            setDatasourceColumns(newColumns);    
+            setLabelColExists(newLabel);
         }
     }
 
     /* If the reference checkbox is checked/unchecked. */
     const handleRefChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const refCheckbox = event.currentTarget as HTMLInputElement;
-        const colToEditIdx = datasourceColumns.findIndex(col => col.id === Number(refCheckbox.id));
+        const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(refCheckbox.id));
         const newRef = refCheckbox.checked;
 
         if(colToEditIdx != -1) {
-            const newColumns = [...changedColumns];
+            const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], isRef: newRef};
-            setColumns(newColumns);
+          
+            setDatasourceColumns(newColumns);    
         }
     }
 
     /* If a type is selected from the drop-down menu. */
     const handleTypeChange = (event: React.MouseEvent<HTMLElement>) => {
         const typeSelect = event.currentTarget as HTMLSelectElement;
-        const colToEditIdx = datasourceColumns.findIndex(col => col.id === Number(typeSelect.id));
+        const colToEditIdx = storeDatasourceColumns.findIndex(col => col.id === Number(typeSelect.id));
         const newType = typeSelect.getAttribute("data-value") ?? "Number";
 
         if(colToEditIdx !== -1) {
-            const newColumns = [...changedColumns];
+            const newColumns = [...datasourceColumns];
             newColumns[colToEditIdx] = { ...newColumns[colToEditIdx], type: newType};
-            setColumns(newColumns); 
+
+            setDatasourceColumns(newColumns);    
         }
     }
 
@@ -354,6 +120,9 @@ function EditAppDatasourceColumns() {
 
             {/* Edit App Datasource Columns Display */}
             <div style={styles.editAppDatasourceColumnsDisplay}>
+                <Typography sx={{fontSize: '32px', fontWeight: 'bold'}}>
+                    {`Edit Columns for ${datasource?.name}`}
+                </Typography>
                 {/* Save Changes Button */}
                 <IconButton onClick={handleSaveDatasourceColumns} sx={styles.saveButton} title="Save">
                     {"Save Changes"}
@@ -362,7 +131,7 @@ function EditAppDatasourceColumns() {
 
                 <Grid sx={styles.grid} container spacing={2}>  
                     {/* Map each datasource column to a grid item. */}
-                    {changedColumns.map((col) => (
+                    {datasourceColumns.map((col) => (
                         <Grid item xs={1.5} key={col.id}>
                             <div style={styles.gridItemContainer}>
                                 {/* Name*/}
@@ -384,7 +153,12 @@ function EditAppDatasourceColumns() {
 
                                 {/* Label/Reference Checkboxes */}
                                 <FormControlLabel
-                                    control={<Checkbox id={col.id.toString()} onChange={handleLabelChange} checked={col.isLabel} sx={styles.columnCheckbox}/>}
+                                    control={<Checkbox id={col.id.toString()} onChange={handleKeyChange} disabled={!col.isKey && keyColExists} checked={col.isKey} sx={styles.columnCheckbox}/>}
+                                    label="Key"
+                                    sx={styles.columnElement}
+                                />
+                                <FormControlLabel
+                                    control={<Checkbox id={col.id.toString()} onChange={handleLabelChange} disabled={!col.isLabel && labelColExists} checked={col.isLabel} sx={styles.columnCheckbox}/>}
                                     label="Label"
                                     sx={styles.columnElement}
                                 />

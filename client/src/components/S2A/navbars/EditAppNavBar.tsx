@@ -2,12 +2,18 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import store, { setCurrentModalType, resetAll, StoreState } from '../../../store/StoreContext';
+import {store, setCurrentModalType, resetAll, StoreState } from '../../../store/StoreContext';
 import { ModalType } from '../../../store/StoreTypes'
 
 import styles from '../../../styles/S2A/navbars/EditAppNavBarStyles';
-import { AppBar, Toolbar, Typography, Button, IconButton, TextField } from '@mui/material';
+import { Box, AppBar, Toolbar, Typography, Button, IconButton, TextField } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
+import EqualizerIcon from '@mui/icons-material/Equalizer';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import ExpandIcon from '@mui/icons-material/Expand';
+import PeopleIcon from '@mui/icons-material/People';
+import SearchIcon from '@mui/icons-material/Search';
 import { editApp } from '../../../store/StoreController';
 
 
@@ -88,15 +94,15 @@ function EditAppNavBar() {
                 )}
 
                 {/* Edit App Name Textfield */}
-                <TextField onBlur={handleChangeAppName} sx={styles.editAppTextfield} variant="outlined" label="App Name"/>
+                <TextField onBlur={handleChangeAppName} sx={styles.editAppTextfield} variant="outlined" label={<Box sx={{display: 'flex'}}><SearchIcon/>{`App Name`}</Box>}/>
 
                 {/* Navigation Buttons */}
                 <div style={styles.buttonContainer}>
-                    <Button onClick={displayDatasources} sx={{ ...styles.displayButton, ...styles.displayDatasourcesButton }} color="inherit">App Data Sources</Button>
-                    <Button onClick={displayTableviews} sx={{ ...styles.displayButton, ...styles.displayTableviewsButton }} color="inherit">App Tableviews</Button>
-                    <Button onClick={displayDetailviews}sx={{ ...styles.displayButton, ...styles.displayDetailviewsButton }}  color="inherit">App Detailviews</Button>
-                    <Button onClick={displayRoles} sx={{ ...styles.displayButton, ...styles.displayRolesButton }} color="inherit">App Role Spreadsheet</Button>
-                    <Button onClick={handleReturn} sx={{ ...styles.displayButton, ...styles.displayReturnButton }}  color="inherit">Return To Home</Button>
+                    <Button onClick={displayDatasources} sx={{ ...styles.displayButton, ...styles.displayDatasourcesButton }} color="inherit"><Box sx={{display: 'flex'}}><EqualizerIcon/>{`Data Sources`}</Box></Button>
+                    <Button onClick={displayTableviews} sx={{ ...styles.displayButton, ...styles.displayTableviewsButton }} color="inherit"><Box sx={{display: 'flex'}}><TableChartIcon/>{`Table Views`}</Box></Button>
+                    <Button onClick={displayDetailviews}sx={{ ...styles.displayButton, ...styles.displayDetailviewsButton }}  color="inherit"><Box sx={{display: 'flex'}}><ExpandIcon/>{`Detail Views`}</Box></Button>
+                    <Button onClick={displayRoles} sx={{ ...styles.displayButton, ...styles.displayRolesButton }} color="inherit"><Box sx={{display: 'flex'}}><PeopleIcon/>{`Role Spreadsheet`}</Box></Button>
+                    <Button onClick={handleReturn} sx={{ ...styles.displayButton, ...styles.displayReturnButton }}  color="inherit"><Box sx={{display: 'flex'}}><HomeIcon/>{`Home`}</Box></Button>
                 </div>
             </Toolbar>
         </AppBar>

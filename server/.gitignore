@@ -7,3 +7,4 @@ token.json
 static/
 credentials_desktop.json
 credentials_web.json
+/logs
