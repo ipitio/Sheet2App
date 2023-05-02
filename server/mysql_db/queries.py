@@ -326,11 +326,11 @@ def get_table_views_for_roles(app_id, roles):
         
         # Verify that the change from Set() to list is correct and won't introduce bugs
         table_views_for_role = []
-        for role in roles:    
-            for table_view in table_views:
+        for table_view in table_views:
+            for role in roles:
                 if TableViewPerm.objects.filter(table_view_id=table_view["id"], role=role).exists():
                     table_views_for_role.append(table_view)
-        # table_views_for_role = list(table_views_for_role)
+                    break
         
         return table_views_for_role, HTTPStatus.OK
     except Exception as e:
