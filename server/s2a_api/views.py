@@ -1011,7 +1011,21 @@ def edit_detail_view(request):
 @csrf_exempt
 def delete_detail_view(request):
     body = json.loads(request.body)
+    tokens = parse_tokens(request)
     detail_view_id = body["detailview"]["id"]
+    spreadsheet_url = body["detailview"]["datasource"]["spreadsheetUrl"]
+
+    spreadsheet_id = sheets.utils.get_spreadsheet_id(spreadsheet_url)
+    gid = sheets.utils.get_gid(spreadsheet_url)
+
+    # Delete the filter columns from the google sheet
+    edit_filter_column, response_code = queries.get_detail_view_filter_column(detail_view_id=detail_view_id)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
+    
+    output, response_code = sheets_api.delete_column(tokens, spreadsheet_id, gid, edit_filter_column.column_index)
+    if response_code != HTTPStatus.OK:
+        return HttpResponse({}, status=response_code)
 
     output, response_code = queries.delete_detail_view(detail_view_id=detail_view_id)
     if response_code != HTTPStatus.OK:
@@ -1040,30 +1054,30 @@ def get_detail_view_columns(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    # detail_view_obj, response_code = queries.get_detail_view_by_id(detail_view_id=detail_view_id)
-    # if response_code != HTTPStatus.OK:
-    #     return HttpResponse({}, status=response_code)
-    
-    # edit_filter_column_data = None
-    
-    # if detail_view_obj.uses_edit_filter:
-    edit_filter_column_index = columns["edit_filter_column"].column_index
-    column_indexes = [edit_filter_column_index]
-    
-    column_data, response_code = sheets_api.get_column_data(
-        tokens=tokens, spreadsheet_id=spreadsheet_id,
-        sheet_id=gid, columns=column_indexes #, app_id=app["id"]
-    )
+    detail_view_obj, response_code = queries.get_detail_view_by_id(detail_view_id=detail_view_id)
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    true_false_dict = { 
-        "TRUE": True, 
-        "FALSE": False
-    }
+    edit_filter_column_data = None
     
-    edit_filter_column_data = column_data[0][1:]
-    edit_filter_column_data = [true_false_dict[cell_data] for cell_data in edit_filter_column_data]
+    if detail_view_obj.uses_edit_filter:
+        edit_filter_column_index = columns["edit_filter_column"].column_index
+        column_indexes = [edit_filter_column_index]
+        
+        column_data, response_code = sheets_api.get_column_data(
+            tokens=tokens, spreadsheet_id=spreadsheet_id,
+            sheet_id=gid, columns=column_indexes #, app_id=app["id"]
+        )
+        if response_code != HTTPStatus.OK:
+            return HttpResponse({}, status=response_code)
+        
+        true_false_dict = { 
+            "TRUE": True, 
+            "FALSE": False
+        }
+        
+        edit_filter_column_data = column_data[0][1:]
+        edit_filter_column_data = [true_false_dict[cell_data] for cell_data in edit_filter_column_data]
 
     res_body = {
         "detailviewColumns": columns["detail_columns"],
