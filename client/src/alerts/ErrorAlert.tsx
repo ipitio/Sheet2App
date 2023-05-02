@@ -17,7 +17,7 @@ export default function ErrorAlert() {
                 <Alert severity="error" onClose={() => {dispatch(hideErrorAlert()); dispatch(hideWebAppErrorAlert()); dispatch(clearErrorMessage())}} sx={{marginBottom: '0vh', display: 'flex', flexDirection: 'column'}}>
                     {`Error. Could not process your request. ${errorMessage}`}
 
-                    {errorMessage.includes("The datasource is not valid") &&
+                    {(errorMessage.includes("The datasource is not valid") || errorMessage.includes("Expected a")) &&
                         <Link href='/S2A/home/access'>
                             <Button startIcon={<KeyboardReturnIcon />} onClick={() => { dispatch(returnToS2A()); dispatch(hideWebAppErrorAlert()); dispatch(clearErrorMessage()); }}>
                                 Return To S2A
