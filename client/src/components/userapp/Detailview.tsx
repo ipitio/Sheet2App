@@ -60,8 +60,6 @@ function Detailview() {
         navigate(`/userapp/${app.id}/tableview/${currentTableview.id}`);
     }
 
-    console.log(editFilterColumn);
-
     return (
         <Box>
             <DatasourceNavBar />
