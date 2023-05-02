@@ -1054,30 +1054,30 @@ def get_detail_view_columns(request):
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    detail_view_obj, response_code = queries.get_detail_view_by_id(detail_view_id=detail_view_id)
+    # detail_view_obj, response_code = queries.get_detail_view_by_id(detail_view_id=detail_view_id)
+    # if response_code != HTTPStatus.OK:
+    #     return HttpResponse({}, status=response_code)
+    
+    # edit_filter_column_data = None
+    
+    # if detail_view_obj.uses_edit_filter:
+    edit_filter_column_index = columns["edit_filter_column"].column_index
+    column_indexes = [edit_filter_column_index]
+    
+    column_data, response_code = sheets_api.get_column_data(
+        tokens=tokens, spreadsheet_id=spreadsheet_id,
+        sheet_id=gid, columns=column_indexes #, app_id=app["id"]
+    )
     if response_code != HTTPStatus.OK:
         return HttpResponse({}, status=response_code)
     
-    edit_filter_column_data = None
+    true_false_dict = { 
+        "TRUE": True, 
+        "FALSE": False
+    }
     
-    if detail_view_obj.uses_edit_filter:
-        edit_filter_column_index = columns["edit_filter_column"].column_index
-        column_indexes = [edit_filter_column_index]
-        
-        column_data, response_code = sheets_api.get_column_data(
-            tokens=tokens, spreadsheet_id=spreadsheet_id,
-            sheet_id=gid, columns=column_indexes #, app_id=app["id"]
-        )
-        if response_code != HTTPStatus.OK:
-            return HttpResponse({}, status=response_code)
-        
-        true_false_dict = { 
-            "TRUE": True, 
-            "FALSE": False
-        }
-        
-        edit_filter_column_data = column_data[0][1:]
-        edit_filter_column_data = [true_false_dict[cell_data] for cell_data in edit_filter_column_data]
+    edit_filter_column_data = column_data[0][1:]
+    edit_filter_column_data = [true_false_dict[cell_data] for cell_data in edit_filter_column_data]
 
     res_body = {
         "detailviewColumns": columns["detail_columns"],
