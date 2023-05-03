@@ -25,7 +25,7 @@ pytestmark = pytest.mark.django_db
 class SheetsAPITestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.tokens = "" # get_creds() # commented this to let tests finish
+        cls.tokens = get_creds() # commented this to let tests finish
         cls.spreadsheet_id = create_spreadsheet(cls.tokens, "Test Spreadsheet")
         cls.sheet_id = 0
         cls.range = "A2:C2"
@@ -36,23 +36,23 @@ class SheetsAPITestCase(TestCase):
         cls.updated_row_data = ["1", "2", "3"]
 
     def test_get_data_when_sheet_id_is_none(self):
-        self.assertListEqual(get_data(self.tokens, self.spreadsheet_id), [["Some", "Test", "Data"]])
+        self.assertListEqual(get_data(self.tokens, self.spreadsheet_id)[0], [["Some", "Test", "Data"]])
 
     def test_get_data_when_sheet_range_is_none(self):
         self.assertListEqual(
-            get_data(self.spreadsheet_id, self.sheet_id),
+            get_data(self.spreadsheet_id, self.sheet_id)[0],
             [["Some", "Test", "Data"], ["Second", "Row", "Data"]],
         )
 
     def test_get_data(self):
         self.assertListEqual(
-            get_data(self.tokens, self.spreadsheet_id, self.sheet_id, self.range),
+            get_data(self.tokens, self.spreadsheet_id, self.sheet_id, self.range)[0],
             [["Second", "Row", "Data"]],
         )
 
     def test_get_column_data(self):
         self.assertListEqual(
-            get_column_data(self.tokens, self.spreadsheet_id, self.sheet_id, self.range),
+            get_column_data(self.tokens, self.spreadsheet_id, self.sheet_id, self.range)[0],
             [["Some", "Second"], ["Data", "Data"]],
         )
 
@@ -66,21 +66,21 @@ class SheetsAPITestCase(TestCase):
             self.column_index,
         )
         self.assertListEqual(
-            get_data(self.tokens, self.tokens, self.spreadsheet_id, self.sheet_id, "3:3"),
+            get_data(self.tokens, self.tokens, self.spreadsheet_id, self.sheet_id, "3:3")[0],
             [["Updated cell value"]],
         )
 
     def test_update_row(self):
         update_row(self.tokens, self.spreadsheet_id, self.sheet_id, self.updated_row_data, 3)
         self.assertListEqual(
-            get_data(self.tokens, self.spreadsheet_id, self.sheet_id, "4:4"), [["1", "2", "3"]]
+            get_data(self.tokens, self.spreadsheet_id, self.sheet_id, "4:4")[0], [["1", "2", "3"]]
         )
 
     # Insert a row containing Inserted Row Data into the last row of the spreadsheet
     def test_insert_row(self):
         insert_row(self.tokens, self.spreadsheet_id, self.sheet_id, ["Inserted", "Row", "Data"])
         self.assertListEqual(
-            get_data(self.tokens, self.spreadsheet_id, self.sheet_id, "5:5"),
+            get_data(self.tokens, self.spreadsheet_id, self.sheet_id, "5:5")[0],
             [["Inserted", "Row", "Data"]],
         )
 
@@ -88,7 +88,7 @@ class SheetsAPITestCase(TestCase):
     # at index 5 is now empty.
     def test_delete_row(self):
         delete_row(self.tokens, self.spreadsheet_id, self.sheet_id, 5)
-        self.assertListEqual(get_data(self.tokens, self.spreadsheet_id, self.sheet_id, "5:5"), [[]])
+        self.assertListEqual(get_data(self.tokens, self.spreadsheet_id, self.sheet_id, "5:5")[0], [[]])
 
 
 # Model tests
@@ -472,18 +472,20 @@ class CreateDatasourceTest(TestCase):
         )
 
     def test_create_datasource(self):
+        def ins2dic(obj):
+            SubDic = obj.__dict__
+            del SubDic['_state']
+            return SubDic
         creator = Creator.objects.get(email="data@app.com")
         app = Application.objects.filter(creator=creator).first()
         response = self.client.post(
             "/createDatasource",
-            json.dumps(
-                {
-                    "appID": app,
-                    "spreadsheetID": "1",
-                    "gid": 1,
+            json.dumps({
+                    "app": ins2dic(app),
+                    "spreadsheetUrl": "com",
+                    "sheetName": "Test Sheet",
                     "datasourceName": "Test Data",
-                }
-            ),
+                }),
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
@@ -503,13 +505,19 @@ class CreateTableViewTest(TestCase):
         Datasource.objects.create(app=app, spreadsheet_url="com", spreadsheet_id="1", gid=1, name="Test Data")
 
     def test_create_table_view(self):
+        def ins2dic(obj):
+            SubDic = obj.__dict__
+            del SubDic['_state']
+            return SubDic
         creator = Creator.objects.get(email="table@view.com")
         app = Application.objects.filter(creator=creator).first()
         response = self.client.post(
             "/createTableView",
             json.dumps(
                 {
-                    "appID": app,
+                    "app": ins2dic(app),
+                    "tableViewName": "Test Table View",
+                    "datasource": ins2dic(Datasource.objects.filter(app=app).first()),
                 }
             ),
             content_type="application/json",

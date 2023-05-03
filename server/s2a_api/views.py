@@ -51,7 +51,11 @@ def setup_logger(app_id):
 
 def parse_tokens(request):
     headers = request.headers
+    if "Authorization" not in headers:
+        return None
     auth_header = headers["Authorization"].split(" ")
+    if len(auth_header) != 3:
+        return None
     tokens = {
         "access_token": auth_header[1],
         "refresh_token": auth_header[2]
