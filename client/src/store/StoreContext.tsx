@@ -158,6 +158,9 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
+        displayEmailAlert: (state) => {
+            state.showEmailAlert = true;
+        },
         hideEmailAlert: (state) => {
             state.showEmailAlert = false;
         },
@@ -816,7 +819,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { 
-    hideEmailAlert, hideSuccessAlert, hideErrorAlert, searchDevApps, searchAccApps, clearSearch,
+    hideEmailAlert, hideSuccessAlert, hideErrorAlert, searchDevApps, searchAccApps, clearSearch, displayEmailAlert,
     setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
     markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, markAppToPublish, markAppToUnpublish,
     markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 
