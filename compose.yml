@@ -39,6 +39,7 @@ services:
 
   node:
     container_name: node
+    command: bash -c "npm install --force && npm start"
     restart: on-failure
     build: ./client
     ports:
