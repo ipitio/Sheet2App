@@ -19,7 +19,7 @@ ENV OAUTH_CLIENT_SECRET=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
 ENV CREDS_JSON=creds
 ENV TOKEN_JSON=token
 
-ENV GLOBAL_DEVELOPER_LIST_URL=https://docs.google.com/spreadsheets/d/17phPdqLIJJ_ar0jUV9UMqy5JdrKlJHPK-8J1R6M-Hwg/edit
+ENV GLOBAL_DEVELOPER_LIST_URL=https://docs.google.com/spreadsheets/d/1LxcOSWaAF_bdrXWIYH8e7Kc2KN5aOwDSlYcgqgerZFc/edit#gid=0
 
 ENV REDIS_HOST=redis
 

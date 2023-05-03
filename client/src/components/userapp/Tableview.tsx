@@ -64,10 +64,13 @@ function Tableview() {
         return (
             record.map((entry, index) => (
                 <Grid item xs={1} sx={{ bgcolor: bgColor, borderBottomLeftRadius: rounded, borderBottomRightRadius: rounded }}>
-                    {columns && columns[index] && columns[index].type == 'URL' ?
+                    {columns && columns[index] && columns[index].type == 'URL' ? (
                         <Typography sx={{ textAlign: 'center' }}><NavLink to={entry} target="_blank">{entry}</NavLink></Typography>
-                        :
+                    ) : columns && columns[index] && columns[index].isRef ? (
+                        <Typography sx={{ textAlign: 'center' }}><NavLink to={entry} target="_blank">{entry}</NavLink></Typography>
+                    ) : (
                         <Typography sx={{ textAlign: 'center' }}>{entry}</Typography>
+                    )
                     }
                 </Grid>
             ))
@@ -102,7 +105,7 @@ function Tableview() {
 
         formattedData[i].push(
             <Grid item xs={0.5} sx={{justifyContent: 'center', bgcolor: bgColor}}>
-                <Button sx={{ justifyContent: 'center'}} onClick={() => { handleShowDeleteModal(i + 1) }}>
+                <Button sx={{ justifyContent: 'center'}} onClick={() => { handleShowDeleteModal(i + 1)}} disabled={!store.getState().webAppReducer.currentTableview.canDelete}>
                     <DeleteOutlineIcon />
                     <Typography>
                         Delete
@@ -130,7 +133,7 @@ function Tableview() {
         </Grid >
 
     const addRecordButton = (
-        <Button startIcon={<AddCircleOutlineIcon />} sx={{ border: 1, width: '15%', marginTop: '32px', bgcolor: '#1976d2', color: 'white', '&:hover': { 'background': "#0062A5" } }} onClick={handleShowAddRecordModal}>
+        <Button startIcon={<AddCircleOutlineIcon />} sx={{ border: 1, width: '15%', marginTop: '32px', bgcolor: '#1976d2', color: 'white', '&:hover': { 'background': "#0062A5" } }} onClick={handleShowAddRecordModal} disabled={!store.getState().webAppReducer.currentTableview.canAdd}>
             <Typography>
                 Add Record
             </Typography>

@@ -25,6 +25,7 @@ function HomeDevelop() {
     /* Redux hooks into store. */
     const devApps = useSelector((state: StoreState) => state.S2AReducer.devApps);
     const searchedDevApps = useSelector((state: StoreState) => state.S2AReducer.searchedDevApps);
+    const isGlobalDev = useSelector((state: StoreState) => state.S2AReducer.isGlobalDev);
 
     /* Event handlers. */
 
@@ -63,13 +64,13 @@ function HomeDevelop() {
                             
                             {/* Edit, publish, and delete buttons for apps. */}
                             <Box sx={styles.buttonContainer}>
-                                <Button onClick={() => { handleOpenDeleteModal(app) }} title="Delete" startIcon={<DeleteIcon fontSize="medium" />}>
+                                <Button onClick={() => { handleOpenDeleteModal(app) }} title="Delete" startIcon={<DeleteIcon fontSize="medium" />} disabled={!isGlobalDev}>
                                     Delete 
                                 </Button>
-                                <Button onClick={() => { handleEdit(app) }} title="Edit" startIcon={<EditIcon fontSize="medium" />}>
+                                <Button onClick={() => { handleEdit(app) }} title="Edit" startIcon={<EditIcon fontSize="medium" />} disabled={!isGlobalDev}>
                                     Edit
                                 </Button>
-                                <Button onClick={() => { handlePublish(app) }} title="Publish" startIcon={<PublishIcon fontSize="medium" />} disabled={!app.roleMemUrl}>
+                                <Button onClick={() => { handlePublish(app) }} title="Publish" startIcon={<PublishIcon fontSize="medium" />} disabled={!app.roleMemUrl || !isGlobalDev}>
                                     Publish
                                 </Button>
                             </Box>

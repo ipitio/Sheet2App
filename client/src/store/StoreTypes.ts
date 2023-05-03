@@ -17,14 +17,16 @@ export interface Column {
 	id: number;
 	name: string;
 	initialValue: string;
+	type: string;
+	ref: Datasource | null;
+
+	isKey: boolean;
 	isLabel: boolean;
 	isRef: boolean;
-	type: string;
 	
 	isFilter: boolean;
 	isUserFilter: boolean;  
 	isEditFilter: boolean;
-	isKey: boolean;
 
     viewable: boolean | null;
     editable: boolean | null;
@@ -70,6 +72,8 @@ export enum ModalType {
     CreateDatasourceModal,
 	EditDatasourceModal,
 	DeleteDatasourceModal,
+
+	EditDatasourceLabelColumnModal,
 
     CreateTableviewModal,
 	EditTableviewModal,

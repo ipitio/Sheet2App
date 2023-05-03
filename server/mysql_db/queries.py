@@ -320,17 +320,17 @@ def get_table_view_by_id(table_view_id):
     
 def get_table_views_for_roles(app_id, roles):
     try:
-        table_views = TableView.objects.filter(app_id=app_id).values()
+        table_views = TableView.objects.filter(app_id=app_id, can_view=True).values()
         table_views = mysql_db.utils.annotate_table_views(table_views)
         table_views = list(table_views)
         
         # Verify that the change from Set() to list is correct and won't introduce bugs
         table_views_for_role = []
-        for role in roles:    
-            for table_view in table_views:
+        for table_view in table_views:
+            for role in roles:
                 if TableViewPerm.objects.filter(table_view_id=table_view["id"], role=role).exists():
                     table_views_for_role.append(table_view)
-        # table_views_for_role = list(table_views_for_role)
+                    break
         
         return table_views_for_role, HTTPStatus.OK
     except Exception as e:
@@ -441,7 +441,7 @@ def get_detail_view_by_id(detail_view_id):
     
 def get_detail_view_for_role(datasource_id, roles):
     try:
-        detail_views = DetailView.objects.filter(datasource_id=datasource_id).values()
+        detail_views = DetailView.objects.filter(datasource_id=datasource_id, can_view=True).values()
         detail_views = mysql_db.utils.annotate_detail_views(detail_views)
         detail_views = list(detail_views)
         
