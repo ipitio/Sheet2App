@@ -389,6 +389,7 @@ def get_table_view_columns(table_view_id):
 def get_table_view_viewable_columns(table_view_id):
     try:
         columns = DatasourceColumn.objects.filter(tableviewviewablecolumn__table_view_id=table_view_id)
+        columns = columns.order_by("column_index")
         columns = columns.values()
         columns = mysql_db.utils.annotate_table_view_viewable_columns(columns, table_view_id)
         columns = list(columns)
@@ -498,6 +499,7 @@ def get_detail_view_columns(detail_view_id):
 def get_detail_view_viewable_columns(detail_view_id):
     try:
         columns = DatasourceColumn.objects.filter(detailviewviewablecolumn__detail_view_id=detail_view_id)
+        columns = columns.order_by("column_index")
         columns = columns.values()
         columns = mysql_db.utils.annotate_detail_view_columns(columns, detail_view_id)
         columns = list(columns)
