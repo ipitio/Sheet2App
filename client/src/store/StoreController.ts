@@ -906,8 +906,9 @@ export const loadDetailview = createAsyncThunk('webApp/loadDetailview', async() 
         const data = await res.json();
         const columns = data.columns;
         const rowData = data.rowData;
+        const editFilterColumn = data.editFilterColumn;
 
-        return {columns, rowData}; 
+        return {columns, rowData, editFilterColumn}; 
     }
     catch(err) {
         return Promise.reject(`loadDetailview failed with the error: ${err}`);

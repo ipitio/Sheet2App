@@ -1422,7 +1422,7 @@ def get_app_table_views_for_role(request):
         app_id=app_id, roles=roles
     )
     if response_code != HTTPStatus.OK:
-        return HttpResponse({}, status=response_code)
+        return HttpResponse('429 Error. Out of API calls.', status=response_code)
     
     for table_view in table_views:
         datasource, response_code = queries.get_datasource_by_table_view_id(table_view_id=table_view["id"])
@@ -1433,6 +1433,9 @@ def get_app_table_views_for_role(request):
         columns, response_code = queries.get_datasource_columns_by_datasource_id(datasource_id=datasource["id"])
         data, response_code = sheets_api.get_data(tokens=tokens, spreadsheet_id=spreadsheet_id, sheet_id=datasource["gid"], app_id=app_id)
         
+        if response_code != HTTPStatus.OK:
+            return HttpResponse('429 Error. Out of API calls.', status=response_code)
+    
         for column in columns:
             column_index = column["column_index"]
             column_name = column["name"]

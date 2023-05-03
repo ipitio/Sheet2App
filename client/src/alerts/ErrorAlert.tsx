@@ -13,7 +13,7 @@ export default function ErrorAlert() {
 
     return (
         <>
-            {(S2AShowErrorAlert || userAppShowErrorAlert) &&
+            {((S2AShowErrorAlert || userAppShowErrorAlert) && errorMessage) &&
                 <Alert severity="error" onClose={() => {dispatch(hideErrorAlert()); dispatch(hideWebAppErrorAlert()); dispatch(clearErrorMessage())}} sx={{marginBottom: '0vh', display: 'flex', flexDirection: 'column'}}>
                     {`Error. Could not process your request. ${errorMessage}`}
 

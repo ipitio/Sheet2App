@@ -101,6 +101,7 @@ export interface IS2AState {
     /* The detailview marked for deletion on confirmation. */
     currentDetailviewToDelete: Detailview | null,
 
+    showEmailAlert: boolean,
     showSuccessAlert: boolean,
     showErrorAlert: boolean
 }
@@ -148,6 +149,7 @@ const S2AState: IS2AState = {
     currentTableviewToDelete: null,
     currentDetailviewToDelete: null,
 
+    showEmailAlert: true,
     showSuccessAlert: false,
     showErrorAlert: false
 }
@@ -156,6 +158,12 @@ export const S2AReducer = createSlice({
     name: 'S2A',
     initialState: S2AState,
     reducers: {
+        displayEmailAlert: (state) => {
+            state.showEmailAlert = true;
+        },
+        hideEmailAlert: (state) => {
+            state.showEmailAlert = false;
+        },
         hideSuccessAlert: (state) => {
             state.showSuccessAlert = false;
         },
@@ -283,6 +291,7 @@ export const S2AReducer = createSlice({
 
             state.showSuccessAlert = false,
             state.showErrorAlert = false,
+            state.showEmailAlert = true,
 
             state.datasources = [],
             state.datasourceColumns = [],
@@ -603,6 +612,8 @@ export interface IWebAppState {
     filterColumns: string[],
     userFilterColumns: string[],
 
+    editFilterColumn: string[],
+
     // The current Record being edited/deleted. This will be set whenever an end user opens up a record to view it,
     // or clicks on the Delete Record button.
     currentRecord: Record | null,
@@ -639,6 +650,8 @@ const webAppState: IWebAppState = {
 
     filterColumns: [],
     userFilterColumns: [],
+
+    editFilterColumn: [],
 
     errorMessage: '',
 
@@ -759,18 +772,22 @@ const webAppReducer = createSlice({
         builder.addCase(loadTableview.rejected, (state, action) => {
             state.columnData = [];
             state.records = [];
-            // state.showErrorAlert = true;
+
+            state.errorMessage = "429 Error: out of API requests"
+            state.showErrorAlert = true;
         });
 
-        builder.addCase(loadDetailview.fulfilled, (state, action) => {
-            const {columns, rowData} = action.payload;
+        builder.addCase(loadDetailview.fulfilled, (state, action) => {            
+            const {columns, rowData, editFilterColumn} = action.payload;
 
             state.viewableColumns = columns;
             state.currentRecordData = rowData;
+            state.editFilterColumn = editFilterColumn;
         });
         builder.addCase(loadDetailview.rejected, (state, action) => {
             state.currentRecordData = [];
-            // state.showErrorAlert = true;
+            state.errorMessage = "429 Error: out of API requests"
+            state.showErrorAlert = true;
         });
 
         builder.addCase(addRecord.fulfilled, (state, action) => {
@@ -802,7 +819,7 @@ const webAppReducer = createSlice({
 
 // TODO: EXPORT ALL OF THE REDUCER ACTIONS SO THEY ARE ACCESSIBLE IN DISPATCH CALLS
 export const { 
-    hideSuccessAlert, hideErrorAlert, searchDevApps, searchAccApps, clearSearch,
+    hideEmailAlert, hideSuccessAlert, hideErrorAlert, searchDevApps, searchAccApps, clearSearch, displayEmailAlert,
     setCurrentApp, setCurrentDatasource, setCurrentTableview, setCurrentDetailview, setCurrentModalType,
     markDatasourceToEdit, markTableviewToEdit, markDetailviewToEdit, markAppToPublish, markAppToUnpublish,
     markAppToDelete, markDatasourceToDelete, markTableviewToDelete, markDetailviewToDelete, 

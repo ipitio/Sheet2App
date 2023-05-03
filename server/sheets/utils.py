@@ -35,7 +35,10 @@ def generate_row_data(row_data):
 
 def get_spreadsheet_value_type(value):
     if isinstance(value, str):
-        return "stringValue"
+        if (len(value) >= 1 and value[0] == '='):
+            return 'formulaValue'
+        else:
+            return "stringValue"
     elif isinstance(value, bool):
         return "boolValue"
     elif isinstance(value, int):

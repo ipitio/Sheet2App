@@ -8,7 +8,7 @@ import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal, TextField } from '@mui/material';
 import { createApp, viewDevApps } from '../../../../store/StoreController';
 
-function CreateAppModal() {
+function CreateAppModal({ testOpen }: { testOpen?: boolean }) {
     const dispatch = useDispatch<typeof store.dispatch>();
 
     /* Redux hooks into store. */
@@ -39,7 +39,7 @@ function CreateAppModal() {
     }
         
     return (
-        <Modal open={currentModalType == ModalType.CreateAppModal} onClose={handleCloseModal} sx={styles.modal}>
+        <Modal open={testOpen || currentModalType == ModalType.CreateAppModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
                 
                 {/* App Name TextField */}
