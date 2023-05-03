@@ -13,36 +13,23 @@ from googleapiclient.errors import HttpError
 
 from openpyxl.utils.cell import get_column_letter
 from .utils import *
-from .auth import get_credentials
+# from .auth import get_creds
+from google.oauth2 import service_account
 
 # Allow the API to have complete control over the spreadsheet with this scope
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 # Env variable for credentials.
 # TODO: Migrate to dynamic token passed from end user request
-CREDENTIALS = "sheets/credentials.json"
+CREDENTIALS = "sheets/service.json"
 
 
 # Function to retrieve the token from local development environment. This is mainly for testing.
 # TODO: remove this function to pull authentication token from request itself.
 def get_creds():
-    creds = None
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-    elif os.getenv("TOKEN_JSON"):
-        creds = get_credentials(json.loads(os.getenv("TOKEN_JSON", "")))
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if not os.path.exists(CREDENTIALS):
-            with open(CREDENTIALS, "w") as f:
-                f.write(os.getenv("CREDS_JSON", ""))
-        flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS, SCOPES)
-        creds = flow.run_local_server(port=8001, open_browser=False)
-        # Save the credentials for the next run
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
-
-    return creds
+    credentials = service_account.Credentials.from_service_account_file(
+        CREDENTIALS, scopes=SCOPES)
+    return credentials
 
 
 # Log updates, errors, etc.
@@ -69,7 +56,7 @@ def setup_logger(app_id):
 def create_spreadsheet(tokens, title, app_id=None):
     logger = setup_logger(app_id)
     try:
-        service = build("sheets", "v4", credentials=get_credentials(tokens))
+        service = build("sheets", "v4", credentials=get_creds())
 
         # Pass in the desired title of the spreadsheet into the call body.
         spreadsheet = {"properties": {"title": title}}
@@ -95,7 +82,7 @@ def create_spreadsheet(tokens, title, app_id=None):
 def get_data(tokens, spreadsheet_id, sheet_id=None, range=None, majorDimension="ROWS", app_id=None):
     logger = setup_logger(app_id)
     try:
-        service = build("sheets", "v4", credentials=get_credentials(tokens))
+        service = build("sheets", "v4", credentials=get_creds())
 
         # Call the Sheets API
         sheet = service.spreadsheets()
@@ -157,7 +144,7 @@ def get_data(tokens, spreadsheet_id, sheet_id=None, range=None, majorDimension="
 def get_column_data(tokens, spreadsheet_id, sheet_id, columns, app_id=None):
     logger = setup_logger(app_id)
     try:
-        service = build("sheets", "v4", credentials=get_credentials(tokens))
+        service = build("sheets", "v4", credentials=get_creds())
 
         # Call the Sheets API
         sheet = service.spreadsheets()
@@ -212,7 +199,7 @@ def update_cell(tokens, spreadsheet_id, sheet_id, value_to_update, row_index, co
     # Get the logger for the specific app
     logger = setup_logger(app_id)
     try:
-        service = build("sheets", "v4", credentials=get_credentials(tokens))
+        service = build("sheets", "v4", credentials=get_creds())
 
         # Retrieve the type of value of value_to_update as a string parsable by the
         # Google Sheets API.
@@ -268,7 +255,7 @@ def update_cell(tokens, spreadsheet_id, sheet_id, value_to_update, row_index, co
 def update_row(tokens, spreadsheet_id, sheet_id, updated_row_data, row_index, app_id=None):
     logger = setup_logger(app_id)
     try:
-        service = build("sheets", "v4", credentials=get_credentials(tokens))
+        service = build("sheets", "v4", credentials=get_creds())
 
         # Create the request body for the API call
         request_body = {
@@ -324,7 +311,7 @@ def insert_row(tokens, spreadsheet_id, sheet_id, row_to_insert, row_index=-1, ap
     if row_index == -1:
         row_index = get_num_rows(tokens, spreadsheet_id, sheet_id)
     try:
-        service = build("sheets", "v4", credentials=get_credentials(tokens))
+        service = build("sheets", "v4", credentials=get_creds())
 
         # Create the request body for the API call
         request_body = {
@@ -386,7 +373,7 @@ def insert_row(tokens, spreadsheet_id, sheet_id, row_to_insert, row_index=-1, ap
 def delete_row(tokens, spreadsheet_id, sheet_id, row_index, app_id=None):
     logger = setup_logger(app_id)
     try:
-        service = build("sheets", "v4", credentials=get_credentials(tokens))
+        service = build("sheets", "v4", credentials=get_creds())
 
         # Generate the request body
         request_body = {
@@ -428,7 +415,7 @@ def delete_row(tokens, spreadsheet_id, sheet_id, row_index, app_id=None):
 def write_column(tokens, spreadsheet_id, sheet_id, column_data, column_index, app_id=None):
     logger = setup_logger(app_id)
     try:
-        service = build('sheets', 'v4', credentials=get_credentials(tokens))
+        service = build('sheets', 'v4', credentials=get_creds())
         
         sheet = service.spreadsheets()
         sheet_name = ""
@@ -470,7 +457,7 @@ def write_column(tokens, spreadsheet_id, sheet_id, column_data, column_index, ap
 def delete_column(tokens, spreadsheet_id, sheet_id, column_index, app_id=None):
     logger = setup_logger(app_id)
     try:
-        service = build('sheets', 'v4', credentials=get_credentials(tokens))
+        service = build('sheets', 'v4', credentials=get_creds())
         
         sheet = service.spreadsheets()
         sheet_name = ""
@@ -506,7 +493,7 @@ def delete_column(tokens, spreadsheet_id, sheet_id, column_index, app_id=None):
 def get_metadata(tokens, spreadsheet_id, app_id=None):
     logger = setup_logger(app_id)
     try:
-        service = build("sheets", "v4", credentials=get_credentials(tokens))
+        service = build("sheets", "v4", credentials=get_creds())
 
         sheet_metadata = (
             service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
@@ -525,7 +512,7 @@ def get_metadata(tokens, spreadsheet_id, app_id=None):
 def get_num_rows(tokens, spreadsheet_id, sheet_id, app_id=None):
     logger = setup_logger(app_id)
     try:
-        service = build("sheets", "v4", credentials=get_credentials(tokens))
+        service = build("sheets", "v4", credentials=get_creds())
 
         # Get the metadata of the spreadsheet
         sheet_metadata = (
