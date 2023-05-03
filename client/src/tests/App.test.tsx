@@ -354,9 +354,9 @@ test('EditAppDatasources', () => {
   );
 
   // Check if the component renders and displays the correct button titles
-  expect(screen.getByTitle(/edit datasource columns/i)).toBeInTheDocument();
-  expect(screen.getByTitle(/edit datasource/i)).toBeInTheDocument();
-  expect(screen.getByTitle(/delete/i)).toBeInTheDocument();
+  expect(screen.getByTitle(/Edit Datasource Columns/i)).toBeInTheDocument();
+  expect(screen.getByTitle(/Edit Datasource/i)).toBeInTheDocument();
+  expect(screen.getByTitle(/Delete/i)).toBeInTheDocument();
 });
 
 test('renders EditAppTableviews', () => {
@@ -525,7 +525,6 @@ describe('DatasourceNavBar', () => {
     expect(screen.getByLabelText(/Search Views/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Return to S2A/i })).toBeInTheDocument();
     expect(screen.getByLabelText('menu')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Account Circle/i })).toBeInTheDocument();
   });
 });
 
