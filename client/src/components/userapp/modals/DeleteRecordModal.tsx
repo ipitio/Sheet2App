@@ -22,7 +22,7 @@ function DeleteRecordModal() {
 
     return (
         <Box
-            id='delete-record-modal'
+            id='delete-record-modal' data-testid='delete-record-modal'
         >
             <Dialog open={currentModalType === ModalType.DeleteRecordModal} onClose={() => dispatch(hideWebAppModal())}>
                 <DialogTitle>

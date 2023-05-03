@@ -33,7 +33,7 @@ function AddRecordModal() {
     }
 
     return (
-        <Box id='add-record-modal'>
+        <Box id='add-record-modal' data-testid='add-record-modal'>
             <Dialog open={currentModalType === ModalType.AddRecordModal} onClose={() => dispatch(hideWebAppModal())}>
                 <DialogTitle>
                     Add Record

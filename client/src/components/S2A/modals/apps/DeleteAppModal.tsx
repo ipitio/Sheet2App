@@ -8,7 +8,7 @@ import { Button, Modal } from '@mui/material';
 import { deleteApp, viewDevApps } from '../../../../store/StoreController';
 
 
-function DeleteAppModal() {
+function DeleteAppModal({ testOpen }: { testOpen?: boolean }) {
     const dispatch = useDispatch<typeof store.dispatch>();
 
     /* Redux hooks into store. */
@@ -34,7 +34,7 @@ function DeleteAppModal() {
     }
 
     return (
-        <Modal open={currentModalType == ModalType.DeleteAppModal} onClose={handleCloseModal} sx={styles.modal}>
+        <Modal open={testOpen || currentModalType == ModalType.DeleteAppModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
                 Delete {currentAppToDelete?.name} App?
 

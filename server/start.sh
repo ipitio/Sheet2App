@@ -1,9 +1,7 @@
 #!/bin/bash
 
 # Wait for MySQL to be ready
-DB_HOST=${1:-localhost}
-DB_PORT=${2:-3306}
-until nc -z -v -w30 $DB_HOST $DB_PORT; do
+until nc -z -v -w30 $MYSQL_HOST $MYSQL_PORT; do
  echo 'Waiting for MySQL...'
  sleep 1
 done

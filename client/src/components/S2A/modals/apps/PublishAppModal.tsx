@@ -7,7 +7,7 @@ import styles from '../../../../styles/S2A/modals/ModalStyles';
 import { Button, Modal, Typography, Box } from '@mui/material';
 import { viewDevApps, publishApp } from '../../../../store/StoreController';
 
-function PublishAppModal() {
+function PublishAppModal({ testOpen }: { testOpen?: boolean }) {
     const dispatch = useDispatch<typeof store.dispatch>();
 
     /* Redux hooks into store. */
@@ -33,7 +33,7 @@ function PublishAppModal() {
     }
         
     return (
-        <Modal open={currentModalType == ModalType.PublishAppModal} onClose={handleCloseModal} sx={styles.modal}>
+        <Modal open={testOpen || currentModalType == ModalType.PublishAppModal} onClose={handleCloseModal} sx={styles.modal}>
             <div style={styles.modalContainer}>
                 <Typography>
                     {`Would you like to publish ${currentAppToPublish?.name}?`}
