@@ -31,7 +31,7 @@ def create_app(creator_email, app_name, role_mem_url):
         _type_: _description_
     """
     try:
-        creator = Creator.objects.get(email=creator_email)
+        creator, created = Creator.objects.get_or_create(email=creator_email)
         new_app = Application.objects.create(
             creator=creator, name=app_name, role_mem_url=role_mem_url, is_published=False
         )
