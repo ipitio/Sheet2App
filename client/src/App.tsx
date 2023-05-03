@@ -41,6 +41,7 @@ import EditAppRoleSheet from './components/S2A/rolesheet/EditAppRoleSheet';
 
 import SuccessAlert from './alerts/SuccessAlert';
 import ErrorAlert from './alerts/ErrorAlert';
+import ServiceEmailAlert from './alerts/ServiceEmailAlert';
 
 
 const App: React.FC = () => {
@@ -93,6 +94,7 @@ const App: React.FC = () => {
         {/* Success and Error alerts */}
         <SuccessAlert/>
         <ErrorAlert/>
+        <ServiceEmailAlert/>
 
         {/* User App Modals */}
         <AddRecordModal/>
