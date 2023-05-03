@@ -565,7 +565,7 @@ describe('CreateAppModal', () => {
   it('renders the CreateAppModal component without crashing', () => {
     render(
       <Provider store={store}>
-        <CreateAppModal />
+        <CreateAppModal testOpen={true} />
       </Provider>
     );
 
@@ -582,7 +582,7 @@ describe('DeleteAppModal', () => {
   it('renders the DeleteAppModal component without crashing', () => {
     render(
       <Provider store={store}>
-        <DeleteAppModal />
+        <DeleteAppModal testOpen={true} />
       </Provider>
     );
 
@@ -596,7 +596,7 @@ describe('PublishAppModal', () => {
   it('renders the PublishAppModal component without crashing', () => {
     render(
       <Provider store={store}>
-        <PublishAppModal />
+        <PublishAppModal testOpen={true} />
       </Provider>
     );
 
