@@ -54,7 +54,7 @@ This stops everything for you. Add:
 
 ## Testing
 
-[![status](https://github.com/alexanderleong1/Sheet2App/actions/workflows/tests.yml/badge.svg)](https://github.com/alexanderleong1/Sheet2App/actions/workflows/tests.yml)
+[![status](https://github.com/ipitio/Sheet2App/actions/workflows/tests.yml/badge.svg)](https://github.com/ipitio/Sheet2App/actions/workflows/tests.yml)
 
 ### Frontend
 
