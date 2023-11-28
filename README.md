@@ -2,6 +2,8 @@
 
 Team Penguins presents Sheet2App, a web app that allows users to create web apps with Google Sheets.
 
+![index](./index.png)
+
 ## Prerequisites
 
 ### Linux

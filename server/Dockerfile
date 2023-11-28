@@ -6,7 +6,7 @@ ADD . .
 EXPOSE 8000
 EXPOSE 8001
 RUN pip3 install -r requirements.txt
-RUN apt-get update && apt-get install -y netcat
+RUN apt-get update && apt-get install -y netcat-openbsd
 
 ENV MYSQL_HOST=mysql
 ENV MYSQL_USER=root
@@ -14,8 +14,8 @@ ENV MYSQL_PASSWORD=default-password
 ENV MYSQL_PORT=3306
 ENV MYSQL_DATABASE=Sheet2App
 
-ENV OAUTH_CLIENT_ID=1043255060654-pg1vucmm5iibpt7qsvdmsq5khahnkak7.apps.googleusercontent.com
-ENV OAUTH_CLIENT_SECRET=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
+ENV OAUTH_CLIENT_ID=1043255060654-xxx.apps.googleusercontent.com
+ENV OAUTH_CLIENT_SECRET=GOCSPX-xxx
 ENV CREDS_JSON=creds
 ENV TOKEN_JSON=token
 
