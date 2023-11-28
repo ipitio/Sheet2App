@@ -1,26 +1,24 @@
-# Sheet2App - CSE 416 Project
+# Sheet2App
 
-Team Penguins
+Team Penguins presents Sheet2App, a web app that allows users to create web apps with Google Sheets.
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
-
-#### Linux
+### Linux
 
 Install Docker and Compose Plugin
 
 * [CLI Only](https://docs.docker.com/compose/install/linux/#install-using-the-repository)
 * [Docker Desktop](https://www.docker.com/products/docker-desktop)
 
-#### Windows
+### Windows
 
 Install WSL2, Docker Desktop, and VSCode Extensions
 
 1. [WSL2](https://code.visualstudio.com/docs/remote/wsl-tutorial#_install-visual-studio-code)
 2. [Docker Desktop](https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers)
 
-#### Both
+### Both
 
 1. Rename your `server/s2a_api/migrations` folder to something else.
 2. Set the OAuth Client ID environment variable in `client/Dockerfile`
@@ -28,7 +26,7 @@ Install WSL2, Docker Desktop, and VSCode Extensions
 4. Store your Google Service Account credentials in `server/sheets/credentials.json`
 5. Store your Token in `server/token.json` (for testing purposes only)
 
-### Starting
+## Starting
 
     docker compose up
 
@@ -44,7 +42,7 @@ Please wait a moment for the following to become available:
   * The default username is `admin` with password `password`
 * The server's health checks at <http://localhost:8000/ht>.
 
-### Stopping
+## Stopping
 
     docker compose down
 
@@ -54,11 +52,11 @@ This stops everything for you. Add:
 * `--rmi all` to remove its images,
 * `-t 0` to stop immediately.
 
-### Testing
+## Testing
 
 [![status](https://github.com/alexanderleong1/Sheet2App/actions/workflows/tests.yml/badge.svg)](https://github.com/alexanderleong1/Sheet2App/actions/workflows/tests.yml)
 
-#### Frontend
+### Frontend
 
     docker exec -it node npm test
 
@@ -66,7 +64,7 @@ This runs the client's tests in interactive mode. Alternatively, run:
 
     docker exec node npm test -- --watchAll=false
 
-#### Backend
+### Backend
 
     docker exec django pytest
 
@@ -75,7 +73,7 @@ This runs the backend's tests. Add:
 * `-n logical` to run the tests in parallel,
 * `-v` for verbose output.
 
-##### Database
+#### Database
 
 You can start a MySQL shell by executing:
 
@@ -83,7 +81,7 @@ You can start a MySQL shell by executing:
 
 And entering the password `default-password`.
 
-##### Cache
+#### Cache
 
 If you started in detached mode, you can monitor Redis with:
 
@@ -93,6 +91,6 @@ Clear it with:
 
     docker exec redis redis-cli flushall
 
-> ###### Note
+> ##### Note
 >
 > The cache is not persistent. It will be cleared when you stop the app.
